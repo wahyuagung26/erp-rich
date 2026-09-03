@@ -33,35 +33,41 @@ function onSubmit() {
 </script>
 
 <template>
-	<Panel>
-		<form class="max-w-xl space-y-4" @submit.prevent="onSubmit">
-			<p class="subhead">Identitas Akun</p>
-			<div class="grid grid-cols-2 gap-x-4 gap-y-4">
-				<FormField label="Kode Akun" required :error="errors.code">
-					<Input v-model="form.code" mono placeholder="1-1000" />
-				</FormField>
-				<FormField label="Tipe" required :error="errors.type">
-					<Select v-model="form.type" :options="[...AKUN_TYPES]" />
-				</FormField>
-			</div>
-			<FormField label="Nama Akun" required :error="errors.name">
-				<Input v-model="form.name" placeholder="mis. Kas Kecil" />
-			</FormField>
+	<Panel class="max-w-xl">
+		<form class="space-y-8" @submit.prevent="onSubmit">
+			<section class="space-y-3">
+				<h3 class="subhead">Identitas Akun</h3>
+				<div class="grid grid-cols-2 gap-x-4 gap-y-4">
+					<FormField label="Kode Akun" required :error="errors.code">
+						<Input v-model="form.code" mono placeholder="1-1000" />
+					</FormField>
+					<FormField label="Tipe" required :error="errors.type">
+						<Select v-model="form.type" :options="[...AKUN_TYPES]" />
+					</FormField>
+					<FormField class="col-span-2" label="Nama Akun" required :error="errors.name">
+						<Input v-model="form.name" placeholder="mis. Kas Kecil" />
+					</FormField>
+				</div>
+			</section>
 
-			<p class="subhead">Perilaku</p>
-			<FormField label="Saldo Normal" :error="errors.normal_balance">
-				<RadioGroup
-					v-model="form.normal_balance"
-					inline
-					:options="[
-						{ label: 'Debit', value: 'debit' },
-						{ label: 'Kredit', value: 'credit' }
-					]"
-				/>
-			</FormField>
-			<FormField label="Status">
-				<Switch v-model="form.active" :label="form.active ? 'Aktif' : 'Nonaktif'" />
-			</FormField>
+			<section class="space-y-3">
+				<h3 class="subhead">Perilaku</h3>
+				<div class="space-y-4">
+					<FormField label="Saldo Normal" :error="errors.normal_balance">
+						<RadioGroup
+							v-model="form.normal_balance"
+							inline
+							:options="[
+								{ label: 'Debit', value: 'debit' },
+								{ label: 'Kredit', value: 'credit' }
+							]"
+						/>
+					</FormField>
+					<FormField label="Status">
+						<Switch v-model="form.active" :label="form.active ? 'Aktif' : 'Nonaktif'" />
+					</FormField>
+				</div>
+			</section>
 
 			<div class="flex gap-2 pt-2">
 				<Button type="submit" :loading="loading">{{ submitLabel ?? 'Simpan' }}</Button>

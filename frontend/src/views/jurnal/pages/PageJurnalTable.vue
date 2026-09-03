@@ -46,7 +46,7 @@ const rows: TableRow[] = [
 			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
 				<template #table-content="{ row, column }">
 					<span v-if="row.field === 'date'" class="font-mono tnum text-ink-muted">{{ date(column.date as string) }}</span>
-					<span v-else-if="row.field === 'number'" class="font-mono text-ink">{{ column.number }}</span>
+					<span v-else-if="row.field === 'number'" class="text-ink">{{ column.number }}</span>
 					<span v-else-if="row.field === 'lines'" class="tnum text-ink-muted">{{ (column.lines as unknown[]).length }}</span>
 					<Amount v-else-if="row.field === 'total'" :value="column.total as number" />
 					<span v-else>{{ column[row.field] }}</span>

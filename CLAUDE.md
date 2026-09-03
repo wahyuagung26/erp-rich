@@ -114,9 +114,8 @@ seed data in `src/mocks/fixtures/`; `paginate` / `sortBy` / `ListParams` in `src
 Adding a module = new file in `modules/`, one line in `index.ts`, matching `docs/`.
 
 **Backend contract** the code assumes (full detail in `docs/conventions.md`): list responses are
-`{ data: [], meta: { pagination } }`, item responses `{ data: {} }`. `pagination` =
-`{ page, per_page, total, last_page }`. Requests send `page`, `per_page`, `sort_by`,
-`sort_order`, plus filter params.
+`{ data: [], meta: { page, per_page, total, last_page } }` (flat, no nesting), item responses
+`{ data: {} }`. Requests send `page`, `per_page`, `sort_by`, `sort_order`, plus filter params.
 
 **List pages are built on `useTableList` composable** (`src/composables/useTableList.ts`), which
 owns the fetch-on-mount + refetch-on-(page|limit|sort|filter) loop. A list view wires
@@ -155,12 +154,16 @@ Full rules in `frontend/DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
 
 - **Borderless**: white `.panel` on grey `bg-canvas`, no borders, no shadows in-page. Shadow
   (`shadow-overlay`) only on modals/dropdowns/toasts. No nested cards / box-in-box.
-- **Proximity over dividers**: group with spacing + `.subhead` tinted rows, not boxes. A
-  hairline (`border-hairline`) is a last resort (table row dividers, sticky header underline).
+- **Proximity over dividers**: group with spacing, not boxes/bars. Form sections =
+  `<section class="space-y-3">` + `<h3 class="subhead">` (plain uppercase label, no
+  background), `space-y-8` between sections. A hairline (`border-hairline`) is a last resort
+  (table row dividers, sticky header underline).
 - **Filled inputs** (`bg-fill`, no border); focus uses the global ring.
-- **Numeric spine**: every amount/account-code/date renders in `font-mono` + `.tnum`
-  (tabular). Money goes through `<Amount>` (negatives red + parentheses). `src/utils/format.ts`
-  has `money`/`number`/`date`.
+- **Numeric spine**: `font-mono` + `.tnum` only where digit-alignment aids column scanning —
+  amounts and dates. NOT identifiers (account code, transaction/invoice number), phone, or
+  formatted phrases ("30 hari") — those are plain Inter. Money goes through `<Amount>`
+  (negatives red + parentheses). `src/utils/format.ts` has `money`/`number`/`date`.
+  (In form inputs, `<Input mono>` is still fine for fixed-format entry: code, NPWP, phone.)
 - Colors are RGB-channel CSS variables in `src/assets/tokens.css` (so Tailwind alpha
   modifiers work and dark mode is a later `.dark {}` block). Accent `primary` = `#0E7C6B`;
   changing it is one edit in `tokens.css`. Semantic names (`primary/danger/warning/success/info`,

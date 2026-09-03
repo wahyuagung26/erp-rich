@@ -25,7 +25,8 @@ It is almost certainly already there:
 - composables: `useTableList` (the whole list/table/sort/filter/paginate loop), `useToast`,
   `useConfirm`, `useDebounce`, `onClickOutside`
 
-`<Input>` takes a `#suffix` slot (trailing icon/button). If a base component is *close* but
+`<Input>` takes a `#suffix` slot (trailing icon/button) and an `addon` prop (trailing unit
+label, Bootstrap input-group style — e.g. `addon="hari"`). If a base component is *close* but
 missing one thing, add the missing thing to the component (a slot, a variant) — don't inline
 a one-off copy in the view. A raw `<input>`/`<table>`/`<dialog>` in a view is a review smell.
 
@@ -59,21 +60,42 @@ npx vue-tsc --noEmit          # or: npm run build
 npx prettier --check src
 ```
 
+Prettier is scoped to `src/` only. Do **not** run `prettier --write` on the root docs
+(`DESIGN_SYSTEM.md`, `architecture.md`, `CLAUDE.md`) — it reflows their Markdown tables and
+breaks cells that contain an unescaped `|`. Edit those by hand.
+
 Then **render the actual page** — typecheck cannot see a no-op class, a broken flex layout,
 an invisible-on-invisible colour, or a mock that returns the wrong shape:
 
 - `npm run dev`, open the route in a browser, look at it. For auth-gated routes, log in first
-  (`admin` / `password`).
-- No browser? `playwright-core` with the system Chrome works without downloading a browser:
-  `chromium.launch({ channel: 'chrome' })` — script it in the scratchpad, screenshot each
-  route, assert no `console` errors, then Read the screenshots.
+  (`admin` / `password`). `dev` may land on 5174+ if a stale vite is still up — read the port
+  from its output, don't assume 5173.
+- No browser lib installed (`playwright`/`puppeteer` are NOT deps here). Zero-install path:
+  launch system Chrome headless with a debug port and drive it over CDP from a scratchpad
+  script using Node's built-in `WebSocket` — `"…/Google Chrome" --headless=new
+  --remote-debugging-port=9222 --user-data-dir=<tmp> about:blank`, `fetch`
+  `localhost:9222/json/list` for the ws URL, send `Page.navigate` + `Page.captureScreenshot`,
+  collect `Runtime.consoleAPICalled` type `error`. For auth routes, `Runtime.evaluate` to seed
+  `localStorage` (`token` + `user` = `{id,name,email,roles:[{name:'admin'}]}`) then navigate —
+  don't script the login form.
 - Or hand the user a screenshot and ask.
 
 A change that passes `vue-tsc` but was never rendered is **not done**.
 
 ## 5. Design rules (full list: DESIGN_SYSTEM.md)
 
-Borderless (white panels on grey canvas, shadow only on overlays, no nested cards) · group by
-spacing + `.subhead`, not boxes · filled inputs · amounts/codes/dates in `font-mono .tnum`,
-right-aligned · density prop (`comfortable`/`compact`). `views/auth/LoginView.vue` deliberately
-keeps the legacy split-screen layout + navy brand panel — that exception is intentional.
+- **Borderless**: white panels on grey canvas, shadow only on overlays, no nested cards.
+- **Sections grouped by whitespace + a light heading**: each group is a `<section
+  class="space-y-3">` with an `<h3 class="subhead">` (now a plain uppercase `text-ink-subtle`
+  label — the old full-bleed grey bar was removed, it read as box-in-box next to filled
+  inputs), `space-y-8` between sections on the `<form>`. Reference: `FormSupplier.vue`
+  (also `FormAkun`, `FormJurnalLines`).
+- **Filled inputs**; **`font-mono .tnum` only for money (`<Amount>`) and dates** — NOT codes,
+  transaction numbers, phone, or formatted phrases ("30 hari").
+- **Form width**: `DefaultLayout` centres every page in `mx-auto max-w-[1200px]`. Inside that,
+  a form `<Panel class="max-w-5xl">` **left-aligned** (edge lines up with breadcrumb / page
+  title / the list page's full-width Panel); never `mx-auto` on the Panel, never a full-width
+  Panel with the width cap on an inner `<form>`.
+- **Density** prop (`comfortable`/`compact`).
+- `views/auth/LoginView.vue` deliberately keeps the legacy split-screen layout + navy brand
+  panel — that exception is intentional.

@@ -67,7 +67,7 @@ function remove(row: Akun) {
 
 			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
 				<template #table-content="{ row, column }">
-					<span v-if="row.field === 'code'" class="font-mono tnum text-ink">{{ column.code }}</span>
+					<span v-if="row.field === 'code'" class="text-ink">{{ column.code }}</span>
 					<span v-else-if="row.field === 'type'">{{ typeLabel(column.type as string) }}</span>
 					<span v-else-if="row.field === 'normal_balance'" class="text-ink-muted">{{ column.normal_balance === 'debit' ? 'Debit' : 'Kredit' }}</span>
 					<Badge v-else-if="row.field === 'active'" :tone="column.active ? 'success' : 'neutral'">

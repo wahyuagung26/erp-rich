@@ -62,68 +62,72 @@ function submit() {
 </script>
 
 <template>
-	<Panel>
-		<form class="space-y-4" @submit.prevent="submit">
-			<div class="grid max-w-xl grid-cols-2 gap-4">
-				<FormField label="Tanggal" required>
-					<DatePicker v-model="form.date" />
+	<Panel class="max-w-5xl">
+		<form class="space-y-8" @submit.prevent="submit">
+			<section class="space-y-4">
+				<div class="grid max-w-xl grid-cols-2 gap-4">
+					<FormField label="Tanggal" required>
+						<DatePicker v-model="form.date" />
+					</FormField>
+				</div>
+				<FormField label="Keterangan" required>
+					<Input v-model="form.description" placeholder="mis. Pembayaran sewa kantor" />
 				</FormField>
-			</div>
-			<FormField label="Keterangan" required>
-				<Input v-model="form.description" placeholder="mis. Pembayaran sewa kantor" />
-			</FormField>
+			</section>
 
-			<p class="subhead">Baris Jurnal</p>
-			<table class="w-full text-m">
-				<thead>
-					<tr class="border-b border-hairline text-s text-ink-muted">
-						<th class="py-1.5 text-left font-semibold">Akun</th>
-						<th class="py-1.5 text-right font-semibold">Debit (Rp)</th>
-						<th class="py-1.5 text-right font-semibold">Kredit (Rp)</th>
-						<th class="w-8" />
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-hairline">
-					<tr v-for="(line, i) in lines" :key="i">
-						<td class="py-1.5 pr-2">
-							<Select
-								:model-value="line.akun_id || ''"
-								placeholder="Pilih akun"
-								:options="akunOptions"
-								@update:model-value="(v) => (line.akun_id = Number(v))"
-							/>
-						</td>
-						<td class="py-1.5 pl-2">
-							<Input :model-value="line.debit || ''" type="number" align="right" mono @update:model-value="(v) => onDebit(line, v)" />
-						</td>
-						<td class="py-1.5 pl-2">
-							<Input :model-value="line.credit || ''" type="number" align="right" mono @update:model-value="(v) => onCredit(line, v)" />
-						</td>
-						<td class="py-1.5 text-center">
-							<button
-								type="button"
-								class="grid h-7 w-7 place-items-center rounded-md text-ink-subtle hover:bg-danger-soft hover:text-danger disabled:opacity-30"
-								:disabled="lines.length <= 2"
-								@click="lines.splice(i, 1)"
-							>
-								<IconTrash class="h-4 w-4" />
-							</button>
-						</td>
-					</tr>
-				</tbody>
-				<tfoot>
-					<tr class="border-t border-hairline font-mono tnum">
-						<td class="py-2 text-right text-s text-ink-muted">Total</td>
-						<td class="py-2 text-right" :class="balanced ? 'text-ink' : 'text-danger'">{{ money(totalDebit) }}</td>
-						<td class="py-2 text-right" :class="balanced ? 'text-ink' : 'text-danger'">{{ money(totalCredit) }}</td>
-						<td />
-					</tr>
-				</tfoot>
-			</table>
+			<section class="space-y-3">
+				<h3 class="subhead">Baris Jurnal</h3>
+				<table class="w-full text-m">
+					<thead>
+						<tr class="border-b border-hairline text-s text-ink-muted">
+							<th class="py-1.5 text-left font-semibold">Akun</th>
+							<th class="py-1.5 text-right font-semibold">Debit (Rp)</th>
+							<th class="py-1.5 text-right font-semibold">Kredit (Rp)</th>
+							<th class="w-8" />
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-hairline">
+						<tr v-for="(line, i) in lines" :key="i">
+							<td class="py-1.5 pr-2">
+								<Select
+									:model-value="line.akun_id || ''"
+									placeholder="Pilih akun"
+									:options="akunOptions"
+									@update:model-value="(v) => (line.akun_id = Number(v))"
+								/>
+							</td>
+							<td class="py-1.5 pl-2">
+								<Input :model-value="line.debit || ''" type="number" align="right" mono @update:model-value="(v) => onDebit(line, v)" />
+							</td>
+							<td class="py-1.5 pl-2">
+								<Input :model-value="line.credit || ''" type="number" align="right" mono @update:model-value="(v) => onCredit(line, v)" />
+							</td>
+							<td class="py-1.5 text-center">
+								<button
+									type="button"
+									class="grid h-7 w-7 place-items-center rounded-md text-ink-subtle hover:bg-danger-soft hover:text-danger disabled:opacity-30"
+									:disabled="lines.length <= 2"
+									@click="lines.splice(i, 1)"
+								>
+									<IconTrash class="h-4 w-4" />
+								</button>
+							</td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr class="border-t border-hairline font-mono tnum">
+							<td class="py-2 text-right text-s text-ink-muted">Total</td>
+							<td class="py-2 text-right" :class="balanced ? 'text-ink' : 'text-danger'">{{ money(totalDebit) }}</td>
+							<td class="py-2 text-right" :class="balanced ? 'text-ink' : 'text-danger'">{{ money(totalCredit) }}</td>
+							<td />
+						</tr>
+					</tfoot>
+				</table>
 
-			<Button type="button" variant="subtle" size="sm" @click="lines.push(blank())"> <IconPlus class="h-4 w-4" /> Tambah baris </Button>
+				<Button type="button" variant="subtle" size="sm" @click="lines.push(blank())"> <IconPlus class="h-4 w-4" /> Tambah baris </Button>
 
-			<p v-if="errorText" class="text-s text-danger">{{ errorText }}</p>
+				<p v-if="errorText" class="text-s text-danger">{{ errorText }}</p>
+			</section>
 
 			<div class="flex gap-2 pt-2">
 				<Button type="submit" :loading="loading" :disabled="!balanced || !filled">Simpan Jurnal</Button>

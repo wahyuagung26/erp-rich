@@ -68,7 +68,7 @@ const { columns, pagination, loading, limit, fetchList, handleSort, pageTo, appl
 
 - fetch saat `onMounted`, re-fetch saat page / limit / sort / filter berubah
 - kirim: `page`, `per_page`, `sort_by`, `sort_order`, `...filters`
-- baca: `res.data.data` (list), `res.data.meta.pagination`
+- baca: `res.data.data` (list), `res.data.meta` (flat: `page` / `per_page` / `total` / `last_page`)
 - search: bungkus `applyFilters` dengan `useDebounce`
 
 ## 4. Tabel (`components/base/Table.vue`)
