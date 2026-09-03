@@ -15,7 +15,6 @@ import Select from '@/components/base/Select.vue'
 import Button from '@/components/base/Button.vue'
 import Badge from '@/components/base/Badge.vue'
 import Table from '@/components/base/Table.vue'
-import TableLimitor from '@/components/base/TableLimitor.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import { AKUN_TYPES } from '@/views/akun/schema'
 import type { Akun, TableRow } from '@/utils/types'
@@ -24,7 +23,7 @@ const router = useRouter()
 const { ask } = useConfirm()
 const toast = useToast()
 
-const { columns, pagination, loading, limit, fetchList, handleSort, pageTo, applyFilters } = useTableList<Akun>({ endpoint: '/akun' })
+const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<Akun>({ endpoint: '/akun' })
 
 const q = ref('')
 const type = ref('')
@@ -62,7 +61,6 @@ function remove(row: Akun) {
 			<FilterBar class="mb-3">
 				<Input v-model="q" placeholder="Cari kode / nama…" class="!w-56" @update:model-value="runSearch" />
 				<Select v-model="type" class="!w-40" placeholder="Semua tipe" :options="[...AKUN_TYPES]" @update:model-value="runSearch" />
-				<TableLimitor class="ml-auto" :default-limit="limit" @page-to="pageTo" />
 			</FilterBar>
 
 			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">

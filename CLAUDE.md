@@ -119,8 +119,8 @@ Adding a module = new file in `modules/`, one line in `index.ts`, matching `docs
 
 **List pages are built on `useTableList` composable** (`src/composables/useTableList.ts`), which
 owns the fetch-on-mount + refetch-on-(page|limit|sort|filter) loop. A list view wires
-`useTableList` to `<Table>` / `<TablePagination>` / `<TableLimitor>` and a debounced
-`applyFilters`. `<Table>` is API-compatible with the RICH table: `rows` = column defs
+`useTableList` to `<Table>` / `<TablePagination>` (the one table footer — rows-per-page
+selector **and** page nav, rendered once below the table) and a debounced `applyFilters`. `<Table>` is API-compatible with the RICH table: `rows` = column defs
 `{ label, field, isSort?, align? }`, `columns` = row data, slots `#table-header` /
 `#table-content`, emit `handleSort`.
 

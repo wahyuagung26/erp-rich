@@ -20,7 +20,7 @@ a debounce, or a list-fetch loop — **look in `src/components/base/` and `src/c
 It is almost certainly already there:
 
 - primitives: `Button Input Textarea Select Checkbox RadioGroup Switch DatePicker FormField
-  Table TablePagination TableLimitor Modal ConfirmDialog Badge Tabs Breadcrumb PageHeader
+  Table TablePagination Modal ConfirmDialog Badge Tabs Breadcrumb PageHeader
   FilterBar Panel EmptyState Skeleton Spinner Amount StatTile`
 - composables: `useTableList` (the whole list/table/sort/filter/paginate loop), `useToast`,
   `useConfirm`, `useDebounce`, `onClickOutside`

@@ -15,7 +15,6 @@ import Select from '@/components/base/Select.vue'
 import Button from '@/components/base/Button.vue'
 import Badge from '@/components/base/Badge.vue'
 import Table from '@/components/base/Table.vue'
-import TableLimitor from '@/components/base/TableLimitor.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import type { Customer, TableRow } from '@/utils/types'
 
@@ -23,7 +22,7 @@ const router = useRouter()
 const { ask } = useConfirm()
 const toast = useToast()
 
-const { columns, pagination, loading, limit, fetchList, handleSort, pageTo, applyFilters } = useTableList<Customer>({ endpoint: '/customer' })
+const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<Customer>({ endpoint: '/customer' })
 
 const q = ref('')
 const pkp = ref('')
@@ -69,7 +68,6 @@ function remove(row: Customer) {
 					]"
 					@update:model-value="runSearch"
 				/>
-				<TableLimitor class="ml-auto" :default-limit="limit" @page-to="pageTo" />
 			</FilterBar>
 
 			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">

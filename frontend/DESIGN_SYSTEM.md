@@ -35,7 +35,7 @@ Warna disimpan sebagai channel RGB di CSS variable → alpha modifier Tailwind t
 ## Komponen (`src/components/base/`)
 
 Primitif: `Button` `Input` `Textarea` `Select` `Checkbox` `RadioGroup` `Switch`
-`DatePicker` `FormField` · Data: `Table` `TablePagination` `TableLimitor` `Amount`
+`DatePicker` `FormField` · Data: `Table` `TablePagination` (rows-per-page + nav) `Amount`
 `StatTile` `Badge` · Layout: `Panel` `PageHeader` `FilterBar` `Tabs` `Breadcrumb` ·
 Status: `EmptyState` `Skeleton` `Spinner` · Overlay: `Modal` `ConfirmDialog`.
 
