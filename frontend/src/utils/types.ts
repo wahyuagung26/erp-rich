@@ -67,6 +67,25 @@ export interface Supplier {
 	deleted_at: string | null
 }
 
+// Master data: customer / pelanggan. `code` (CUST-0001) is server-assigned.
+// `deleted_at` is the soft-delete marker — non-null rows are hidden from lists.
+export interface Customer {
+	id: number
+	code: string
+	name: string
+	phone: string
+	email: string
+	address: string
+	city: string
+	bank_name: string
+	bank_account: string
+	npwp: string
+	pkp: boolean
+	top_days: number
+	notes: string
+	deleted_at: string | null
+}
+
 export interface JurnalLine {
 	akun_id: number
 	akun_code?: string

@@ -34,6 +34,7 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 |---|---|---|---|
 | Auth | [`auth/`](./auth/index.md) | `views/auth/` | `mocks/modules/auth.ts` |
 | Supplier (Master Vendor) | [`supplier/`](./supplier/index.md) | `views/supplier/` | `mocks/modules/supplier.ts` |
+| Customer (Master Pelanggan) | [`customer/`](./customer/index.md) | `views/customer/` | `mocks/modules/customer.ts` |
 | Bagan Akun (Chart of Accounts) | [`akun/`](./akun/index.md) | `views/akun/` | `mocks/modules/akun.ts` |
 | Jurnal Umum (Journal) | [`jurnal/`](./jurnal/index.md) | `views/jurnal/` | `mocks/modules/jurnal.ts` |
 | Dashboard | [`dashboard/`](./dashboard/index.md) | `views/dashboard/` | `mocks/modules/dashboard.ts` |
