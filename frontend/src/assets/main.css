@@ -1,0 +1,46 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	html {
+		font-size: 13px;
+	}
+	body {
+		@apply bg-canvas text-m text-ink antialiased;
+		font-family: 'Inter', system-ui, sans-serif;
+		font-feature-settings: 'cv05', 'ss01';
+	}
+	/* numeric spine: amounts, codes and dates align like a ledger */
+	.tnum {
+		font-feature-settings: 'tnum';
+		font-variant-numeric: tabular-nums;
+	}
+	*:focus-visible {
+		@apply outline-none ring-2 ring-primary/40;
+	}
+	::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+	::-webkit-scrollbar-thumb {
+		@apply rounded-full border-4 border-solid border-transparent bg-clip-padding;
+		background-color: rgb(var(--c-ink-subtle) / 0.35);
+	}
+}
+
+@layer components {
+	/* borderless panel: white on canvas, separated by the canvas gap only */
+	.panel {
+		@apply rounded-md bg-panel;
+	}
+	/* common-region subhead — groups fields without drawing a box around them */
+	.subhead {
+		@apply -mx-4 mb-3 bg-fill px-4 py-1.5 text-s font-semibold uppercase tracking-wide text-ink-muted;
+	}
+	.hairline {
+		@apply border-hairline;
+	}
+}

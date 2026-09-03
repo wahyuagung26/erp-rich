@@ -1,0 +1,40 @@
+---
+type: OKF Bundle
+title: ERP Finance v2 — API Contract
+description: Frontend-authored API specification. Each module is a directory; each endpoint is one file. The mock and the future backend both follow these files.
+tags: [erp, finance, api, contract]
+timestamp: 2026-09-03T00:00:00Z
+---
+
+# ERP Finance v2 — API Contract
+
+This bundle is the **source of truth** for the HTTP API. It is written in
+[Open Knowledge Format](https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing):
+a directory of Markdown files with YAML frontmatter, one file per endpoint.
+
+**Workflow** (prototype phase — frontend first):
+
+1. Before building a frontend module, write/update its endpoint files here.
+2. Implement the mock in `frontend/src/mocks/modules/<module>.ts` to match.
+3. Build the UI against the mock.
+4. Later, the backend implements each endpoint to match its file, then its
+   `status` flips `mock` → `implemented`.
+
+**Stay 1:1.** One endpoint = one file here = one handler in
+`frontend/src/mocks/modules/<module>.ts` = at least one caller in the frontend. When an
+endpoint's last caller is removed, delete its file and its mock handler in the same
+change — no "keep for later" files. Bump `timestamp:` whenever you edit a file.
+
+Read [`conventions.md`](./conventions.md) first — it covers the response
+envelope, pagination, auth, and error shape that every endpoint inherits.
+
+## Modules
+
+| Module | Contract | Frontend view | Mock |
+|---|---|---|---|
+| Auth | [`auth/`](./auth/index.md) | `views/auth/` | `mocks/modules/auth.ts` |
+| Bagan Akun (Chart of Accounts) | [`akun/`](./akun/index.md) | `views/akun/` | `mocks/modules/akun.ts` |
+| Jurnal Umum (Journal) | [`jurnal/`](./jurnal/index.md) | `views/jurnal/` | `mocks/modules/jurnal.ts` |
+| Dashboard | [`dashboard/`](./dashboard/index.md) | `views/dashboard/` | `mocks/modules/dashboard.ts` |
+
+New module: copy [`_TEMPLATE.md`](./_TEMPLATE.md) into `docs/<module>/<endpoint>.md`.

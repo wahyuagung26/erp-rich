@@ -1,0 +1,38 @@
+/*
+ * Design tokens — ERP Finance v2
+ * Values are RGB channels so Tailwind alpha modifiers work (bg-primary/10).
+ * A dark theme is a later `.dark` block swap; light is the only built surface now.
+ */
+:root {
+	/* surfaces */
+	--c-canvas: 247 248 250; /* #F7F8FA app ground */
+	--c-panel: 255 255 255; /* #FFFFFF floating panels — no border, no shadow */
+	--c-hairline: 236 238 241; /* #ECEEF1 last-resort divider */
+	--c-fill: 242 243 245; /* #F2F3F5 filled input ground */
+
+	/* ink */
+	--c-ink: 26 29 33; /* #1A1D21 */
+	--c-ink-muted: 91 97 105; /* #5B6169 */
+	--c-ink-subtle: 138 144 153; /* #8A9099 */
+	--c-ink-invert: 255 255 255;
+
+	/* accent — deep ledger-green. Swap to 63 106 216 for RICH blue. */
+	--c-primary: 14 124 107; /* #0E7C6B */
+	--c-primary-dark: 10 94 81; /* #0A5E51 */
+	--c-primary-soft: 224 240 237; /* #E0F0ED */
+
+	--c-danger: 192 54 44; /* #C0362C */
+	--c-danger-soft: 249 227 225;
+	--c-warning: 183 121 31; /* #B7791F */
+	--c-warning-soft: 248 236 220;
+	--c-success: 14 124 107; /* ledger-positive shares the accent */
+	--c-success-soft: 224 240 237;
+	--c-info: 43 108 176; /* #2B6CB0 */
+	--c-info-soft: 224 234 246;
+
+	/* spacing rhythm (Law of Proximity): tight within a group, wide between */
+	--gap-tight: 0.5rem; /* related controls */
+	--gap-group: 1.5rem; /* distinct groups */
+
+	color-scheme: light;
+}
