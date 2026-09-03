@@ -33,6 +33,7 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Module | Contract | Frontend view | Mock |
 |---|---|---|---|
 | Auth | [`auth/`](./auth/index.md) | `views/auth/` | `mocks/modules/auth.ts` |
+| Supplier (Master Vendor) | [`supplier/`](./supplier/index.md) | `views/supplier/` | `mocks/modules/supplier.ts` |
 | Bagan Akun (Chart of Accounts) | [`akun/`](./akun/index.md) | `views/akun/` | `mocks/modules/akun.ts` |
 | Jurnal Umum (Journal) | [`jurnal/`](./jurnal/index.md) | `views/jurnal/` | `mocks/modules/jurnal.ts` |
 | Dashboard | [`dashboard/`](./dashboard/index.md) | `views/dashboard/` | `mocks/modules/dashboard.ts` |

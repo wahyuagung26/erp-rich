@@ -2,12 +2,13 @@ import MockAdapter from 'axios-mock-adapter'
 import api from '@/utils/api'
 import { registerAuth } from './modules/auth'
 import { registerAkun } from './modules/akun'
+import { registerSupplier } from './modules/supplier'
 import { registerJurnal } from './modules/jurnal'
 import { registerDashboard } from './modules/dashboard'
 
 // One entry point for all mocking. Register a new module here; keep its
 // handlers in src/mocks/modules/<module>.ts and its contract in docs/<module>/.
-const modules = [registerAuth, registerAkun, registerJurnal, registerDashboard]
+const modules = [registerAuth, registerAkun, registerSupplier, registerJurnal, registerDashboard]
 
 // Dev-only. Attaches an adapter to the real `api` instance so production code
 // is identical once the backend is live — flip VITE_USE_MOCK=false to remove it.

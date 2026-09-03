@@ -46,6 +46,27 @@ export interface Akun {
 	active: boolean
 }
 
+// Master data: supplier / vendor. `code` (SUP-0001) is server-assigned.
+// `deleted_at` is the soft-delete marker — non-null rows are hidden from lists.
+export interface Supplier {
+	id: number
+	code: string
+	name: string
+	address: string
+	city: string
+	phone: string
+	fax: string
+	email: string
+	contact_person: string
+	npwp: string
+	pkp: boolean
+	bank_name: string
+	bank_account: string
+	top_days: number
+	notes: string
+	deleted_at: string | null
+}
+
 export interface JurnalLine {
 	akun_id: number
 	akun_code?: string
