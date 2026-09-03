@@ -9,7 +9,7 @@ import ToastHost from '@/components/common/ToastHost.vue'
 </script>
 
 <template>
-	<div class="flex h-screen gap-2 p-2">
+	<div class="flex h-screen">
 		<AppSidebar />
 		<div class="flex min-w-0 flex-1 flex-col gap-2">
 			<AppTopbar />

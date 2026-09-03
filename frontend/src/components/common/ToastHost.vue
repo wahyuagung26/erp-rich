@@ -17,7 +17,7 @@ const tones = {
 
 <template>
 	<Teleport to="body">
-		<div class="fixed bottom-4 right-4 z-[60] flex w-72 flex-col gap-2">
+		<div class="fixed right-4 top-4 z-[60] flex w-72 flex-col-reverse gap-2">
 			<TransitionGroup name="toast">
 				<div v-for="t in items" :key="t.id" class="flex items-start gap-2 rounded-md bg-panel p-3 text-m shadow-overlay" @click="store.dismiss(t.id)">
 					<component :is="icons[t.kind]" class="mt-0.5 h-4 w-4 shrink-0" :class="tones[t.kind]" />
