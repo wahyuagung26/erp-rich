@@ -40,69 +40,88 @@ function onSubmit() {
 </script>
 
 <template>
-	<Panel>
-		<form class="max-w-3xl space-y-4" @submit.prevent="onSubmit">
-			<p class="subhead">Identitas Supplier</p>
-			<div class="grid grid-cols-2 gap-x-4 gap-y-4">
-				<FormField v-if="code" label="Kode Supplier">
-					<Input :model-value="code" mono disabled />
-				</FormField>
-				<FormField label="Nama Supplier" :required="true" :error="errors.name" :class="code ? '' : 'col-span-2'">
-					<Input v-model="form.name" placeholder="mis. PT Sumber Rejeki" />
-				</FormField>
-				<FormField label="Kota" :error="errors.city">
-					<Input v-model="form.city" placeholder="mis. Surabaya" />
-				</FormField>
-			</div>
-			<FormField label="Alamat" :required="true" :error="errors.address">
-				<Textarea v-model="form.address" :rows="2" placeholder="Alamat lengkap supplier" />
-			</FormField>
+	<!-- Left edge aligns with the breadcrumb / page title / list panel; fills most of the page frame. -->
+	<Panel class="max-w-5xl">
+		<form class="space-y-8" @submit.prevent="onSubmit">
+			<!-- Sections are separated by whitespace + a light heading, not a grey bar. -->
+			<section class="space-y-3">
+				<h3 class="subhead">Identitas</h3>
+				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+					<FormField v-if="code" class="col-span-2" label="Kode Supplier">
+						<Input :model-value="code" mono disabled class="max-w-[180px]" />
+					</FormField>
+					<FormField class="col-span-2" label="Nama Supplier" required :error="errors.name">
+						<Input v-model="form.name" placeholder="mis. PT Sumber Rejeki" />
+					</FormField>
+					<FormField class="col-span-2" label="Alamat" required :error="errors.address">
+						<Textarea v-model="form.address" :rows="2" placeholder="Alamat lengkap supplier" />
+					</FormField>
+					<FormField class="col-span-2" label="Kota" :error="errors.city">
+						<Input v-model="form.city" class="max-w-xs" placeholder="mis. Surabaya" />
+					</FormField>
+				</div>
+			</section>
 
-			<p class="subhead">Kontak</p>
-			<div class="grid grid-cols-2 gap-x-4 gap-y-4">
-				<FormField label="Telepon" :required="true" :error="errors.phone">
-					<Input v-model="form.phone" mono placeholder="031-5551000" />
-				</FormField>
-				<FormField label="Fax" :error="errors.fax">
-					<Input v-model="form.fax" mono placeholder="031-5551001" />
-				</FormField>
-				<FormField label="Email" :error="errors.email">
-					<Input v-model="form.email" type="email" placeholder="sales@contoh.co.id" />
-				</FormField>
-				<FormField label="Contact Person (CP)" :error="errors.contact_person">
-					<Input v-model="form.contact_person" placeholder="Nama narahubung" />
-				</FormField>
-			</div>
+			<section class="space-y-3">
+				<h3 class="subhead">Kontak</h3>
+				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+					<FormField label="Telepon" required :error="errors.phone">
+						<Input v-model="form.phone" mono placeholder="031-5551000" />
+					</FormField>
+					<FormField label="Fax" :error="errors.fax">
+						<Input v-model="form.fax" mono placeholder="031-5551001" />
+					</FormField>
+					<FormField label="Email" :error="errors.email">
+						<Input v-model="form.email" type="email" placeholder="sales@contoh.co.id" />
+					</FormField>
+					<FormField label="Contact Person (CP)" :error="errors.contact_person">
+						<Input v-model="form.contact_person" placeholder="Nama narahubung" />
+					</FormField>
+				</div>
+			</section>
 
-			<p class="subhead">Pajak &amp; Pembayaran</p>
-			<div class="grid grid-cols-2 gap-x-4 gap-y-4">
-				<FormField label="Status Pajak">
-					<div class="h-9 pt-2">
-						<Checkbox v-model="form.pkp" label="Pengusaha Kena Pajak (PKP)" />
+			<section class="space-y-3">
+				<h3 class="subhead">Pajak &amp; Pembayaran</h3>
+				<div class="space-y-4">
+					<Checkbox v-model="form.pkp" label="Pengusaha Kena Pajak (PKP)" />
+					<!-- NPWP and TOP sit side by side, each sized to its content. -->
+					<div class="flex flex-wrap gap-x-5 gap-y-4">
+						<FormField class="w-72" label="NPWP" required :error="errors.npwp">
+							<Input v-model="form.npwp" mono placeholder="00.000.000.0-000.000" />
+						</FormField>
+						<FormField class="w-32" label="TOP" required :error="errors.top_days">
+							<Input
+								:model-value="form.top_days"
+								type="number"
+								mono
+								align="right"
+								addon="hari"
+								@update:model-value="(v) => (form.top_days = Number(v))"
+							/>
+						</FormField>
 					</div>
-				</FormField>
-				<FormField label="NPWP" :required="true" :error="errors.npwp">
-					<Input v-model="form.npwp" mono placeholder="00.000.000.0-000.000" />
-				</FormField>
-				<FormField label="TOP (hari)" :required="true" hint="0 = tunai / COD" :error="errors.top_days">
-					<Input :model-value="form.top_days" type="number" mono align="right" @update:model-value="(v) => (form.top_days = Number(v))" />
-				</FormField>
-			</div>
+					<p class="text-s text-ink-subtle">TOP = jatuh tempo pembayaran. 0 = tunai / COD.</p>
+				</div>
+			</section>
 
-			<p class="subhead">Rekening Bank</p>
-			<div class="grid grid-cols-2 gap-x-4 gap-y-4">
-				<FormField label="Nama Bank" :error="errors.bank_name">
-					<Input v-model="form.bank_name" placeholder="mis. BCA" />
-				</FormField>
-				<FormField label="No. Rekening" :error="errors.bank_account">
-					<Input v-model="form.bank_account" mono placeholder="1234567890" />
-				</FormField>
-			</div>
+			<section class="space-y-3">
+				<h3 class="subhead">Rekening Bank</h3>
+				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+					<FormField label="Nama Bank" :error="errors.bank_name">
+						<Input v-model="form.bank_name" placeholder="mis. BCA" />
+					</FormField>
+					<FormField label="No. Rekening" :error="errors.bank_account">
+						<Input v-model="form.bank_account" mono placeholder="1234567890" />
+					</FormField>
+				</div>
+			</section>
 
-			<p class="subhead">Lain-lain</p>
-			<FormField label="Keterangan" :error="errors.notes">
-				<Textarea v-model="form.notes" :rows="2" placeholder="Catatan internal (opsional)" />
-			</FormField>
+			<section class="space-y-3">
+				<h3 class="subhead">Catatan</h3>
+				<FormField label="Keterangan" :error="errors.notes">
+					<Textarea v-model="form.notes" :rows="2" placeholder="Catatan internal (opsional)" />
+				</FormField>
+			</section>
 
 			<div class="flex gap-2 pt-2">
 				<Button type="submit" :loading="loading">{{ submitLabel ?? 'Simpan' }}</Button>

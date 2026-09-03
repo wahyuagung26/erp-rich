@@ -42,7 +42,7 @@ async function save(payload: SupplierForm) {
 <template>
 	<div class="space-y-4 p-4">
 		<PageHeader title="Edit Supplier" subtitle="Master data vendor" />
-		<Panel v-if="loading"><Skeleton :lines="6" /></Panel>
+		<Panel v-if="loading" class="max-w-5xl"><Skeleton :lines="6" /></Panel>
 		<FormSupplier v-else-if="supplier" :initial="supplier" :code="supplier.code" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
 	</div>
 </template>

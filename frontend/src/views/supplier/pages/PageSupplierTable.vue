@@ -34,7 +34,7 @@ const rows: TableRow[] = [
 	{ label: 'Nama Supplier', field: 'name', align: 'left', isSort: { activeSort: 'asc' } },
 	{ label: 'Kota', field: 'city', align: 'left', isSort: { activeSort: 'asc' } },
 	{ label: 'Telepon', field: 'phone', align: 'left' },
-	{ label: 'TOP', field: 'top_days', align: 'right' },
+	{ label: 'TOP', field: 'top_days', align: 'left' },
 	{ label: 'PKP', field: 'pkp', align: 'center' },
 	{ label: '', field: 'action', align: 'right' }
 ]
@@ -74,10 +74,10 @@ function remove(row: Supplier) {
 
 			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
 				<template #table-content="{ row, column }">
-					<span v-if="row.field === 'code'" class="font-mono tnum text-ink">{{ column.code }}</span>
+					<span v-if="row.field === 'code'" class="text-ink">{{ column.code }}</span>
 					<span v-else-if="row.field === 'city'">{{ column.city || '-' }}</span>
-					<span v-else-if="row.field === 'phone'" class="font-mono tnum text-ink-muted">{{ column.phone || '-' }}</span>
-					<span v-else-if="row.field === 'top_days'" class="font-mono tnum text-ink-muted">
+					<span v-else-if="row.field === 'phone'" class="text-ink-muted">{{ column.phone || '-' }}</span>
+					<span v-else-if="row.field === 'top_days'" class="text-ink-muted">
 						{{ column.top_days === 0 ? 'Tunai' : `${column.top_days} hari` }}
 					</span>
 					<Badge v-else-if="row.field === 'pkp'" :tone="column.pkp ? 'success' : 'neutral'">
