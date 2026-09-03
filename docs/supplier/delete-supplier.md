@@ -7,12 +7,13 @@ path: /supplier/:id
 status: mock
 tags: [supplier, write]
 resource: /frontend/src/mocks/modules/supplier.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-03T13:30:00Z
 ---
 
 # Delete Supplier
 
-Backs the row delete action in `PageSupplierTable.vue` (behind a confirm dialog).
+Backs the delete action in `PageSupplierTable.vue` (row) and `PageSupplierDetail.vue`,
+both behind a confirm dialog.
 
 ## Request
 

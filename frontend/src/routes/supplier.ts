@@ -22,6 +22,12 @@ export default [
 				name: 'SupplierEdit',
 				component: () => import('@/views/supplier/pages/PageSupplierEdit.vue'),
 				meta: { auth: true, breadcrumb: 'Edit' }
+			},
+			{
+				path: ':id',
+				name: 'SupplierDetail',
+				component: () => import('@/views/supplier/pages/PageSupplierDetail.vue'),
+				meta: { auth: true, breadcrumb: 'Detail' }
 			}
 		]
 	}

@@ -30,6 +30,7 @@ Warna disimpan sebagai channel RGB di CSS variable → alpha modifier Tailwind t
 **Tipe:** Inter (teks, termasuk kode & nomor transaksi) + JetBrains Mono (nominal & tanggal — lihat numeric spine). Skala: `xs 10 · s 12 · m 13 (base) · l 14 · heading-s 16 · heading-m 20 · heading-l 28`.
 **Radius:** `rounded-md` = 6px di mana-mana; `rounded-chip` = 4px. **Spacing:** kelipatan 4px.
 **Lebar konten:** `DefaultLayout` sudah membungkus tiap halaman `mx-auto max-w-[1200px]`. Di dalamnya — halaman list: `<Panel>` full; halaman form: `<Panel class="max-w-5xl">` (form kecil `max-w-xl`) **rata kiri** (sejajar breadcrumb/judul), cap di Panel bukan di `<form>` dalam, jangan `mx-auto`.
+**Letak tombol aksi:** halaman **form** (Tambah/Edit) → tombol primer di **akhir flow** (Simpan/Batal setelah semua field). Halaman **detail / read-only** → semua aksi di **kanan judul** lewat slot `PageHeader #actions`, urutan `[← Kembali] [✎ Edit] [🗑 Hapus]` (semua ber-ikon; Kembali `subtle` + `IconArrowLeft`, Edit primary + `IconPencil`, Hapus `subtle` + `IconTrash` — samakan ikon dg tombol baris di tabel). Bungkus seluruh kolom (`<div class="max-w-5xl …">` membungkus PageHeader **dan** Panel) supaya tombol sejajar tepi kanan Panel, bukan tepi frame 1200.
 
 ## Komponen (`src/components/base/`)
 

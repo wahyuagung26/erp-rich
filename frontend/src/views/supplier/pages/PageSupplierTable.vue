@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconPlus, IconPencil, IconTrash } from '@tabler/icons-vue'
+import { IconPlus, IconEye, IconPencil, IconTrash } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
@@ -74,7 +74,9 @@ function remove(row: Supplier) {
 
 			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
 				<template #table-content="{ row, column }">
-					<span v-if="row.field === 'code'" class="text-ink">{{ column.code }}</span>
+					<button v-if="row.field === 'code'" class="text-primary-dark hover:underline" @click="router.push(`/supplier/${column.id}`)">
+						{{ column.code }}
+					</button>
 					<span v-else-if="row.field === 'city'">{{ column.city || '-' }}</span>
 					<span v-else-if="row.field === 'phone'" class="text-ink-muted">{{ column.phone || '-' }}</span>
 					<span v-else-if="row.field === 'top_days'" class="text-ink-muted">
@@ -84,6 +86,9 @@ function remove(row: Supplier) {
 						{{ column.pkp ? 'PKP' : 'Non-PKP' }}
 					</Badge>
 					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
+						<button class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill" @click="router.push(`/supplier/${column.id}`)">
+							<IconEye class="h-4 w-4" />
+						</button>
 						<button
 							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
 							@click="router.push(`/supplier/edit/${column.id}`)"

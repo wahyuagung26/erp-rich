@@ -3,13 +3,14 @@ type: OKF Module
 title: Supplier (Master Vendor)
 description: CRUD for supplier / vendor master data. Soft-delete — rows are marked deleted, never removed.
 tags: [supplier, master-data]
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-03T13:30:00Z
 ---
 
 # Supplier
 
 Master data for suppliers / vendors. Consumed by `frontend/src/views/supplier/`
-and (later) referenced by pembelian / retur pembelian line items.
+(list, detail, tambah, edit) and (later) referenced by pembelian / retur pembelian
+line items.
 
 ## Entity: `Supplier`
 
