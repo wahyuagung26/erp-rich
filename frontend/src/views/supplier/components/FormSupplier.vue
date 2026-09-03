@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { IconDeviceFloppy, IconX } from '@tabler/icons-vue'
 import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
@@ -124,8 +125,8 @@ function onSubmit() {
 			</section>
 
 			<div class="flex gap-2 pt-2">
-				<Button type="submit" :loading="loading">{{ submitLabel ?? 'Simpan' }}</Button>
-				<Button variant="secondary" type="button" @click="router.push('/supplier')">Batal</Button>
+				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
+				<Button variant="secondary" type="button" @click="router.push('/supplier')"> <IconX class="h-4 w-4" /> Batal </Button>
 			</div>
 		</form>
 	</Panel>
