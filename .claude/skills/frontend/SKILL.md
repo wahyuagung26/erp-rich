@@ -97,5 +97,13 @@ A change that passes `vue-tsc` but was never rendered is **not done**.
   title / the list page's full-width Panel); never `mx-auto` on the Panel, never a full-width
   Panel with the width cap on an inner `<form>`.
 - **Density** prop (`comfortable`/`compact`).
+- **Action buttons**: forms → primary at the END of the flow; detail/read pages → all actions
+  (`[← Kembali] [✎ Edit] [🗑 Hapus]`, all icon+label) in `PageHeader #actions`, with the whole
+  column (`PageHeader` + `Panel`) wrapped in `max-w-5xl` so they align with the Panel edge.
+- **Minimalism here = borderless surfaces + whitespace grouping, NOT fewer controls.** Do not
+  trim conventional affordances for aesthetics — this project's reviewer has repeatedly asked
+  for them back: keep the explicit **Back** button (a breadcrumb is not a substitute), keep
+  visible **field labels**, give a clickable code column a real link colour (`text-primary-dark`),
+  don't shrink form width so far it looks unfinished. When unsure, keep the standard control.
 - `views/auth/LoginView.vue` deliberately keeps the legacy split-screen layout + navy brand
   panel — that exception is intentional.
