@@ -86,6 +86,24 @@ export interface Customer {
 	deleted_at: string | null
 }
 
+// Master data: perusahaan / badan usaha. `code` is user-entered and unique
+// (NOT server-assigned). `deleted_at` is the soft-delete marker.
+export type CompanyType = 'pt' | 'cv' | 'ud' | 'firma' | 'perorangan' | 'koperasi' | 'yayasan'
+
+export interface Perusahaan {
+	id: number
+	code: string
+	short_name: string
+	legal_name: string
+	npwp: string
+	logo_url: string
+	address: string
+	company_type: CompanyType
+	hr_enabled: boolean
+	report_header_color: string
+	deleted_at: string | null
+}
+
 export interface JurnalLine {
 	akun_id: number
 	akun_code?: string

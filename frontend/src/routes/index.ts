@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import dashboard from './dashboard'
 import akun from './akun'
+import perusahaan from './perusahaan'
 import supplier from './supplier'
 import customer from './customer'
 import jurnal from './jurnal'
@@ -14,6 +15,7 @@ const routes: RouteRecordRaw[] = [
 		children: [
 			...dashboard,
 			...akun,
+			...perusahaan,
 			...supplier,
 			...customer,
 			...jurnal,

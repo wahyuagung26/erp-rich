@@ -3,7 +3,7 @@ type: OKF Bundle
 title: ERP Finance v2 — API Contract
 description: Frontend-authored API specification. Each module is a directory; each endpoint is one file. The mock and the future backend both follow these files.
 tags: [erp, finance, api, contract]
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-03T16:00:00Z
 ---
 
 # ERP Finance v2 — API Contract
@@ -33,6 +33,7 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Module | Contract | Frontend view | Mock |
 |---|---|---|---|
 | Auth | [`auth/`](./auth/index.md) | `views/auth/` | `mocks/modules/auth.ts` |
+| Perusahaan (Master Perusahaan) | [`perusahaan/`](./perusahaan/index.md) | `views/perusahaan/` | `mocks/modules/perusahaan.ts` |
 | Supplier (Master Vendor) | [`supplier/`](./supplier/index.md) | `views/supplier/` | `mocks/modules/supplier.ts` |
 | Customer (Master Pelanggan) | [`customer/`](./customer/index.md) | `views/customer/` | `mocks/modules/customer.ts` |
 | Bagan Akun (Chart of Accounts) | [`akun/`](./akun/index.md) | `views/akun/` | `mocks/modules/akun.ts` |
