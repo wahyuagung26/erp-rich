@@ -7,7 +7,7 @@ export const demoCredential = {
 }
 
 export const demoUser: User = {
-	id: 'u-1',
+	id: 1,
 	name: 'Sri Wahyuni',
 	email: 'admin@rahadhyan.co.id',
 	roles: [{ name: 'Finance Admin' }]

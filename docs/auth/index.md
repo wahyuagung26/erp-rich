@@ -3,7 +3,7 @@ type: OKF Module
 title: Auth
 description: Session lifecycle — login exchanges credentials for a bearer token; the token is sent on every subsequent request.
 tags: [auth, session]
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-03T09:00:00Z
 ---
 
 # Auth
@@ -16,7 +16,7 @@ Returned on login, held in the user store, drives route guards.
 
 | Field | Type | Notes |
 |---|---|---|
-| `id` | string | |
+| `id` | number | auto-increment |
 | `name` | string | display name |
 | `email` | string | |
 | `roles` | `{ name: string }[]` | checked against `route.meta.roles` |

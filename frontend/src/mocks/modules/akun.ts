@@ -1,7 +1,9 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { paginate, sortBy, type ListParams } from '../lib'
+import { nextId, paginate, sortBy, type ListParams } from '../lib'
 import type { Akun } from '@/utils/types'
+
+const idOf = (url?: string) => Number(url?.split('/').pop())
 
 // Contract: docs/akun/
 export function registerAkun(mock: MockAdapter) {
@@ -15,31 +17,28 @@ export function registerAkun(mock: MockAdapter) {
 		return [200, paginate(rows, p)]
 	})
 
-	mock.onGet(/\/akun\/[\w-]+$/).reply((config) => {
-		const id = config.url!.split('/').pop()
-		const found = db.akun.find((a) => a.id === id)
+	mock.onGet(/\/akun\/\d+$/).reply((config) => {
+		const found = db.akun.find((a) => a.id === idOf(config.url))
 		return found ? [200, { data: found }] : [404, { message: 'Akun tidak ditemukan' }]
 	})
 
 	mock.onPost('/akun').reply((config) => {
 		const body = JSON.parse(config.data) as Omit<Akun, 'id'>
-		const row: Akun = { ...body, id: `a-${Date.now()}` }
+		const row: Akun = { ...body, id: nextId(db.akun) }
 		db.akun.unshift(row)
 		return [201, { data: row, message: 'Akun ditambahkan' }]
 	})
 
-	mock.onPut(/\/akun\/[\w-]+$/).reply((config) => {
-		const id = config.url!.split('/').pop()
+	mock.onPut(/\/akun\/\d+$/).reply((config) => {
 		const body = JSON.parse(config.data) as Partial<Akun>
-		const idx = db.akun.findIndex((a) => a.id === id)
+		const idx = db.akun.findIndex((a) => a.id === idOf(config.url))
 		if (idx === -1) return [404, { message: 'Akun tidak ditemukan' }]
-		db.akun[idx] = { ...db.akun[idx], ...body }
+		db.akun[idx] = { ...db.akun[idx], ...body, id: db.akun[idx].id }
 		return [200, { data: db.akun[idx], message: 'Akun diperbarui' }]
 	})
 
-	mock.onDelete(/\/akun\/[\w-]+$/).reply((config) => {
-		const id = config.url!.split('/').pop()
-		db.akun = db.akun.filter((a) => a.id !== id)
+	mock.onDelete(/\/akun\/\d+$/).reply((config) => {
+		db.akun = db.akun.filter((a) => a.id !== idOf(config.url))
 		return [200, { message: 'Akun dihapus' }]
 	})
 }

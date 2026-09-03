@@ -10,7 +10,7 @@ export interface Pagination {
 // Standard backend envelope: payload always under `.data`.
 export interface ApiList<T> {
 	data: T[]
-	meta: { pagination: Pagination }
+	meta: Pagination
 	message?: string
 }
 
@@ -36,8 +36,9 @@ export interface TableRow {
 export type Density = 'comfortable' | 'compact'
 
 // --- domain ---
+// `id` is an auto-increment integer (DB primary key). `code` is the business identifier.
 export interface Akun {
-	id: string
+	id: number
 	code: string
 	name: string
 	type: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
@@ -46,7 +47,7 @@ export interface Akun {
 }
 
 export interface JurnalLine {
-	akun_id: string
+	akun_id: number
 	akun_code?: string
 	akun_name?: string
 	debit: number
@@ -54,7 +55,7 @@ export interface JurnalLine {
 }
 
 export interface Jurnal {
-	id: string
+	id: number
 	date: string
 	number: string
 	description: string

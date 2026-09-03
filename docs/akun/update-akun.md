@@ -7,7 +7,7 @@ path: /akun/:id
 status: mock
 tags: [akun, write]
 resource: /frontend/src/mocks/modules/akun.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-03T09:00:00Z
 ---
 
 # Update Akun
@@ -21,7 +21,7 @@ Backs `views/akun/pages/PageAkunEdit.vue`. Full-object PUT (same body as
 
 | Name | Type |
 |---|---|
-| `id` | string |
+| `id` | number |
 
 ### Body
 
@@ -32,7 +32,7 @@ Same shape and rules as [create-akun](./create-akun.md).
 `200`:
 
 ```json
-{ "data": { "id": "a-1000", "code": "1-1000", "name": "Kas & Setara Kas", "type": "asset", "normal_balance": "debit", "active": true }, "message": "Akun diperbarui" }
+{ "data": { "id": 1, "code": "1-1000", "name": "Kas & Setara Kas", "type": "asset", "normal_balance": "debit", "active": true }, "message": "Akun diperbarui" }
 ```
 
 ## Errors

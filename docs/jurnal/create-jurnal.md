@@ -7,7 +7,7 @@ path: /jurnal
 status: mock
 tags: [jurnal, write]
 resource: /frontend/src/mocks/modules/jurnal.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-03T09:00:00Z
 ---
 
 # Create Jurnal
@@ -25,8 +25,8 @@ the backend must re-check.
   "date": "2026-09-03",
   "description": "Pembayaran listrik September",
   "lines": [
-    { "akun_id": "a-6200", "debit": 1200000, "credit": 0 },
-    { "akun_id": "a-1100", "debit": 0, "credit": 1200000 }
+    { "akun_id": 16, "debit": 1200000, "credit": 0 },
+    { "akun_id": 2, "debit": 0, "credit": 1200000 }
   ]
 }
 ```
@@ -36,7 +36,7 @@ the backend must re-check.
 | `date` | string | required; `YYYY-MM-DD` |
 | `description` | string | required |
 | `lines` | array | ≥ 2 items |
-| `lines[].akun_id` | string | required; must be an active `Akun` |
+| `lines[].akun_id` | number | required; must be an active `Akun` |
 | `lines[].debit` / `.credit` | number | ≥ 0; exactly one > 0 per line |
 
 Server rejects unless `sum(debit) === sum(credit)` and `> 0`.
@@ -48,11 +48,11 @@ Server rejects unless `sum(debit) === sum(credit)` and `> 0`.
 ```json
 {
   "data": {
-    "id": "j-1730620000000", "number": "JU-2609-001", "date": "2026-09-03",
+    "id": 6, "number": "JU-2609-001", "date": "2026-09-03",
     "description": "Pembayaran listrik September", "total": 1200000,
     "lines": [
-      { "akun_id": "a-6200", "akun_code": "6-6200", "akun_name": "Beban Listrik & Air", "debit": 1200000, "credit": 0 },
-      { "akun_id": "a-1100", "akun_code": "1-1100", "akun_name": "Bank BCA", "debit": 0, "credit": 1200000 }
+      { "akun_id": 16, "akun_code": "6-6200", "akun_name": "Beban Listrik & Air", "debit": 1200000, "credit": 0 },
+      { "akun_id": 2, "akun_code": "1-1100", "akun_name": "Bank BCA", "debit": 0, "credit": 1200000 }
     ]
   },
   "message": "Jurnal disimpan"

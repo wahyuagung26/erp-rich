@@ -7,7 +7,7 @@ path: /akun
 status: mock
 tags: [akun, read, list]
 resource: /frontend/src/mocks/modules/akun.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-03T09:00:00Z
 ---
 
 # List Akun
@@ -32,9 +32,9 @@ Backs `views/akun/pages/PageAkunTable.vue` (via the `useTableList` composable).
 ```json
 {
   "data": [
-    { "id": "a-1000", "code": "1-1000", "name": "Kas", "type": "asset", "normal_balance": "debit", "active": true }
+    { "id": 1, "code": "1-1000", "name": "Kas", "type": "asset", "normal_balance": "debit", "active": true }
   ],
-  "meta": { "pagination": { "page": 1, "per_page": 10, "total": 18, "last_page": 2 } }
+  "meta": { "page": 1, "per_page": 10, "total": 18, "last_page": 2 }
 }
 ```
 

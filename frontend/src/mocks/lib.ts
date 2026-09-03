@@ -8,16 +8,19 @@ export interface ListParams {
 	[k: string]: unknown
 }
 
-export function paginate<T>(items: T[], params: ListParams): { data: T[]; meta: { pagination: Pagination } } {
+export function paginate<T>(items: T[], params: ListParams): { data: T[]; meta: Pagination } {
 	const page = Number(params.page) || 1
 	const perPage = Number(params.per_page) || 10
 	const start = (page - 1) * perPage
 	return {
 		data: items.slice(start, start + perPage),
-		meta: {
-			pagination: { page, per_page: perPage, total: items.length, last_page: Math.max(1, Math.ceil(items.length / perPage)) }
-		}
+		meta: { page, per_page: perPage, total: items.length, last_page: Math.max(1, Math.ceil(items.length / perPage)) }
 	}
+}
+
+// Next auto-increment id for an in-memory collection.
+export function nextId(items: { id: number }[]): number {
+	return items.reduce((max, x) => Math.max(max, x.id), 0) + 1
 }
 
 export function sortBy<T>(items: T[], field?: string, dir: 'asc' | 'desc' = 'asc'): T[] {

@@ -1,6 +1,6 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { paginate, sortBy, type ListParams } from '../lib'
+import { nextId, paginate, sortBy, type ListParams } from '../lib'
 import type { Jurnal } from '@/utils/types'
 
 // Contract: docs/jurnal/
@@ -19,10 +19,10 @@ export function registerJurnal(mock: MockAdapter) {
 		const seqNo = String(db.jurnal.length + 1).padStart(3, '0')
 		// resolve denormalized code/name from the akun store (backend does this too)
 		const lines = body.lines.map((l) => {
-			const akun = db.akun.find((a) => a.id === l.akun_id)
-			return { ...l, akun_code: akun?.code, akun_name: akun?.name }
+			const akun = db.akun.find((a) => a.id === Number(l.akun_id))
+			return { ...l, akun_id: Number(l.akun_id), akun_code: akun?.code, akun_name: akun?.name }
 		})
-		const row: Jurnal = { ...body, lines, id: `j-${Date.now()}`, number: `JU-MOCK-${seqNo}`, total }
+		const row: Jurnal = { ...body, lines, id: nextId(db.jurnal), number: `JU-MOCK-${seqNo}`, total }
 		db.jurnal.unshift(row)
 		return [201, { data: row, message: 'Jurnal disimpan' }]
 	})

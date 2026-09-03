@@ -7,7 +7,7 @@ path: /akun
 status: mock
 tags: [akun, write]
 resource: /frontend/src/mocks/modules/akun.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-03T09:00:00Z
 ---
 
 # Create Akun
@@ -42,7 +42,7 @@ Backs `views/akun/pages/PageAkunTambah.vue`. Client-side validation:
 `201`:
 
 ```json
-{ "data": { "id": "a-1730620000000", "code": "1-1600", "name": "Kas Kecil", "type": "asset", "normal_balance": "debit", "active": true }, "message": "Akun ditambahkan" }
+{ "data": { "id": 19, "code": "1-1600", "name": "Kas Kecil", "type": "asset", "normal_balance": "debit", "active": true }, "message": "Akun ditambahkan" }
 ```
 
 ## Errors

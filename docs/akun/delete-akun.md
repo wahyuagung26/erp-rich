@@ -7,7 +7,7 @@ path: /akun/:id
 status: mock
 tags: [akun, write]
 resource: /frontend/src/mocks/modules/akun.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-03T09:00:00Z
 ---
 
 # Delete Akun
@@ -20,7 +20,7 @@ Backs the row delete action in `PageAkunTable.vue` (behind a confirm dialog).
 
 | Name | Type |
 |---|---|
-| `id` | string |
+| `id` | number |
 
 ## Response
 

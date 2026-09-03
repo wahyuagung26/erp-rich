@@ -32,7 +32,7 @@ export function useTableList<T>({ endpoint, defaultLimit = 10, immediate = true 
 				}
 			})
 			columns.value = res.data.data ?? []
-			pagination.value = res.data.meta?.pagination
+			pagination.value = res.data.meta
 		} finally {
 			loading.value = false
 		}

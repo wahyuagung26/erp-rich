@@ -22,10 +22,10 @@ const form = reactive({
 	description: ''
 })
 
-const blank = (): JurnalLine => ({ akun_id: '', debit: 0, credit: 0 })
+const blank = (): JurnalLine => ({ akun_id: 0, debit: 0, credit: 0 })
 const lines = ref<JurnalLine[]>([blank(), blank()])
 
-const akunOptions = ref<{ label: string; value: string }[]>([])
+const akunOptions = ref<{ label: string; value: number }[]>([])
 onMounted(async () => {
 	const res = await api.get<ApiList<Akun>>('/akun', { params: { per_page: 100, active: true } })
 	akunOptions.value = res.data.data.map((a) => ({ label: `${a.code} — ${a.name}`, value: a.id }))
@@ -54,7 +54,10 @@ function onCredit(line: JurnalLine, val: string) {
 
 function submit() {
 	if (!filled.value || !balanced.value) return
-	emit('submit', { ...form, lines: lines.value.map((l) => ({ ...l, debit: Number(l.debit), credit: Number(l.credit) })) })
+	emit('submit', {
+		...form,
+		lines: lines.value.map((l) => ({ akun_id: Number(l.akun_id), debit: Number(l.debit), credit: Number(l.credit) }))
+	})
 }
 </script>
 
@@ -83,7 +86,12 @@ function submit() {
 				<tbody class="divide-y divide-hairline">
 					<tr v-for="(line, i) in lines" :key="i">
 						<td class="py-1.5 pr-2">
-							<Select v-model="line.akun_id" placeholder="Pilih akun" :options="akunOptions" />
+							<Select
+								:model-value="line.akun_id || ''"
+								placeholder="Pilih akun"
+								:options="akunOptions"
+								@update:model-value="(v) => (line.akun_id = Number(v))"
+							/>
 						</td>
 						<td class="py-1.5 pl-2">
 							<Input :model-value="line.debit || ''" type="number" align="right" mono @update:model-value="(v) => onDebit(line, v)" />

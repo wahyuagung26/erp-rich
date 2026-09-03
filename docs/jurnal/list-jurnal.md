@@ -7,7 +7,7 @@ path: /jurnal
 status: mock
 tags: [jurnal, read, list]
 resource: /frontend/src/mocks/modules/jurnal.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-03T09:00:00Z
 ---
 
 # List Jurnal
@@ -32,15 +32,15 @@ on the dashboard (first 5, see [dashboard-summary](../dashboard/dashboard-summar
 {
   "data": [
     {
-      "id": "j-1", "date": "2026-08-01", "number": "JU-2608-001",
+      "id": 1, "date": "2026-08-01", "number": "JU-2608-001",
       "description": "Pembayaran sewa kantor Agustus", "total": 15000000,
       "lines": [
-        { "akun_id": "a-6100", "akun_code": "6-6100", "akun_name": "Beban Sewa", "debit": 15000000, "credit": 0 },
-        { "akun_id": "a-1100", "akun_code": "1-1100", "akun_name": "Bank BCA", "debit": 0, "credit": 15000000 }
+        { "akun_id": 15, "akun_code": "6-6100", "akun_name": "Beban Sewa", "debit": 15000000, "credit": 0 },
+        { "akun_id": 2, "akun_code": "1-1100", "akun_name": "Bank BCA", "debit": 0, "credit": 15000000 }
       ]
     }
   ],
-  "meta": { "pagination": { "page": 1, "per_page": 10, "total": 5, "last_page": 1 } }
+  "meta": { "page": 1, "per_page": 10, "total": 5, "last_page": 1 }
 }
 ```
 

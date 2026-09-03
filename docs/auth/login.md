@@ -7,7 +7,7 @@ path: /auth/login
 status: mock
 tags: [auth, write]
 resource: /frontend/src/mocks/modules/auth.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-03T09:00:00Z
 ---
 
 # Login
@@ -41,7 +41,7 @@ Backs `views/auth/LoginView.vue` → `useUserStore().login()`.
   "data": {
     "token": "mock.eyJ1IjoidS0xIn0",
     "user": {
-      "id": "u-1",
+      "id": 1,
       "name": "Sri Wahyuni",
       "email": "admin@rahadhyan.co.id",
       "roles": [{ "name": "Finance Admin" }]

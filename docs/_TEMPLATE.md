@@ -19,7 +19,7 @@ timestamp: <ISO 8601>
 ### Path params
 | Name | Type | Notes |
 |---|---|---|
-| `id` | string | — |
+| `id` | number | auto-increment pk |
 
 ### Query
 | Name | Type | Required | Notes |
