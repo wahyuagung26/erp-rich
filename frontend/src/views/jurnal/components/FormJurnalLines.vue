@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconPlus, IconTrash } from '@tabler/icons-vue'
+import { IconPlus, IconTrash, IconDeviceFloppy, IconX } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { money } from '@/utils/format'
 import Panel from '@/components/base/Panel.vue'
@@ -130,8 +130,10 @@ function submit() {
 			</section>
 
 			<div class="flex gap-2 pt-2">
-				<Button type="submit" :loading="loading" :disabled="!balanced || !filled">Simpan Jurnal</Button>
-				<Button variant="secondary" type="button" @click="router.push('/jurnal')">Batal</Button>
+				<Button type="submit" :loading="loading" :disabled="!balanced || !filled">
+					<IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> Simpan Jurnal
+				</Button>
+				<Button variant="secondary" type="button" @click="router.push('/jurnal')"> <IconX class="h-4 w-4" /> Batal </Button>
 			</div>
 		</form>
 	</Panel>
