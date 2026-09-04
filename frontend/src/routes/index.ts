@@ -9,6 +9,7 @@ import cabang from './cabang'
 import departemen from './departemen'
 import gudang from './gudang'
 import jenisPenjualan from './jenis-penjualan'
+import tipePembayaran from './tipe-pembayaran'
 import groupAkun from './group-akun'
 import subAkun from './sub-akun'
 import akunPerkiraan from './akun-perkiraan'
@@ -31,6 +32,7 @@ const routes: RouteRecordRaw[] = [
 			...departemen,
 			...gudang,
 			...jenisPenjualan,
+			...tipePembayaran,
 			...groupAkun,
 			...subAkun,
 			...akunPerkiraan,

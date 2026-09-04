@@ -12,6 +12,7 @@ import { groupAkunSeed } from './fixtures/group-akun'
 import { subAkunSeed } from './fixtures/sub-akun'
 import { akunPerkiraanSeed } from './fixtures/akun-perkiraan'
 import { jenisPenjualanSeed } from './fixtures/jenis-penjualan'
+import { tipePembayaranSeed } from './fixtures/tipe-pembayaran'
 import type {
 	Jurnal,
 	Supplier,
@@ -26,7 +27,8 @@ import type {
 	GroupAkun,
 	SubAkun,
 	AkunPerkiraan,
-	JenisPenjualan
+	JenisPenjualan,
+	TipePembayaran
 } from '@/utils/types'
 
 // Single in-memory store shared by every mock module. Mutations persist for
@@ -46,6 +48,7 @@ export const db: {
 	subAkun: SubAkun[]
 	akunPerkiraan: AkunPerkiraan[]
 	jenisPenjualan: JenisPenjualan[]
+	tipePembayaran: TipePembayaran[]
 } = {
 	jurnal: structuredClone(jurnalSeed),
 	supplier: structuredClone(supplierSeed),
@@ -60,5 +63,6 @@ export const db: {
 	groupAkun: structuredClone(groupAkunSeed),
 	subAkun: structuredClone(subAkunSeed),
 	akunPerkiraan: structuredClone(akunPerkiraanSeed),
-	jenisPenjualan: structuredClone(jenisPenjualanSeed)
+	jenisPenjualan: structuredClone(jenisPenjualanSeed),
+	tipePembayaran: structuredClone(tipePembayaranSeed)
 }

@@ -41,6 +41,7 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Departemen (Master Departemen) | [`departemen/`](./departemen/index.md) | `views/departemen/` | `mocks/modules/departemen.ts` |
 | Gudang (Master Gudang) | [`gudang/`](./gudang/index.md) | `views/gudang/` | `mocks/modules/gudang.ts` |
 | Jenis Penjualan (Master Jenis Penjualan) | [`jenis-penjualan/`](./jenis-penjualan/index.md) | `views/jenis-penjualan/` | `mocks/modules/jenis-penjualan.ts` |
+| Tipe Pembayaran (Master Tipe Pembayaran) | [`tipe-pembayaran/`](./tipe-pembayaran/index.md) | `views/tipe-pembayaran/` | `mocks/modules/tipe-pembayaran.ts` |
 | Group Akun (Master Group Akun) | [`group-akun/`](./group-akun/index.md) | `views/group-akun/` | `mocks/modules/group-akun.ts` |
 | Sub Akun (Master Sub Akun) | [`sub-akun/`](./sub-akun/index.md) | `views/sub-akun/` | `mocks/modules/sub-akun.ts` |
 | Akun Perkiraan (Master Akun Perkiraan) | [`akun-perkiraan/`](./akun-perkiraan/index.md) | `views/akun-perkiraan/` | `mocks/modules/akun-perkiraan.ts` |

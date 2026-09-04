@@ -239,6 +239,24 @@ export interface JenisPenjualan {
 	deleted_at: string | null
 }
 
+// Master data: tipe pembayaran / payment type. `code` is user-entered and
+// immutable after create, same convention as the other master-data modules.
+// `akun_perkiraan_id` is denormalized with its code/name, same pattern as
+// Gudang's cabang_code/cabang_name. `transaksi` scopes the type to Pembelian
+// or Penjualan; `jenis` is the payment mechanism.
+export interface TipePembayaran {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	akun_perkiraan_id: number
+	akun_perkiraan_code?: string
+	akun_perkiraan_name?: string
+	transaksi: 'pembelian' | 'penjualan'
+	jenis: 'tunai' | 'potong_retur' | 'uang_muka'
+	deleted_at: string | null
+}
+
 export interface JurnalLine {
 	akun_id: number
 	akun_code?: string

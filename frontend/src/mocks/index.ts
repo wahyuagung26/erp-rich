@@ -12,6 +12,7 @@ import { registerGroupAkun } from './modules/group-akun'
 import { registerSubAkun } from './modules/sub-akun'
 import { registerAkunPerkiraan } from './modules/akun-perkiraan'
 import { registerJenisPenjualan } from './modules/jenis-penjualan'
+import { registerTipePembayaran } from './modules/tipe-pembayaran'
 import { registerSupplier } from './modules/supplier'
 import { registerCustomer } from './modules/customer'
 import { registerJurnal } from './modules/jurnal'
@@ -32,6 +33,7 @@ const modules = [
 	registerSubAkun,
 	registerAkunPerkiraan,
 	registerJenisPenjualan,
+	registerTipePembayaran,
 	registerSupplier,
 	registerCustomer,
 	registerJurnal,
