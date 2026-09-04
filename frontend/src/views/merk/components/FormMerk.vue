@@ -34,7 +34,8 @@ defineExpose({ setServerErrors })
 </script>
 
 <template>
-	<!-- Full-width panel, same as the list — content stays compact via each field's own max-w. -->
+	<!-- Full-width panel, same as the list. Only the short code identifier stays capped -->
+	<!-- (max-w-[200px]); free-text fields stretch full, same as FormSupplier. -->
 	<Panel>
 		<form class="space-y-8" @submit.prevent="onSubmit">
 			<section class="space-y-3">
@@ -49,7 +50,7 @@ defineExpose({ setServerErrors })
 						<Input v-model="form.code" mono :disabled="isEdit" class="max-w-[200px]" placeholder="mis. SGT" />
 					</FormField>
 					<FormField label="Nama Merk" required :error="errors.name">
-						<Input v-model="form.name" class="max-w-sm" placeholder="mis. Samsung" />
+						<Input v-model="form.name" placeholder="mis. Samsung" />
 					</FormField>
 				</div>
 			</section>

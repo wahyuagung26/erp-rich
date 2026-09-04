@@ -9,7 +9,8 @@ import {
 	IconDatabase,
 	IconTag,
 	IconCategory,
-	IconRuler2
+	IconRuler2,
+	IconBuildingStore
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -31,6 +32,7 @@ export const NAV: NavItem[] = [
 			{ label: 'Merk', to: '/merk', icon: IconTag },
 			{ label: 'Kategori Produk', to: '/kategori', icon: IconCategory },
 			{ label: 'Satuan', to: '/satuan', icon: IconRuler2 },
+			{ label: 'Cabang', to: '/cabang', icon: IconBuildingStore },
 			{ label: 'Supplier', to: '/supplier', icon: IconBuildingWarehouse },
 			{ label: 'Customer', to: '/customer', icon: IconUsers }
 		]

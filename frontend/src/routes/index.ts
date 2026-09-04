@@ -6,6 +6,7 @@ import perusahaan from './perusahaan'
 import merk from './merk'
 import kategori from './kategori'
 import satuan from './satuan'
+import cabang from './cabang'
 import supplier from './supplier'
 import customer from './customer'
 import jurnal from './jurnal'
@@ -22,6 +23,7 @@ const routes: RouteRecordRaw[] = [
 			...merk,
 			...kategori,
 			...satuan,
+			...cabang,
 			...supplier,
 			...customer,
 			...jurnal,

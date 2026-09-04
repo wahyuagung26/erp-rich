@@ -136,6 +136,17 @@ export interface Satuan {
 	deleted_at: string | null
 }
 
+// Master data: cabang / branch. Same contract as Merk/Kategori/Satuan — `code`
+// is user-entered at create and immutable afterward (the edit form disables it).
+export interface Cabang {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	address: string
+	deleted_at: string | null
+}
+
 export interface JurnalLine {
 	akun_id: number
 	akun_code?: string
