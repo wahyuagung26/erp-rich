@@ -1,0 +1,24 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Rahadhyan International" [level=2] [ref=e35]
+      - paragraph [ref=e36]: Sistem ERP terintegrasi untuk pembelian, penjualan, persediaan, dan akuntansi.
+    - generic [ref=e38]:
+      - img "Rahadhyan International" [ref=e40]:
+        - generic [ref=e46]: RAHADHYAN
+        - generic [ref=e47]: INTERNATIONAL
+      - heading "Selamat Datang" [level=1] [ref=e48]
+      - paragraph [ref=e49]: Masuk untuk melanjutkan ke ERP
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - generic [ref=e52]: Username / Email
+          - textbox "Username / Email" [active] [ref=e55]
+        - generic [ref=e60]:
+          - generic [ref=e61]: Password
+          - generic [ref=e62]:
+            - textbox "Password" [ref=e64]
+            - button "Tampilkan password" [ref=e66] [cursor=pointer]
+        - button "Masuk" [ref=e70] [cursor=pointer]
+      - paragraph [ref=e71]: Versi 1.0
+      - paragraph [ref=e72]: "Demo: admin / password"
+  - generic "Toggle devtools panel" [ref=e74] [cursor=pointer]

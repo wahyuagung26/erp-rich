@@ -44,5 +44,16 @@ export const subAkunSeed: SubAkun[] = [
 		name: 'Utang Usaha',
 		normal_balance: 'credit',
 		deleted_at: null
+	},
+	{
+		id: 5,
+		company_id: 1,
+		group_akun_id: 5,
+		group_akun_code: '40',
+		group_akun_name: 'Pendapatan',
+		code: '40001',
+		name: 'Penjualan',
+		normal_balance: 'credit',
+		deleted_at: null
 	}
 ]

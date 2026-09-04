@@ -8,7 +8,8 @@ timestamp: 2026-09-03T09:00:00Z
 
 # Jurnal Umum
 
-Consumed by `frontend/src/views/jurnal/`. Lines reference [akun](../akun/index.md).
+Consumed by `frontend/src/views/jurnal/`. Lines reference [akun-perkiraan](../akun-perkiraan/index.md)
+— the account picker in `FormJurnalLines.vue` fetches `/akun-perkiraan`.
 
 ## Entity: `Jurnal`
 
@@ -25,7 +26,7 @@ Consumed by `frontend/src/views/jurnal/`. Lines reference [akun](../akun/index.m
 
 | Field | Type | Notes |
 |---|---|---|
-| `akun_id` | number | FK to `Akun.id` |
+| `akun_id` | number | FK to `AkunPerkiraan.id` |
 | `akun_code` | string | denormalized, response only |
 | `akun_name` | string | denormalized, response only |
 | `debit` | number | one of debit/credit is 0 |

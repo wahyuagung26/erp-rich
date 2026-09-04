@@ -1,7 +1,6 @@
 import MockAdapter from 'axios-mock-adapter'
 import api from '@/utils/api'
 import { registerAuth } from './modules/auth'
-import { registerAkun } from './modules/akun'
 import { registerPerusahaan } from './modules/perusahaan'
 import { registerMerk } from './modules/merk'
 import { registerKategori } from './modules/kategori'
@@ -11,6 +10,8 @@ import { registerDepartemen } from './modules/departemen'
 import { registerGudang } from './modules/gudang'
 import { registerGroupAkun } from './modules/group-akun'
 import { registerSubAkun } from './modules/sub-akun'
+import { registerAkunPerkiraan } from './modules/akun-perkiraan'
+import { registerJenisPenjualan } from './modules/jenis-penjualan'
 import { registerSupplier } from './modules/supplier'
 import { registerCustomer } from './modules/customer'
 import { registerJurnal } from './modules/jurnal'
@@ -20,7 +21,6 @@ import { registerDashboard } from './modules/dashboard'
 // handlers in src/mocks/modules/<module>.ts and its contract in docs/<module>/.
 const modules = [
 	registerAuth,
-	registerAkun,
 	registerPerusahaan,
 	registerMerk,
 	registerKategori,
@@ -30,6 +30,8 @@ const modules = [
 	registerGudang,
 	registerGroupAkun,
 	registerSubAkun,
+	registerAkunPerkiraan,
+	registerJenisPenjualan,
 	registerSupplier,
 	registerCustomer,
 	registerJurnal,

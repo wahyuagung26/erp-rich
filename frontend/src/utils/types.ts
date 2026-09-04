@@ -36,16 +36,6 @@ export interface TableRow {
 export type Density = 'comfortable' | 'compact'
 
 // --- domain ---
-// `id` is an auto-increment integer (DB primary key). `code` is the business identifier.
-export interface Akun {
-	id: number
-	code: string
-	name: string
-	type: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
-	normal_balance: 'debit' | 'credit'
-	active: boolean
-}
-
 // Master data: supplier / vendor. `code` (SUP-0001) is server-assigned.
 // `deleted_at` is the soft-delete marker — non-null rows are hidden from lists.
 export interface Supplier {
@@ -201,6 +191,48 @@ export interface SubAkun {
 	code: string
 	name: string
 	normal_balance: 'debit' | 'credit'
+	deleted_at: string | null
+}
+
+// Master data: akun perkiraan / detail account, under a SubAkun. `code` is server-
+// composed: the first 5 digits are the owning sub akun's `code` (already exactly 5
+// digits), the last 2 are user-entered (`code_suffix` on write) — see
+// docs/akun-perkiraan/. `sub_akun_id` and the resulting `code` are both immutable
+// after create. `sub_akun_code`/`sub_akun_name` are denormalized onto reads, same
+// pattern as SubAkun's group_akun_code/group_akun_name. `type` uses the same
+// enum shape as Jurnal's account picker (`views/akun-perkiraan/schema.ts`'s AKUN_TYPES).
+export interface AkunPerkiraan {
+	id: number
+	company_id: number
+	sub_akun_id: number
+	sub_akun_code?: string
+	sub_akun_name?: string
+	code: string
+	name: string
+	type: 'cash_bank' | 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
+	deleted_at: string | null
+}
+
+// Master data: jenis penjualan / sales type. Maps a sales type to the three
+// AkunPerkiraan accounts it posts to (revenue, COGS, inventory) — used by the
+// sales module (not built yet) to auto-fill journal accounts per transaction.
+// `code` is user-entered and immutable after create, same convention as
+// Merk/Kategori/Satuan/Cabang/Departemen/Gudang. Each akun_*_id is denormalized
+// with its code/name, same pattern as Gudang's cabang_code/cabang_name.
+export interface JenisPenjualan {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	akun_pendapatan_id: number
+	akun_pendapatan_code?: string
+	akun_pendapatan_name?: string
+	akun_hpp_id: number
+	akun_hpp_code?: string
+	akun_hpp_name?: string
+	akun_persediaan_id: number
+	akun_persediaan_code?: string
+	akun_persediaan_name?: string
 	deleted_at: string | null
 }
 

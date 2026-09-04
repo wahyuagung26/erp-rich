@@ -11,7 +11,7 @@ timestamp: 2026-09-05T09:00:00Z
 Master data for account groups, under the "Akuntansi" menu. Classifies which
 financial statement an account group rolls up into (`category`: Neraca / Laba
 Rugi) and its normal balance side (`normal_balance`: Debit / Kredit — same field
-and values as [`Akun.normal_balance`](../akun/index.md)). Consumed by
+and values as [`SubAkun.normal_balance`](../sub-akun/index.md)). Consumed by
 `frontend/src/views/group-akun/`. Company-scoped — see
 [conventions](../conventions.md#company-scoping).
 

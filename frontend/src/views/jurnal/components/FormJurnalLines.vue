@@ -10,7 +10,7 @@ import DatePicker from '@/components/base/DatePicker.vue'
 import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
 import Button from '@/components/base/Button.vue'
-import type { Akun, ApiList, JurnalLine } from '@/utils/types'
+import type { AkunPerkiraan, ApiList, JurnalLine } from '@/utils/types'
 
 const emit = defineEmits<{ submit: [{ date: string; description: string; lines: JurnalLine[] }] }>()
 defineProps<{ loading?: boolean }>()
@@ -27,7 +27,7 @@ const lines = ref<JurnalLine[]>([blank(), blank()])
 
 const akunOptions = ref<{ label: string; value: number }[]>([])
 onMounted(async () => {
-	const res = await api.get<ApiList<Akun>>('/akun', { params: { per_page: 100, active: true } })
+	const res = await api.get<ApiList<AkunPerkiraan>>('/akun-perkiraan', { params: { per_page: 100 } })
 	akunOptions.value = res.data.data.map((a) => ({ label: `${a.code} — ${a.name}`, value: a.id }))
 })
 

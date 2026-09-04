@@ -23,10 +23,10 @@ the backend must re-check.
 ```json
 {
   "date": "2026-09-03",
-  "description": "Pembayaran listrik September",
+  "description": "Pembayaran gaji September",
   "lines": [
-    { "akun_id": 16, "debit": 1200000, "credit": 0 },
-    { "akun_id": 2, "debit": 0, "credit": 1200000 }
+    { "akun_id": 2, "debit": 1200000, "credit": 0 },
+    { "akun_id": 1, "debit": 0, "credit": 1200000 }
   ]
 }
 ```
@@ -36,7 +36,7 @@ the backend must re-check.
 | `date` | string | required; `YYYY-MM-DD` |
 | `description` | string | required |
 | `lines` | array | ≥ 2 items |
-| `lines[].akun_id` | number | required; must be an active `Akun` |
+| `lines[].akun_id` | number | required; must be a non-deleted [`AkunPerkiraan`](../akun-perkiraan/index.md) |
 | `lines[].debit` / `.credit` | number | ≥ 0; exactly one > 0 per line |
 
 Server rejects unless `sum(debit) === sum(credit)` and `> 0`.
@@ -49,10 +49,10 @@ Server rejects unless `sum(debit) === sum(credit)` and `> 0`.
 {
   "data": {
     "id": 6, "number": "JU-2609-001", "date": "2026-09-03",
-    "description": "Pembayaran listrik September", "total": 1200000,
+    "description": "Pembayaran gaji September", "total": 1200000,
     "lines": [
-      { "akun_id": 16, "akun_code": "6-6200", "akun_name": "Beban Listrik & Air", "debit": 1200000, "credit": 0 },
-      { "akun_id": 2, "akun_code": "1-1100", "akun_name": "Bank BCA", "debit": 0, "credit": 1200000 }
+      { "akun_id": 2, "akun_code": "6000101", "akun_name": "Beban Gaji Pokok", "debit": 1200000, "credit": 0 },
+      { "akun_id": 1, "akun_code": "1000101", "akun_name": "Kas Kecil", "debit": 0, "credit": 1200000 }
     ]
   },
   "message": "Jurnal disimpan"

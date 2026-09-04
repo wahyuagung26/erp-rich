@@ -1,7 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import dashboard from './dashboard'
-import akun from './akun'
 import perusahaan from './perusahaan'
 import merk from './merk'
 import kategori from './kategori'
@@ -9,8 +8,10 @@ import satuan from './satuan'
 import cabang from './cabang'
 import departemen from './departemen'
 import gudang from './gudang'
+import jenisPenjualan from './jenis-penjualan'
 import groupAkun from './group-akun'
 import subAkun from './sub-akun'
+import akunPerkiraan from './akun-perkiraan'
 import supplier from './supplier'
 import customer from './customer'
 import jurnal from './jurnal'
@@ -22,7 +23,6 @@ const routes: RouteRecordRaw[] = [
 		component: DefaultLayout,
 		children: [
 			...dashboard,
-			...akun,
 			...perusahaan,
 			...merk,
 			...kategori,
@@ -30,8 +30,10 @@ const routes: RouteRecordRaw[] = [
 			...cabang,
 			...departemen,
 			...gudang,
+			...jenisPenjualan,
 			...groupAkun,
 			...subAkun,
+			...akunPerkiraan,
 			...supplier,
 			...customer,
 			...jurnal,

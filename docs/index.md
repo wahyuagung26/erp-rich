@@ -40,11 +40,12 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Cabang (Master Cabang) | [`cabang/`](./cabang/index.md) | `views/cabang/` | `mocks/modules/cabang.ts` |
 | Departemen (Master Departemen) | [`departemen/`](./departemen/index.md) | `views/departemen/` | `mocks/modules/departemen.ts` |
 | Gudang (Master Gudang) | [`gudang/`](./gudang/index.md) | `views/gudang/` | `mocks/modules/gudang.ts` |
+| Jenis Penjualan (Master Jenis Penjualan) | [`jenis-penjualan/`](./jenis-penjualan/index.md) | `views/jenis-penjualan/` | `mocks/modules/jenis-penjualan.ts` |
 | Group Akun (Master Group Akun) | [`group-akun/`](./group-akun/index.md) | `views/group-akun/` | `mocks/modules/group-akun.ts` |
 | Sub Akun (Master Sub Akun) | [`sub-akun/`](./sub-akun/index.md) | `views/sub-akun/` | `mocks/modules/sub-akun.ts` |
+| Akun Perkiraan (Master Akun Perkiraan) | [`akun-perkiraan/`](./akun-perkiraan/index.md) | `views/akun-perkiraan/` | `mocks/modules/akun-perkiraan.ts` |
 | Supplier (Master Vendor) | [`supplier/`](./supplier/index.md) | `views/supplier/` | `mocks/modules/supplier.ts` |
 | Customer (Master Pelanggan) | [`customer/`](./customer/index.md) | `views/customer/` | `mocks/modules/customer.ts` |
-| Bagan Akun (Chart of Accounts) | [`akun/`](./akun/index.md) | `views/akun/` | `mocks/modules/akun.ts` |
 | Jurnal Umum (Journal) | [`jurnal/`](./jurnal/index.md) | `views/jurnal/` | `mocks/modules/jurnal.ts` |
 | Dashboard | [`dashboard/`](./dashboard/index.md) | `views/dashboard/` | `mocks/modules/dashboard.ts` |
 

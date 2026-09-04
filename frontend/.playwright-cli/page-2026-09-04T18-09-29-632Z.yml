@@ -1,0 +1,92 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e85]:
+    - complementary [ref=e86]:
+      - generic [ref=e87]:
+        - generic [ref=e88]: F
+        - generic [ref=e89]: ERP Finance
+      - paragraph [ref=e90]: Navigasi
+      - navigation [ref=e91]:
+        - link "Dashboard" [ref=e92] [cursor=pointer]:
+          - /url: /dashboard
+        - button "Master" [ref=e99] [cursor=pointer]
+        - button "Akuntansi" [ref=e107] [cursor=pointer]
+        - link "Jurnal Umum" [ref=e114] [cursor=pointer]:
+          - /url: /jurnal
+        - link "Design System" [ref=e119] [cursor=pointer]:
+          - /url: /design-system
+      - button "Ciutkan" [ref=e126] [cursor=pointer]
+    - generic [ref=e131]:
+      - banner [ref=e132]:
+        - button "PT Rahadhyan Integrasi Nusantara" [ref=e134] [cursor=pointer]
+        - generic [ref=e141]:
+          - textbox [ref=e146]:
+            - /placeholder: Cari…
+          - generic [ref=e147]:
+            - button "Renggang" [ref=e148] [cursor=pointer]
+            - button "Rapat" [ref=e151] [cursor=pointer]
+          - button "SW Sri Wahyuni" [ref=e156] [cursor=pointer]:
+            - generic [ref=e157]: SW
+            - generic [ref=e158]: Sri Wahyuni
+      - main [ref=e161]:
+        - generic [ref=e162]:
+          - generic [ref=e164]:
+            - heading "Dashboard" [level=1] [ref=e165]
+            - paragraph [ref=e166]: Ringkasan posisi keuangan bulan berjalan
+          - generic [ref=e168]:
+            - generic [ref=e169]:
+              - paragraph [ref=e170]: Kas & Bank
+              - paragraph [ref=e171]: 128.450.000
+            - generic [ref=e172]:
+              - paragraph [ref=e173]: Piutang Usaha
+              - paragraph [ref=e174]: 54.200.000
+            - generic [ref=e175]:
+              - paragraph [ref=e176]: Utang Usaha
+              - paragraph [ref=e177]: 71.800.000
+            - generic [ref=e178]:
+              - paragraph [ref=e179]: Laba Bulan Ini
+              - paragraph [ref=e180]: 39.650.000
+              - paragraph [ref=e181]: +8,4% vs bulan lalu
+            - generic [ref=e182]:
+              - paragraph [ref=e183]: Posting Bulan Ini
+              - paragraph [ref=e184]: "5"
+            - generic [ref=e185]:
+              - paragraph [ref=e186]: Nilai Transaksi
+              - paragraph [ref=e187]: 101.550.000
+          - generic [ref=e188]:
+            - heading "Jurnal Terakhir" [level=2] [ref=e191]
+            - table [ref=e193]:
+              - rowgroup [ref=e194]:
+                - row [ref=e195]:
+                  - columnheader "Tanggal" [ref=e196]
+                  - columnheader "Nomor" [ref=e197]
+                  - columnheader "Keterangan" [ref=e198]
+                  - columnheader "Nilai (Rp)" [ref=e199]
+              - rowgroup [ref=e200]:
+                - row [ref=e201]:
+                  - cell "01 Agt 2026" [ref=e202]
+                  - cell "JU-2608-001" [ref=e203]
+                  - cell "Pembayaran sewa kantor Agustus" [ref=e204]
+                  - cell "15.000.000" [ref=e205]
+                - row [ref=e206]:
+                  - cell "03 Agt 2026" [ref=e207]
+                  - cell "JU-2608-002" [ref=e208]
+                  - cell "Penjualan tunai" [ref=e209]
+                  - cell "8.500.000" [ref=e210]
+                - row [ref=e211]:
+                  - cell "05 Agt 2026" [ref=e212]
+                  - cell "JU-2608-003" [ref=e213]
+                  - cell "Pembayaran gaji karyawan" [ref=e214]
+                  - cell "42.000.000" [ref=e215]
+                - row [ref=e216]:
+                  - cell "09 Agt 2026" [ref=e217]
+                  - cell "JU-2608-004" [ref=e218]
+                  - cell "Pembelian persediaan kredit" [ref=e219]
+                  - cell "23.750.000" [ref=e220]
+                - row [ref=e221]:
+                  - cell "12 Agt 2026" [ref=e222]
+                  - cell "JU-2608-005" [ref=e223]
+                  - cell "Penerimaan pelunasan piutang" [ref=e224]
+                  - cell "12.300.000" [ref=e225]
+  - generic [ref=e73]:
+    - generic "Toggle devtools panel" [ref=e74] [cursor=pointer]
+    - generic "Toggle Component Inspector" [ref=e80] [cursor=pointer]

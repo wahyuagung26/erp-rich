@@ -1,6 +1,5 @@
 import {
 	IconLayoutDashboard,
-	IconListDetails,
 	IconBuilding,
 	IconBuildingWarehouse,
 	IconUsers,
@@ -15,7 +14,9 @@ import {
 	IconPackages,
 	IconCalculator,
 	IconFolders,
-	IconListTree
+	IconListTree,
+	IconListNumbers,
+	IconReceipt2
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -32,7 +33,6 @@ export const NAV: NavItem[] = [
 		label: 'Master',
 		icon: IconDatabase,
 		children: [
-			{ label: 'Bagan Akun', to: '/akun', icon: IconListDetails },
 			{ label: 'Perusahaan', to: '/perusahaan', icon: IconBuilding },
 			{ label: 'Merk', to: '/merk', icon: IconTag },
 			{ label: 'Kategori Produk', to: '/kategori', icon: IconCategory },
@@ -40,6 +40,7 @@ export const NAV: NavItem[] = [
 			{ label: 'Cabang', to: '/cabang', icon: IconBuildingStore },
 			{ label: 'Departemen', to: '/departemen', icon: IconSitemap },
 			{ label: 'Gudang', to: '/gudang', icon: IconPackages },
+			{ label: 'Jenis Penjualan', to: '/jenis-penjualan', icon: IconReceipt2 },
 			{ label: 'Supplier', to: '/supplier', icon: IconBuildingWarehouse },
 			{ label: 'Customer', to: '/customer', icon: IconUsers }
 		]
@@ -49,7 +50,8 @@ export const NAV: NavItem[] = [
 		icon: IconCalculator,
 		children: [
 			{ label: 'Group Akun', to: '/group-akun', icon: IconFolders },
-			{ label: 'Sub Akun', to: '/sub-akun', icon: IconListTree }
+			{ label: 'Sub Akun', to: '/sub-akun', icon: IconListTree },
+			{ label: 'Akun Perkiraan', to: '/akun-perkiraan', icon: IconListNumbers }
 		]
 	},
 	{ label: 'Jurnal Umum', to: '/jurnal', icon: IconBook2 },

@@ -17,9 +17,9 @@ export function registerJurnal(mock: MockAdapter) {
 		const body = JSON.parse(config.data) as Omit<Jurnal, 'id' | 'number' | 'total'>
 		const total = body.lines.reduce((s, l) => s + Number(l.debit || 0), 0)
 		const seqNo = String(db.jurnal.length + 1).padStart(3, '0')
-		// resolve denormalized code/name from the akun store (backend does this too)
+		// resolve denormalized code/name from the akun perkiraan store (backend does this too)
 		const lines = body.lines.map((l) => {
-			const akun = db.akun.find((a) => a.id === Number(l.akun_id))
+			const akun = db.akunPerkiraan.find((a) => a.id === Number(l.akun_id))
 			return { ...l, akun_id: Number(l.akun_id), akun_code: akun?.code, akun_name: akun?.name }
 		})
 		const row: Jurnal = { ...body, lines, id: nextId(db.jurnal), number: `JU-MOCK-${seqNo}`, total }
