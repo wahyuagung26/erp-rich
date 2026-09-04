@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/base/PageHeader.vue'
@@ -17,6 +18,12 @@ async function save(payload: CustomerForm) {
 		await api.post('/customer', payload)
 		toast.success('Customer ditambahkan')
 		router.push('/customer')
+	} catch (err) {
+		if (axios.isAxiosError(err) && err.response?.status === 422) {
+			toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
+			return
+		}
+		throw err
 	} finally {
 		saving.value = false
 	}

@@ -32,3 +32,11 @@ export function sortBy<T>(items: T[], field?: string, dir: 'asc' | 'desc' = 'asc
 		return dir === 'asc' ? cmp : -cmp
 	})
 }
+
+// X-Company-Id arrives as a request header on every request once a company is
+// active (see utils/api.ts's request interceptor + stores/company.ts).
+// Company-scoped mock modules read it the same way across GET/POST/PUT/DELETE.
+export function companyIdOf(config: { headers?: Record<string, unknown> }): number | null {
+	const n = Number(config.headers?.['X-Company-Id'])
+	return Number.isFinite(n) && n > 0 ? n : null
+}

@@ -3,20 +3,21 @@ type: OKF Module
 title: Supplier (Master Vendor)
 description: CRUD for supplier / vendor master data. Soft-delete — rows are marked deleted, never removed.
 tags: [supplier, master-data]
-timestamp: 2026-09-03T13:30:00Z
+timestamp: 2026-09-04T10:00:00Z
 ---
 
 # Supplier
 
 Master data for suppliers / vendors. Consumed by `frontend/src/views/supplier/`
 (list, detail, tambah, edit) and (later) referenced by pembelian / retur pembelian
-line items.
+line items. Company-scoped — see [conventions](../conventions.md#company-scoping).
 
 ## Entity: `Supplier`
 
 | Field | Type | Notes |
 |---|---|---|
 | `id` | number | auto-increment, server-assigned |
+| `company_id` | number | required; scopes the row to a company — see [conventions](../conventions.md#company-scoping) |
 | `code` | string | server-assigned, e.g. `SUP-0001`; read-only in the form |
 | `name` | string | required; min 3 |
 | `address` | string | required |

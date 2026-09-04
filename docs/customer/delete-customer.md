@@ -7,7 +7,7 @@ path: /customer/:id
 status: mock
 tags: [customer, write]
 resource: /frontend/src/mocks/modules/customer.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-04T10:00:00Z
 ---
 
 # Delete Customer
@@ -16,6 +16,12 @@ Backs the delete action in `PageCustomerTable.vue` (row) and `PageCustomerDetail
 both behind a confirm dialog.
 
 ## Request
+
+### Headers
+
+| Name | Type | Notes |
+|---|---|---|
+| `X-Company-Id` | number | see [conventions](../conventions.md#company-scoping) |
 
 ### Path params
 
@@ -35,7 +41,7 @@ both behind a confirm dialog.
 
 | Status | When | Body |
 |---|---|---|
-| `404` | id not found, or already soft-deleted | `{ "message": "Customer tidak ditemukan" }` |
+| `404` | id not found, already soft-deleted, or belongs to a different company than the active one | `{ "message": "Customer tidak ditemukan" }` |
 
 ## Notes
 

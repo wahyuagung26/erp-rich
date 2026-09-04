@@ -7,7 +7,7 @@ path: /supplier/:id
 status: mock
 tags: [supplier, write]
 resource: /frontend/src/mocks/modules/supplier.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-04T10:00:00Z
 ---
 
 # Update Supplier
@@ -17,6 +17,12 @@ rules as [create-supplier](./create-supplier.md)).
 
 ## Request
 
+### Headers
+
+| Name | Type | Notes |
+|---|---|---|
+| `X-Company-Id` | number | see [conventions](../conventions.md#company-scoping) |
+
 ### Path params
 
 | Name | Type |
@@ -25,8 +31,9 @@ rules as [create-supplier](./create-supplier.md)).
 
 ### Body
 
-Same shape and rules as [create-supplier](./create-supplier.md). `code`, `id` and
-`deleted_at` are ignored if sent.
+Same shape and rules as [create-supplier](./create-supplier.md). `code`, `id`,
+`company_id` and `deleted_at` are ignored if sent — a row can't be moved to
+another company via this endpoint.
 
 ## Response
 
@@ -36,5 +43,5 @@ Same shape and rules as [create-supplier](./create-supplier.md). `code`, `id` an
 
 | Status | When | Body |
 |---|---|---|
-| `404` | id not found, or soft-deleted | `{ "message": "Supplier tidak ditemukan" }` |
+| `404` | id not found, soft-deleted, or belongs to a different company than the active one | `{ "message": "Supplier tidak ditemukan" }` |
 | `422` | validation | `{ "message": "...", "errors": { } }` |

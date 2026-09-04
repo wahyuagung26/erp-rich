@@ -3,6 +3,7 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import dashboard from './dashboard'
 import akun from './akun'
 import perusahaan from './perusahaan'
+import merk from './merk'
 import supplier from './supplier'
 import customer from './customer'
 import jurnal from './jurnal'
@@ -16,6 +17,7 @@ const routes: RouteRecordRaw[] = [
 			...dashboard,
 			...akun,
 			...perusahaan,
+			...merk,
 			...supplier,
 			...customer,
 			...jurnal,

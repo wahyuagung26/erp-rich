@@ -7,7 +7,7 @@ path: /customer
 status: mock
 tags: [customer, write]
 resource: /frontend/src/mocks/modules/customer.ts
-timestamp: 2026-09-03T15:00:00Z
+timestamp: 2026-09-04T10:00:00Z
 ---
 
 # Create Customer
@@ -16,6 +16,12 @@ Backs `views/customer/pages/PageCustomerTambah.vue`. Client-side validation:
 `frontend/src/views/customer/schema.ts` (valibot) — the backend must re-validate.
 
 ## Request
+
+### Headers
+
+| Name | Type | Notes |
+|---|---|---|
+| `X-Company-Id` | number | required — see [conventions](../conventions.md#company-scoping) |
 
 ### Body
 
@@ -43,7 +49,9 @@ Backs `views/customer/pages/PageCustomerTambah.vue`. Client-side validation:
 | `phone` `address` `city` `bank_name` `bank_account` `npwp` `notes` | string | optional |
 | `pkp` | boolean | default `false` |
 
-`code` and `id` are **not** accepted from the client — the server assigns them.
+`code`, `id`, and `company_id` are **not** accepted from the client — the server
+assigns them (`company_id` is stamped from the active company, see
+[conventions](../conventions.md#company-scoping)).
 
 ## Response
 
@@ -58,3 +66,4 @@ Backs `views/customer/pages/PageCustomerTambah.vue`. Client-side validation:
 | Status | When | Body |
 |---|---|---|
 | `422` | validation | `{ "message": "...", "errors": { "name": ["..."] } }` |
+| `422` | no active company | `{ "message": "Pilih perusahaan aktif terlebih dahulu" }` |

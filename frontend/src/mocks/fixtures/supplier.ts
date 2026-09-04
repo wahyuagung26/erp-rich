@@ -3,6 +3,7 @@ import type { Supplier } from '@/utils/types'
 export const supplierSeed: Supplier[] = [
 	{
 		id: 1,
+		company_id: 1,
 		code: 'SUP-0001',
 		name: 'PT Sumber Rejeki',
 		address: 'Jl. Merdeka No. 10',
@@ -21,6 +22,7 @@ export const supplierSeed: Supplier[] = [
 	},
 	{
 		id: 2,
+		company_id: 2,
 		code: 'SUP-0002',
 		name: 'CV Mitra Abadi',
 		address: 'Jl. Diponegoro No. 45',
@@ -39,6 +41,7 @@ export const supplierSeed: Supplier[] = [
 	},
 	{
 		id: 3,
+		company_id: 3,
 		code: 'SUP-0003',
 		name: 'Toko Jaya Makmur',
 		address: 'Ruko Green Park Blok C2',
@@ -57,6 +60,7 @@ export const supplierSeed: Supplier[] = [
 	},
 	{
 		id: 4,
+		company_id: 1,
 		code: 'SUP-0004',
 		name: 'PT Cahaya Logistik',
 		address: 'Jl. Rungkut Industri III No. 7',
@@ -75,6 +79,7 @@ export const supplierSeed: Supplier[] = [
 	},
 	{
 		id: 5,
+		company_id: 2,
 		code: 'SUP-0005',
 		name: 'UD Berkah Tani',
 		address: 'Desa Sukorejo RT 02 RW 05',
@@ -93,6 +98,7 @@ export const supplierSeed: Supplier[] = [
 	},
 	{
 		id: 6,
+		company_id: 3,
 		code: 'SUP-0006',
 		name: 'PT Global Kemasan',
 		address: 'Kawasan Industri SIER Blok J-3',

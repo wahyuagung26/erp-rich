@@ -3,20 +3,21 @@ type: OKF Module
 title: Customer (Master Pelanggan)
 description: CRUD for customer master data. Soft-delete — rows are marked deleted, never removed.
 tags: [customer, master-data]
-timestamp: 2026-09-03T15:00:00Z
+timestamp: 2026-09-04T10:00:00Z
 ---
 
 # Customer
 
 Master data for customers / pelanggan. Consumed by `frontend/src/views/customer/`
 (list, detail, tambah, edit) and (later) referenced by penjualan / retur penjualan
-line items.
+line items. Company-scoped — see [conventions](../conventions.md#company-scoping).
 
 ## Entity: `Customer`
 
 | Field | Type | Notes |
 |---|---|---|
 | `id` | number | auto-increment, server-assigned |
+| `company_id` | number | required; scopes the row to a company — see [conventions](../conventions.md#company-scoping) |
 | `code` | string | server-assigned, e.g. `CUST-0001`; read-only in the form |
 | `name` | string | required; min 3 |
 | `phone` | string | optional; "No. Telp" in the legacy screen |

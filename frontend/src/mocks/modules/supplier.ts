@@ -1,20 +1,23 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { nextId, paginate, sortBy, type ListParams } from '../lib'
+import { nextId, paginate, sortBy, companyIdOf, type ListParams } from '../lib'
 import type { Supplier } from '@/utils/types'
 
 const idOf = (url?: string) => Number(url?.split('/').pop())
 const live = () => db.supplier.filter((s) => !s.deleted_at)
 const supplierCode = (id: number) => `SUP-${String(id).padStart(4, '0')}`
 
-// Client never sends id / code / deleted_at — the server owns them.
-type SupplierInput = Omit<Supplier, 'id' | 'code' | 'deleted_at'>
+// Client never sends id / code / company_id / deleted_at — the server owns them.
+type SupplierInput = Omit<Supplier, 'id' | 'code' | 'company_id' | 'deleted_at'>
 
 // Contract: docs/supplier/ — soft delete (deleted_at), never hard-removed.
+// Company-scoped — see docs/conventions.md#company-scoping.
 export function registerSupplier(mock: MockAdapter) {
 	mock.onGet('/supplier').reply((config) => {
 		const p = (config.params ?? {}) as ListParams
-		let rows = live()
+		const companyId = companyIdOf(config)
+		if (companyId === null) return [200, paginate([], p)]
+		let rows = live().filter((s) => s.company_id === companyId)
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((s) => `${s.code} ${s.name} ${s.contact_person}`.toLowerCase().includes(q))
@@ -25,29 +28,31 @@ export function registerSupplier(mock: MockAdapter) {
 	})
 
 	mock.onGet(/\/supplier\/\d+$/).reply((config) => {
-		const found = live().find((s) => s.id === idOf(config.url))
+		const found = live().find((s) => s.id === idOf(config.url) && s.company_id === companyIdOf(config))
 		return found ? [200, { data: found }] : [404, { message: 'Supplier tidak ditemukan' }]
 	})
 
 	mock.onPost('/supplier').reply((config) => {
+		const companyId = companyIdOf(config)
+		if (companyId === null) return [422, { message: 'Pilih perusahaan aktif terlebih dahulu' }]
 		const body = JSON.parse(config.data) as SupplierInput
 		const id = nextId(db.supplier)
-		const row: Supplier = { ...body, id, code: supplierCode(id), deleted_at: null }
+		const row: Supplier = { ...body, id, code: supplierCode(id), company_id: companyId, deleted_at: null }
 		db.supplier.unshift(row)
 		return [201, { data: row, message: 'Supplier ditambahkan' }]
 	})
 
 	mock.onPut(/\/supplier\/\d+$/).reply((config) => {
 		const body = JSON.parse(config.data) as Partial<SupplierInput>
-		const idx = db.supplier.findIndex((s) => s.id === idOf(config.url) && !s.deleted_at)
+		const idx = db.supplier.findIndex((s) => s.id === idOf(config.url) && !s.deleted_at && s.company_id === companyIdOf(config))
 		if (idx === -1) return [404, { message: 'Supplier tidak ditemukan' }]
 		const current = db.supplier[idx]
-		db.supplier[idx] = { ...current, ...body, id: current.id, code: current.code, deleted_at: current.deleted_at }
+		db.supplier[idx] = { ...current, ...body, id: current.id, code: current.code, company_id: current.company_id, deleted_at: current.deleted_at }
 		return [200, { data: db.supplier[idx], message: 'Supplier diperbarui' }]
 	})
 
 	mock.onDelete(/\/supplier\/\d+$/).reply((config) => {
-		const found = db.supplier.find((s) => s.id === idOf(config.url) && !s.deleted_at)
+		const found = db.supplier.find((s) => s.id === idOf(config.url) && !s.deleted_at && s.company_id === companyIdOf(config))
 		if (!found) return [404, { message: 'Supplier tidak ditemukan' }]
 		found.deleted_at = new Date().toISOString()
 		return [200, { message: 'Supplier dihapus' }]

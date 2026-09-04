@@ -22,7 +22,10 @@ const router = useRouter()
 const { ask } = useConfirm()
 const toast = useToast()
 
-const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<Customer>({ endpoint: '/customer' })
+const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<Customer>({
+	endpoint: '/customer',
+	scopedToCompany: true
+})
 
 const q = ref('')
 const pkp = ref('')

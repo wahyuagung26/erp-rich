@@ -50,6 +50,7 @@ export interface Akun {
 // `deleted_at` is the soft-delete marker — non-null rows are hidden from lists.
 export interface Supplier {
 	id: number
+	company_id: number
 	code: string
 	name: string
 	address: string
@@ -71,6 +72,7 @@ export interface Supplier {
 // `deleted_at` is the soft-delete marker — non-null rows are hidden from lists.
 export interface Customer {
 	id: number
+	company_id: number
 	code: string
 	name: string
 	phone: string
@@ -101,6 +103,16 @@ export interface Perusahaan {
 	company_type: CompanyType
 	hr_enabled: boolean
 	report_header_color: string
+	deleted_at: string | null
+}
+
+// Master data: merk produk / product brand. `code` is user-entered at create and
+// immutable afterward (the edit form disables it). `deleted_at` is the soft-delete marker.
+export interface Merk {
+	id: number
+	company_id: number
+	code: string
+	name: string
 	deleted_at: string | null
 }
 

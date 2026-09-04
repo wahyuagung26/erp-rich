@@ -3,6 +3,7 @@ import type { Customer } from '@/utils/types'
 export const customerSeed: Customer[] = [
 	{
 		id: 1,
+		company_id: 1,
 		code: 'CUST-0001',
 		name: 'PT Samudra Edukasi Raya',
 		phone: '0812-3456-7890',
@@ -19,6 +20,7 @@ export const customerSeed: Customer[] = [
 	},
 	{
 		id: 2,
+		company_id: 2,
 		code: 'CUST-0002',
 		name: 'CV Rejeki Nomplok',
 		phone: '031-8901234',
@@ -35,6 +37,7 @@ export const customerSeed: Customer[] = [
 	},
 	{
 		id: 3,
+		company_id: 3,
 		code: 'CUST-0003',
 		name: 'Toko Buku Cerdas',
 		phone: '0857-1122-3344',
@@ -51,6 +54,7 @@ export const customerSeed: Customer[] = [
 	},
 	{
 		id: 4,
+		company_id: 1,
 		code: 'CUST-0004',
 		name: 'PT Cahaya Nusantara',
 		phone: '031-8471200',
@@ -67,6 +71,7 @@ export const customerSeed: Customer[] = [
 	},
 	{
 		id: 5,
+		company_id: 2,
 		code: 'CUST-0005',
 		name: 'Yayasan Pendidikan Harapan',
 		phone: '0812-3456-7891',
@@ -83,6 +88,7 @@ export const customerSeed: Customer[] = [
 	},
 	{
 		id: 6,
+		company_id: 3,
 		code: 'CUST-0006',
 		name: 'PT Global Retail',
 		phone: '031-8438800',

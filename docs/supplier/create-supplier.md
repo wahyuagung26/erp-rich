@@ -7,7 +7,7 @@ path: /supplier
 status: mock
 tags: [supplier, write]
 resource: /frontend/src/mocks/modules/supplier.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-04T10:00:00Z
 ---
 
 # Create Supplier
@@ -16,6 +16,12 @@ Backs `views/supplier/pages/PageSupplierTambah.vue`. Client-side validation:
 `frontend/src/views/supplier/schema.ts` (valibot) — the backend must re-validate.
 
 ## Request
+
+### Headers
+
+| Name | Type | Notes |
+|---|---|---|
+| `X-Company-Id` | number | required — see [conventions](../conventions.md#company-scoping) |
 
 ### Body
 
@@ -48,7 +54,9 @@ Backs `views/supplier/pages/PageSupplierTambah.vue`. Client-side validation:
 | `city` `fax` `contact_person` `bank_name` `bank_account` `notes` | string | optional |
 | `pkp` | boolean | default `false` |
 
-`code` and `id` are **not** accepted from the client — the server assigns them.
+`code`, `id`, and `company_id` are **not** accepted from the client — the server
+assigns them (`company_id` is stamped from the active company, see
+[conventions](../conventions.md#company-scoping)).
 
 ## Response
 
@@ -63,3 +71,4 @@ Backs `views/supplier/pages/PageSupplierTambah.vue`. Client-side validation:
 | Status | When | Body |
 |---|---|---|
 | `422` | validation | `{ "message": "...", "errors": { "name": ["..."] } }` |
+| `422` | no active company | `{ "message": "Pilih perusahaan aktif terlebih dahulu" }` |

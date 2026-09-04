@@ -1,16 +1,18 @@
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import api from '@/utils/api'
+import { useCompanyStore } from '@/stores/company'
 import type { ApiList, Pagination, TableRow } from '@/utils/types'
 
 interface Options {
 	endpoint: string
 	defaultLimit?: number
 	immediate?: boolean
+	scopedToCompany?: boolean
 }
 
 // Standard list/table data-flow (RICH architecture.md §4): fetch on mount,
 // re-fetch on page / limit / sort / filter change. Keeps view files small.
-export function useTableList<T>({ endpoint, defaultLimit = 10, immediate = true }: Options) {
+export function useTableList<T>({ endpoint, defaultLimit = 10, immediate = true, scopedToCompany = false }: Options) {
 	const columns = ref<T[]>([]) as { value: T[] }
 	const pagination = ref<Pagination>()
 	const loading = ref(false)
@@ -62,6 +64,20 @@ export function useTableList<T>({ endpoint, defaultLimit = 10, immediate = true 
 	}
 
 	if (immediate) onMounted(fetchList)
+
+	// Company-scoped lists must refetch when the active company changes (topbar
+	// CompanyPicker), and when it first resolves after this page's own mount
+	// (cold-start race — see docs/conventions.md#company-scoping).
+	if (scopedToCompany) {
+		const companyStore = useCompanyStore()
+		watch(
+			() => companyStore.activeId,
+			() => {
+				page.value = 1
+				fetchList()
+			}
+		)
+	}
 
 	return { columns, pagination, loading, page, limit, orderBy, filters, fetchList, handleSort, pageTo, applyFilters }
 }

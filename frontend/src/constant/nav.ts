@@ -6,7 +6,8 @@ import {
 	IconUsers,
 	IconBook2,
 	IconPalette,
-	IconDatabase
+	IconDatabase,
+	IconTag
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -25,6 +26,7 @@ export const NAV: NavItem[] = [
 		children: [
 			{ label: 'Bagan Akun', to: '/akun', icon: IconListDetails },
 			{ label: 'Perusahaan', to: '/perusahaan', icon: IconBuilding },
+			{ label: 'Merk', to: '/merk', icon: IconTag },
 			{ label: 'Supplier', to: '/supplier', icon: IconBuildingWarehouse },
 			{ label: 'Customer', to: '/customer', icon: IconUsers }
 		]

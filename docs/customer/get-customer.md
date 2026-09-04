@@ -7,7 +7,7 @@ path: /customer/:id
 status: mock
 tags: [customer, read]
 resource: /frontend/src/mocks/modules/customer.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-04T10:00:00Z
 ---
 
 # Get Customer
@@ -16,6 +16,12 @@ Backs `views/customer/pages/PageCustomerDetail.vue` (read-only view) and
 `PageCustomerEdit.vue` (loads the record into the form).
 
 ## Request
+
+### Headers
+
+| Name | Type | Notes |
+|---|---|---|
+| `X-Company-Id` | number | see [conventions](../conventions.md#company-scoping) |
 
 ### Path params
 
@@ -31,4 +37,4 @@ Backs `views/customer/pages/PageCustomerDetail.vue` (read-only view) and
 
 | Status | When | Body |
 |---|---|---|
-| `404` | id not found, or the customer is soft-deleted | `{ "message": "Customer tidak ditemukan" }` |
+| `404` | id not found, soft-deleted, or belongs to a different company than the active one | `{ "message": "Customer tidak ditemukan" }` |

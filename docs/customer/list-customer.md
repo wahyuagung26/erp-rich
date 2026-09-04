@@ -7,7 +7,7 @@ path: /customer
 status: mock
 tags: [customer, read, list]
 resource: /frontend/src/mocks/modules/customer.ts
-timestamp: 2026-09-03T15:00:00Z
+timestamp: 2026-09-04T10:00:00Z
 ---
 
 # List Customer
@@ -15,6 +15,12 @@ timestamp: 2026-09-03T15:00:00Z
 Backs `views/customer/pages/PageCustomerTable.vue` (via the `useTableList` composable).
 
 ## Request
+
+### Headers
+
+| Name | Type | Notes |
+|---|---|---|
+| `X-Company-Id` | number | sent automatically by the frontend, not a user-facing filter; see [conventions](../conventions.md#company-scoping) |
 
 ### Query
 
@@ -32,7 +38,7 @@ Backs `views/customer/pages/PageCustomerTable.vue` (via the `useTableList` compo
 {
   "data": [
     {
-      "id": 1, "code": "CUST-0001", "name": "PT Samudra Edukasi Raya",
+      "id": 1, "company_id": 1, "code": "CUST-0001", "name": "PT Samudra Edukasi Raya",
       "phone": "0812-3456-7890", "email": "akuntansi@sera.co.id",
       "address": "Perum Griya Sakinah Al Kautsar Blok C No 30, Jiwan", "city": "Madiun",
       "bank_name": "BCA", "bank_account": "1234567890",
@@ -52,3 +58,4 @@ Standard only (`401`).
 
 - Rows with a non-null `deleted_at` are never returned.
 - Default sort when `sort_by` omitted: insertion order (newest first after a create).
+- Returns an empty page if the active company hasn't resolved yet (no `X-Company-Id`).
