@@ -5,6 +5,7 @@ import { registerAkun } from './modules/akun'
 import { registerPerusahaan } from './modules/perusahaan'
 import { registerMerk } from './modules/merk'
 import { registerKategori } from './modules/kategori'
+import { registerSatuan } from './modules/satuan'
 import { registerSupplier } from './modules/supplier'
 import { registerCustomer } from './modules/customer'
 import { registerJurnal } from './modules/jurnal'
@@ -18,6 +19,7 @@ const modules = [
 	registerPerusahaan,
 	registerMerk,
 	registerKategori,
+	registerSatuan,
 	registerSupplier,
 	registerCustomer,
 	registerJurnal,

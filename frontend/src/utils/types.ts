@@ -126,6 +126,16 @@ export interface Kategori {
 	deleted_at: string | null
 }
 
+// Master data: satuan / unit of measure. Same contract as Merk/Kategori — `code`
+// is user-entered at create and immutable afterward (the edit form disables it).
+export interface Satuan {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	deleted_at: string | null
+}
+
 export interface JurnalLine {
 	akun_id: number
 	akun_code?: string

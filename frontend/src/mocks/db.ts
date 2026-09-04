@@ -5,7 +5,8 @@ import { customerSeed } from './fixtures/customer'
 import { perusahaanSeed } from './fixtures/perusahaan'
 import { merkSeed } from './fixtures/merk'
 import { kategoriSeed } from './fixtures/kategori'
-import type { Akun, Jurnal, Supplier, Customer, Perusahaan, Merk, Kategori } from '@/utils/types'
+import { satuanSeed } from './fixtures/satuan'
+import type { Akun, Jurnal, Supplier, Customer, Perusahaan, Merk, Kategori, Satuan } from '@/utils/types'
 
 // Single in-memory store shared by every mock module. Mutations persist for
 // the browser session; a reload re-seeds from fixtures.
@@ -17,6 +18,7 @@ export const db: {
 	perusahaan: Perusahaan[]
 	merk: Merk[]
 	kategori: Kategori[]
+	satuan: Satuan[]
 } = {
 	akun: structuredClone(akunSeed),
 	jurnal: structuredClone(jurnalSeed),
@@ -24,5 +26,6 @@ export const db: {
 	customer: structuredClone(customerSeed),
 	perusahaan: structuredClone(perusahaanSeed),
 	merk: structuredClone(merkSeed),
-	kategori: structuredClone(kategoriSeed)
+	kategori: structuredClone(kategoriSeed),
+	satuan: structuredClone(satuanSeed)
 }
