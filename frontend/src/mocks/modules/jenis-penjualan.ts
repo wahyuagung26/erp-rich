@@ -19,10 +19,11 @@ interface Body {
 	akun_pendapatan_id: number
 	akun_hpp_id: number
 	akun_persediaan_id: number
+	akun_biaya_id: number
 }
 
 // Contract: docs/jenis-penjualan/ — code is user-entered at create, immutable
-// after (ignored on update). The three akun_*_id references must each belong to
+// after (ignored on update). The four akun_*_id references must each belong to
 // the active company; their code/name are denormalized onto the row (same
 // pattern as Gudang's cabang_code/cabang_name). Soft delete, company-scoped —
 // see docs/conventions.md#company-scoping.
@@ -56,6 +57,8 @@ export function registerJenisPenjualan(mock: MockAdapter) {
 		if (!hpp) return [422, { message: 'Validasi gagal', errors: { akun_hpp_id: ['Akun HPP tidak valid'] } }]
 		const persediaan = akunOf(Number(body.akun_persediaan_id), companyId)
 		if (!persediaan) return [422, { message: 'Validasi gagal', errors: { akun_persediaan_id: ['Akun persediaan tidak valid'] } }]
+		const biaya = akunOf(Number(body.akun_biaya_id), companyId)
+		if (!biaya) return [422, { message: 'Validasi gagal', errors: { akun_biaya_id: ['Akun biaya tidak valid'] } }]
 		const id = nextId(db.jenisPenjualan)
 		const row: JenisPenjualan = {
 			id,
@@ -71,6 +74,9 @@ export function registerJenisPenjualan(mock: MockAdapter) {
 			akun_persediaan_id: persediaan.id,
 			akun_persediaan_code: persediaan.code,
 			akun_persediaan_name: persediaan.name,
+			akun_biaya_id: biaya.id,
+			akun_biaya_code: biaya.code,
+			akun_biaya_name: biaya.name,
 			deleted_at: null
 		}
 		db.jenisPenjualan.unshift(row)
@@ -79,7 +85,7 @@ export function registerJenisPenjualan(mock: MockAdapter) {
 
 	mock.onPut(/\/jenis-penjualan\/\d+$/).reply((config) => {
 		const companyId = companyIdOf(config)
-		const body = JSON.parse(config.data) as Pick<Body, 'name' | 'akun_pendapatan_id' | 'akun_hpp_id' | 'akun_persediaan_id'>
+		const body = JSON.parse(config.data) as Pick<Body, 'name' | 'akun_pendapatan_id' | 'akun_hpp_id' | 'akun_persediaan_id' | 'akun_biaya_id'>
 		const idx = db.jenisPenjualan.findIndex((j) => j.id === idOf(config.url) && !j.deleted_at && j.company_id === companyId)
 		if (idx === -1) return [404, { message: 'Jenis penjualan tidak ditemukan' }]
 		const pendapatan = akunOf(Number(body.akun_pendapatan_id), companyId as number)
@@ -88,6 +94,8 @@ export function registerJenisPenjualan(mock: MockAdapter) {
 		if (!hpp) return [422, { message: 'Validasi gagal', errors: { akun_hpp_id: ['Akun HPP tidak valid'] } }]
 		const persediaan = akunOf(Number(body.akun_persediaan_id), companyId as number)
 		if (!persediaan) return [422, { message: 'Validasi gagal', errors: { akun_persediaan_id: ['Akun persediaan tidak valid'] } }]
+		const biaya = akunOf(Number(body.akun_biaya_id), companyId as number)
+		if (!biaya) return [422, { message: 'Validasi gagal', errors: { akun_biaya_id: ['Akun biaya tidak valid'] } }]
 		// code is immutable — ignored even if the client sends it
 		db.jenisPenjualan[idx] = {
 			...db.jenisPenjualan[idx],
@@ -100,7 +108,10 @@ export function registerJenisPenjualan(mock: MockAdapter) {
 			akun_hpp_name: hpp.name,
 			akun_persediaan_id: persediaan.id,
 			akun_persediaan_code: persediaan.code,
-			akun_persediaan_name: persediaan.name
+			akun_persediaan_name: persediaan.name,
+			akun_biaya_id: biaya.id,
+			akun_biaya_code: biaya.code,
+			akun_biaya_name: biaya.name
 		}
 		return [200, { data: db.jenisPenjualan[idx], message: 'Jenis penjualan diperbarui' }]
 	})

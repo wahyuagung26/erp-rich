@@ -213,9 +213,9 @@ export interface AkunPerkiraan {
 	deleted_at: string | null
 }
 
-// Master data: jenis penjualan / sales type. Maps a sales type to the three
-// AkunPerkiraan accounts it posts to (revenue, COGS, inventory) — used by the
-// sales module (not built yet) to auto-fill journal accounts per transaction.
+// Master data: jenis penjualan / sales type. Maps a sales type to the four
+// AkunPerkiraan accounts it posts to (revenue, COGS, inventory, expense) — used
+// by the sales module (not built yet) to auto-fill journal accounts per transaction.
 // `code` is user-entered and immutable after create, same convention as
 // Merk/Kategori/Satuan/Cabang/Departemen/Gudang. Each akun_*_id is denormalized
 // with its code/name, same pattern as Gudang's cabang_code/cabang_name.
@@ -233,6 +233,9 @@ export interface JenisPenjualan {
 	akun_persediaan_id: number
 	akun_persediaan_code?: string
 	akun_persediaan_name?: string
+	akun_biaya_id: number
+	akun_biaya_code?: string
+	akun_biaya_name?: string
 	deleted_at: string | null
 }
 

@@ -1,7 +1,7 @@
 ---
 type: API Endpoint
 title: Update Jenis Penjualan
-description: Edit an existing sales type's name or its three account references. Code is immutable.
+description: Edit an existing sales type's name or its four account references. Code is immutable.
 method: PUT
 path: /jenis-penjualan/:id
 status: mock
@@ -14,7 +14,7 @@ timestamp: 2026-09-05T12:00:00Z
 
 Backs `views/jenis-penjualan/pages/PageJenisPenjualanEdit.vue`. The form shows
 `code` disabled — this endpoint ignores `code` even if sent. Unlike `code`, the
-three account references **are** editable here — re-validated the same as on create.
+four account references **are** editable here — re-validated the same as on create.
 
 ## Request
 
@@ -33,7 +33,7 @@ three account references **are** editable here — re-validated the same as on c
 ### Body
 
 ```json
-{ "name": "Bahan Baku Impor", "akun_pendapatan_id": 5, "akun_hpp_id": 6, "akun_persediaan_id": 7 }
+{ "name": "Bahan Baku Impor", "akun_pendapatan_id": 5, "akun_hpp_id": 6, "akun_persediaan_id": 7, "akun_biaya_id": 2 }
 ```
 
 `code`, `id`, and `company_id` are ignored if sent — a row can't be moved to

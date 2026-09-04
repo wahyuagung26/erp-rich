@@ -15,6 +15,9 @@ export const jenisPenjualanSeed: JenisPenjualan[] = [
 		akun_persediaan_id: 7,
 		akun_persediaan_code: '1000102',
 		akun_persediaan_name: 'Persediaan Bahan Baku',
+		akun_biaya_id: 2,
+		akun_biaya_code: '6000101',
+		akun_biaya_name: 'Beban Gaji Pokok',
 		deleted_at: null
 	}
 ]

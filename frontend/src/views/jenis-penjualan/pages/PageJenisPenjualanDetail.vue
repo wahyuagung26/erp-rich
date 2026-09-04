@@ -77,6 +77,8 @@ function remove() {
 					<dd class="text-ink">{{ jenisPenjualan.akun_hpp_code }} — {{ jenisPenjualan.akun_hpp_name }}</dd>
 					<dt class="text-ink-muted">Akun Persediaan</dt>
 					<dd class="text-ink">{{ jenisPenjualan.akun_persediaan_code }} — {{ jenisPenjualan.akun_persediaan_name }}</dd>
+					<dt class="text-ink-muted">Akun Biaya</dt>
+					<dd class="text-ink">{{ jenisPenjualan.akun_biaya_code }} — {{ jenisPenjualan.akun_biaya_name }}</dd>
 				</dl>
 			</section>
 		</Panel>

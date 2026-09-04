@@ -21,7 +21,8 @@ const form = reactive<JenisPenjualanForm>({
 	name: props.initial?.name ?? '',
 	akun_pendapatan_id: props.initial?.akun_pendapatan_id ?? 0,
 	akun_hpp_id: props.initial?.akun_hpp_id ?? 0,
-	akun_persediaan_id: props.initial?.akun_persediaan_id ?? 0
+	akun_persediaan_id: props.initial?.akun_persediaan_id ?? 0,
+	akun_biaya_id: props.initial?.akun_biaya_id ?? 0
 })
 
 // shared by all three account pickers below — one fetch, reused
@@ -80,6 +81,14 @@ defineExpose({ setServerErrors })
 							placeholder="Pilih akun persediaan"
 							:options="akunOptions"
 							@update:model-value="(v) => (form.akun_persediaan_id = Number(v))"
+						/>
+					</FormField>
+					<FormField label="Akun Biaya" required :error="errors.akun_biaya_id">
+						<Select
+							:model-value="form.akun_biaya_id || ''"
+							placeholder="Pilih akun biaya"
+							:options="akunOptions"
+							@update:model-value="(v) => (form.akun_biaya_id = Number(v))"
 						/>
 					</FormField>
 				</div>

@@ -11,7 +11,8 @@ export const jenisPenjualanSchema = v.object({
 	name: v.pipe(v.string(), v.trim(), v.nonEmpty('Jenis wajib diisi'), v.minLength(2, 'Minimal 2 karakter')),
 	akun_pendapatan_id: akunRef('Akun pendapatan wajib dipilih'),
 	akun_hpp_id: akunRef('Akun HPP wajib dipilih'),
-	akun_persediaan_id: akunRef('Akun persediaan wajib dipilih')
+	akun_persediaan_id: akunRef('Akun persediaan wajib dipilih'),
+	akun_biaya_id: akunRef('Akun biaya wajib dipilih')
 })
 
 export type JenisPenjualanForm = v.InferOutput<typeof jenisPenjualanSchema>

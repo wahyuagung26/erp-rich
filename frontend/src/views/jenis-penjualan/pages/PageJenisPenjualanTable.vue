@@ -34,6 +34,7 @@ const rows: TableRow[] = [
 	{ label: 'Akun Pendapatan', field: 'akun_pendapatan_name', align: 'left' },
 	{ label: 'Akun HPP', field: 'akun_hpp_name', align: 'left' },
 	{ label: 'Akun Persediaan', field: 'akun_persediaan_name', align: 'left' },
+	{ label: 'Akun Biaya', field: 'akun_biaya_name', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 
