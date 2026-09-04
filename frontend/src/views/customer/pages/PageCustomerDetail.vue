@@ -87,7 +87,7 @@ function remove() {
 				<section class="space-y-3">
 					<h3 class="subhead">Kontak</h3>
 					<dl class="grid grid-cols-[160px_1fr] gap-x-4 gap-y-2.5 text-m">
-						<dt class="text-ink-muted">No. Telp</dt>
+						<dt class="text-ink-muted">Telepon</dt>
 						<dd class="text-ink">{{ dash(customer.phone) }}</dd>
 						<dt class="text-ink-muted">Email</dt>
 						<dd class="text-ink">{{ dash(customer.email) }}</dd>

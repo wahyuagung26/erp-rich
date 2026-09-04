@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconSearch } from '@tabler/icons-vue'
-import Breadcrumb from '@/components/base/Breadcrumb.vue'
+import CompanyPicker from './CompanyPicker.vue'
 import UserMenu from './UserMenu.vue'
 import DensityToggle from './DensityToggle.vue'
 
@@ -9,7 +9,7 @@ import DensityToggle from './DensityToggle.vue'
 
 <template>
 	<header class="flex items-center gap-4 bg-panel px-4 py-2.5">
-		<Breadcrumb />
+		<CompanyPicker />
 		<div class="ml-auto flex items-center gap-2">
 			<label class="hidden items-center gap-2 rounded-md bg-fill px-2.5 py-1.5 text-m text-ink-subtle sm:flex">
 				<IconSearch class="h-4 w-4" />

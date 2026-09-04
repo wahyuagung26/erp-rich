@@ -32,7 +32,7 @@ const rows: TableRow[] = [
 	{ label: 'Kode', field: 'code', align: 'left', isSort: { activeSort: 'asc' } },
 	{ label: 'Nama Customer', field: 'name', align: 'left', isSort: { activeSort: 'asc' } },
 	{ label: 'Kota', field: 'city', align: 'left', isSort: { activeSort: 'asc' } },
-	{ label: 'No. Telp', field: 'phone', align: 'left' },
+	{ label: 'Telepon', field: 'phone', align: 'left' },
 	{ label: 'TOP', field: 'top_days', align: 'left' },
 	{ label: 'PKP', field: 'pkp', align: 'center' },
 	{ label: '', field: 'action', align: 'right' }

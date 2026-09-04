@@ -64,7 +64,7 @@ function onSubmit() {
 			<section class="space-y-3">
 				<h3 class="subhead">Kontak</h3>
 				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
-					<FormField label="No. Telp" :error="errors.phone">
+					<FormField label="Telepon" :error="errors.phone">
 						<Input v-model="form.phone" mono placeholder="0812-3456-7890" />
 					</FormField>
 					<FormField label="Email" :error="errors.email">
