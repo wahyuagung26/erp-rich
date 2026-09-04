@@ -173,6 +173,37 @@ export interface Gudang {
 	deleted_at: string | null
 }
 
+// Master data: group akun / account group. Classifies which financial statement an
+// account rolls up into (`category`) and its normal balance side (`normal_balance`,
+// same field name/values as `Akun.normal_balance`). Same contract as Merk/Kategori/
+// Satuan/Cabang/Departemen — `code` is user-entered at create and immutable afterward.
+export interface GroupAkun {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	category: 'neraca' | 'laba_rugi'
+	normal_balance: 'debit' | 'credit'
+	deleted_at: string | null
+}
+
+// Master data: sub akun / sub-account, under a GroupAkun. `code` is server-composed:
+// the first 2 digits are the owning group's `code` (zero-padded), the last 3 are
+// user-entered (`code_suffix` on write) — see docs/sub-akun/. `group_akun_id` and the
+// resulting `code` are both immutable after create. `group_akun_code`/`group_akun_name`
+// are denormalized onto reads, same pattern as Gudang's cabang_code/cabang_name.
+export interface SubAkun {
+	id: number
+	company_id: number
+	group_akun_id: number
+	group_akun_code?: string
+	group_akun_name?: string
+	code: string
+	name: string
+	normal_balance: 'debit' | 'credit'
+	deleted_at: string | null
+}
+
 export interface JurnalLine {
 	akun_id: number
 	akun_code?: string

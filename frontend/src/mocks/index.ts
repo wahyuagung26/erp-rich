@@ -9,6 +9,8 @@ import { registerSatuan } from './modules/satuan'
 import { registerCabang } from './modules/cabang'
 import { registerDepartemen } from './modules/departemen'
 import { registerGudang } from './modules/gudang'
+import { registerGroupAkun } from './modules/group-akun'
+import { registerSubAkun } from './modules/sub-akun'
 import { registerSupplier } from './modules/supplier'
 import { registerCustomer } from './modules/customer'
 import { registerJurnal } from './modules/jurnal'
@@ -26,6 +28,8 @@ const modules = [
 	registerCabang,
 	registerDepartemen,
 	registerGudang,
+	registerGroupAkun,
+	registerSubAkun,
 	registerSupplier,
 	registerCustomer,
 	registerJurnal,

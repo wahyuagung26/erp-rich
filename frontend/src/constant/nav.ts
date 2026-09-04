@@ -12,7 +12,10 @@ import {
 	IconRuler2,
 	IconBuildingStore,
 	IconSitemap,
-	IconPackages
+	IconPackages,
+	IconCalculator,
+	IconFolders,
+	IconListTree
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -39,6 +42,14 @@ export const NAV: NavItem[] = [
 			{ label: 'Gudang', to: '/gudang', icon: IconPackages },
 			{ label: 'Supplier', to: '/supplier', icon: IconBuildingWarehouse },
 			{ label: 'Customer', to: '/customer', icon: IconUsers }
+		]
+	},
+	{
+		label: 'Akuntansi',
+		icon: IconCalculator,
+		children: [
+			{ label: 'Group Akun', to: '/group-akun', icon: IconFolders },
+			{ label: 'Sub Akun', to: '/sub-akun', icon: IconListTree }
 		]
 	},
 	{ label: 'Jurnal Umum', to: '/jurnal', icon: IconBook2 },
