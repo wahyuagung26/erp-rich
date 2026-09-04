@@ -116,6 +116,16 @@ export interface Merk {
 	deleted_at: string | null
 }
 
+// Master data: kategori produk / product category. Same contract as Merk — `code`
+// is user-entered at create and immutable afterward (the edit form disables it).
+export interface Kategori {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	deleted_at: string | null
+}
+
 export interface JurnalLine {
 	akun_id: number
 	akun_code?: string

@@ -9,24 +9,24 @@ import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
-import FormMerk from '@/views/merk/components/FormMerk.vue'
-import type { Merk } from '@/utils/types'
-import type { MerkForm } from '@/views/merk/schema'
+import FormKategori from '@/views/kategori/components/FormKategori.vue'
+import type { Kategori } from '@/utils/types'
+import type { KategoriForm } from '@/views/kategori/schema'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
-const merk = ref<Merk>()
+const kategori = ref<Kategori>()
 const loading = ref(true)
 const notFound = ref(false)
 const saving = ref(false)
-const formRef = ref<InstanceType<typeof FormMerk>>()
+const formRef = ref<InstanceType<typeof FormKategori>>()
 
 onMounted(async () => {
 	try {
-		const res = await api.get<{ data: Merk }>(`/merk/${route.params.id}`)
-		merk.value = res.data.data
+		const res = await api.get<{ data: Kategori }>(`/kategori/${route.params.id}`)
+		kategori.value = res.data.data
 	} catch {
 		notFound.value = true
 	} finally {
@@ -34,12 +34,12 @@ onMounted(async () => {
 	}
 })
 
-async function save(payload: MerkForm) {
+async function save(payload: KategoriForm) {
 	saving.value = true
 	try {
-		await api.put(`/merk/${route.params.id}`, payload)
-		toast.success('Merk diperbarui')
-		router.push('/merk')
+		await api.put(`/kategori/${route.params.id}`, payload)
+		toast.success('Kategori diperbarui')
+		router.push('/kategori')
 	} catch (err) {
 		if (axios.isAxiosError(err) && err.response?.status === 422) {
 			const errors = err.response.data?.errors
@@ -56,14 +56,14 @@ async function save(payload: MerkForm) {
 
 <template>
 	<div class="space-y-4 p-4">
-		<PageHeader title="Edit Merk" subtitle="Master data merk produk" />
+		<PageHeader title="Edit Kategori" subtitle="Master data kategori produk" />
 		<Panel v-if="loading"><Skeleton :lines="3" /></Panel>
-		<Panel v-else-if="notFound || !merk">
-			<EmptyState title="Merk tidak ditemukan" description="Data mungkin sudah dihapus." />
+		<Panel v-else-if="notFound || !kategori">
+			<EmptyState title="Kategori tidak ditemukan" description="Data mungkin sudah dihapus." />
 			<div class="mt-3 flex justify-center">
-				<Button variant="secondary" @click="router.push('/merk')">Kembali</Button>
+				<Button variant="secondary" @click="router.push('/kategori')">Kembali</Button>
 			</div>
 		</Panel>
-		<FormMerk v-else ref="formRef" :initial="merk" is-edit :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
+		<FormKategori v-else ref="formRef" :initial="kategori" is-edit :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
 	</div>
 </template>

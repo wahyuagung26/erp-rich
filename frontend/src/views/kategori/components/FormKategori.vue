@@ -6,14 +6,14 @@ import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
 import Button from '@/components/base/Button.vue'
-import { validateMerk, type MerkForm } from '@/views/merk/schema'
+import { validateKategori, type KategoriForm } from '@/views/kategori/schema'
 
-const props = defineProps<{ initial?: Partial<MerkForm>; isEdit?: boolean; submitLabel?: string; loading?: boolean }>()
-const emit = defineEmits<{ submit: [MerkForm] }>()
+const props = defineProps<{ initial?: Partial<KategoriForm>; isEdit?: boolean; submitLabel?: string; loading?: boolean }>()
+const emit = defineEmits<{ submit: [KategoriForm] }>()
 
 const router = useRouter()
 
-const form = reactive<MerkForm>({
+const form = reactive<KategoriForm>({
 	code: props.initial?.code ?? '',
 	name: props.initial?.name ?? ''
 })
@@ -21,7 +21,7 @@ const form = reactive<MerkForm>({
 const errors = ref<Record<string, string>>({})
 
 function onSubmit() {
-	const found = validateMerk(form)
+	const found = validateKategori(form)
 	errors.value = found ?? {}
 	if (!found) emit('submit', { ...form })
 }
@@ -38,25 +38,25 @@ defineExpose({ setServerErrors })
 	<Panel>
 		<form class="space-y-8" @submit.prevent="onSubmit">
 			<section class="space-y-3">
-				<h3 class="subhead">Informasi Merk</h3>
+				<h3 class="subhead">Informasi Kategori</h3>
 				<div class="space-y-4">
 					<FormField
-						label="Kode Merk"
+						label="Kode Kategori"
 						required
 						:error="errors.code"
 						:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'"
 					>
-						<Input v-model="form.code" mono :disabled="isEdit" class="max-w-[200px]" placeholder="mis. SGT" />
+						<Input v-model="form.code" mono :disabled="isEdit" class="max-w-[200px]" placeholder="mis. ELK" />
 					</FormField>
-					<FormField label="Nama Merk" required :error="errors.name">
-						<Input v-model="form.name" class="max-w-sm" placeholder="mis. Samsung" />
+					<FormField label="Nama Kategori" required :error="errors.name">
+						<Input v-model="form.name" class="max-w-sm" placeholder="mis. Elektronik" />
 					</FormField>
 				</div>
 			</section>
 
 			<div class="flex gap-2 pt-2">
 				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
-				<Button variant="secondary" type="button" @click="router.push('/merk')"> <IconX class="h-4 w-4" /> Batal </Button>
+				<Button variant="secondary" type="button" @click="router.push('/kategori')"> <IconX class="h-4 w-4" /> Batal </Button>
 			</div>
 		</form>
 	</Panel>
