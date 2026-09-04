@@ -147,6 +147,32 @@ export interface Cabang {
 	deleted_at: string | null
 }
 
+// Master data: departemen / department. Same contract as Merk/Kategori/Satuan — `code`
+// is user-entered at create and immutable afterward (the edit form disables it).
+export interface Departemen {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	deleted_at: string | null
+}
+
+// Master data: gudang / warehouse. Same contract as Cabang — `code` is user-entered
+// at create and immutable afterward. `cabang_id` must belong to the same company;
+// `cabang_code`/`cabang_name` are denormalized onto reads for display (same pattern
+// as JurnalLine's akun_code/akun_name).
+export interface Gudang {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	cabang_id: number
+	cabang_code?: string
+	cabang_name?: string
+	address: string
+	deleted_at: string | null
+}
+
 export interface JurnalLine {
 	akun_id: number
 	akun_code?: string

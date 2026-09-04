@@ -67,10 +67,7 @@ function remove(row: Cabang) {
 						<button class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill" @click="router.push(`/cabang/${column.id}`)">
 							<IconEye class="h-4 w-4" />
 						</button>
-						<button
-							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
-							@click="router.push(`/cabang/edit/${column.id}`)"
-						>
+						<button class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill" @click="router.push(`/cabang/edit/${column.id}`)">
 							<IconPencil class="h-4 w-4" />
 						</button>
 						<button

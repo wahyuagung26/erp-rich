@@ -38,6 +38,8 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Kategori (Master Kategori Produk) | [`kategori/`](./kategori/index.md) | `views/kategori/` | `mocks/modules/kategori.ts` |
 | Satuan (Master Satuan Produk) | [`satuan/`](./satuan/index.md) | `views/satuan/` | `mocks/modules/satuan.ts` |
 | Cabang (Master Cabang) | [`cabang/`](./cabang/index.md) | `views/cabang/` | `mocks/modules/cabang.ts` |
+| Departemen (Master Departemen) | [`departemen/`](./departemen/index.md) | `views/departemen/` | `mocks/modules/departemen.ts` |
+| Gudang (Master Gudang) | [`gudang/`](./gudang/index.md) | `views/gudang/` | `mocks/modules/gudang.ts` |
 | Supplier (Master Vendor) | [`supplier/`](./supplier/index.md) | `views/supplier/` | `mocks/modules/supplier.ts` |
 | Customer (Master Pelanggan) | [`customer/`](./customer/index.md) | `views/customer/` | `mocks/modules/customer.ts` |
 | Bagan Akun (Chart of Accounts) | [`akun/`](./akun/index.md) | `views/akun/` | `mocks/modules/akun.ts` |

@@ -14,14 +14,14 @@ import Input from '@/components/base/Input.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
-import type { Satuan, TableRow } from '@/utils/types'
+import type { Departemen, TableRow } from '@/utils/types'
 
 const router = useRouter()
 const { ask } = useConfirm()
 const toast = useToast()
 
-const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<Satuan>({
-	endpoint: '/satuan',
+const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<Departemen>({
+	endpoint: '/departemen',
 	scopedToCompany: true
 })
 
@@ -30,14 +30,14 @@ const runSearch = useDebounce(() => applyFilters({ q: q.value }), 250)
 
 const rows: TableRow[] = [
 	{ label: 'Kode', field: 'code', align: 'left', isSort: { activeSort: 'asc' } },
-	{ label: 'Nama Satuan', field: 'name', align: 'left', isSort: { activeSort: 'asc' } },
+	{ label: 'Nama Departemen', field: 'name', align: 'left', isSort: { activeSort: 'asc' } },
 	{ label: '', field: 'action', align: 'right' }
 ]
 
-function remove(row: Satuan) {
-	ask({ title: 'Hapus satuan', message: `Hapus "${row.code} — ${row.name}"?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		await api.delete(`/satuan/${row.id}`)
-		toast.success('Satuan dihapus')
+function remove(row: Departemen) {
+	ask({ title: 'Hapus departemen', message: `Hapus "${row.code} — ${row.name}"?`, type: 'danger', confirmText: 'Hapus' }, async () => {
+		await api.delete(`/departemen/${row.id}`)
+		toast.success('Departemen dihapus')
 		fetchList()
 	})
 }
@@ -45,9 +45,9 @@ function remove(row: Satuan) {
 
 <template>
 	<div class="space-y-4 p-4">
-		<PageHeader title="Satuan" subtitle="Master data satuan produk">
+		<PageHeader title="Departemen" subtitle="Master data departemen">
 			<template #actions>
-				<Button size="sm" @click="router.push('/satuan/tambah')"> <IconPlus class="h-4 w-4" /> Tambah Satuan </Button>
+				<Button size="sm" @click="router.push('/departemen/tambah')"> <IconPlus class="h-4 w-4" /> Tambah Departemen </Button>
 			</template>
 		</PageHeader>
 
@@ -58,19 +58,22 @@ function remove(row: Satuan) {
 
 			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
 				<template #table-content="{ row, column }">
-					<button v-if="row.field === 'code'" class="text-primary-dark hover:underline" @click="router.push(`/satuan/${column.id}`)">
+					<button v-if="row.field === 'code'" class="text-primary-dark hover:underline" @click="router.push(`/departemen/${column.id}`)">
 						{{ column.code }}
 					</button>
 					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
-						<button class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill" @click="router.push(`/satuan/${column.id}`)">
+						<button class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill" @click="router.push(`/departemen/${column.id}`)">
 							<IconEye class="h-4 w-4" />
 						</button>
-						<button class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill" @click="router.push(`/satuan/edit/${column.id}`)">
+						<button
+							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
+							@click="router.push(`/departemen/edit/${column.id}`)"
+						>
 							<IconPencil class="h-4 w-4" />
 						</button>
 						<button
 							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-danger-soft hover:text-danger"
-							@click="remove(column as unknown as Satuan)"
+							@click="remove(column as unknown as Departemen)"
 						>
 							<IconTrash class="h-4 w-4" />
 						</button>

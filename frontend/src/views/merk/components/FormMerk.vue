@@ -41,12 +41,7 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Merk</h3>
 				<div class="space-y-4">
-					<FormField
-						label="Kode Merk"
-						required
-						:error="errors.code"
-						:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'"
-					>
+					<FormField label="Kode Merk" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
 						<Input v-model="form.code" mono :disabled="isEdit" class="max-w-[200px]" placeholder="mis. SGT" />
 					</FormField>
 					<FormField label="Nama Merk" required :error="errors.name">

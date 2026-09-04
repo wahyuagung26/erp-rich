@@ -7,6 +7,8 @@ import { registerMerk } from './modules/merk'
 import { registerKategori } from './modules/kategori'
 import { registerSatuan } from './modules/satuan'
 import { registerCabang } from './modules/cabang'
+import { registerDepartemen } from './modules/departemen'
+import { registerGudang } from './modules/gudang'
 import { registerSupplier } from './modules/supplier'
 import { registerCustomer } from './modules/customer'
 import { registerJurnal } from './modules/jurnal'
@@ -22,6 +24,8 @@ const modules = [
 	registerKategori,
 	registerSatuan,
 	registerCabang,
+	registerDepartemen,
+	registerGudang,
 	registerSupplier,
 	registerCustomer,
 	registerJurnal,

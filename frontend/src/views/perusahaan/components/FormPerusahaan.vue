@@ -82,11 +82,21 @@ defineExpose({ setServerErrors })
 					<FormField label="NPWP" :error="errors.npwp">
 						<Input v-model="form.npwp" mono placeholder="00.000.000.0-000.000" />
 					</FormField>
-					<FormField class="col-span-2" label="Logo Perusahaan" :error="errors.logo_url" hint="JPG, PNG, GIF, atau WEBP. Maksimal 2 MB. Kosongkan untuk mempertahankan logo saat ini.">
+					<FormField
+						class="col-span-2"
+						label="Logo Perusahaan"
+						:error="errors.logo_url"
+						hint="JPG, PNG, GIF, atau WEBP. Maksimal 2 MB. Kosongkan untuk mempertahankan logo saat ini."
+					>
 						<div class="flex items-center gap-3">
 							<img v-if="form.logo_url" :src="form.logo_url" alt="Logo perusahaan" class="h-14 w-14 rounded-md object-contain" />
 							<div v-else class="grid h-14 w-14 place-items-center rounded-md bg-fill text-xs text-ink-subtle">Logo</div>
-							<input type="file" accept="image/png,image/jpeg,image/gif,image/webp" class="text-s text-ink-muted file:mr-3 file:rounded-md file:border-0 file:bg-fill file:px-3 file:py-1.5 file:text-s file:text-ink" @change="onLogoPick" />
+							<input
+								type="file"
+								accept="image/png,image/jpeg,image/gif,image/webp"
+								class="text-s text-ink-muted file:mr-3 file:rounded-md file:border-0 file:bg-fill file:px-3 file:py-1.5 file:text-s file:text-ink"
+								@change="onLogoPick"
+							/>
 							<button v-if="form.logo_url" type="button" class="text-s text-danger hover:underline" @click="form.logo_url = ''">Hapus</button>
 						</div>
 					</FormField>
@@ -110,7 +120,13 @@ defineExpose({ setServerErrors })
 					<FormField class="col-span-2" label="Pendataan Karyawan?">
 						<Checkbox v-model="form.hr_enabled" label="Ya, aktifkan untuk modul HR" />
 					</FormField>
-					<FormField class="col-span-2" label="Warna Header Laporan" required :error="errors.report_header_color" hint="Warna latar header pada semua Laporan (preview & Excel) untuk perusahaan ini.">
+					<FormField
+						class="col-span-2"
+						label="Warna Header Laporan"
+						required
+						:error="errors.report_header_color"
+						hint="Warna latar header pada semua Laporan (preview & Excel) untuk perusahaan ini."
+					>
 						<div class="flex items-center gap-3">
 							<input type="color" v-model="form.report_header_color" class="h-9 w-12 cursor-pointer rounded-md bg-fill" />
 							<Input v-model="form.report_header_color" mono class="max-w-[140px]" placeholder="#B0F2B1" />

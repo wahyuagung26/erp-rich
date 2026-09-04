@@ -62,13 +62,6 @@ async function save(payload: PerusahaanForm) {
 				<Button variant="secondary" @click="router.push('/perusahaan')">Kembali</Button>
 			</div>
 		</Panel>
-		<FormPerusahaan
-			v-else
-			ref="formRef"
-			:initial="perusahaan"
-			:loading="saving"
-			submit-label="Simpan Perubahan"
-			@submit="save"
-		/>
+		<FormPerusahaan v-else ref="formRef" :initial="perusahaan" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
 	</div>
 </template>

@@ -6,14 +6,14 @@ import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
 import Button from '@/components/base/Button.vue'
-import { validateKategori, type KategoriForm } from '@/views/kategori/schema'
+import { validateDepartemen, type DepartemenForm } from '@/views/departemen/schema'
 
-const props = defineProps<{ initial?: Partial<KategoriForm>; isEdit?: boolean; submitLabel?: string; loading?: boolean }>()
-const emit = defineEmits<{ submit: [KategoriForm] }>()
+const props = defineProps<{ initial?: Partial<DepartemenForm>; isEdit?: boolean; submitLabel?: string; loading?: boolean }>()
+const emit = defineEmits<{ submit: [DepartemenForm] }>()
 
 const router = useRouter()
 
-const form = reactive<KategoriForm>({
+const form = reactive<DepartemenForm>({
 	code: props.initial?.code ?? '',
 	name: props.initial?.name ?? ''
 })
@@ -21,7 +21,7 @@ const form = reactive<KategoriForm>({
 const errors = ref<Record<string, string>>({})
 
 function onSubmit() {
-	const found = validateKategori(form)
+	const found = validateDepartemen(form)
 	errors.value = found ?? {}
 	if (!found) emit('submit', { ...form })
 }
@@ -34,25 +34,23 @@ defineExpose({ setServerErrors })
 </script>
 
 <template>
-	<!-- Full-width panel, same as the list. Only the short code identifier stays capped -->
-	<!-- (max-w-[200px]); free-text fields stretch full, same as FormSupplier. -->
 	<Panel>
 		<form class="space-y-8" @submit.prevent="onSubmit">
 			<section class="space-y-3">
-				<h3 class="subhead">Informasi Kategori</h3>
+				<h3 class="subhead">Informasi Departemen</h3>
 				<div class="space-y-4">
-					<FormField label="Kode Kategori" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
-						<Input v-model="form.code" mono :disabled="isEdit" class="max-w-[200px]" placeholder="mis. ELK" />
+					<FormField label="Kode Departemen" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
+						<Input v-model="form.code" mono :disabled="isEdit" class="max-w-[200px]" placeholder="mis. FIN" />
 					</FormField>
-					<FormField label="Nama Kategori" required :error="errors.name">
-						<Input v-model="form.name" placeholder="mis. Elektronik" />
+					<FormField label="Nama Departemen" required :error="errors.name">
+						<Input v-model="form.name" placeholder="mis. Finance" />
 					</FormField>
 				</div>
 			</section>
 
 			<div class="flex gap-2 pt-2">
 				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
-				<Button variant="secondary" type="button" @click="router.push('/kategori')"> <IconX class="h-4 w-4" /> Batal </Button>
+				<Button variant="secondary" type="button" @click="router.push('/departemen')"> <IconX class="h-4 w-4" /> Batal </Button>
 			</div>
 		</form>
 	</Panel>

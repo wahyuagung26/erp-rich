@@ -9,8 +9,7 @@ const live = () => db.perusahaan.filter((p) => !p.deleted_at)
 // Client supplies `code`; server owns id / deleted_at only.
 type PerusahaanInput = Omit<Perusahaan, 'id' | 'deleted_at'>
 
-const codeTaken = (code: string, exceptId?: number) =>
-	live().some((p) => p.code.toLowerCase() === code.trim().toLowerCase() && p.id !== exceptId)
+const codeTaken = (code: string, exceptId?: number) => live().some((p) => p.code.toLowerCase() === code.trim().toLowerCase() && p.id !== exceptId)
 
 // Contract: docs/perusahaan/ — soft delete (deleted_at), never hard-removed.
 export function registerPerusahaan(mock: MockAdapter) {
@@ -44,7 +43,8 @@ export function registerPerusahaan(mock: MockAdapter) {
 		const idx = db.perusahaan.findIndex((c) => c.id === idOf(config.url) && !c.deleted_at)
 		if (idx === -1) return [404, { message: 'Perusahaan tidak ditemukan' }]
 		const current = db.perusahaan[idx]
-		if (body.code && codeTaken(body.code, current.id)) return [422, { message: 'Validasi gagal', errors: { code: ['Kode perusahaan sudah dipakai'] } }]
+		if (body.code && codeTaken(body.code, current.id))
+			return [422, { message: 'Validasi gagal', errors: { code: ['Kode perusahaan sudah dipakai'] } }]
 		// empty logo_url on update keeps the current logo
 		const logo_url = body.logo_url ? body.logo_url : current.logo_url
 		db.perusahaan[idx] = { ...current, ...body, logo_url, id: current.id, deleted_at: current.deleted_at }
