@@ -1,42 +1,42 @@
 import MockAdapter from 'axios-mock-adapter'
 import api from '@/utils/api'
 import { registerAuth } from './modules/auth'
-import { registerPerusahaan } from './modules/perusahaan'
-import { registerMerk } from './modules/merk'
-import { registerKategori } from './modules/kategori'
-import { registerSatuan } from './modules/satuan'
-import { registerCabang } from './modules/cabang'
-import { registerDepartemen } from './modules/departemen'
-import { registerGudang } from './modules/gudang'
-import { registerGroupAkun } from './modules/group-akun'
-import { registerSubAkun } from './modules/sub-akun'
-import { registerAkunPerkiraan } from './modules/akun-perkiraan'
-import { registerJenisPenjualan } from './modules/jenis-penjualan'
-import { registerTipePembayaran } from './modules/tipe-pembayaran'
+import { registerCompany } from './modules/company'
+import { registerBrand } from './modules/brand'
+import { registerProductCategory } from './modules/product-category'
+import { registerUnit } from './modules/unit'
+import { registerBranch } from './modules/branch'
+import { registerDepartment } from './modules/department'
+import { registerWarehouse } from './modules/warehouse'
+import { registerAccountGroup } from './modules/account-group'
+import { registerSubAccount } from './modules/sub-account'
+import { registerAccount } from './modules/account'
+import { registerSalesType } from './modules/sales-type'
+import { registerPaymentType } from './modules/payment-type'
 import { registerSupplier } from './modules/supplier'
 import { registerCustomer } from './modules/customer'
-import { registerJurnal } from './modules/jurnal'
+import { registerJournal } from './modules/journal'
 import { registerDashboard } from './modules/dashboard'
 
 // One entry point for all mocking. Register a new module here; keep its
 // handlers in src/mocks/modules/<module>.ts and its contract in docs/<module>/.
 const modules = [
 	registerAuth,
-	registerPerusahaan,
-	registerMerk,
-	registerKategori,
-	registerSatuan,
-	registerCabang,
-	registerDepartemen,
-	registerGudang,
-	registerGroupAkun,
-	registerSubAkun,
-	registerAkunPerkiraan,
-	registerJenisPenjualan,
-	registerTipePembayaran,
+	registerCompany,
+	registerBrand,
+	registerProductCategory,
+	registerUnit,
+	registerBranch,
+	registerDepartment,
+	registerWarehouse,
+	registerAccountGroup,
+	registerSubAccount,
+	registerAccount,
+	registerSalesType,
+	registerPaymentType,
 	registerSupplier,
 	registerCustomer,
-	registerJurnal,
+	registerJournal,
 	registerDashboard
 ]
 

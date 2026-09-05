@@ -9,7 +9,7 @@ timestamp: 2026-09-03T00:00:00Z
 # Dashboard
 
 Consumed by `frontend/src/views/dashboard/index.vue`. Read-only; aggregates data
-owned by [jurnal](../jurnal/index.md) and (later) other modules.
+owned by [journal](../journal/index.md) and (later) other modules.
 
 ## Endpoints
 

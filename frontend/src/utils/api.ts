@@ -11,7 +11,7 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
 	const token = localStorage.getItem('token')
 	if (token) config.headers.Authorization = `Bearer ${token}`
-	// Company-scoped resources (supplier/customer/merk) read this in the mock — see docs/conventions.md#company-scoping
+	// Company-scoped resources (supplier/customer/brand) read this in the mock — see docs/conventions.md#company-scoping
 	const companyId = localStorage.getItem('company.activeId')
 	if (companyId) config.headers['X-Company-Id'] = companyId
 	return config

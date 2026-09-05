@@ -33,21 +33,21 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Module | Contract | Frontend view | Mock |
 |---|---|---|---|
 | Auth | [`auth/`](./auth/index.md) | `views/auth/` | `mocks/modules/auth.ts` |
-| Perusahaan (Master Perusahaan) | [`perusahaan/`](./perusahaan/index.md) | `views/perusahaan/` | `mocks/modules/perusahaan.ts` |
-| Merk (Master Merk Produk) | [`merk/`](./merk/index.md) | `views/merk/` | `mocks/modules/merk.ts` |
-| Kategori (Master Kategori Produk) | [`kategori/`](./kategori/index.md) | `views/kategori/` | `mocks/modules/kategori.ts` |
-| Satuan (Master Satuan Produk) | [`satuan/`](./satuan/index.md) | `views/satuan/` | `mocks/modules/satuan.ts` |
-| Cabang (Master Cabang) | [`cabang/`](./cabang/index.md) | `views/cabang/` | `mocks/modules/cabang.ts` |
-| Departemen (Master Departemen) | [`departemen/`](./departemen/index.md) | `views/departemen/` | `mocks/modules/departemen.ts` |
-| Gudang (Master Gudang) | [`gudang/`](./gudang/index.md) | `views/gudang/` | `mocks/modules/gudang.ts` |
-| Jenis Penjualan (Master Jenis Penjualan) | [`jenis-penjualan/`](./jenis-penjualan/index.md) | `views/jenis-penjualan/` | `mocks/modules/jenis-penjualan.ts` |
-| Tipe Pembayaran (Master Tipe Pembayaran) | [`tipe-pembayaran/`](./tipe-pembayaran/index.md) | `views/tipe-pembayaran/` | `mocks/modules/tipe-pembayaran.ts` |
-| Group Akun (Master Group Akun) | [`group-akun/`](./group-akun/index.md) | `views/group-akun/` | `mocks/modules/group-akun.ts` |
-| Sub Akun (Master Sub Akun) | [`sub-akun/`](./sub-akun/index.md) | `views/sub-akun/` | `mocks/modules/sub-akun.ts` |
-| Akun Perkiraan (Master Akun Perkiraan) | [`akun-perkiraan/`](./akun-perkiraan/index.md) | `views/akun-perkiraan/` | `mocks/modules/akun-perkiraan.ts` |
+| Perusahaan (Master Perusahaan) | [`company/`](./company/index.md) | `views/company/` | `mocks/modules/company.ts` |
+| Merk (Master Merk Produk) | [`brand/`](./brand/index.md) | `views/brand/` | `mocks/modules/brand.ts` |
+| Kategori (Master Kategori Produk) | [`product-category/`](./product-category/index.md) | `views/product-category/` | `mocks/modules/product-category.ts` |
+| Satuan (Master Satuan Produk) | [`unit/`](./unit/index.md) | `views/unit/` | `mocks/modules/unit.ts` |
+| Cabang (Master Cabang) | [`branch/`](./branch/index.md) | `views/branch/` | `mocks/modules/branch.ts` |
+| Departemen (Master Departemen) | [`department/`](./department/index.md) | `views/department/` | `mocks/modules/department.ts` |
+| Gudang (Master Gudang) | [`warehouse/`](./warehouse/index.md) | `views/warehouse/` | `mocks/modules/warehouse.ts` |
+| Jenis Penjualan (Master Jenis Penjualan) | [`sales-type/`](./sales-type/index.md) | `views/sales-type/` | `mocks/modules/sales-type.ts` |
+| Tipe Pembayaran (Master Tipe Pembayaran) | [`payment-type/`](./payment-type/index.md) | `views/payment-type/` | `mocks/modules/payment-type.ts` |
+| Group Akun (Master Group Akun) | [`account-group/`](./account-group/index.md) | `views/account-group/` | `mocks/modules/account-group.ts` |
+| Sub Akun (Master Sub Akun) | [`sub-account/`](./sub-account/index.md) | `views/sub-account/` | `mocks/modules/sub-account.ts` |
+| Akun Perkiraan (Master Akun Perkiraan) | [`account/`](./account/index.md) | `views/account/` | `mocks/modules/account.ts` |
 | Supplier (Master Vendor) | [`supplier/`](./supplier/index.md) | `views/supplier/` | `mocks/modules/supplier.ts` |
 | Customer (Master Pelanggan) | [`customer/`](./customer/index.md) | `views/customer/` | `mocks/modules/customer.ts` |
-| Jurnal Umum (Journal) | [`jurnal/`](./jurnal/index.md) | `views/jurnal/` | `mocks/modules/jurnal.ts` |
+| Jurnal Umum (Journal) | [`journal/`](./journal/index.md) | `views/journal/` | `mocks/modules/journal.ts` |
 | Dashboard | [`dashboard/`](./dashboard/index.md) | `views/dashboard/` | `mocks/modules/dashboard.ts` |
 
 New module: copy [`_TEMPLATE.md`](./_TEMPLATE.md) into `docs/<module>/<endpoint>.md`.

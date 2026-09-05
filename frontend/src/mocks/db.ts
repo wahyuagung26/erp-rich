@@ -1,68 +1,68 @@
-import { jurnalSeed } from './fixtures/jurnal'
+import { journalSeed } from './fixtures/journal'
 import { supplierSeed } from './fixtures/supplier'
 import { customerSeed } from './fixtures/customer'
-import { perusahaanSeed } from './fixtures/perusahaan'
-import { merkSeed } from './fixtures/merk'
-import { kategoriSeed } from './fixtures/kategori'
-import { satuanSeed } from './fixtures/satuan'
-import { cabangSeed } from './fixtures/cabang'
-import { departemenSeed } from './fixtures/departemen'
-import { gudangSeed } from './fixtures/gudang'
-import { groupAkunSeed } from './fixtures/group-akun'
-import { subAkunSeed } from './fixtures/sub-akun'
-import { akunPerkiraanSeed } from './fixtures/akun-perkiraan'
-import { jenisPenjualanSeed } from './fixtures/jenis-penjualan'
-import { tipePembayaranSeed } from './fixtures/tipe-pembayaran'
+import { companySeed } from './fixtures/company'
+import { brandSeed } from './fixtures/brand'
+import { productCategorySeed } from './fixtures/product-category'
+import { unitSeed } from './fixtures/unit'
+import { branchSeed } from './fixtures/branch'
+import { departmentSeed } from './fixtures/department'
+import { warehouseSeed } from './fixtures/warehouse'
+import { accountGroupSeed } from './fixtures/account-group'
+import { subAccountSeed } from './fixtures/sub-account'
+import { accountSeed } from './fixtures/account'
+import { salesTypeSeed } from './fixtures/sales-type'
+import { paymentTypeSeed } from './fixtures/payment-type'
 import type {
-	Jurnal,
+	Journal,
 	Supplier,
 	Customer,
-	Perusahaan,
-	Merk,
-	Kategori,
-	Satuan,
-	Cabang,
-	Departemen,
-	Gudang,
-	GroupAkun,
-	SubAkun,
-	AkunPerkiraan,
-	JenisPenjualan,
-	TipePembayaran
+	Company,
+	Brand,
+	ProductCategory,
+	Unit,
+	Branch,
+	Department,
+	Warehouse,
+	AccountGroup,
+	SubAccount,
+	Account,
+	SalesType,
+	PaymentType
 } from '@/utils/types'
 
 // Single in-memory store shared by every mock module. Mutations persist for
 // the browser session; a reload re-seeds from fixtures.
 export const db: {
-	jurnal: Jurnal[]
+	journal: Journal[]
 	supplier: Supplier[]
 	customer: Customer[]
-	perusahaan: Perusahaan[]
-	merk: Merk[]
-	kategori: Kategori[]
-	satuan: Satuan[]
-	cabang: Cabang[]
-	departemen: Departemen[]
-	gudang: Gudang[]
-	groupAkun: GroupAkun[]
-	subAkun: SubAkun[]
-	akunPerkiraan: AkunPerkiraan[]
-	jenisPenjualan: JenisPenjualan[]
-	tipePembayaran: TipePembayaran[]
+	company: Company[]
+	brand: Brand[]
+	productCategory: ProductCategory[]
+	unit: Unit[]
+	branch: Branch[]
+	department: Department[]
+	warehouse: Warehouse[]
+	accountGroup: AccountGroup[]
+	subAccount: SubAccount[]
+	account: Account[]
+	salesType: SalesType[]
+	paymentType: PaymentType[]
 } = {
-	jurnal: structuredClone(jurnalSeed),
+	journal: structuredClone(journalSeed),
 	supplier: structuredClone(supplierSeed),
 	customer: structuredClone(customerSeed),
-	perusahaan: structuredClone(perusahaanSeed),
-	merk: structuredClone(merkSeed),
-	kategori: structuredClone(kategoriSeed),
-	satuan: structuredClone(satuanSeed),
-	cabang: structuredClone(cabangSeed),
-	departemen: structuredClone(departemenSeed),
-	gudang: structuredClone(gudangSeed),
-	groupAkun: structuredClone(groupAkunSeed),
-	subAkun: structuredClone(subAkunSeed),
-	akunPerkiraan: structuredClone(akunPerkiraanSeed),
-	jenisPenjualan: structuredClone(jenisPenjualanSeed),
-	tipePembayaran: structuredClone(tipePembayaranSeed)
+	company: structuredClone(companySeed),
+	brand: structuredClone(brandSeed),
+	productCategory: structuredClone(productCategorySeed),
+	unit: structuredClone(unitSeed),
+	branch: structuredClone(branchSeed),
+	department: structuredClone(departmentSeed),
+	warehouse: structuredClone(warehouseSeed),
+	accountGroup: structuredClone(accountGroupSeed),
+	subAccount: structuredClone(subAccountSeed),
+	account: structuredClone(accountSeed),
+	salesType: structuredClone(salesTypeSeed),
+	paymentType: structuredClone(paymentTypeSeed)
 }

@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 import api from '@/utils/api'
 import type { ApiList } from '@/utils/types'
 
-// Just what the topbar picker needs — the full Perusahaan entity lives in
-// views/perusahaan. Backed by GET /perusahaan.
+// Just what the topbar picker needs — the full Company entity lives in
+// views/company. Backed by GET /company.
 export interface CompanyOption {
 	id: number
 	code: string
@@ -27,7 +27,7 @@ export const useCompanyStore = defineStore('company', {
 	actions: {
 		async load() {
 			if (this.loaded) return
-			const res = await api.get<ApiList<CompanyOption>>('/perusahaan', { params: { per_page: 100 } })
+			const res = await api.get<ApiList<CompanyOption>>('/company', { params: { per_page: 100 } })
 			this.companies = res.data.data
 			if (!this.companies.some((c) => c.id === this.activeId)) this.setActive(this.companies[0]?.id ?? null)
 			this.loaded = true

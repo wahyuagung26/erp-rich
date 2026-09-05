@@ -8,16 +8,16 @@ import StatTile from '@/components/base/StatTile.vue'
 import Table from '@/components/base/Table.vue'
 import Amount from '@/components/base/Amount.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
-import type { TableRow, Jurnal } from '@/utils/types'
+import type { TableRow, Journal } from '@/utils/types'
 
 interface Summary {
-	kas_bank: number
-	piutang: number
-	utang: number
-	laba_bulan: number
-	posting_bulan_ini: number
-	nilai_transaksi: number
-	jurnal_terakhir: Jurnal[]
+	cash_bank: number
+	receivables: number
+	payables: number
+	period_profit: number
+	journal_entries_this_period: number
+	transaction_value: number
+	recent_journals: Journal[]
 }
 
 const summary = ref<Summary>()
@@ -47,17 +47,17 @@ onMounted(async () => {
 		<Panel>
 			<Skeleton v-if="loading" :lines="2" />
 			<div v-else-if="summary" class="grid grid-cols-2 divide-x divide-y divide-hairline sm:grid-cols-3 lg:grid-cols-6">
-				<StatTile label="Kas & Bank" :value="money(summary.kas_bank)" />
-				<StatTile label="Piutang Usaha" :value="money(summary.piutang)" />
-				<StatTile label="Utang Usaha" :value="money(summary.utang)" />
-				<StatTile label="Laba Bulan Ini" :value="money(summary.laba_bulan)" delta="+8,4% vs bulan lalu" delta-tone="success" />
-				<StatTile label="Posting Bulan Ini" :value="String(summary.posting_bulan_ini)" />
-				<StatTile label="Nilai Transaksi" :value="money(summary.nilai_transaksi)" />
+				<StatTile label="Kas & Bank" :value="money(summary.cash_bank)" />
+				<StatTile label="Piutang Usaha" :value="money(summary.receivables)" />
+				<StatTile label="Utang Usaha" :value="money(summary.payables)" />
+				<StatTile label="Laba Bulan Ini" :value="money(summary.period_profit)" delta="+8,4% vs bulan lalu" delta-tone="success" />
+				<StatTile label="Posting Bulan Ini" :value="String(summary.journal_entries_this_period)" />
+				<StatTile label="Nilai Transaksi" :value="money(summary.transaction_value)" />
 			</div>
 		</Panel>
 
 		<Panel title="Jurnal Terakhir">
-			<Table :rows="rows" :columns="(summary?.jurnal_terakhir as unknown as Record<string, unknown>[]) ?? []" :loading="loading">
+			<Table :rows="rows" :columns="(summary?.recent_journals as unknown as Record<string, unknown>[]) ?? []" :loading="loading">
 				<template #table-content="{ row, column }">
 					<span v-if="row.field === 'date'" class="font-mono tnum text-ink-muted">{{ date(column.date as string) }}</span>
 					<span v-else-if="row.field === 'number'" class="font-mono text-ink-muted">{{ column.number }}</span>

@@ -34,15 +34,15 @@ export const NAV: NavItem[] = [
 		label: 'Master',
 		icon: IconDatabase,
 		children: [
-			{ label: 'Perusahaan', to: '/perusahaan', icon: IconBuilding },
-			{ label: 'Merk', to: '/merk', icon: IconTag },
-			{ label: 'Kategori Produk', to: '/kategori', icon: IconCategory },
-			{ label: 'Satuan', to: '/satuan', icon: IconRuler2 },
-			{ label: 'Cabang', to: '/cabang', icon: IconBuildingStore },
-			{ label: 'Departemen', to: '/departemen', icon: IconSitemap },
-			{ label: 'Gudang', to: '/gudang', icon: IconPackages },
-			{ label: 'Jenis Penjualan', to: '/jenis-penjualan', icon: IconReceipt2 },
-			{ label: 'Tipe Pembayaran', to: '/tipe-pembayaran', icon: IconCreditCard },
+			{ label: 'Perusahaan', to: '/company', icon: IconBuilding },
+			{ label: 'Merk', to: '/brand', icon: IconTag },
+			{ label: 'Kategori Produk', to: '/product-category', icon: IconCategory },
+			{ label: 'Satuan', to: '/unit', icon: IconRuler2 },
+			{ label: 'Cabang', to: '/branch', icon: IconBuildingStore },
+			{ label: 'Departemen', to: '/department', icon: IconSitemap },
+			{ label: 'Gudang', to: '/warehouse', icon: IconPackages },
+			{ label: 'Jenis Penjualan', to: '/sales-type', icon: IconReceipt2 },
+			{ label: 'Tipe Pembayaran', to: '/payment-type', icon: IconCreditCard },
 			{ label: 'Supplier', to: '/supplier', icon: IconBuildingWarehouse },
 			{ label: 'Customer', to: '/customer', icon: IconUsers }
 		]
@@ -51,11 +51,11 @@ export const NAV: NavItem[] = [
 		label: 'Akuntansi',
 		icon: IconCalculator,
 		children: [
-			{ label: 'Group Akun', to: '/group-akun', icon: IconFolders },
-			{ label: 'Sub Akun', to: '/sub-akun', icon: IconListTree },
-			{ label: 'Akun Perkiraan', to: '/akun-perkiraan', icon: IconListNumbers }
+			{ label: 'Group Akun', to: '/account-group', icon: IconFolders },
+			{ label: 'Sub Akun', to: '/sub-account', icon: IconListTree },
+			{ label: 'Akun Perkiraan', to: '/account', icon: IconListNumbers }
 		]
 	},
-	{ label: 'Jurnal Umum', to: '/jurnal', icon: IconBook2 },
+	{ label: 'Jurnal Umum', to: '/journal', icon: IconBook2 },
 	{ label: 'Design System', to: '/design-system', icon: IconPalette }
 ]

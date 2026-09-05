@@ -7,7 +7,7 @@ path: /dashboard/summary
 status: mock
 tags: [dashboard, read]
 resource: /frontend/src/mocks/modules/dashboard.ts
-timestamp: 2026-09-03T00:00:00Z
+timestamp: 2026-09-05T00:00:00Z
 ---
 
 # Dashboard Summary
@@ -25,29 +25,29 @@ No params. (Future: `period=YYYY-MM`.)
 ```json
 {
   "data": {
-    "kas_bank": 128450000,
-    "piutang": 54200000,
-    "utang": 71800000,
-    "laba_bulan": 39650000,
-    "posting_bulan_ini": 5,
-    "nilai_transaksi": 101550000,
-    "jurnal_terakhir": [ /* up to 5 Jurnal objects, see jurnal/list-jurnal.md */ ]
+    "cash_bank": 128450000,
+    "receivables": 54200000,
+    "payables": 71800000,
+    "period_profit": 39650000,
+    "journal_entries_this_period": 5,
+    "transaction_value": 101550000,
+    "recent_journals": [ /* up to 5 Journal objects, see journal/list-journal.md */ ]
   }
 }
 ```
 
 | Field | Type | Meaning |
 |---|---|---|
-| `kas_bank` | number | total cash + bank balance |
-| `piutang` | number | accounts receivable |
-| `utang` | number | accounts payable |
-| `laba_bulan` | number | period profit/loss |
-| `posting_bulan_ini` | number | journal entries posted this period |
-| `nilai_transaksi` | number | sum of journal totals this period |
-| `jurnal_terakhir` | `Jurnal[]` | latest 5, newest first |
+| `cash_bank` | number | total cash + bank balance |
+| `receivables` | number | accounts receivable |
+| `payables` | number | accounts payable |
+| `period_profit` | number | period profit/loss |
+| `journal_entries_this_period` | number | journal entries posted this period |
+| `transaction_value` | number | sum of journal totals this period |
+| `recent_journals` | `Journal[]` | latest 5, newest first |
 
 ## Notes
 
-- Mock returns fixed figures except `posting_bulan_ini`, `nilai_transaksi`, and
-  `jurnal_terakhir`, which derive from the live journal store. Backend computes
-  all fields from ledger data.
+- Mock returns fixed figures except `journal_entries_this_period`,
+  `transaction_value`, and `recent_journals`, which derive from the live
+  journal store. Backend computes all fields from ledger data.

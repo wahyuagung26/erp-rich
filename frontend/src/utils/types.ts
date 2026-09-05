@@ -79,10 +79,11 @@ export interface Customer {
 }
 
 // Master data: perusahaan / badan usaha. `code` is user-entered and unique
-// (NOT server-assigned). `deleted_at` is the soft-delete marker.
+// (NOT server-assigned). `deleted_at` is the soft-delete marker. `company_type`
+// values are Indonesian legal-entity codes (PT/CV/UD/etc.) — proper nouns, not translated.
 export type CompanyType = 'pt' | 'cv' | 'ud' | 'firma' | 'perorangan' | 'koperasi' | 'yayasan'
 
-export interface Perusahaan {
+export interface Company {
 	id: number
 	code: string
 	short_name: string
@@ -98,7 +99,7 @@ export interface Perusahaan {
 
 // Master data: merk produk / product brand. `code` is user-entered at create and
 // immutable afterward (the edit form disables it). `deleted_at` is the soft-delete marker.
-export interface Merk {
+export interface Brand {
 	id: number
 	company_id: number
 	code: string
@@ -106,9 +107,9 @@ export interface Merk {
 	deleted_at: string | null
 }
 
-// Master data: kategori produk / product category. Same contract as Merk — `code`
+// Master data: kategori produk / product category. Same contract as Brand — `code`
 // is user-entered at create and immutable afterward (the edit form disables it).
-export interface Kategori {
+export interface ProductCategory {
 	id: number
 	company_id: number
 	code: string
@@ -116,9 +117,9 @@ export interface Kategori {
 	deleted_at: string | null
 }
 
-// Master data: satuan / unit of measure. Same contract as Merk/Kategori — `code`
+// Master data: satuan / unit of measure. Same contract as Brand/ProductCategory — `code`
 // is user-entered at create and immutable afterward (the edit form disables it).
-export interface Satuan {
+export interface Unit {
 	id: number
 	company_id: number
 	code: string
@@ -126,9 +127,9 @@ export interface Satuan {
 	deleted_at: string | null
 }
 
-// Master data: cabang / branch. Same contract as Merk/Kategori/Satuan — `code`
+// Master data: cabang / branch. Same contract as Brand/ProductCategory/Unit — `code`
 // is user-entered at create and immutable afterward (the edit form disables it).
-export interface Cabang {
+export interface Branch {
 	id: number
 	company_id: number
 	code: string
@@ -137,9 +138,9 @@ export interface Cabang {
 	deleted_at: string | null
 }
 
-// Master data: departemen / department. Same contract as Merk/Kategori/Satuan — `code`
+// Master data: departemen / department. Same contract as Brand/ProductCategory/Unit — `code`
 // is user-entered at create and immutable afterward (the edit form disables it).
-export interface Departemen {
+export interface Department {
 	id: number
 	company_id: number
 	code: string
@@ -147,66 +148,66 @@ export interface Departemen {
 	deleted_at: string | null
 }
 
-// Master data: gudang / warehouse. Same contract as Cabang — `code` is user-entered
-// at create and immutable afterward. `cabang_id` must belong to the same company;
-// `cabang_code`/`cabang_name` are denormalized onto reads for display (same pattern
-// as JurnalLine's akun_code/akun_name).
-export interface Gudang {
+// Master data: gudang / warehouse. Same contract as Branch — `code` is user-entered
+// at create and immutable afterward. `branch_id` must belong to the same company;
+// `branch_code`/`branch_name` are denormalized onto reads for display (same pattern
+// as JournalLine's account_code/account_name).
+export interface Warehouse {
 	id: number
 	company_id: number
 	code: string
 	name: string
-	cabang_id: number
-	cabang_code?: string
-	cabang_name?: string
+	branch_id: number
+	branch_code?: string
+	branch_name?: string
 	address: string
 	deleted_at: string | null
 }
 
 // Master data: group akun / account group. Classifies which financial statement an
 // account rolls up into (`category`) and its normal balance side (`normal_balance`,
-// same field name/values as `Akun.normal_balance`). Same contract as Merk/Kategori/
-// Satuan/Cabang/Departemen — `code` is user-entered at create and immutable afterward.
-export interface GroupAkun {
+// same field name/values as `Account.normal_balance`). Same contract as Brand/
+// ProductCategory/Unit/Branch/Department — `code` is user-entered at create and immutable afterward.
+export interface AccountGroup {
 	id: number
 	company_id: number
 	code: string
 	name: string
-	category: 'neraca' | 'laba_rugi'
+	category: 'balance_sheet' | 'income_statement'
 	normal_balance: 'debit' | 'credit'
 	deleted_at: string | null
 }
 
-// Master data: sub akun / sub-account, under a GroupAkun. `code` is server-composed:
+// Master data: sub akun / sub-account, under an AccountGroup. `code` is server-composed:
 // the first 2 digits are the owning group's `code` (zero-padded), the last 3 are
-// user-entered (`code_suffix` on write) — see docs/sub-akun/. `group_akun_id` and the
-// resulting `code` are both immutable after create. `group_akun_code`/`group_akun_name`
-// are denormalized onto reads, same pattern as Gudang's cabang_code/cabang_name.
-export interface SubAkun {
+// user-entered (`code_suffix` on write) — see docs/sub-account/. `account_group_id` and the
+// resulting `code` are both immutable after create. `account_group_code`/`account_group_name`
+// are denormalized onto reads, same pattern as Warehouse's branch_code/branch_name.
+export interface SubAccount {
 	id: number
 	company_id: number
-	group_akun_id: number
-	group_akun_code?: string
-	group_akun_name?: string
+	account_group_id: number
+	account_group_code?: string
+	account_group_name?: string
 	code: string
 	name: string
 	normal_balance: 'debit' | 'credit'
 	deleted_at: string | null
 }
 
-// Master data: akun perkiraan / detail account, under a SubAkun. `code` is server-
-// composed: the first 5 digits are the owning sub akun's `code` (already exactly 5
+// Master data: akun perkiraan / detail account, under a SubAccount. `code` is server-
+// composed: the first 5 digits are the owning sub account's `code` (already exactly 5
 // digits), the last 2 are user-entered (`code_suffix` on write) — see
-// docs/akun-perkiraan/. `sub_akun_id` and the resulting `code` are both immutable
-// after create. `sub_akun_code`/`sub_akun_name` are denormalized onto reads, same
-// pattern as SubAkun's group_akun_code/group_akun_name. `type` uses the same
-// enum shape as Jurnal's account picker (`views/akun-perkiraan/schema.ts`'s AKUN_TYPES).
-export interface AkunPerkiraan {
+// docs/account/. `sub_account_id` and the resulting `code` are both immutable
+// after create. `sub_account_code`/`sub_account_name` are denormalized onto reads, same
+// pattern as SubAccount's account_group_code/account_group_name. `type` uses the same
+// enum shape as Journal's account picker (`views/account/schema.ts`'s AKUN_TYPES).
+export interface Account {
 	id: number
 	company_id: number
-	sub_akun_id: number
-	sub_akun_code?: string
-	sub_akun_name?: string
+	sub_account_id: number
+	sub_account_code?: string
+	sub_account_name?: string
 	code: string
 	name: string
 	type: 'cash_bank' | 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
@@ -214,62 +215,62 @@ export interface AkunPerkiraan {
 }
 
 // Master data: jenis penjualan / sales type. Maps a sales type to the four
-// AkunPerkiraan accounts it posts to (revenue, COGS, inventory, expense) — used
+// Account accounts it posts to (revenue, COGS, inventory, expense) — used
 // by the sales module (not built yet) to auto-fill journal accounts per transaction.
 // `code` is user-entered and immutable after create, same convention as
-// Merk/Kategori/Satuan/Cabang/Departemen/Gudang. Each akun_*_id is denormalized
-// with its code/name, same pattern as Gudang's cabang_code/cabang_name.
-export interface JenisPenjualan {
+// Brand/ProductCategory/Unit/Branch/Department/Warehouse. Each *_account_*_id is denormalized
+// with its code/name, same pattern as Warehouse's branch_code/branch_name.
+export interface SalesType {
 	id: number
 	company_id: number
 	code: string
 	name: string
-	akun_pendapatan_id: number
-	akun_pendapatan_code?: string
-	akun_pendapatan_name?: string
-	akun_hpp_id: number
-	akun_hpp_code?: string
-	akun_hpp_name?: string
-	akun_persediaan_id: number
-	akun_persediaan_code?: string
-	akun_persediaan_name?: string
-	akun_biaya_id: number
-	akun_biaya_code?: string
-	akun_biaya_name?: string
+	revenue_account_id: number
+	revenue_account_code?: string
+	revenue_account_name?: string
+	cogs_account_id: number
+	cogs_account_code?: string
+	cogs_account_name?: string
+	inventory_account_id: number
+	inventory_account_code?: string
+	inventory_account_name?: string
+	expense_account_id: number
+	expense_account_code?: string
+	expense_account_name?: string
 	deleted_at: string | null
 }
 
 // Master data: tipe pembayaran / payment type. `code` is user-entered and
 // immutable after create, same convention as the other master-data modules.
-// `akun_perkiraan_id` is denormalized with its code/name, same pattern as
-// Gudang's cabang_code/cabang_name. `transaksi` scopes the type to Pembelian
-// or Penjualan; `jenis` is the payment mechanism.
-export interface TipePembayaran {
+// `account_id` is denormalized with its code/name, same pattern as
+// Warehouse's branch_code/branch_name. `transaction_type` scopes the type to
+// purchase or sale; `method` is the payment mechanism.
+export interface PaymentType {
 	id: number
 	company_id: number
 	code: string
 	name: string
-	akun_perkiraan_id: number
-	akun_perkiraan_code?: string
-	akun_perkiraan_name?: string
-	transaksi: 'pembelian' | 'penjualan'
-	jenis: 'tunai' | 'potong_retur' | 'uang_muka'
+	account_id: number
+	account_code?: string
+	account_name?: string
+	transaction_type: 'purchase' | 'sale'
+	method: 'cash' | 'return_deduction' | 'down_payment'
 	deleted_at: string | null
 }
 
-export interface JurnalLine {
-	akun_id: number
-	akun_code?: string
-	akun_name?: string
+export interface JournalLine {
+	account_id: number
+	account_code?: string
+	account_name?: string
 	debit: number
 	credit: number
 }
 
-export interface Jurnal {
+export interface Journal {
 	id: number
 	date: string
 	number: string
 	description: string
-	lines: JurnalLine[]
+	lines: JournalLine[]
 	total: number
 }

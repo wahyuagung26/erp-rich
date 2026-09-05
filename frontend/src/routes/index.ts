@@ -1,21 +1,21 @@
 import type { RouteRecordRaw } from 'vue-router'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import dashboard from './dashboard'
-import perusahaan from './perusahaan'
-import merk from './merk'
-import kategori from './kategori'
-import satuan from './satuan'
-import cabang from './cabang'
-import departemen from './departemen'
-import gudang from './gudang'
-import jenisPenjualan from './jenis-penjualan'
-import tipePembayaran from './tipe-pembayaran'
-import groupAkun from './group-akun'
-import subAkun from './sub-akun'
-import akunPerkiraan from './akun-perkiraan'
+import company from './company'
+import brand from './brand'
+import productCategory from './product-category'
+import unit from './unit'
+import branch from './branch'
+import department from './department'
+import warehouse from './warehouse'
+import salesType from './sales-type'
+import paymentType from './payment-type'
+import accountGroup from './account-group'
+import subAccount from './sub-account'
+import account from './account'
 import supplier from './supplier'
 import customer from './customer'
-import jurnal from './jurnal'
+import journal from './journal'
 
 const routes: RouteRecordRaw[] = [
 	{ path: '/', redirect: '/dashboard' },
@@ -24,21 +24,21 @@ const routes: RouteRecordRaw[] = [
 		component: DefaultLayout,
 		children: [
 			...dashboard,
-			...perusahaan,
-			...merk,
-			...kategori,
-			...satuan,
-			...cabang,
-			...departemen,
-			...gudang,
-			...jenisPenjualan,
-			...tipePembayaran,
-			...groupAkun,
-			...subAkun,
-			...akunPerkiraan,
+			...company,
+			...brand,
+			...productCategory,
+			...unit,
+			...branch,
+			...department,
+			...warehouse,
+			...salesType,
+			...paymentType,
+			...accountGroup,
+			...subAccount,
+			...account,
 			...supplier,
 			...customer,
-			...jurnal,
+			...journal,
 			{
 				path: '/design-system',
 				name: 'DesignSystem',
