@@ -38,6 +38,7 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Kategori (Master Kategori Produk) | [`product-category/`](./product-category/index.md) | `views/product-category/` | `mocks/modules/product-category.ts` |
 | Satuan (Master Satuan Produk) | [`unit/`](./unit/index.md) | `views/unit/` | `mocks/modules/unit.ts` |
 | Sales (Master Sales) | [`sales/`](./sales/index.md) | `views/sales/` | `mocks/modules/sales.ts` |
+| Channel (Master Channel) | [`channel/`](./channel/index.md) | `views/channel/` | `mocks/modules/channel.ts` |
 | Cabang (Master Cabang) | [`branch/`](./branch/index.md) | `views/branch/` | `mocks/modules/branch.ts` |
 | Departemen (Master Departemen) | [`department/`](./department/index.md) | `views/department/` | `mocks/modules/department.ts` |
 | Gudang (Master Gudang) | [`warehouse/`](./warehouse/index.md) | `views/warehouse/` | `mocks/modules/warehouse.ts` |

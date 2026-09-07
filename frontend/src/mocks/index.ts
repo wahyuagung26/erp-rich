@@ -6,6 +6,7 @@ import { registerBrand } from './modules/brand'
 import { registerProductCategory } from './modules/product-category'
 import { registerUnit } from './modules/unit'
 import { registerSales } from './modules/sales'
+import { registerChannel } from './modules/channel'
 import { registerBranch } from './modules/branch'
 import { registerDepartment } from './modules/department'
 import { registerWarehouse } from './modules/warehouse'
@@ -28,6 +29,7 @@ const modules = [
 	registerProductCategory,
 	registerUnit,
 	registerSales,
+	registerChannel,
 	registerBranch,
 	registerDepartment,
 	registerWarehouse,

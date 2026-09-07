@@ -6,6 +6,7 @@ import brand from './brand'
 import productCategory from './product-category'
 import unit from './unit'
 import sales from './sales'
+import channel from './channel'
 import branch from './branch'
 import department from './department'
 import warehouse from './warehouse'
@@ -30,6 +31,7 @@ const routes: RouteRecordRaw[] = [
 			...productCategory,
 			...unit,
 			...sales,
+			...channel,
 			...branch,
 			...department,
 			...warehouse,

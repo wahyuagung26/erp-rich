@@ -138,6 +138,18 @@ export interface Sales {
 	deleted_at: string | null
 }
 
+// Master data: channel / sales channel. Same contract as Sales — `code` is
+// user-entered at create and immutable afterward, with a `notes` field instead
+// of `address`.
+export interface Channel {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	notes: string
+	deleted_at: string | null
+}
+
 // Master data: cabang / branch. Same contract as Brand/ProductCategory/Unit — `code`
 // is user-entered at create and immutable afterward (the edit form disables it).
 export interface Branch {
