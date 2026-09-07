@@ -5,6 +5,7 @@ import { companySeed } from './fixtures/company'
 import { brandSeed } from './fixtures/brand'
 import { productCategorySeed } from './fixtures/product-category'
 import { unitSeed } from './fixtures/unit'
+import { salesSeed } from './fixtures/sales'
 import { branchSeed } from './fixtures/branch'
 import { departmentSeed } from './fixtures/department'
 import { warehouseSeed } from './fixtures/warehouse'
@@ -21,6 +22,7 @@ import type {
 	Brand,
 	ProductCategory,
 	Unit,
+	Sales,
 	Branch,
 	Department,
 	Warehouse,
@@ -41,6 +43,7 @@ export const db: {
 	brand: Brand[]
 	productCategory: ProductCategory[]
 	unit: Unit[]
+	sales: Sales[]
 	branch: Branch[]
 	department: Department[]
 	warehouse: Warehouse[]
@@ -57,6 +60,7 @@ export const db: {
 	brand: structuredClone(brandSeed),
 	productCategory: structuredClone(productCategorySeed),
 	unit: structuredClone(unitSeed),
+	sales: structuredClone(salesSeed),
 	branch: structuredClone(branchSeed),
 	department: structuredClone(departmentSeed),
 	warehouse: structuredClone(warehouseSeed),

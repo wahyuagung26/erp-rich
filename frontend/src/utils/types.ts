@@ -127,6 +127,17 @@ export interface Unit {
 	deleted_at: string | null
 }
 
+// Master data: sales / sales rep. Same contract as Brand/ProductCategory/Unit — `code`
+// is user-entered at create and immutable afterward (the edit form disables it).
+export interface Sales {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	address: string
+	deleted_at: string | null
+}
+
 // Master data: cabang / branch. Same contract as Brand/ProductCategory/Unit — `code`
 // is user-entered at create and immutable afterward (the edit form disables it).
 export interface Branch {

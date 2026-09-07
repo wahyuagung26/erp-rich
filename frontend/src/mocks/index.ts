@@ -5,6 +5,7 @@ import { registerCompany } from './modules/company'
 import { registerBrand } from './modules/brand'
 import { registerProductCategory } from './modules/product-category'
 import { registerUnit } from './modules/unit'
+import { registerSales } from './modules/sales'
 import { registerBranch } from './modules/branch'
 import { registerDepartment } from './modules/department'
 import { registerWarehouse } from './modules/warehouse'
@@ -26,6 +27,7 @@ const modules = [
 	registerBrand,
 	registerProductCategory,
 	registerUnit,
+	registerSales,
 	registerBranch,
 	registerDepartment,
 	registerWarehouse,
