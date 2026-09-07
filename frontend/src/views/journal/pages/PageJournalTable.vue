@@ -13,7 +13,7 @@ import Panel from '@/components/base/Panel.vue'
 import FilterBar from '@/components/base/FilterBar.vue'
 import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
-import DatePicker from '@/components/base/DatePicker.vue'
+import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Badge from '@/components/base/Badge.vue'
 import Checkbox from '@/components/base/Checkbox.vue'
@@ -121,12 +121,10 @@ const rows: TableRow[] = [
 		</PageHeader>
 
 		<Panel>
-			<FilterBar class="mb-3">
+			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
 				<Input v-model="q" placeholder="Cari nomor / keterangan…" class="!w-64" @update:model-value="runSearch" />
 				<Select v-model="status" class="!w-52" placeholder="Semua status" :options="statusOptions" @update:model-value="applyAll" />
-				<DatePicker v-model="dateFrom" class="!w-40" @update:model-value="applyAll" />
-				<span class="text-s text-ink-subtle">s/d</span>
-				<DatePicker v-model="dateTo" class="!w-40" @update:model-value="applyAll" />
+				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" @change="applyAll" />
 			</FilterBar>
 
 			<div v-if="submittableIds.length" class="mb-3 flex flex-wrap items-center gap-3">

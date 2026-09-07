@@ -59,7 +59,7 @@ function remove(row: Customer) {
 		</PageHeader>
 
 		<Panel>
-			<FilterBar class="mb-3">
+			<FilterBar class="mb-3" :loading="loading" @refresh="runSearch">
 				<Input v-model="q" placeholder="Cari kode / nama…" class="!w-64" @update:model-value="runSearch" />
 				<Select
 					v-model="pkp"

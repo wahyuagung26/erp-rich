@@ -75,7 +75,7 @@ function remove(row: Product) {
 		</PageHeader>
 
 		<Panel>
-			<FilterBar class="mb-3">
+			<FilterBar class="mb-3" :loading="loading" @refresh="runSearch">
 				<Input v-model="q" placeholder="Cari kode / nama…" class="!w-64" @update:model-value="runSearch" />
 				<Select v-model="type" class="!w-44" placeholder="Semua jenis" :options="[...PRODUCT_TYPES]" @update:model-value="runSearch" />
 				<AsyncSelect

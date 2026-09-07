@@ -94,7 +94,7 @@ const rows: TableRow[] = [
 		<PageHeader title="Harga Produk" subtitle="Atur harga jual & harga beli produk langsung dari tabel" />
 
 		<Panel>
-			<FilterBar class="mb-3">
+			<FilterBar class="mb-3" :loading="loading" @refresh="runSearch">
 				<Input :model-value="filters.q" placeholder="Cari kode / nama produk…" class="!w-64" @update:model-value="(v) => onFilter('q', v)" />
 				<AsyncSelect
 					:model-value="filters.brand_id"

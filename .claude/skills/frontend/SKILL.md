@@ -19,9 +19,9 @@ Before writing raw `<input>`, `<select>`, `<button>`, `<table>`, a modal, a spin
 a debounce, or a list-fetch loop — **look in `src/components/base/` and `src/composables/`**.
 It is almost certainly already there:
 
-- primitives: `Button Input Textarea Select Checkbox RadioGroup Switch DatePicker FormField
-  Table TablePagination Modal ConfirmDialog Badge Tabs Breadcrumb PageHeader
-  FilterBar Panel EmptyState Skeleton Spinner Amount StatTile`
+- primitives: `Button Input Textarea Select Checkbox RadioGroup Switch DatePicker
+  DateRangePicker FormField Table TablePagination Modal ConfirmDialog Badge Tabs Breadcrumb
+  PageHeader FilterBar Panel EmptyState Skeleton Spinner Amount StatTile`
 - composables: `useTableList` (the whole list/table/sort/filter/paginate loop), `useToast`,
   `useConfirm`, `useDebounce`, `onClickOutside`
 
@@ -31,6 +31,11 @@ missing one thing, add the missing thing to the component (a slot, a variant) �
 a one-off copy in the view. A raw `<input>`/`<table>`/`<dialog>` in a view is a review smell.
 
 Money/dates/numbers → `src/utils/format.ts` + `<Amount>`. Never hand-format currency.
+
+**List pages**: wire `<FilterBar :loading="loading" @refresh="runSearch">` on every list — it
+renders a trailing reload button (owner expects an explicit "apply filter & reload"). The
+`useTableList` shape is uniform: `{ columns, pagination, loading, fetchList, handleSort, pageTo,
+applyFilters }` + a debounced `runSearch = useDebounce(() => applyFilters({...}), 250)`.
 
 **`<Table>` custom columns.** `#table-header` is a *per-cell* slot inside the column `v-for` —
 overriding it means handling every field yourself, including reproducing the sort button. So a

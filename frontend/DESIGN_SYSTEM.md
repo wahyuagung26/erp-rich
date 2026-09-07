@@ -35,7 +35,7 @@ Warna disimpan sebagai channel RGB di CSS variable → alpha modifier Tailwind t
 ## Komponen (`src/components/base/`)
 
 Primitif: `Button` `Input` `Textarea` `Select` `Checkbox` `RadioGroup` `Switch`
-`DatePicker` `FormField` · Data: `Table` `TablePagination` (rows-per-page + nav) `Amount`
+`DatePicker` `DateRangePicker` `FormField` · Data: `Table` `TablePagination` (rows-per-page + nav) `Amount`
 `StatTile` `Badge` · Layout: `Panel` `PageHeader` `FilterBar` `Tabs` `Breadcrumb` ·
 Status: `EmptyState` `Skeleton` `Spinner` · Overlay: `Modal` `ConfirmDialog`.
 
@@ -45,6 +45,10 @@ Status: `EmptyState` `Skeleton` `Spinner` · Overlay: `Modal` `ConfirmDialog`.
 
 `Table` API kompatibel dengan pola RICH (`rows` = definisi kolom, `columns` = data baris,
 slot `#table-header` / `#table-content`, emit `handleSort`) — lihat `architecture.md`.
+
+`FilterBar` menampilkan tombol reload di ujung kanan kalau diberi `@refresh` (mis.
+`<FilterBar :loading="loading" @refresh="runSearch">`) — setiap halaman list wajib memasangnya;
+owner terbiasa dengan tombol "terapkan filter & muat ulang" yang eksplisit.
 
 ## Dark mode
 
