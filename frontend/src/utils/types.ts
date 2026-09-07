@@ -381,3 +381,41 @@ export interface Journal {
 	lines: JournalLine[]
 	total: number
 }
+
+export interface JournalExpenseLine {
+	account_id: number
+	account_code?: string
+	account_name?: string
+	department_id?: number | null
+	department_code?: string
+	department_name?: string
+	detail_description?: string
+	debit: number
+	credit: number
+}
+
+// Cash disbursement journal — see docs/journal-expense/. The balancing cash
+// credit line is NOT in `lines`; render it from cash_account_* + cash_out.
+export interface JournalExpense {
+	id: number
+	number: string
+	date: string
+	voucher: string
+	description: string
+	attachment: JournalAttachment | null
+	cash_account_id: number
+	cash_account_code?: string
+	cash_account_name?: string
+	department_id: number
+	department_code?: string
+	department_name?: string
+	cash_flow: string
+	cash_flow_name?: string
+	status: JournalStatus
+	rejection_reason: string | null
+	approved_by: string | null
+	approved_at: string | null
+	lines: JournalExpenseLine[]
+	total: number
+	cash_out: number
+}

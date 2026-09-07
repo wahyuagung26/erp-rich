@@ -20,6 +20,7 @@ import { registerProduct } from './modules/product'
 import { registerSupplier } from './modules/supplier'
 import { registerCustomer } from './modules/customer'
 import { registerJournal } from './modules/journal'
+import { registerJournalExpense } from './modules/journal-expense'
 import { registerDashboard } from './modules/dashboard'
 import { registerCashFlow } from './modules/cash-flow'
 
@@ -46,6 +47,7 @@ const modules = [
 	registerSupplier,
 	registerCustomer,
 	registerJournal,
+	registerJournalExpense,
 	registerDashboard,
 	registerCashFlow
 ]

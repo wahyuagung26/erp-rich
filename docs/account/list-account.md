@@ -7,7 +7,7 @@ path: /account
 status: mock
 tags: [account, read, list]
 resource: /frontend/src/mocks/modules/account.ts
-timestamp: 2026-09-05T11:00:00Z
+timestamp: 2026-09-07T16:00:00Z
 ---
 
 # List Account
@@ -28,6 +28,7 @@ Backs `views/account/pages/PageAccountTable.vue` (via the `useTableList` composa
 |---|---|---|---|
 | `page`, `per_page`, `sort_by`, `sort_order` | — | no | see [conventions](../conventions.md#pagination-list-endpoints); `sort_by` accepts `code`, `name` |
 | `q` | string | no | matches `code` + `name`, case-insensitive |
+| `type` | enum | no | filter to one account type (`cash_bank` \| `asset` \| `liability` \| `equity` \| `revenue` \| `expense`); used by the Jurnal Pengeluaran cash-account picker |
 
 ## Response
 

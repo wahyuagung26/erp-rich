@@ -30,6 +30,7 @@ export function registerAccount(mock: MockAdapter) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((a) => `${a.code} ${a.name}`.toLowerCase().includes(q))
 		}
+		if (p.type) rows = rows.filter((a) => a.type === p.type)
 		rows = sortBy(rows, p.sort_by, p.sort_order)
 		return [200, paginate(rows, p)]
 	})

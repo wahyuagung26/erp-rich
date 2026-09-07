@@ -29,6 +29,7 @@ const props = withDefaults(
 		placeholder?: string
 		perPage?: number
 		disabled?: boolean
+		params?: Record<string, string | number> // extra query params merged into every request, e.g. { type: 'cash_bank' }
 	}>(),
 	{ perPage: 20, placeholder: 'Pilih…' }
 )
@@ -55,7 +56,7 @@ async function fetchOptions(reset: boolean) {
 	try {
 		if (reset) page.value = 1
 		const res = await api.get<ApiList<Row>>(props.endpoint, {
-			params: { q: query.value || undefined, page: page.value, per_page: props.perPage }
+			params: { ...props.params, q: query.value || undefined, page: page.value, per_page: props.perPage }
 		})
 		lastPage.value = res.data.meta.last_page
 		options.value = reset ? res.data.data : [...options.value, ...res.data.data]

@@ -21,6 +21,7 @@ import account from './account'
 import supplier from './supplier'
 import customer from './customer'
 import journal from './journal'
+import journalExpense from './journal-expense'
 
 const routes: RouteRecordRaw[] = [
 	{ path: '/', redirect: '/dashboard' },
@@ -49,6 +50,7 @@ const routes: RouteRecordRaw[] = [
 			...supplier,
 			...customer,
 			...journal,
+			...journalExpense,
 			{
 				path: '/design-system',
 				name: 'DesignSystem',
