@@ -8,6 +8,7 @@ import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import DatePicker from '@/components/base/DatePicker.vue'
 import Input from '@/components/base/Input.vue'
+import MoneyInput from '@/components/base/MoneyInput.vue'
 import Select from '@/components/base/Select.vue'
 import Button from '@/components/base/Button.vue'
 import type { Account, ApiList, JournalLine } from '@/utils/types'
@@ -43,12 +44,12 @@ const errorText = computed(() => {
 })
 
 // one side only per line
-function onDebit(line: JournalLine, val: string) {
-	line.debit = Number(val) || 0
+function onDebit(line: JournalLine, val: number) {
+	line.debit = val
 	if (line.debit) line.credit = 0
 }
-function onCredit(line: JournalLine, val: string) {
-	line.credit = Number(val) || 0
+function onCredit(line: JournalLine, val: number) {
+	line.credit = val
 	if (line.credit) line.debit = 0
 }
 
@@ -97,10 +98,10 @@ function submit() {
 								/>
 							</td>
 							<td class="py-1.5 pl-2">
-								<Input :model-value="line.debit || ''" type="number" align="right" mono @update:model-value="(v) => onDebit(line, v)" />
+								<MoneyInput :model-value="line.debit" @update:model-value="(v) => onDebit(line, v)" />
 							</td>
 							<td class="py-1.5 pl-2">
-								<Input :model-value="line.credit || ''" type="number" align="right" mono @update:model-value="(v) => onCredit(line, v)" />
+								<MoneyInput :model-value="line.credit" @update:model-value="(v) => onCredit(line, v)" />
 							</td>
 							<td class="py-1.5 text-center">
 								<button

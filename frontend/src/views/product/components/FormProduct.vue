@@ -5,6 +5,7 @@ import { IconDeviceFloppy, IconX } from '@tabler/icons-vue'
 import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
+import MoneyInput from '@/components/base/MoneyInput.vue'
 import Textarea from '@/components/base/Textarea.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import RadioGroup from '@/components/base/RadioGroup.vue'
@@ -200,20 +201,14 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.min_stock = Number(v))"
 						/>
 					</FormField>
-					<FormField label="Harga Beli Terakhir (Rp)" required :error="errors.last_purchase_price" hint="Angka saja, tanpa titik/koma.">
-						<Input
-							:model-value="form.last_purchase_price"
-							type="number"
-							mono
-							align="right"
-							@update:model-value="(v) => (form.last_purchase_price = Number(v))"
-						/>
+					<FormField label="Harga Beli Terakhir" required :error="errors.last_purchase_price" hint="Nominal rupiah tanpa desimal.">
+						<MoneyInput v-model="form.last_purchase_price" />
 					</FormField>
-					<FormField label="Harga Jual (Rp)" required :error="errors.selling_price" hint="Angka saja, tanpa titik/koma.">
-						<Input :model-value="form.selling_price" type="number" mono align="right" @update:model-value="(v) => (form.selling_price = Number(v))" />
+					<FormField label="Harga Jual" required :error="errors.selling_price" hint="Nominal rupiah tanpa desimal.">
+						<MoneyInput v-model="form.selling_price" />
 					</FormField>
-					<FormField class="col-span-2" label="HPP Rata-rata (Rp)" hint="Dihitung otomatis dari transaksi pembelian. Tidak bisa diubah manual.">
-						<Input :model-value="props.initial?.hpp_avg ?? 0" type="number" mono align="right" disabled class="max-w-[240px]" />
+					<FormField class="col-span-2" label="HPP Rata-rata" hint="Dihitung otomatis dari transaksi pembelian. Tidak bisa diubah manual.">
+						<MoneyInput :model-value="props.initial?.hpp_avg ?? 0" disabled class="max-w-[240px]" />
 					</FormField>
 					<FormField class="col-span-2" label="Keterangan" :error="errors.notes">
 						<Textarea v-model="form.notes" :rows="2" placeholder="Keterangan produk" />

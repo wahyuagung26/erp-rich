@@ -63,9 +63,9 @@ export const NAV: NavItem[] = [
 		children: [
 			{ label: 'Group Akun', to: '/account-group', icon: IconFolders },
 			{ label: 'Sub Akun', to: '/sub-account', icon: IconListTree },
-			{ label: 'Akun Perkiraan', to: '/account', icon: IconListNumbers }
+			{ label: 'Akun Perkiraan', to: '/account', icon: IconListNumbers },
+			{ label: 'Jurnal Umum', to: '/journal', icon: IconBook2 }
 		]
 	},
-	{ label: 'Jurnal Umum', to: '/journal', icon: IconBook2 },
 	{ label: 'Design System', to: '/design-system', icon: IconPalette }
 ]

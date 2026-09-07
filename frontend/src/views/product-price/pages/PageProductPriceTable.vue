@@ -9,6 +9,7 @@ import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import FilterBar from '@/components/base/FilterBar.vue'
 import Input from '@/components/base/Input.vue'
+import MoneyInput from '@/components/base/MoneyInput.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Table from '@/components/base/Table.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
@@ -94,12 +95,7 @@ const rows: TableRow[] = [
 
 		<Panel>
 			<FilterBar class="mb-3">
-				<Input
-					:model-value="filters.q"
-					placeholder="Cari kode / nama produk…"
-					class="!w-64"
-					@update:model-value="(v) => onFilter('q', v)"
-				/>
+				<Input :model-value="filters.q" placeholder="Cari kode / nama produk…" class="!w-64" @update:model-value="(v) => onFilter('q', v)" />
 				<AsyncSelect
 					:model-value="filters.brand_id"
 					endpoint="/brand"
@@ -123,21 +119,15 @@ const rows: TableRow[] = [
 					<span v-if="row.field === 'code'" class="text-ink">{{ column.code }}</span>
 					<span v-else-if="row.field === 'name'" class="text-ink">{{ column.name }}</span>
 					<span v-else-if="row.field === 'hpp_avg'"><Amount :value="column.hpp_avg as number" muted /></span>
-					<Input
+					<MoneyInput
 						v-else-if="row.field === 'last_purchase_price'"
 						:model-value="drafts[(column as unknown as Product).id]?.last_purchase_price ?? 0"
-						type="number"
-						mono
-						align="right"
-						@update:model-value="(v) => (drafts[(column as unknown as Product).id].last_purchase_price = Number(v))"
+						@update:model-value="(v) => (drafts[(column as unknown as Product).id].last_purchase_price = v)"
 					/>
-					<Input
+					<MoneyInput
 						v-else-if="row.field === 'selling_price'"
 						:model-value="drafts[(column as unknown as Product).id]?.selling_price ?? 0"
-						type="number"
-						mono
-						align="right"
-						@update:model-value="(v) => (drafts[(column as unknown as Product).id].selling_price = Number(v))"
+						@update:model-value="(v) => (drafts[(column as unknown as Product).id].selling_price = v)"
 					/>
 					<span v-else-if="row.field === 'margin'" class="whitespace-nowrap">
 						<Amount :value="marginValue(column as unknown as Product)" />

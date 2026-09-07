@@ -17,6 +17,15 @@ export function number(value: number | null | undefined): string {
 	return idr.format(Number(value ?? 0))
 }
 
+export function integerInput(value: number | null | undefined): string {
+	return value == null ? '' : number(value)
+}
+
+export function parseIntegerInput(value: string): number {
+	const digits = value.replace(/\D/g, '')
+	return digits ? Number(digits) : 0
+}
+
 export function date(value: string | Date | null | undefined, fmt = 'DD MMM YYYY'): string {
 	if (!value) return '-'
 	return dayjs(value).format(fmt)
