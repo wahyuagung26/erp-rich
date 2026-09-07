@@ -7,7 +7,7 @@ path: /product
 status: mock
 tags: [product, write]
 resource: /frontend/src/mocks/modules/product.ts
-timestamp: 2026-09-07T00:00:00Z
+timestamp: 2026-09-07T10:00:00Z
 ---
 
 # Create Product
@@ -63,7 +63,9 @@ Backs `views/product/pages/PageProductTambah.vue`. Client-side validation:
 them (`company_id` is stamped from the active company, see
 [conventions](../conventions.md#company-scoping)). The five `*_code`/`*_name`
 denormalized fields are **not** accepted from the client either — the server
-looks each `*_id` up and stamps its own `code`/`name`.
+looks each `*_id` up and stamps its own `code`/`name`. `hpp_avg` is likewise
+**not** accepted — it starts at `0` and is only ever moved by purchase
+transactions / [PATCH `/product/:id/price`](../product-price/update-price.md).
 
 ## Response
 

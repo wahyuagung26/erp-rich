@@ -29,6 +29,7 @@ export const productSeed: Product[] = [
 		notes: 'Stok gudang utama',
 		last_purchase_price: 3_500_000,
 		selling_price: 4_200_000,
+		hpp_avg: 3_650_000,
 		photo_url: '',
 		deleted_at: null
 	},
@@ -57,6 +58,7 @@ export const productSeed: Product[] = [
 		notes: '',
 		last_purchase_price: 850_000,
 		selling_price: 0,
+		hpp_avg: 875_000,
 		photo_url: '',
 		deleted_at: null
 	},
@@ -85,6 +87,7 @@ export const productSeed: Product[] = [
 		notes: 'Termasuk pemasangan dan testing',
 		last_purchase_price: 0,
 		selling_price: 250_000,
+		hpp_avg: 0,
 		photo_url: '',
 		deleted_at: null
 	}

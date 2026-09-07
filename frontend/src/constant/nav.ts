@@ -21,7 +21,8 @@ import {
 	IconReceipt2,
 	IconShoppingCart,
 	IconCreditCard,
-	IconBox
+	IconBox,
+	IconCoin
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -43,6 +44,7 @@ export const NAV: NavItem[] = [
 			{ label: 'Kategori Produk', to: '/product-category', icon: IconCategory },
 			{ label: 'Satuan', to: '/unit', icon: IconRuler2 },
 			{ label: 'Produk', to: '/product', icon: IconBox },
+			{ label: 'Harga Produk', to: '/product-price', icon: IconCoin },
 			{ label: 'Sales', to: '/sales', icon: IconUserDollar },
 			{ label: 'Channel', to: '/channel', icon: IconShare2 },
 			{ label: 'Cabang', to: '/branch', icon: IconBuildingStore },

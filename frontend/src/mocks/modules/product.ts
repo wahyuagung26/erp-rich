@@ -99,6 +99,7 @@ export function registerProduct(mock: MockAdapter) {
 			rows = rows.filter((prod) => `${prod.code} ${prod.name}`.toLowerCase().includes(q))
 		}
 		if (p.type) rows = rows.filter((prod) => prod.type === p.type)
+		if (p.brand_id) rows = rows.filter((prod) => prod.brand_id === Number(p.brand_id))
 		if (p.product_category_id) rows = rows.filter((prod) => prod.product_category_id === Number(p.product_category_id))
 		rows = sortBy(rows, p.sort_by, p.sort_order)
 		return [200, paginate(rows, p)]
@@ -128,6 +129,7 @@ export function registerProduct(mock: MockAdapter) {
 			notes: body.notes,
 			last_purchase_price: body.last_purchase_price,
 			selling_price: body.selling_price,
+			hpp_avg: 0, // read-only, computed from purchases later — see docs/product-price/
 			photo_url: body.photo_url,
 			deleted_at: null
 		}
@@ -155,6 +157,23 @@ export function registerProduct(mock: MockAdapter) {
 			photo_url: body.photo_url
 		}
 		return [200, { data: db.product[idx], message: 'Produk diperbarui' }]
+	})
+
+	// Contract: docs/product-price/update-price.md — lightweight price-only patch
+	// for the "Harga Produk" inline editor. Touches selling_price + last_purchase_price
+	// only; hpp_avg stays read-only.
+	mock.onPatch(/\/product\/\d+\/price$/).reply((config) => {
+		const companyId = companyIdOf(config)
+		const id = Number(config.url?.split('/').slice(-2, -1)[0])
+		const body = JSON.parse(config.data) as { selling_price: number; last_purchase_price: number }
+		const idx = db.product.findIndex((prod) => prod.id === id && !prod.deleted_at && prod.company_id === companyId)
+		if (idx === -1) return [404, { message: 'Produk tidak ditemukan' }]
+		const sp = Number(body.selling_price)
+		const bp = Number(body.last_purchase_price)
+		if (![sp, bp].every((n) => Number.isInteger(n) && n >= 0))
+			return [422, { message: 'Validasi gagal', errors: { selling_price: ['Harga harus bilangan bulat >= 0'] } }]
+		db.product[idx] = { ...db.product[idx], selling_price: sp, last_purchase_price: bp }
+		return [200, { data: db.product[idx], message: 'Harga produk diperbarui' }]
 	})
 
 	mock.onDelete(/\/product\/\d+$/).reply((config) => {

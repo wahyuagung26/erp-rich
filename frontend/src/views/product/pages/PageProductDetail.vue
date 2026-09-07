@@ -103,6 +103,8 @@ function remove() {
 						<dd class="text-ink"><Amount :value="product.last_purchase_price" /></dd>
 						<dt class="text-ink-muted">Harga Jual</dt>
 						<dd class="text-ink"><Amount :value="product.selling_price" /></dd>
+						<dt class="text-ink-muted">HPP Rata-rata</dt>
+						<dd class="text-ink"><Amount :value="product.hpp_avg" /></dd>
 					</dl>
 				</section>
 

@@ -212,6 +212,9 @@ defineExpose({ setServerErrors })
 					<FormField label="Harga Jual (Rp)" required :error="errors.selling_price" hint="Angka saja, tanpa titik/koma.">
 						<Input :model-value="form.selling_price" type="number" mono align="right" @update:model-value="(v) => (form.selling_price = Number(v))" />
 					</FormField>
+					<FormField class="col-span-2" label="HPP Rata-rata (Rp)" hint="Dihitung otomatis dari transaksi pembelian. Tidak bisa diubah manual.">
+						<Input :model-value="props.initial?.hpp_avg ?? 0" type="number" mono align="right" disabled class="max-w-[240px]" />
+					</FormField>
 					<FormField class="col-span-2" label="Keterangan" :error="errors.notes">
 						<Textarea v-model="form.notes" :rows="2" placeholder="Keterangan produk" />
 					</FormField>

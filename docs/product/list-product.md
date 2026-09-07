@@ -7,7 +7,7 @@ path: /product
 status: mock
 tags: [product, read, list]
 resource: /frontend/src/mocks/modules/product.ts
-timestamp: 2026-09-07T00:00:00Z
+timestamp: 2026-09-07T10:00:00Z
 ---
 
 # List Product
@@ -29,6 +29,7 @@ Backs `views/product/pages/PageProductTable.vue` (via the `useTableList` composa
 | `page`, `per_page`, `sort_by`, `sort_order` | — | no | see [conventions](../conventions.md#pagination-list-endpoints); `sort_by` accepts `code`, `name` |
 | `q` | string | no | matches `code` + `name`, case-insensitive |
 | `type` | string | no | exact match on `service` / `raw_material` / `finished_good` |
+| `brand_id` | number | no | exact match; used by the [Harga Produk](../product-price/index.md) screen's "Filter Merk" |
 | `product_category_id` | number | no | exact match; not scoped to the active company beyond what the row itself already is |
 
 ## Response
@@ -63,6 +64,7 @@ Backs `views/product/pages/PageProductTable.vue` (via the `useTableList` composa
       "notes": "",
       "last_purchase_price": 3500000,
       "selling_price": 4200000,
+      "hpp_avg": 3650000,
       "photo_url": "",
       "deleted_at": null
     }

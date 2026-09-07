@@ -1,9 +1,9 @@
 ---
 type: OKF Module
 title: Product (Master Produk)
-description: CRUD for product master data — code + name + type + 5 classification FKs + stock/price. Soft-delete, company-scoped.
+description: CRUD for product master data — code + name + type + 5 classification FKs + stock/price + read-only hpp_avg. Soft-delete, company-scoped.
 tags: [product, master-data]
-timestamp: 2026-09-07T00:00:00Z
+timestamp: 2026-09-07T10:00:00Z
 ---
 
 # Product
@@ -31,8 +31,11 @@ All five are **required** on every product regardless of `type` — no
 conditional requiredness (a prototype-scope simplification).
 
 `last_purchase_price` and `selling_price` are user-typed money amounts (whole
-Rupiah, no decimals — matches the app-wide money convention). `photo_url` is a
-data-URL string, same shortcut as `Company.logo_url`.
+Rupiah, no decimals — matches the app-wide money convention). `hpp_avg` is the
+same money type but **read-only** — it is not accepted by create/update, only
+shown (disabled) in the product form and set by the price-only
+[PATCH endpoint](../product-price/update-price.md). `photo_url` is a data-URL
+string, same shortcut as `Company.logo_url`.
 
 ## Entity: `Product`
 
@@ -57,6 +60,7 @@ data-URL string, same shortcut as `Company.logo_url`.
 | `notes` | string | optional — "Keterangan" |
 | `last_purchase_price` | number | required, integer (whole Rupiah), >= 0 — "Harga Beli Terakhir" |
 | `selling_price` | number | required, integer (whole Rupiah), >= 0 — "Harga Jual" |
+| `hpp_avg` | number | read-only, integer (whole Rupiah), >= 0 — "HPP Rata-rata". Average cost of goods. **Never** set via create/update — seeded in the mock, computed from purchase history by the backend. Editable price screen: [product-price](../product-price/index.md) |
 | `photo_url` | string | optional, data-URL string (max 2 MB, client-enforced) — "Foto Produk" |
 | `deleted_at` | string \| null | soft-delete marker (ISO 8601); non-null rows are excluded from every list and from get-by-id |
 

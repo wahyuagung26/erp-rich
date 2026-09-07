@@ -326,6 +326,9 @@ export interface Product {
 	notes: string
 	last_purchase_price: number
 	selling_price: number
+	// Average cost of goods (HPP rata-rata). Read-only everywhere — seeded in the
+	// mock, computed from purchases by the backend later. See docs/product-price/.
+	hpp_avg: number
 	photo_url: string
 	deleted_at: string | null
 }
