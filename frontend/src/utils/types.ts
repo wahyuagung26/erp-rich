@@ -294,6 +294,42 @@ export interface PaymentType {
 	deleted_at: string | null
 }
 
+// Master data: produk / product. The most cross-referenced master-data entity —
+// five FKs (Brand, ProductCategory, SalesType, Supplier, Unit), each denormalized
+// onto the row same as Warehouse's branch_code/branch_name. `code` is user-entered
+// at create and immutable afterward, same convention as Brand/ProductCategory/Unit
+// (no format constraint). Money fields (`last_purchase_price`, `selling_price`)
+// are user-typed — unlike every other money value in this app (always read-only
+// via <Amount>). `photo_url` is a data-URL string, same shortcut as Company.logo_url.
+export interface Product {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	type: 'service' | 'raw_material' | 'finished_good'
+	brand_id: number
+	brand_code?: string
+	brand_name?: string
+	product_category_id: number
+	product_category_code?: string
+	product_category_name?: string
+	sales_type_id: number
+	sales_type_code?: string
+	sales_type_name?: string
+	supplier_id: number
+	supplier_code?: string
+	supplier_name?: string
+	unit_id: number
+	unit_code?: string
+	unit_name?: string
+	min_stock: number
+	notes: string
+	last_purchase_price: number
+	selling_price: number
+	photo_url: string
+	deleted_at: string | null
+}
+
 export interface JournalLine {
 	account_id: number
 	account_code?: string
