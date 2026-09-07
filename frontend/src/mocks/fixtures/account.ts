@@ -9,7 +9,7 @@ export const accountSeed: Account[] = [
 		sub_account_name: 'Kas',
 		code: '1000101',
 		name: 'Kas Kecil',
-		type: 'asset',
+		type: 'cash_bank',
 		deleted_at: null
 	},
 	{

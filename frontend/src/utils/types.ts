@@ -337,15 +337,47 @@ export interface JournalLine {
 	account_id: number
 	account_code?: string
 	account_name?: string
+	account_type?: Account['type']
+	department_id?: number | null
+	department_code?: string
+	department_name?: string
+	cash_flow?: CashFlow['code'] | null
+	cash_flow_name?: string
+	detail_description?: string
 	debit: number
 	credit: number
+}
+
+export type CashFlowGroup = 'OPERASI' | 'INVESTASI' | 'PENDANAAN'
+export type CashFlowPosition = 'IN' | 'OUT' | 'INOUT'
+
+export interface CashFlow {
+	id: string
+	code: string
+	name: string
+	group: CashFlowGroup
+	position: CashFlowPosition
+}
+export type JournalStatus = 'submitted' | 'approved' | 'rejected'
+
+export interface JournalAttachment {
+	name: string
+	type: string
+	size: number
+	data_url: string
 }
 
 export interface Journal {
 	id: number
 	date: string
 	number: string
+	voucher: string
 	description: string
+	attachment: JournalAttachment | null
+	status: JournalStatus
+	rejection_reason: string | null
+	approved_by: string | null
+	approved_at: string | null
 	lines: JournalLine[]
 	total: number
 }

@@ -7,7 +7,7 @@ path: /journal
 status: mock
 tags: [journal, read, list]
 resource: /frontend/src/mocks/modules/journal.ts
-timestamp: 2026-09-05T10:00:00Z
+timestamp: 2026-09-07T15:00:00Z
 ---
 
 # List Journal
@@ -22,7 +22,10 @@ on the dashboard (first 5, see [dashboard-summary](../dashboard/dashboard-summar
 | Name | Type | Required | Notes |
 |---|---|---|---|
 | `page`, `per_page`, `sort_by`, `sort_order` | — | no | `sort_by` accepts `date`, `total` |
-| `q` | string | no | matches `number` + `description` |
+| `q` | string | no | matches `number` + `voucher` + `description` |
+| `status` | enum | no | `submitted` / `approved` / `rejected` |
+| `date_from` | string | no | `YYYY-MM-DD`, inclusive lower bound on `date` |
+| `date_to` | string | no | `YYYY-MM-DD`, inclusive upper bound on `date` |
 
 ## Response
 
@@ -33,7 +36,8 @@ on the dashboard (first 5, see [dashboard-summary](../dashboard/dashboard-summar
   "data": [
     {
       "id": 1, "date": "2026-08-01", "number": "JU-2608-001",
-      "description": "Pembayaran sewa kantor Agustus", "total": 15000000,
+      "voucher": "VCR-2608-001", "description": "Pembayaran sewa kantor Agustus",
+      "status": "submitted", "rejection_reason": null, "approved_by": null, "approved_at": null, "total": 15000000,
       "lines": [
         { "account_id": 15, "account_code": "6-6100", "account_name": "Beban Sewa", "debit": 15000000, "credit": 0 },
         { "account_id": 2, "account_code": "1-1100", "account_name": "Bank BCA", "debit": 0, "credit": 15000000 }

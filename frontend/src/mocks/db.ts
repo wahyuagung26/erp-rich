@@ -17,6 +17,7 @@ import { salesTypeSeed } from './fixtures/sales-type'
 import { purchaseTypeSeed } from './fixtures/purchase-type'
 import { paymentTypeSeed } from './fixtures/payment-type'
 import { productSeed } from './fixtures/product'
+import { cashFlowSeed } from './fixtures/cash-flow'
 import type {
 	Journal,
 	Supplier,
@@ -36,7 +37,8 @@ import type {
 	SalesType,
 	PurchaseType,
 	PaymentType,
-	Product
+	Product,
+	CashFlow
 } from '@/utils/types'
 
 // Single in-memory store shared by every mock module. Mutations persist for
@@ -61,6 +63,7 @@ export const db: {
 	purchaseType: PurchaseType[]
 	paymentType: PaymentType[]
 	product: Product[]
+	cashFlow: CashFlow[]
 } = {
 	journal: structuredClone(journalSeed),
 	supplier: structuredClone(supplierSeed),
@@ -80,5 +83,6 @@ export const db: {
 	salesType: structuredClone(salesTypeSeed),
 	purchaseType: structuredClone(purchaseTypeSeed),
 	paymentType: structuredClone(paymentTypeSeed),
-	product: structuredClone(productSeed)
+	product: structuredClone(productSeed),
+	cashFlow: structuredClone(cashFlowSeed)
 }
