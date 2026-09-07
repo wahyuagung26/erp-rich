@@ -12,6 +12,7 @@ dist
 dist-ssr
 coverage
 *.local
+.screenshots
 
 # Env — commit .env (mock defaults, no secrets), ignore local overrides
 .env.local

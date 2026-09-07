@@ -32,7 +32,27 @@ a one-off copy in the view. A raw `<input>`/`<table>`/`<dialog>` in a view is a 
 
 Money/dates/numbers → `src/utils/format.ts` + `<Amount>`. Never hand-format currency.
 
-## 2. The Tailwind palette is CLOSED
+**`<Table>` custom columns.** `#table-header` is a *per-cell* slot inside the column `v-for` —
+overriding it means handling every field yourself, including reproducing the sort button. So a
+select-all / bulk-action control goes in a **toolbar row above the table**, not in a header
+cell; only per-row controls (a row checkbox) go through `#table-content`. Reference:
+`PageJournalTable.vue` (bulk-approve checkbox column).
+
+## 2. Vue gotchas that pass `vue-tsc` and blow up (or blank out) at runtime
+
+- **`structuredClone` throws `DataCloneError` on a Vue reactive Proxy.** Copying `props.*` or
+  store state into a local `reactive()` — use a shallow spread, nested by hand
+  (`{ ...v, attachment: v.attachment && { ...v.attachment }, lines: v.lines.map(l => ({ ...l })) }`)
+  or `toRaw`, **never `structuredClone(props.initialValue)`**. `structuredClone` is only safe on
+  plain seed data (see `mocks/db.ts`). This one typechecks clean and crashes on first render —
+  exactly the trap the "render the page" step exists for.
+- **`#actions` slot content must be wrapped in one flex container.** `PageHeader` and `Panel`
+  render the slot's children as *direct flex items* of a `justify-between` row, so two or more
+  buttons spray edge-to-edge across the whole width. Always
+  `<template #actions><div class="flex flex-wrap items-center gap-2">…</div></template>`.
+  Reference: `PageSupplierDetail.vue`, `PageJournalDetail.vue`.
+
+## 3. The Tailwind palette is CLOSED
 
 `tailwind.config.js` **replaces** the palette — it does not extend it. The only colors that
 exist are the tokens defined there plus `white black transparent current`. These silently
@@ -46,13 +66,13 @@ Use the tokens: `canvas panel fill hairline ink ink-muted ink-subtle ink-invert 
 primary-dark primary-soft danger warning success info` (+ `-soft` variants). One-off brand
 colours (the `views/auth/` navy `#121925`, gold `#d4a04a`) may use `[#hex]` arbitrary values.
 
-## 3. Feature module = five places, docs first
+## 4. Feature module = five places, docs first
 
 `docs/<module>/` (OKF contract) → `src/mocks/modules/<module>.ts` → `src/views/<module>/` →
 `src/routes/<module>.ts` (+ aggregate in `routes/index.ts`) → `src/constant/nav.ts`.
 Keep the three sets 1:1 (endpoint ↔ doc file ↔ mock handler). Details: root `CLAUDE.md`.
 
-## 4. Definition of done — run ALL of these before claiming it works
+## 5. Definition of done — run ALL of these before claiming it works
 
 ```bash
 cd frontend
@@ -67,22 +87,17 @@ breaks cells that contain an unescaped `|`. Edit those by hand.
 Then **render the actual page** — typecheck cannot see a no-op class, a broken flex layout,
 an invisible-on-invisible colour, or a mock that returns the wrong shape:
 
-- `npm run dev`, open the route in a browser, look at it. For auth-gated routes, log in first
-  (`admin` / `password`). `dev` may land on 5174+ if a stale vite is still up — read the port
-  from its output, don't assume 5173.
-- No browser lib installed (`playwright`/`puppeteer` are NOT deps here). Zero-install path:
-  launch system Chrome headless with a debug port and drive it over CDP from a scratchpad
-  script using Node's built-in `WebSocket` — `"…/Google Chrome" --headless=new
-  --remote-debugging-port=9222 --user-data-dir=<tmp> about:blank`, `fetch`
-  `localhost:9222/json/list` for the ws URL, send `Page.navigate` + `Page.captureScreenshot`,
-  collect `Runtime.consoleAPICalled` type `error`. For auth routes, `Runtime.evaluate` to seed
-  `localStorage` (`token` + `user` = `{id,name,email,roles:[{name:'admin'}]}`) then navigate —
-  don't script the login form.
-- Or hand the user a screenshot and ask.
+- `npm run dev` in one terminal (it may land on 5174+ if a stale vite is up — read the port
+  from its output), then **`node scripts/screenshot.mjs /journal /journal/tambah …`** — the
+  committed CDP driver: launches headless Chrome, seeds `localStorage` auth (no login form),
+  renders each route to `.screenshots/`, and exits non-zero if any route logged a console
+  error. `BASE_URL` / `OUT_DIR` env override the defaults. Read the PNGs, or hand one to the user.
+- The script exists because no browser lib is installed (`playwright`/`puppeteer` are NOT deps).
+  Extend it there rather than rewriting a one-off driver in the scratchpad each session.
 
 A change that passes `vue-tsc` but was never rendered is **not done**.
 
-## 5. Design rules (full list: DESIGN_SYSTEM.md)
+## 6. Design rules (full list: DESIGN_SYSTEM.md)
 
 - **Borderless**: white panels on grey canvas, shadow only on overlays, no nested cards.
 - **Sections grouped by whitespace + a light heading**: each group is a `<section
@@ -95,11 +110,17 @@ A change that passes `vue-tsc` but was never rendered is **not done**.
 - **Form width**: `DefaultLayout` centres every page in `mx-auto max-w-[1200px]`. Inside that,
   a form `<Panel class="max-w-5xl">` **left-aligned** (edge lines up with breadcrumb / page
   title / the list page's full-width Panel); never `mx-auto` on the Panel, never a full-width
-  Panel with the width cap on an inner `<form>`.
+  Panel with the width cap on an inner `<form>`. **Two exceptions → Panel goes full-width** (no
+  cap, same as the list): a form with a wide line-item `<table>` (`FormJournalLines.vue`), or a
+  form with too few / too short fields to fill 5xl (small master-data: Merk/Satuan/Cabang). See
+  the DESIGN_SYSTEM.md "small forms" addendum.
 - **Density** prop (`comfortable`/`compact`).
 - **Action buttons**: forms → primary at the END of the flow; detail/read pages → all actions
-  (`[← Kembali] [✎ Edit] [🗑 Hapus]`, all icon+label) in `PageHeader #actions`, with the whole
-  column (`PageHeader` + `Panel`) wrapped in `max-w-5xl` so they align with the Panel edge.
+  (`[← Kembali] [✎ Edit] [🗑 Hapus]`, all icon+label) in `PageHeader #actions`, wrapped in one
+  `<div class="flex flex-wrap items-center gap-2">` (see §2 — an unwrapped slot sprays the
+  buttons across the header), with the whole column (`PageHeader` + `Panel`) wrapped in
+  `max-w-5xl` so they align with the Panel edge. A status `<Badge>` for the record goes first
+  inside that same flex div.
 - **Minimalism here = borderless surfaces + whitespace grouping, NOT fewer controls.** Do not
   trim conventional affordances for aesthetics — this project's reviewer has repeatedly asked
   for them back: keep the explicit **Back** button (a breadcrumb is not a substitute), keep
