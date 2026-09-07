@@ -14,6 +14,7 @@ import { accountGroupSeed } from './fixtures/account-group'
 import { subAccountSeed } from './fixtures/sub-account'
 import { accountSeed } from './fixtures/account'
 import { salesTypeSeed } from './fixtures/sales-type'
+import { purchaseTypeSeed } from './fixtures/purchase-type'
 import { paymentTypeSeed } from './fixtures/payment-type'
 import type {
 	Journal,
@@ -32,6 +33,7 @@ import type {
 	SubAccount,
 	Account,
 	SalesType,
+	PurchaseType,
 	PaymentType
 } from '@/utils/types'
 
@@ -54,6 +56,7 @@ export const db: {
 	subAccount: SubAccount[]
 	account: Account[]
 	salesType: SalesType[]
+	purchaseType: PurchaseType[]
 	paymentType: PaymentType[]
 } = {
 	journal: structuredClone(journalSeed),
@@ -72,5 +75,6 @@ export const db: {
 	subAccount: structuredClone(subAccountSeed),
 	account: structuredClone(accountSeed),
 	salesType: structuredClone(salesTypeSeed),
+	purchaseType: structuredClone(purchaseTypeSeed),
 	paymentType: structuredClone(paymentTypeSeed)
 }

@@ -11,6 +11,7 @@ import branch from './branch'
 import department from './department'
 import warehouse from './warehouse'
 import salesType from './sales-type'
+import purchaseType from './purchase-type'
 import paymentType from './payment-type'
 import accountGroup from './account-group'
 import subAccount from './sub-account'
@@ -36,6 +37,7 @@ const routes: RouteRecordRaw[] = [
 			...department,
 			...warehouse,
 			...salesType,
+			...purchaseType,
 			...paymentType,
 			...accountGroup,
 			...subAccount,

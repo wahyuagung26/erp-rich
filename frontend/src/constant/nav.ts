@@ -19,6 +19,7 @@ import {
 	IconListTree,
 	IconListNumbers,
 	IconReceipt2,
+	IconShoppingCart,
 	IconCreditCard
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
@@ -46,6 +47,7 @@ export const NAV: NavItem[] = [
 			{ label: 'Departemen', to: '/department', icon: IconSitemap },
 			{ label: 'Gudang', to: '/warehouse', icon: IconPackages },
 			{ label: 'Jenis Penjualan', to: '/sales-type', icon: IconReceipt2 },
+			{ label: 'Jenis Pembelian', to: '/purchase-type', icon: IconShoppingCart },
 			{ label: 'Tipe Pembayaran', to: '/payment-type', icon: IconCreditCard },
 			{ label: 'Supplier', to: '/supplier', icon: IconBuildingWarehouse },
 			{ label: 'Customer', to: '/customer', icon: IconUsers }

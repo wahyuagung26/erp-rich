@@ -263,6 +263,19 @@ export interface SalesType {
 	deleted_at: string | null
 }
 
+// Master data: jenis pembelian / purchase type. Same contract as Sales/Channel —
+// `code` is user-entered at create and immutable afterward, but constrained to
+// uppercase letters A-Z only, max 5 characters (enforced client-side in
+// schema.ts and server-side in the mock, see docs/purchase-type/).
+export interface PurchaseType {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	notes: string
+	deleted_at: string | null
+}
+
 // Master data: tipe pembayaran / payment type. `code` is user-entered and
 // immutable after create, same convention as the other master-data modules.
 // `account_id` is denormalized with its code/name, same pattern as
