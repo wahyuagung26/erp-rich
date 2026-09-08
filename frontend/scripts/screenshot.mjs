@@ -60,7 +60,7 @@ await send('Runtime.enable')
 await send('Page.navigate', { url: `${BASE_URL}/login` })
 await wait(2000)
 await send('Runtime.evaluate', {
-	expression: `localStorage.setItem('token','dev.screenshot');localStorage.setItem('user',${JSON.stringify(JSON.stringify(USER))})`
+	expression: `localStorage.setItem('token','dev.screenshot');localStorage.setItem('user',${JSON.stringify(JSON.stringify(USER))});localStorage.setItem('company.activeId','1')`
 })
 
 for (const route of routes) {

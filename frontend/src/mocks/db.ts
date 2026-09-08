@@ -1,5 +1,6 @@
 import { journalSeed } from './fixtures/journal'
 import { journalExpenseSeed } from './fixtures/journal-expense'
+import { journalIncomeSeed } from './fixtures/journal-income'
 import { supplierSeed } from './fixtures/supplier'
 import { customerSeed } from './fixtures/customer'
 import { companySeed } from './fixtures/company'
@@ -22,6 +23,7 @@ import { cashFlowSeed } from './fixtures/cash-flow'
 import type {
 	Journal,
 	JournalExpense,
+	JournalIncome,
 	Supplier,
 	Customer,
 	Company,
@@ -48,6 +50,7 @@ import type {
 export const db: {
 	journal: Journal[]
 	journalExpense: JournalExpense[]
+	journalIncome: JournalIncome[]
 	supplier: Supplier[]
 	customer: Customer[]
 	company: Company[]
@@ -70,6 +73,7 @@ export const db: {
 } = {
 	journal: structuredClone(journalSeed),
 	journalExpense: structuredClone(journalExpenseSeed),
+	journalIncome: structuredClone(journalIncomeSeed),
 	supplier: structuredClone(supplierSeed),
 	customer: structuredClone(customerSeed),
 	company: structuredClone(companySeed),

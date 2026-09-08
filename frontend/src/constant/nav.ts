@@ -5,6 +5,8 @@ import {
 	IconUsers,
 	IconBook2,
 	IconCashBanknoteOff,
+	IconCashBanknote,
+	IconReportMoney,
 	IconPalette,
 	IconDatabase,
 	IconTag,
@@ -66,7 +68,9 @@ export const NAV: NavItem[] = [
 			{ label: 'Sub Akun', to: '/sub-account', icon: IconListTree },
 			{ label: 'Akun Perkiraan', to: '/account', icon: IconListNumbers },
 			{ label: 'Jurnal Umum', to: '/journal', icon: IconBook2 },
-			{ label: 'Jurnal Pengeluaran', to: '/journal-expense', icon: IconCashBanknoteOff }
+			{ label: 'Jurnal Pemasukan', to: '/journal-income', icon: IconCashBanknote },
+			{ label: 'Jurnal Pengeluaran', to: '/journal-expense', icon: IconCashBanknoteOff },
+			{ label: 'Posisi Kas & Bank', to: '/cash-position', icon: IconReportMoney }
 		]
 	},
 	{ label: 'Design System', to: '/design-system', icon: IconPalette }

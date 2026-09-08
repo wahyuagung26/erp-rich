@@ -77,5 +77,38 @@ export const accountSeed: Account[] = [
 		name: 'Persediaan Bahan Baku',
 		type: 'asset',
 		deleted_at: null
+	},
+	{
+		id: 8,
+		company_id: 1,
+		sub_account_id: 1,
+		sub_account_code: '10001',
+		sub_account_name: 'Kas',
+		code: '1000103',
+		name: 'Bank BCA',
+		type: 'cash_bank',
+		deleted_at: null
+	},
+	{
+		id: 9,
+		company_id: 1,
+		sub_account_id: 1,
+		sub_account_code: '10001',
+		sub_account_name: 'Kas',
+		code: '1000104',
+		name: 'Bank Mandiri',
+		type: 'cash_bank',
+		deleted_at: null
+	},
+	{
+		id: 10,
+		company_id: 1,
+		sub_account_id: 1,
+		sub_account_code: '10001',
+		sub_account_name: 'Kas',
+		code: '1000105',
+		name: 'Kas Besar',
+		type: 'cash_bank',
+		deleted_at: null
 	}
 ]

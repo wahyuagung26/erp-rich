@@ -419,3 +419,50 @@ export interface JournalExpense {
 	total: number
 	cash_out: number
 }
+
+// Cash receipt journal — see docs/journal-income/. Mirror of JournalExpense with
+// the cash side debited: lines carry income at credit (plus optional deductions
+// at debit); the balancing cash debit line is NOT in `lines`.
+export type JournalIncomeLine = JournalExpenseLine
+
+export interface JournalIncome {
+	id: number
+	number: string
+	date: string
+	voucher: string
+	description: string
+	attachment: JournalAttachment | null
+	cash_account_id: number
+	cash_account_code?: string
+	cash_account_name?: string
+	department_id: number
+	department_code?: string
+	department_name?: string
+	cash_flow: string
+	cash_flow_name?: string
+	status: JournalStatus
+	rejection_reason: string | null
+	approved_by: string | null
+	approved_at: string | null
+	lines: JournalIncomeLine[]
+	total: number
+	cash_in: number
+}
+
+// Daily cash & bank position report — see docs/cash-position/. Read-only,
+// recomputed per request from approved journal movements.
+export interface CashPositionRow {
+	account_id: number
+	account_code: string
+	account_name: string
+	opening: number
+	cash_in: number
+	cash_out: number
+	closing: number
+}
+
+export interface CashPosition {
+	date: string
+	rows: CashPositionRow[]
+	total: { opening: number; cash_in: number; cash_out: number; closing: number }
+}
