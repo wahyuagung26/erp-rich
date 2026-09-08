@@ -551,3 +551,72 @@ export interface CashPosition {
 	rows: CashPositionRow[]
 	total: { opening: number; cash_in: number; cash_out: number; closing: number }
 }
+
+export type PurchaseOrderApprovalStatus = 'pending' | 'approved' | 'rejected'
+export type PurchaseOrderDeliveryStatus = 'not_received' | 'partial' | 'full'
+
+export interface PurchaseOrderLine {
+	product_id: number
+	product_code?: string
+	product_name?: string
+	brand_name?: string
+	unit_name?: string
+	quantity: number
+	price: number
+	discount: number
+	dpp: number
+	ppn: number
+	total: number
+}
+
+export interface PurchaseOrder {
+	id: number
+	number: string
+	date: string
+	supplier_id: number
+	supplier_code?: string
+	supplier_name?: string
+	pkp_active: boolean
+	department_id: number
+	department_code?: string
+	department_name?: string
+	warehouse_id: number
+	warehouse_code?: string
+	warehouse_name?: string
+	purchase_type: string | null
+	address: string
+	description: string
+	approval_status: PurchaseOrderApprovalStatus
+	delivery_status: PurchaseOrderDeliveryStatus
+	is_locked: boolean
+	lock_reason: string | null
+	rejection_reason: string | null
+	approved_by: string | null
+	approved_at: string | null
+	created_by: string
+	lines: PurchaseOrderLine[]
+	dpp: number
+	ppn: number
+	nett: number
+	total: number
+}
+
+// API input only — no denormalized labels, no computed dpp/ppn/total.
+export interface PurchaseOrderLineRequest {
+	product_id: number
+	quantity: number
+	price: number
+	discount: number
+}
+
+export interface PurchaseOrderRequest {
+	date: string
+	supplier_id: number
+	pkp_active: boolean
+	department_id: number
+	warehouse_id: number
+	purchase_type: string | null
+	address: string
+	description: string
+	lines: PurchaseOrderLineRequest[]
+}

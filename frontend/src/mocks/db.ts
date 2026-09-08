@@ -21,6 +21,7 @@ import { salesTypeSeed } from './fixtures/sales-type'
 import { purchaseTypeSeed } from './fixtures/purchase-type'
 import { paymentTypeSeed } from './fixtures/payment-type'
 import { productSeed } from './fixtures/product'
+import { purchaseOrderSeed } from './fixtures/purchase-order'
 import { cashFlowSeed } from './fixtures/cash-flow'
 import type {
 	Journal,
@@ -48,6 +49,7 @@ import type {
 	PurchaseType,
 	PaymentType,
 	Product,
+	PurchaseOrder,
 	CashFlow
 } from '@/utils/types'
 
@@ -79,6 +81,7 @@ export const db: {
 	purchaseType: PurchaseType[]
 	paymentType: PaymentType[]
 	product: Product[]
+	purchaseOrder: PurchaseOrder[]
 	cashFlow: CashFlow[]
 } = {
 	journal: structuredClone(journalSeed),
@@ -106,5 +109,6 @@ export const db: {
 	purchaseType: structuredClone(purchaseTypeSeed),
 	paymentType: structuredClone(paymentTypeSeed),
 	product: structuredClone(productSeed),
+	purchaseOrder: structuredClone(purchaseOrderSeed),
 	cashFlow: structuredClone(cashFlowSeed)
 }

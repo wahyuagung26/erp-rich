@@ -79,7 +79,10 @@ export const NAV: NavItem[] = [
 	{
 		label: 'Pembelian',
 		icon: IconShoppingCart,
-		children: [{ label: 'Uang Muka Supplier', to: '/supplier-advance', icon: IconCoins }]
+		children: [
+			{ label: 'Order Pembelian', to: '/purchase-order', icon: IconShoppingCart },
+			{ label: 'Uang Muka Supplier', to: '/supplier-advance', icon: IconCoins }
+		]
 	},
 	{ label: 'Design System', to: '/design-system', icon: IconPalette }
 ]
