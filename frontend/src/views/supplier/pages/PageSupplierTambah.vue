@@ -11,6 +11,7 @@ import type { SupplierForm } from '@/views/supplier/schema'
 const router = useRouter()
 const toast = useToast()
 const saving = ref(false)
+const formRef = ref<InstanceType<typeof FormSupplier>>()
 
 async function save(payload: SupplierForm) {
 	saving.value = true
@@ -20,7 +21,12 @@ async function save(payload: SupplierForm) {
 		router.push('/supplier')
 	} catch (err) {
 		if (axios.isAxiosError(err) && err.response?.status === 422) {
-			toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
+			const errors = err.response.data?.errors
+			if (errors) {
+				formRef.value?.setServerErrors(errors)
+			} else {
+				toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
+			}
 			return
 		}
 		throw err
@@ -33,6 +39,6 @@ async function save(payload: SupplierForm) {
 <template>
 	<div class="space-y-4 p-4">
 		<PageHeader title="Tambah Supplier" subtitle="Master data vendor" />
-		<FormSupplier :loading="saving" submit-label="Simpan Supplier" @submit="save" />
+		<FormSupplier ref="formRef" :loading="saving" submit-label="Simpan Supplier" @submit="save" />
 	</div>
 </template>

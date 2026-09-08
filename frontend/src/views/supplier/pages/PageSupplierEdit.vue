@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/base/PageHeader.vue'
@@ -20,6 +21,7 @@ const supplier = ref<Supplier>()
 const loading = ref(true)
 const notFound = ref(false)
 const saving = ref(false)
+const formRef = ref<InstanceType<typeof FormSupplier>>()
 
 onMounted(async () => {
 	try {
@@ -38,6 +40,17 @@ async function save(payload: SupplierForm) {
 		await api.put(`/supplier/${route.params.id}`, payload)
 		toast.success('Supplier diperbarui')
 		router.push('/supplier')
+	} catch (err) {
+		if (axios.isAxiosError(err) && err.response?.status === 422) {
+			const errors = err.response.data?.errors
+			if (errors) {
+				formRef.value?.setServerErrors(errors)
+			} else {
+				toast.error(err.response.data?.message ?? 'Gagal memperbarui supplier')
+			}
+			return
+		}
+		throw err
 	} finally {
 		saving.value = false
 	}
@@ -54,6 +67,6 @@ async function save(payload: SupplierForm) {
 				<Button variant="secondary" @click="router.push('/supplier')">Kembali</Button>
 			</div>
 		</Panel>
-		<FormSupplier v-else :initial="supplier" :code="supplier.code" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
+		<FormSupplier v-else ref="formRef" :initial="supplier" :code="supplier.code" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
 	</div>
 </template>

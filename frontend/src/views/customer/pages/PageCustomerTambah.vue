@@ -11,6 +11,7 @@ import type { CustomerForm } from '@/views/customer/schema'
 const router = useRouter()
 const toast = useToast()
 const saving = ref(false)
+const formRef = ref<InstanceType<typeof FormCustomer>>()
 
 async function save(payload: CustomerForm) {
 	saving.value = true
@@ -20,7 +21,9 @@ async function save(payload: CustomerForm) {
 		router.push('/customer')
 	} catch (err) {
 		if (axios.isAxiosError(err) && err.response?.status === 422) {
-			toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
+			const errors = err.response.data?.errors
+			if (errors) formRef.value?.setServerErrors(errors)
+			else toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
 			return
 		}
 		throw err
@@ -33,6 +36,6 @@ async function save(payload: CustomerForm) {
 <template>
 	<div class="space-y-4 p-4">
 		<PageHeader title="Tambah Customer" subtitle="Master data pelanggan" />
-		<FormCustomer :loading="saving" submit-label="Simpan Customer" @submit="save" />
+		<FormCustomer ref="formRef" :loading="saving" submit-label="Simpan Customer" @submit="save" />
 	</div>
 </template>

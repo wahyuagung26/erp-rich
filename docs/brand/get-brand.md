@@ -7,12 +7,12 @@ path: /brand/:id
 status: mock
 tags: [brand, read]
 resource: /frontend/src/mocks/modules/brand.ts
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-09-09T00:00:00Z
 ---
 
-# Get Merk
+# Get Brand
 
-Backs `views/brand/pages/PageBrandDetail.vue` (read-only view) and `PageMerkEdit.vue`
+Backs `views/brand/pages/PageBrandDetail.vue` (read-only view) and `PageBrandEdit.vue`
 (loads the record into the form).
 
 ## Request
@@ -31,7 +31,7 @@ Backs `views/brand/pages/PageBrandDetail.vue` (read-only view) and `PageMerkEdit
 
 ## Response
 
-`200`: `{ "data": { ...Merk } }` — same shape as one row of [list-merk](./list-brand.md).
+`200`: `{ "data": { ...Brand } }` — same shape as one row of [list-brand](./list-brand.md).
 
 ## Errors
 

@@ -7,7 +7,7 @@ path: /unit/:id
 status: mock
 tags: [unit, read]
 resource: /frontend/src/mocks/modules/unit.ts
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-09-09T00:00:00Z
 ---
 
 # Get Unit
@@ -31,7 +31,7 @@ Backs `views/unit/pages/PageUnitDetail.vue` (read-only view) and
 
 ## Response
 
-`200`: `{ "data": { ...Unit } }` — same shape as one row of [list-satuan](./list-unit.md).
+`200`: `{ "data": { ...Unit } }` — same shape as one row of [list-unit](./list-unit.md).
 
 ## Errors
 

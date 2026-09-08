@@ -7,10 +7,10 @@ path: /brand
 status: mock
 tags: [brand, read, list]
 resource: /frontend/src/mocks/modules/brand.ts
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-09-09T00:00:00Z
 ---
 
-# List Merk
+# List Brand
 
 Backs `views/brand/pages/PageBrandTable.vue` (via the `useTableList` composable).
 

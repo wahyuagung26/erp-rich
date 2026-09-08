@@ -7,10 +7,10 @@ path: /brand/:id
 status: mock
 tags: [brand, write]
 resource: /frontend/src/mocks/modules/brand.ts
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-09-09T00:00:00Z
 ---
 
-# Update Merk
+# Update Brand
 
 Backs `views/brand/pages/PageBrandEdit.vue`. The form shows `code` disabled — this
 endpoint ignores `code` even if sent; only `name` can change.
@@ -40,7 +40,7 @@ another company via this endpoint.
 
 ## Response
 
-`200`: `{ "data": { ...Merk }, "message": "Merk diperbarui" }`
+`200`: `{ "data": { ...Brand }, "message": "Merk diperbarui" }`
 
 ## Errors
 

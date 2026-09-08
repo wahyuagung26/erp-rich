@@ -3,20 +3,20 @@ type: OKF Module
 title: Department (Master Department)
 description: CRUD for department master data — code + name. Soft-delete, company-scoped.
 tags: [department, master-data]
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-09-09T00:00:00Z
 ---
 
 # Department
 
 Master data for departments (Finance, HRD, Marketing, …). Consumed by
-`frontend/src/views/departemen/` (list, detail, tambah, edit). Company-scoped —
+`frontend/src/views/department/` (list, detail, tambah, edit). Company-scoped —
 see [conventions](../conventions.md#company-scoping).
 
 `code` is entered by the user at creation and is **immutable** afterward — the edit
 form shows it disabled, and the backend must ignore any `code` sent on update.
 `code` uniqueness is checked within the active company only — two companies may
-each have their own `FIN` code. Same contract as [Merk](../merk/index.md) /
-[Kategori](../kategori/index.md) / [Satuan](../satuan/index.md) / [Cabang](../cabang/index.md).
+each have their own `FIN` code. Same contract as [Brand](../brand/index.md) /
+[Product Category](../product-category/index.md) / [Unit](../unit/index.md) / [Branch](../branch/index.md).
 
 ## Entity: `Department`
 
@@ -32,8 +32,8 @@ each have their own `FIN` code. Same contract as [Merk](../merk/index.md) /
 
 | Method | Path | File |
 |---|---|---|
-| GET | `/departemen` | [list-departemen](./list-department.md) |
-| GET | `/departemen/:id` | [get-departemen](./get-department.md) |
-| POST | `/departemen` | [create-departemen](./create-departemen.md) |
-| PUT | `/departemen/:id` | [update-departemen](./update-departemen.md) |
-| DELETE | `/departemen/:id` | [delete-departemen](./delete-departemen.md) |
+| GET | `/department` | [list-department](./list-department.md) |
+| GET | `/department/:id` | [get-department](./get-department.md) |
+| POST | `/department` | [create-department](./create-department.md) |
+| PUT | `/department/:id` | [update-department](./update-department.md) |
+| DELETE | `/department/:id` | [delete-department](./delete-department.md) |

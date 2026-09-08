@@ -24,6 +24,12 @@ const router = useRouter()
 const toast = useToast()
 const errors = ref<Record<string, string>>({})
 
+function setServerErrors(serverErrors: Record<string, string[]>) {
+	errors.value = Object.fromEntries(Object.entries(serverErrors).map(([key, messages]) => [key, messages[0] ?? 'Tidak valid']))
+}
+
+defineExpose({ setServerErrors })
+
 const form = reactive<JournalForm>(
 	props.initialValue
 		? // Shallow-copy the form + its lines so edits don't mutate the caller's object.
@@ -179,11 +185,11 @@ function lineValidation(line: JournalFormLine, prefix: string) {
 const draftHasInput = computed(() =>
 	Boolean(
 		lineDraft.account_id ||
-			lineDraft.department_id ||
-			lineDraft.cash_flow ||
-			lineDraft.detail_description?.trim() ||
-			lineDraft.debit ||
-			lineDraft.credit
+		lineDraft.department_id ||
+		lineDraft.cash_flow ||
+		lineDraft.detail_description?.trim() ||
+		lineDraft.debit ||
+		lineDraft.credit
 	)
 )
 

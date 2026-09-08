@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/base/PageHeader.vue'
@@ -20,6 +21,7 @@ const customer = ref<Customer>()
 const loading = ref(true)
 const notFound = ref(false)
 const saving = ref(false)
+const formRef = ref<InstanceType<typeof FormCustomer>>()
 
 onMounted(async () => {
 	try {
@@ -38,6 +40,14 @@ async function save(payload: CustomerForm) {
 		await api.put(`/customer/${route.params.id}`, payload)
 		toast.success('Customer diperbarui')
 		router.push('/customer')
+	} catch (err) {
+		if (axios.isAxiosError(err) && err.response?.status === 422) {
+			const errors = err.response.data?.errors
+			if (errors) formRef.value?.setServerErrors(errors)
+			else toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
+			return
+		}
+		throw err
 	} finally {
 		saving.value = false
 	}
@@ -54,6 +64,6 @@ async function save(payload: CustomerForm) {
 				<Button variant="secondary" @click="router.push('/customer')">Kembali</Button>
 			</div>
 		</Panel>
-		<FormCustomer v-else :initial="customer" :code="customer.code" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
+		<FormCustomer v-else ref="formRef" :initial="customer" :code="customer.code" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
 	</div>
 </template>

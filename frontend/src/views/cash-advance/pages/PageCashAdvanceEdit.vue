@@ -12,7 +12,7 @@ import Badge from '@/components/base/Badge.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import FormCashAdvance from '@/views/cash-advance/components/FormCashAdvance.vue'
 import HistoryPenyelesaian from '@/views/cash-advance/components/HistoryPenyelesaian.vue'
-import { journalStatusLabel, journalStatusTone, type CashAdvanceForm } from '@/views/cash-advance/schema'
+import { journalStatusLabel, journalStatusTone, type CashAdvanceDraft, type CashAdvanceRequest } from '@/views/cash-advance/schema'
 import type { CashAdvance } from '@/utils/types'
 
 const route = useRoute()
@@ -22,6 +22,7 @@ const advance = ref<CashAdvance>()
 const loading = ref(true)
 const notFound = ref(false)
 const saving = ref(false)
+const formRef = ref<InstanceType<typeof FormCashAdvance>>()
 
 onMounted(load)
 
@@ -36,7 +37,7 @@ async function load() {
 	}
 }
 
-const toForm = (value: CashAdvance): CashAdvanceForm => ({
+const toForm = (value: CashAdvance): CashAdvanceDraft => ({
 	number: value.number,
 	date: value.date,
 	department_id: value.department_id,
@@ -57,13 +58,19 @@ const toForm = (value: CashAdvance): CashAdvanceForm => ({
 	attachment: value.attachment
 })
 
-async function save(payload: CashAdvanceForm) {
+async function save(payload: CashAdvanceRequest) {
 	saving.value = true
 	try {
 		await api.put(`/cash-advance/${route.params.id}`, payload)
 		toast.success('Uang muka operasional diperbarui')
 		router.push(`/cash-advance/${route.params.id}`)
 	} catch (err) {
+		if (axios.isAxiosError(err) && err.response?.status === 422) {
+			const errors = err.response.data?.errors
+			if (errors) formRef.value?.setServerErrors(errors)
+			else toast.error(err.response.data?.message ?? 'Uang muka operasional tidak dapat diperbarui')
+			return
+		}
 		if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Uang muka operasional tidak dapat diperbarui')
 		else throw err
 	} finally {
@@ -96,7 +103,7 @@ async function save(payload: CashAdvanceForm) {
 			<HistoryPenyelesaian :advance="advance" @changed="load" />
 		</template>
 		<template v-else>
-			<FormCashAdvance :initial-value="toForm(advance)" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
+			<FormCashAdvance ref="formRef" :initial-value="toForm(advance)" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
 			<HistoryPenyelesaian :advance="advance" @changed="load" />
 		</template>
 	</div>

@@ -24,6 +24,12 @@ const router = useRouter()
 const toast = useToast()
 const errors = ref<Record<string, string>>({})
 
+function setServerErrors(serverErrors: Record<string, string[]>) {
+	errors.value = Object.fromEntries(Object.entries(serverErrors).map(([key, messages]) => [key, messages[0] ?? 'Tidak valid']))
+}
+
+defineExpose({ setServerErrors })
+
 const form = reactive<JournalIncomeForm>(
 	props.initialValue
 		? {

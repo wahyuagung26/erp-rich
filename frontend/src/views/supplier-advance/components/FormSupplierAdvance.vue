@@ -14,12 +14,12 @@ import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Select from '@/components/base/Select.vue'
 import Button from '@/components/base/Button.vue'
 import RiwayatPemakaian from '@/views/supplier-advance/components/RiwayatPemakaian.vue'
-import { advanceTypeOptions, type SupplierAdvanceForm } from '@/views/supplier-advance/schema'
+import { advanceTypeOptions, parseSupplierAdvance, type SupplierAdvanceDraft, type SupplierAdvanceRequest } from '@/views/supplier-advance/schema'
 import type { Account, CashFlow, Department, Supplier } from '@/utils/types'
 
-const emit = defineEmits<{ submit: [payload: SupplierAdvanceForm] }>()
+const emit = defineEmits<{ submit: [payload: SupplierAdvanceRequest] }>()
 const props = withDefaults(
-	defineProps<{ loading?: boolean; initialValue?: SupplierAdvanceForm; submitLabel?: string; advanceId?: number | null }>(),
+	defineProps<{ loading?: boolean; initialValue?: SupplierAdvanceDraft; submitLabel?: string; advanceId?: number | null }>(),
 	{ advanceId: null }
 )
 
@@ -28,7 +28,7 @@ const toast = useToast()
 const errors = ref<Record<string, string>>({})
 
 // Default department is FAT (Legacy default); the edit flow overwrites from initialValue.
-const form = reactive<SupplierAdvanceForm>(
+const form = reactive<SupplierAdvanceDraft>(
 	props.initialValue
 		? { ...props.initialValue, attachment: props.initialValue.attachment && { ...props.initialValue.attachment } }
 		: {
@@ -154,30 +154,17 @@ function removeAttachment() {
 	form.attachment = null
 }
 
-function validate(): boolean {
-	const next: Record<string, string> = {}
-	if (!form.date) next.date = 'Tanggal wajib diisi'
-	if (!form.department_id) next.department = 'Departemen wajib dipilih'
-	if (!form.supplier_id) next.supplier = 'Supplier wajib dipilih'
-	if (!form.amount || form.amount <= 0) next.amount = 'Nominal wajib diisi'
-	if (!form.cash_account_id) next.cash_account = 'Akun kas/bank wajib dipilih'
-	if (!form.advance_type.trim()) next.advance_type = 'Jenis uang muka wajib dipilih'
-	if (!form.attachment) next.attachment = 'Lampiran wajib diunggah'
-	errors.value = next
-	return !Object.keys(next).length
+function submit() {
+	if (props.loading) return
+	const parsed = parseSupplierAdvance(form)
+	errors.value = parsed.errors ?? {}
+	if (parsed.data) emit('submit', parsed.data)
 }
 
-function submit() {
-	if (props.loading || !validate()) return
-	emit('submit', {
-		...form,
-		department_id: form.department_id,
-		supplier_id: form.supplier_id,
-		cash_account_id: form.cash_account_id,
-		amount: Number(form.amount) || 0,
-		used: Number(form.used) || 0
-	})
+function setServerErrors(serverErrors: Record<string, string[]>) {
+	errors.value = { ...errors.value, ...Object.fromEntries(Object.entries(serverErrors).map(([key, messages]) => [key, messages[0]])) }
 }
+defineExpose({ setServerErrors })
 </script>
 
 <template>
@@ -192,7 +179,7 @@ function submit() {
 					<FormField label="Tanggal" required :error="errors.date">
 						<DatePicker v-model="form.date" />
 					</FormField>
-					<FormField label="Departemen" required :error="errors.department">
+					<FormField label="Departemen" required :error="errors.department_id">
 						<AsyncSelect
 							:model-value="form.department_id"
 							endpoint="/department"
@@ -202,7 +189,7 @@ function submit() {
 							@update:model-value="onDepartmentChange"
 						/>
 					</FormField>
-					<FormField class="md:col-span-2" label="Supplier" required :error="errors.supplier">
+					<FormField class="md:col-span-2" label="Supplier" required :error="errors.supplier_id">
 						<AsyncSelect
 							:model-value="form.supplier_id"
 							endpoint="/supplier"
@@ -230,7 +217,7 @@ function submit() {
 					<FormField label="Saldo Tersedia">
 						<MoneyInput :model-value="remaining" disabled />
 					</FormField>
-					<FormField label="Akun Kas / Bank" required :error="errors.cash_account">
+					<FormField label="Akun Kas / Bank" required :error="errors.cash_account_id">
 						<AsyncSelect
 							:model-value="form.cash_account_id"
 							endpoint="/account"

@@ -12,6 +12,7 @@ import type { JournalIncomeForm } from '@/views/journal-income/schema'
 const router = useRouter()
 const toast = useToast()
 const saving = ref(false)
+const formRef = ref<InstanceType<typeof FormJournalIncome>>()
 
 async function save(payload: JournalIncomeForm) {
 	saving.value = true
@@ -21,6 +22,10 @@ async function save(payload: JournalIncomeForm) {
 		router.push('/journal-income')
 	} catch (err) {
 		if (axios.isAxiosError(err)) {
+			if (err.response?.status === 422 && err.response.data?.errors) {
+				formRef.value?.setServerErrors(err.response.data.errors)
+				return
+			}
 			toast.error(err.response?.data?.message ?? 'Jurnal pemasukan tidak dapat disimpan')
 			return
 		}
@@ -38,6 +43,6 @@ async function save(payload: JournalIncomeForm) {
 				<div class="flex items-center gap-2"><Badge tone="warning">Belum Disetujui</Badge></div>
 			</template>
 		</PageHeader>
-		<FormJournalIncome :loading="saving" @submit="save" />
+		<FormJournalIncome ref="formRef" :loading="saving" @submit="save" />
 	</div>
 </template>

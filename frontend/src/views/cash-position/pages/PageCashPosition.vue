@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { IconFileSpreadsheet, IconRefresh } from '@tabler/icons-vue'
+import axios from 'axios'
 import api from '@/utils/api'
 import { useCompanyStore } from '@/stores/company'
 import { useToast } from '@/composables/useToast'
@@ -25,6 +26,9 @@ async function load() {
 	try {
 		const res = await api.get<{ data: CashPosition }>('/cash-position', { params: { date: date.value } })
 		report.value = res.data.data
+	} catch (err) {
+		if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Posisi kas tidak dapat dimuat')
+		else toast.error('Posisi kas tidak dapat dimuat')
 	} finally {
 		loading.value = false
 	}

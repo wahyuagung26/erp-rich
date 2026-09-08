@@ -21,6 +21,7 @@ const journal = ref<Journal>()
 const loading = ref(true)
 const notFound = ref(false)
 const saving = ref(false)
+const formRef = ref<InstanceType<typeof FormJournalLines>>()
 
 onMounted(async () => {
 	try {
@@ -49,8 +50,13 @@ async function save(payload: JournalForm) {
 		toast.success('Jurnal diperbarui')
 		router.push(`/journal/${route.params.id}`)
 	} catch (err) {
-		if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Jurnal tidak dapat diperbarui')
-		else throw err
+		if (axios.isAxiosError(err)) {
+			if (err.response?.status === 422 && err.response.data?.errors) {
+				formRef.value?.setServerErrors(err.response.data.errors)
+				return
+			}
+			toast.error(err.response?.data?.message ?? 'Jurnal tidak dapat diperbarui')
+		} else throw err
 	} finally {
 		saving.value = false
 	}
@@ -75,6 +81,6 @@ async function save(payload: JournalForm) {
 			<EmptyState title="Jurnal tidak dapat diedit" description="Hanya jurnal dengan status Menunggu Persetujuan yang dapat diedit." />
 			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push(`/journal/${journal.id}`)">Lihat Detail</Button></div>
 		</Panel>
-		<FormJournalLines v-else :initial-value="toForm(journal)" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
+		<FormJournalLines ref="formRef" v-else :initial-value="toForm(journal)" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
 	</div>
 </template>

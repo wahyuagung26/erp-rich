@@ -7,7 +7,7 @@ path: /department/:id
 status: mock
 tags: [department, read]
 resource: /frontend/src/mocks/modules/department.ts
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-09-09T00:00:00Z
 ---
 
 # Get Department
@@ -31,7 +31,7 @@ Backs `views/department/pages/PageDepartmentDetail.vue` (read-only view) and
 
 ## Response
 
-`200`: `{ "data": { ...Department } }` — same shape as one row of [list-departemen](./list-department.md).
+`200`: `{ "data": { ...Department } }` — same shape as one row of [list-department](./list-department.md).
 
 ## Errors
 

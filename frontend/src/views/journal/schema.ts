@@ -1,4 +1,36 @@
-import type { Account, JournalAttachment, JournalLine, JournalStatus } from '@/utils/types'
+import * as v from 'valibot'
+import type { JournalStatus } from '@/utils/types'
+
+export const journalAttachmentSchema = v.object({
+	name: v.string(),
+	type: v.string(),
+	size: v.number(),
+	data_url: v.string()
+})
+
+export const journalLineSchema = v.object({
+	account_id: v.number(),
+	account_code: v.optional(v.string()),
+	account_name: v.optional(v.string()),
+	account_type: v.optional(v.string()),
+	department_id: v.optional(v.nullable(v.number())),
+	department_code: v.optional(v.string()),
+	department_name: v.optional(v.string()),
+	cash_flow: v.optional(v.nullable(v.string())),
+	cash_flow_name: v.optional(v.string()),
+	detail_description: v.optional(v.string()),
+	debit: v.number(),
+	credit: v.number()
+})
+
+export const journalFormSchema = v.object({
+	number: v.string(),
+	date: v.string(),
+	voucher: v.string(),
+	description: v.string(),
+	attachment: v.nullable(journalAttachmentSchema),
+	lines: v.array(journalLineSchema)
+})
 
 export const journalStatusLabel: Record<JournalStatus, string> = {
 	submitted: 'Menunggu Persetujuan',
@@ -12,15 +44,5 @@ export const journalStatusTone: Record<JournalStatus, 'success' | 'danger' | 'wa
 	rejected: 'danger'
 }
 
-export interface JournalFormLine extends JournalLine {
-	account_type?: Account['type']
-}
-
-export interface JournalForm {
-	number: string
-	date: string
-	voucher: string
-	description: string
-	attachment: JournalAttachment | null
-	lines: JournalFormLine[]
-}
+export type JournalFormLine = v.InferOutput<typeof journalLineSchema>
+export type JournalForm = v.InferOutput<typeof journalFormSchema>

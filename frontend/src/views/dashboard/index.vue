@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import api from '@/utils/api'
 import { money, date } from '@/utils/format'
+import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import StatTile from '@/components/base/StatTile.vue'
@@ -22,6 +23,7 @@ interface Summary {
 
 const summary = ref<Summary>()
 const loading = ref(true)
+const toast = useToast()
 
 const rows: TableRow[] = [
 	{ label: 'Tanggal', field: 'date', align: 'left' },
@@ -34,6 +36,8 @@ onMounted(async () => {
 	try {
 		const res = await api.get<{ data: Summary }>('/dashboard/summary')
 		summary.value = res.data.data
+	} catch (err) {
+		toast.error('Ringkasan dashboard tidak dapat dimuat')
 	} finally {
 		loading.value = false
 	}

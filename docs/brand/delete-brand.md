@@ -7,12 +7,12 @@ path: /brand/:id
 status: mock
 tags: [brand, write]
 resource: /frontend/src/mocks/modules/brand.ts
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-09-09T00:00:00Z
 ---
 
-# Delete Merk
+# Delete Brand
 
-Backs the delete action in `PageMerkTable.vue` (row) and `PageMerkDetail.vue`, both
+Backs the delete action in `PageBrandTable.vue` (row) and `PageBrandDetail.vue`, both
 behind a confirm dialog.
 
 ## Request
@@ -46,6 +46,6 @@ behind a confirm dialog.
 ## Notes
 
 - **Soft delete.** The row is kept; `deleted_at` is set to the current ISO timestamp.
-  After this the brand is invisible to [list-merk](./list-brand.md) and
-  [get-merk](./get-brand.md), and its `code` frees up for reuse.
-- No restore endpoint yet — add `POST /merk/:id/restore` when the UI needs it.
+  After this the brand is invisible to [list-brand](./list-brand.md) and
+  [get-brand](./get-brand.md), and its `code` frees up for reuse.
+- No restore endpoint yet — add `POST /brand/:id/restore` when the UI needs it.

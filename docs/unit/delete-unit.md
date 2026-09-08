@@ -7,7 +7,7 @@ path: /unit/:id
 status: mock
 tags: [unit, write]
 resource: /frontend/src/mocks/modules/unit.ts
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-09-09T00:00:00Z
 ---
 
 # Delete Unit
@@ -46,7 +46,7 @@ both behind a confirm dialog.
 ## Notes
 
 - **Soft delete.** The row is kept; `deleted_at` is set to the current ISO timestamp.
-  After this the unit is invisible to [list-satuan](./list-unit.md) and
-  [get-satuan](./get-unit.md), and its `code` frees up for reuse within the
+  After this the unit is invisible to [list-unit](./list-unit.md) and
+  [get-unit](./get-unit.md), and its `code` frees up for reuse within the
   company.
-- No restore endpoint yet — add `POST /satuan/:id/restore` when the UI needs it.
+- No restore endpoint yet — add `POST /unit/:id/restore` when the UI needs it.

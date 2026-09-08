@@ -3,20 +3,20 @@ type: OKF Module
 title: Unit (Master Unit Produk)
 description: CRUD for unit-of-measure master data — code + name. Soft-delete, company-scoped.
 tags: [unit, master-data]
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-09-09T00:00:00Z
 ---
 
 # Unit
 
 Master data for units of measure (PCS, BOX, KG, …). Consumed by
-`frontend/src/views/satuan/` (list, detail, tambah, edit) and (later) referenced by
+`frontend/src/views/unit/` (list, detail, tambah, edit) and (later) referenced by
 product master data. Company-scoped — see [conventions](../conventions.md#company-scoping).
 
 `code` is entered by the user at creation and is **immutable** afterward — the edit
 form shows it disabled, and the backend must ignore any `code` sent on update.
 `code` uniqueness is checked within the active company only — two companies may
-each have their own `PCS` code. Same contract as [Merk](../merk/index.md) /
-[Kategori](../kategori/index.md).
+each have their own `PCS` code. Same contract as [Brand](../brand/index.md) /
+[Product Category](../product-category/index.md).
 
 ## Entity: `Unit`
 
@@ -32,8 +32,8 @@ each have their own `PCS` code. Same contract as [Merk](../merk/index.md) /
 
 | Method | Path | File |
 |---|---|---|
-| GET | `/satuan` | [list-satuan](./list-unit.md) |
-| GET | `/satuan/:id` | [get-satuan](./get-unit.md) |
-| POST | `/satuan` | [create-satuan](./create-satuan.md) |
-| PUT | `/satuan/:id` | [update-satuan](./update-satuan.md) |
-| DELETE | `/satuan/:id` | [delete-satuan](./delete-satuan.md) |
+| GET | `/unit` | [list-unit](./list-unit.md) |
+| GET | `/unit/:id` | [get-unit](./get-unit.md) |
+| POST | `/unit` | [create-unit](./create-unit.md) |
+| PUT | `/unit/:id` | [update-unit](./update-unit.md) |
+| DELETE | `/unit/:id` | [delete-unit](./delete-unit.md) |

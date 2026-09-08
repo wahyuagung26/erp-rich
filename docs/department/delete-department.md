@@ -7,7 +7,7 @@ path: /department/:id
 status: mock
 tags: [department, write]
 resource: /frontend/src/mocks/modules/department.ts
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-09-09T00:00:00Z
 ---
 
 # Delete Department
@@ -46,7 +46,7 @@ both behind a confirm dialog.
 ## Notes
 
 - **Soft delete.** The row is kept; `deleted_at` is set to the current ISO timestamp.
-  After this the department is invisible to [list-departemen](./list-department.md) and
-  [get-departemen](./get-department.md), and its `code` frees up for reuse within the
+  After this the department is invisible to [list-department](./list-department.md) and
+  [get-department](./get-department.md), and its `code` frees up for reuse within the
   company.
-- No restore endpoint yet — add `POST /departemen/:id/restore` when the UI needs it.
+- No restore endpoint yet — add `POST /department/:id/restore` when the UI needs it.

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
 import { IconDeviceFloppy } from '@tabler/icons-vue'
+import axios from 'axios'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
@@ -63,6 +64,14 @@ async function save(row: Product) {
 		await api.patch(`/product/${row.id}/price`, draft)
 		toast.success(`Harga "${row.name}" diperbarui`)
 		fetchList()
+	} catch (err) {
+		if (axios.isAxiosError(err) && err.response?.status === 422) {
+			toast.error(err.response.data?.message ?? 'Harga harus bilangan bulat dan tidak negatif')
+		} else if (axios.isAxiosError(err) && err.response?.status === 404) {
+			toast.error(err.response.data?.message ?? 'Produk tidak ditemukan')
+		} else {
+			toast.error('Harga produk gagal diperbarui')
+		}
 	} finally {
 		savingId.value = null
 	}

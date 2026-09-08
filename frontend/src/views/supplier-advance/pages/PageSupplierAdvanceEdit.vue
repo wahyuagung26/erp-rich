@@ -11,7 +11,7 @@ import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import FormSupplierAdvance from '@/views/supplier-advance/components/FormSupplierAdvance.vue'
 import RiwayatPemakaian from '@/views/supplier-advance/components/RiwayatPemakaian.vue'
-import type { SupplierAdvanceForm } from '@/views/supplier-advance/schema'
+import type { SupplierAdvanceDraft, SupplierAdvanceRequest } from '@/views/supplier-advance/schema'
 import type { SupplierAdvance } from '@/utils/types'
 
 const route = useRoute()
@@ -21,6 +21,7 @@ const advance = ref<SupplierAdvance>()
 const loading = ref(true)
 const notFound = ref(false)
 const saving = ref(false)
+const formRef = ref<InstanceType<typeof FormSupplierAdvance>>()
 
 onMounted(load)
 
@@ -35,7 +36,7 @@ async function load() {
 	}
 }
 
-const toForm = (value: SupplierAdvance): SupplierAdvanceForm => ({
+const toForm = (value: SupplierAdvance): SupplierAdvanceDraft => ({
 	number: value.number,
 	date: value.date,
 	department_id: value.department_id,
@@ -59,13 +60,19 @@ const toForm = (value: SupplierAdvance): SupplierAdvanceForm => ({
 // Business rule: an advance with usage rows ("sudah dipakai di Hutang Supplier") is immutable.
 const locked = computed(() => (advance.value?.used ?? 0) > 0)
 
-async function save(payload: SupplierAdvanceForm) {
+async function save(payload: SupplierAdvanceRequest) {
 	saving.value = true
 	try {
 		await api.put(`/supplier-advance/${route.params.id}`, payload)
 		toast.success('Uang muka supplier diperbarui')
 		router.push(`/supplier-advance/${route.params.id}`)
 	} catch (err) {
+		if (axios.isAxiosError(err) && err.response?.status === 422) {
+			const errors = err.response.data?.errors
+			if (errors) formRef.value?.setServerErrors(errors)
+			else toast.error(err.response.data?.message ?? 'Uang muka supplier tidak dapat diperbarui')
+			return
+		}
 		if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Uang muka supplier tidak dapat diperbarui')
 		else throw err
 	} finally {
@@ -93,6 +100,7 @@ async function save(payload: SupplierAdvanceForm) {
 		</template>
 		<template v-else>
 			<FormSupplierAdvance
+				ref="formRef"
 				:initial-value="toForm(advance)"
 				:loading="saving"
 				:advance-id="advance.id"

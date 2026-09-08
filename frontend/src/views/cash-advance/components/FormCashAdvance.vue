@@ -12,17 +12,17 @@ import Textarea from '@/components/base/Textarea.vue'
 import MoneyInput from '@/components/base/MoneyInput.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Button from '@/components/base/Button.vue'
-import type { CashAdvanceForm } from '@/views/cash-advance/schema'
+import { parseCashAdvance, type CashAdvanceDraft, type CashAdvanceRequest } from '@/views/cash-advance/schema'
 import type { Account, CashFlow, Department } from '@/utils/types'
 
-const emit = defineEmits<{ submit: [payload: CashAdvanceForm] }>()
-const props = defineProps<{ loading?: boolean; initialValue?: CashAdvanceForm; submitLabel?: string }>()
+const emit = defineEmits<{ submit: [payload: CashAdvanceRequest] }>()
+const props = defineProps<{ loading?: boolean; initialValue?: CashAdvanceDraft; submitLabel?: string }>()
 
 const router = useRouter()
 const toast = useToast()
 const errors = ref<Record<string, string>>({})
 
-const form = reactive<CashAdvanceForm>(
+const form = reactive<CashAdvanceDraft>(
 	props.initialValue
 		? { ...props.initialValue, attachment: props.initialValue.attachment && { ...props.initialValue.attachment } }
 		: {
@@ -145,30 +145,17 @@ function removeAttachment() {
 	form.attachment = null
 }
 
-function validate(): boolean {
-	const next: Record<string, string> = {}
-	if (!form.date) next.date = 'Tanggal wajib diisi'
-	if (!form.department_id) next.department = 'Departemen wajib dipilih'
-	if (!form.recipient.trim()) next.recipient = 'Penerima wajib diisi'
-	if (!form.amount || form.amount <= 0) next.amount = 'Nilai wajib diisi'
-	if (form.amount < form.used) next.amount = 'Nilai tidak boleh kurang dari nilai yang sudah terpakai'
-	if (!form.cash_account_id) next.cash_account = 'Akun kas/bank wajib dipilih'
-	if (!form.advance_account_id) next.advance_account = 'Akun uang muka wajib dipilih'
-	if (!form.attachment) next.attachment = 'Lampiran wajib diunggah'
-	errors.value = next
-	return !Object.keys(next).length
+function submit() {
+	if (props.loading) return
+	const parsed = parseCashAdvance(form)
+	errors.value = parsed.errors ?? {}
+	if (parsed.data) emit('submit', parsed.data)
 }
 
-function submit() {
-	if (props.loading || !validate()) return
-	emit('submit', {
-		...form,
-		department_id: form.department_id,
-		cash_account_id: Number(form.cash_account_id),
-		advance_account_id: Number(form.advance_account_id),
-		amount: Number(form.amount) || 0
-	})
+function setServerErrors(serverErrors: Record<string, string[]>) {
+	errors.value = { ...errors.value, ...Object.fromEntries(Object.entries(serverErrors).map(([key, messages]) => [key, messages[0]])) }
 }
+defineExpose({ setServerErrors })
 </script>
 
 <template>
@@ -186,7 +173,7 @@ function submit() {
 					<FormField label="Sisa" hint="Nilai dikurangi terpakai.">
 						<MoneyInput :model-value="remaining" disabled />
 					</FormField>
-					<FormField label="Departemen" required :error="errors.department">
+					<FormField label="Departemen" required :error="errors.department_id">
 						<AsyncSelect
 							:model-value="form.department_id"
 							endpoint="/department"
@@ -208,7 +195,7 @@ function submit() {
 			<section class="space-y-3">
 				<h3 class="subhead">Akun & Arus Kas</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
-					<FormField label="Akun Kas / Bank" required :error="errors.cash_account">
+					<FormField label="Akun Kas / Bank" required :error="errors.cash_account_id">
 						<AsyncSelect
 							:model-value="form.cash_account_id || null"
 							endpoint="/account"
@@ -219,7 +206,7 @@ function submit() {
 							@update:model-value="onCashAccountChange"
 						/>
 					</FormField>
-					<FormField label="Akun Uang Muka" required :error="errors.advance_account">
+					<FormField label="Akun Uang Muka" required :error="errors.advance_account_id">
 						<AsyncSelect
 							:model-value="form.advance_account_id || null"
 							endpoint="/account"

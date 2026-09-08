@@ -36,6 +36,12 @@ function onSubmit() {
 	errors.value = found ?? {}
 	if (!found) emit('submit', { ...form })
 }
+
+// server-side errors — parent calls this on a 422
+function setServerErrors(serverErrors: Record<string, string[]>) {
+	errors.value = { ...errors.value, ...Object.fromEntries(Object.entries(serverErrors).map(([k, msgs]) => [k, msgs[0]])) }
+}
+defineExpose({ setServerErrors })
 </script>
 
 <template>

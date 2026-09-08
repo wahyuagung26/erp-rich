@@ -21,6 +21,7 @@ const journal = ref<JournalIncome>()
 const loading = ref(true)
 const notFound = ref(false)
 const saving = ref(false)
+const formRef = ref<InstanceType<typeof FormJournalIncome>>()
 
 onMounted(async () => {
 	try {
@@ -57,8 +58,13 @@ async function save(payload: JournalIncomeForm) {
 		toast.success('Jurnal pemasukan diperbarui')
 		router.push(`/journal-income/${route.params.id}`)
 	} catch (err) {
-		if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Jurnal pemasukan tidak dapat diperbarui')
-		else throw err
+		if (axios.isAxiosError(err)) {
+			if (err.response?.status === 422 && err.response.data?.errors) {
+				formRef.value?.setServerErrors(err.response.data.errors)
+				return
+			}
+			toast.error(err.response?.data?.message ?? 'Jurnal pemasukan tidak dapat diperbarui')
+		} else throw err
 	} finally {
 		saving.value = false
 	}
@@ -85,6 +91,6 @@ async function save(payload: JournalIncomeForm) {
 				<Button variant="secondary" @click="router.push(`/journal-income/${journal.id}`)">Lihat Detail</Button>
 			</div>
 		</Panel>
-		<FormJournalIncome v-else :initial-value="toForm(journal)" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
+		<FormJournalIncome ref="formRef" v-else :initial-value="toForm(journal)" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
 	</div>
 </template>

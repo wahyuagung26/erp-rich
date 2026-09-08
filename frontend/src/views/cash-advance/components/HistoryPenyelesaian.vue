@@ -6,6 +6,7 @@ import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
 import { date, money } from '@/utils/format'
+import { parseSettlement } from '@/views/cash-advance/schema'
 import Panel from '@/components/base/Panel.vue'
 import Table from '@/components/base/Table.vue'
 import Button from '@/components/base/Button.vue'
@@ -107,33 +108,29 @@ function removeAttachment() {
 
 const cap = computed(() => props.advance.remaining + (editing.value?.amount ?? 0))
 
-function validate(): boolean {
-	const next: Record<string, string> = {}
-	if (!form.date) next.date = 'Tanggal wajib diisi'
-	if (!form.amount || form.amount <= 0) next.amount = 'Nilai wajib diisi'
-	else if (form.amount > cap.value) next.amount = `Nilai tidak boleh melebihi sisa uang muka (${cap.value})`
-	if (!form.attachment) next.attachment = 'Lampiran wajib diunggah'
-	errors.value = next
-	return !Object.keys(next).length
-}
-
 async function save() {
-	if (saving.value || !validate()) return
+	if (saving.value) return
+	const parsed = parseSettlement(form, cap.value)
+	errors.value = parsed.errors ?? {}
+	if (!parsed.data) return
 	saving.value = true
 	try {
-		const payload = { date: form.date, amount: form.amount, attachment: form.attachment }
 		if (editing.value) {
-			await api.put(`/cash-advance/${props.advance.id}/settlement/${editing.value.id}`, payload)
+			await api.put(`/cash-advance/${props.advance.id}/settlement/${editing.value.id}`, parsed.data)
 			toast.success('Penyelesaian uang muka diperbarui')
 		} else {
-			await api.post(`/cash-advance/${props.advance.id}/settlement`, payload)
+			await api.post(`/cash-advance/${props.advance.id}/settlement`, parsed.data)
 			toast.success('Penyelesaian uang muka ditambahkan')
 		}
 		modalOpen.value = false
 		await load()
 		emit('changed')
 	} catch (err) {
-		if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Penyelesaian tidak dapat disimpan')
+		if (axios.isAxiosError(err) && err.response?.status === 422) {
+			const serverErrors = err.response.data?.errors
+			if (serverErrors) errors.value = Object.fromEntries(Object.entries(serverErrors).map(([key, messages]) => [key, (messages as string[])[0]]))
+			else toast.error(err.response.data?.message ?? 'Penyelesaian tidak dapat disimpan')
+		} else if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Penyelesaian tidak dapat disimpan')
 		else throw err
 	} finally {
 		saving.value = false
