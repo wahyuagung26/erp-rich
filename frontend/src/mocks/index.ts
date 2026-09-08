@@ -22,6 +22,7 @@ import { registerCustomer } from './modules/customer'
 import { registerJournal } from './modules/journal'
 import { registerJournalExpense } from './modules/journal-expense'
 import { registerJournalIncome } from './modules/journal-income'
+import { registerCashAdvance } from './modules/cash-advance'
 import { registerCashPosition } from './modules/cash-position'
 import { registerDashboard } from './modules/dashboard'
 import { registerCashFlow } from './modules/cash-flow'
@@ -51,6 +52,7 @@ const modules = [
 	registerJournal,
 	registerJournalExpense,
 	registerJournalIncome,
+	registerCashAdvance,
 	registerCashPosition,
 	registerDashboard,
 	registerCashFlow

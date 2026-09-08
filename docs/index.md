@@ -55,6 +55,7 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Jurnal Umum (Journal) | [`journal/`](./journal/index.md) | `views/journal/` | `mocks/modules/journal.ts` |
 | Jurnal Pengeluaran (Journal Expense) | [`journal-expense/`](./journal-expense/index.md) | `views/journal-expense/` | `mocks/modules/journal-expense.ts` |
 | Jurnal Pemasukan (Journal Income) | [`journal-income/`](./journal-income/index.md) | `views/journal-income/` | `mocks/modules/journal-income.ts` |
+| Uang Muka Operasional (Cash Advance) | [`cash-advance/`](./cash-advance/index.md) | `views/cash-advance/` | `mocks/modules/cash-advance.ts` |
 | Posisi Kas & Bank (Cash Position) | [`cash-position/`](./cash-position/index.md) | `views/cash-position/` | `mocks/modules/cash-position.ts` |
 | Dashboard | [`dashboard/`](./dashboard/index.md) | `views/dashboard/` | `mocks/modules/dashboard.ts` |
 

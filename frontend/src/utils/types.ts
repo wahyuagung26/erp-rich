@@ -449,6 +449,49 @@ export interface JournalIncome {
 	cash_in: number
 }
 
+// Operational cash advance — see docs/cash-advance/. `used`/`remaining` are
+// server-computed from the sum of its CashAdvanceSettlement rows.
+export interface CashAdvance {
+	id: number
+	number: string
+	date: string
+	department_id: number
+	department_code?: string
+	department_name?: string
+	recipient: string
+	description: string
+	amount: number
+	used: number
+	remaining: number
+	cash_account_id: number
+	cash_account_code?: string
+	cash_account_name?: string
+	advance_account_id: number
+	advance_account_code?: string
+	advance_account_name?: string
+	cash_flow: string | null
+	cash_flow_name?: string
+	attachment: JournalAttachment | null
+	status: JournalStatus
+	rejection_reason: string | null
+	approved_by: string | null
+	approved_at: string | null
+}
+
+// Settlement / realization record against a CashAdvance — see docs/cash-advance/.
+// Only allowed while the parent advance is `approved`. `remaining_after` is a
+// response-only running balance, recomputed by the mock from settlement order
+// (by date then id), not user-editable.
+export interface CashAdvanceSettlement {
+	id: number
+	cash_advance_id: number
+	number: string
+	date: string
+	amount: number
+	remaining_after: number
+	attachment: JournalAttachment | null
+}
+
 // Daily cash & bank position report — see docs/cash-position/. Read-only,
 // recomputed per request from approved journal movements.
 export interface CashPositionRow {

@@ -110,5 +110,16 @@ export const accountSeed: Account[] = [
 		name: 'Kas Besar',
 		type: 'cash_bank',
 		deleted_at: null
+	},
+	{
+		id: 11,
+		company_id: 1,
+		sub_account_id: 1,
+		sub_account_code: '10001',
+		sub_account_name: 'Kas',
+		code: '1000106',
+		name: 'Uang Muka Operasional',
+		type: 'asset',
+		deleted_at: null
 	}
 ]

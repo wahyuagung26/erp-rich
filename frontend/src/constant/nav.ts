@@ -25,7 +25,8 @@ import {
 	IconShoppingCart,
 	IconCreditCard,
 	IconBox,
-	IconCoin
+	IconCoin,
+	IconWallet
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -70,6 +71,7 @@ export const NAV: NavItem[] = [
 			{ label: 'Jurnal Umum', to: '/journal', icon: IconBook2 },
 			{ label: 'Jurnal Pemasukan', to: '/journal-income', icon: IconCashBanknote },
 			{ label: 'Jurnal Pengeluaran', to: '/journal-expense', icon: IconCashBanknoteOff },
+			{ label: 'Uang Muka Operasional', to: '/cash-advance', icon: IconWallet },
 			{ label: 'Posisi Kas & Bank', to: '/cash-position', icon: IconReportMoney }
 		]
 	},
