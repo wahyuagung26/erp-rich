@@ -3,7 +3,7 @@ type: OKF Bundle
 title: ERP Finance v2 — API Contract
 description: Frontend-authored API specification. Each module is a directory; each endpoint is one file. The mock and the future backend both follow these files.
 tags: [erp, finance, api, contract]
-timestamp: 2026-09-08T09:00:00Z
+timestamp: 2026-09-08T12:00:00Z
 ---
 
 # ERP Finance v2 — API Contract
@@ -57,6 +57,7 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Jurnal Pemasukan (Journal Income) | [`journal-income/`](./journal-income/index.md) | `views/journal-income/` | `mocks/modules/journal-income.ts` |
 | Uang Muka Operasional (Cash Advance) | [`cash-advance/`](./cash-advance/index.md) | `views/cash-advance/` | `mocks/modules/cash-advance.ts` |
 | Posisi Kas & Bank (Cash Position) | [`cash-position/`](./cash-position/index.md) | `views/cash-position/` | `mocks/modules/cash-position.ts` |
+| Uang Muka Supplier (Supplier Advance) | [`supplier-advance/`](./supplier-advance/index.md) | `views/supplier-advance/` | `mocks/modules/supplier-advance.ts` |
 | Dashboard | [`dashboard/`](./dashboard/index.md) | `views/dashboard/` | `mocks/modules/dashboard.ts` |
 
 New module: copy [`_TEMPLATE.md`](./_TEMPLATE.md) into `docs/<module>/<endpoint>.md`.

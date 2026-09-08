@@ -121,5 +121,72 @@ export const accountSeed: Account[] = [
 		name: 'Uang Muka Operasional',
 		type: 'asset',
 		deleted_at: null
+	},
+	// Observed RICH tenant (company 1) cash & bank accounts used by the supplier-advance module.
+	{
+		id: 12,
+		company_id: 1,
+		sub_account_id: 1,
+		sub_account_code: '10001',
+		sub_account_name: 'Kas',
+		code: '1001001',
+		name: 'Kas Kecil Operasional',
+		type: 'cash_bank',
+		deleted_at: null
+	},
+	{
+		id: 13,
+		company_id: 1,
+		sub_account_id: 1,
+		sub_account_code: '10001',
+		sub_account_name: 'Kas',
+		code: '1001002',
+		name: 'Kas Kecil Tagihan',
+		type: 'cash_bank',
+		deleted_at: null
+	},
+	{
+		id: 14,
+		company_id: 1,
+		sub_account_id: 1,
+		sub_account_code: '10001',
+		sub_account_name: 'Kas',
+		code: '1001003',
+		name: 'Kas Kecil Produksi',
+		type: 'cash_bank',
+		deleted_at: null
+	},
+	{
+		id: 15,
+		company_id: 1,
+		sub_account_id: 1,
+		sub_account_code: '10001',
+		sub_account_name: 'Kas',
+		code: '1001101',
+		name: 'E-Money',
+		type: 'cash_bank',
+		deleted_at: null
+	},
+	{
+		id: 16,
+		company_id: 1,
+		sub_account_id: 1,
+		sub_account_code: '10001',
+		sub_account_name: 'Kas',
+		code: '1001301',
+		name: 'Bank SMBC - 5128 (IDR)',
+		type: 'cash_bank',
+		deleted_at: null
+	},
+	{
+		id: 17,
+		company_id: 1,
+		sub_account_id: 1,
+		sub_account_code: '10001',
+		sub_account_name: 'Kas',
+		code: '1001302',
+		name: 'Bank CIMB Niaga - 9200 (IDR)',
+		type: 'cash_bank',
+		deleted_at: null
 	}
 ]

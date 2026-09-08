@@ -26,7 +26,8 @@ import {
 	IconCreditCard,
 	IconBox,
 	IconCoin,
-	IconWallet
+	IconWallet,
+	IconCoins
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -74,6 +75,11 @@ export const NAV: NavItem[] = [
 			{ label: 'Uang Muka Operasional', to: '/cash-advance', icon: IconWallet },
 			{ label: 'Posisi Kas & Bank', to: '/cash-position', icon: IconReportMoney }
 		]
+	},
+	{
+		label: 'Pembelian',
+		icon: IconShoppingCart,
+		children: [{ label: 'Uang Muka Supplier', to: '/supplier-advance', icon: IconCoins }]
 	},
 	{ label: 'Design System', to: '/design-system', icon: IconPalette }
 ]

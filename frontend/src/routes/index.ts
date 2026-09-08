@@ -24,6 +24,7 @@ import journal from './journal'
 import journalExpense from './journal-expense'
 import journalIncome from './journal-income'
 import cashAdvance from './cash-advance'
+import supplierAdvance from './supplier-advance'
 import cashPosition from './cash-position'
 
 const routes: RouteRecordRaw[] = [
@@ -56,6 +57,7 @@ const routes: RouteRecordRaw[] = [
 			...journalExpense,
 			...journalIncome,
 			...cashAdvance,
+			...supplierAdvance,
 			...cashPosition,
 			{
 				path: '/design-system',

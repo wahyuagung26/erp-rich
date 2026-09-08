@@ -492,6 +492,48 @@ export interface CashAdvanceSettlement {
 	attachment: JournalAttachment | null
 }
 
+// Supplier advance (uang muka supplier) — see docs/supplier-advance/. A deposit /
+// titipan given to a supplier (e.g. against a future PO), applied against supplier
+// payables (hutang). `used`/`remaining`/`last_payable_number` are server-computed
+// from the sum of its SupplierAdvanceUsage rows, never user-editable. No approval
+// workflow — the record is usable the moment it is created.
+export interface SupplierAdvance {
+	id: number
+	number: string
+	date: string
+	department_id: number
+	department_code?: string
+	department_name?: string
+	supplier_id: number
+	supplier_code?: string
+	supplier_name?: string
+	amount: number
+	used: number
+	remaining: number
+	last_payable_number: string | null
+	description: string
+	cash_account_id: number
+	cash_account_code?: string
+	cash_account_name?: string
+	advance_type: string
+	cash_flow: string | null
+	cash_flow_name?: string
+	attachment: JournalAttachment | null
+}
+
+// Usage / realization of a SupplierAdvance against a supplier payable (hutang) —
+// see docs/supplier-advance/. Read-only in the prototype (created by the AP module
+// in Legacy); `used`/`remaining` on the parent are the sum of these amounts.
+export interface SupplierAdvanceUsage {
+	id: number
+	supplier_advance_id: number
+	date: string
+	payable_number: string
+	payment_number: string
+	note: string
+	amount: number
+}
+
 // Daily cash & bank position report — see docs/cash-position/. Read-only,
 // recomputed per request from approved journal movements.
 export interface CashPositionRow {
