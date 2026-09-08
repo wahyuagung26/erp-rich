@@ -1,147 +1,71 @@
 ---
 type: OKF Module
-title: Order Pembelian
-description: Order pembelian dengan supplier, gudang, departemen, detail produk, kalkulasi DPP/PPN, status persetujuan, status barang, dan kunci transaksi.
+title: Purchase Order (Order Pembelian)
+description: Purchase order dengan supplier, gudang, departemen, detail produk, kalkulasi pajak, approval, delivery status, dan lock.
 tags: [purchase-order, procurement]
 timestamp: 2026-09-09T00:00:00Z
 ---
 
-# Order Pembelian
+# Purchase Order
 
-Modul Order Pembelian (PO) pada prototype ERP Finance V2. Implementasi frontend berada di
-`/Users/wahyuagung/Sites/RIN/erp-finance-v2/frontend/src/views/purchase-order/` dan mock API berada di
-`/Users/wahyuagung/Sites/RIN/erp-finance-v2/frontend/src/mocks/modules/purchase-order.ts`.
+Order pembelian dengan data mock V2. Consumed by
+`frontend/src/views/purchase-order/` (list, detail, tambah, edit).
 
-Kontrak HTTP mengikuti [konvensi API bersama](../conventions.md). Semua response memakai
-`.data`; response list juga memakai `.meta`.
+`PurchaseOrder` memiliki status persetujuan, status barang, dan status lock yang terpisah.
+Field DPP, PPN, Nett, dan Total dihitung dari baris produk; field tersebut bukan input
+client. `pkp_active` dipilih pada level transaksi dan menentukan apakah PPN menggunakan
+11% dari DPP atau 0.
 
-> **Status kontrak:** seluruh endpoint pada modul ini berstatus `mock`. Dokumen ini
-> mendeskripsikan perilaku mock V2, bukan kontrak backend Legacy yang sudah terverifikasi.
-
-## Model data
-
-### Entity response: `PurchaseOrder`
+## Entity: `PurchaseOrder`
 
 | Field | Type | Notes |
 |---|---|---|
-| `id` | number | ID server-assigned |
-| `number` | string | Nomor transaksi otomatis, read-only |
-| `date` | string | Format `YYYY-MM-DD` |
-| `supplier_id` | number | Supplier master |
-| `supplier_code` `supplier_name` | string \| undefined | Enrichment response untuk display |
-| `pkp_active` | boolean | Status PKP transaksi; menentukan PPN |
-| `department_id` | number | Departemen master |
-| `department_code` `department_name` | string \| undefined | Enrichment response |
-| `warehouse_id` | number | Gudang master |
-| `warehouse_code` `warehouse_name` | string \| undefined | Enrichment response |
-| `purchase_type` | string \| null | UI menyediakan `E-Money`, `Other`, atau `PVC`; mock menerima string atau null |
-| `address` | string | Alamat supplier/transaksi |
-| `description` | string | Keterangan transaksi |
+| `id` | number | auto-increment, server-assigned |
+| `number` | string | nomor transaksi otomatis, read-only |
+| `date` | string | required; format `YYYY-MM-DD` |
+| `supplier_id` | number | required; supplier master |
+| `supplier_code` `supplier_name` | string \| undefined | resolved display fields |
+| `pkp_active` | boolean | required; `true` applies 11% PPN, `false` applies 0 PPN |
+| `department_id` | number | required; default UI department is `FAT` |
+| `department_code` `department_name` | string \| undefined | resolved display fields |
+| `warehouse_id` | number | required; warehouse master |
+| `warehouse_code` `warehouse_name` | string \| undefined | resolved display fields |
+| `purchase_type` | string \| null | UI options: `E-Money`, `Other`, `PVC`; mock accepts string or null |
+| `address` | string | required |
+| `description` | string | required |
 | `approval_status` | enum | `pending`, `approved`, `rejected` |
 | `delivery_status` | enum | `not_received`, `partial`, `full` |
-| `is_locked` | boolean | Status kunci transaksi |
-| `lock_reason` | string \| null | Alasan kunci jika ada |
-| `rejection_reason` | string \| null | Alasan penolakan jika ada |
-| `approved_by` `approved_at` | string \| null | Metadata persetujuan |
-| `created_by` | string | User pembuat |
-| `lines` | `PurchaseOrderLine[]` | Baris response yang sudah di-resolve |
-| `dpp` `ppn` `nett` `total` | number | Nilai computed; tidak dikirim sebagai input |
+| `is_locked` | boolean | explicit transaction lock |
+| `lock_reason` | string \| null | populated when locked |
+| `rejection_reason` | string \| null | populated when rejected |
+| `approved_by` `approved_at` | string \| null | approval metadata |
+| `created_by` | string | creator name |
+| `lines` | array | at least one line on create/update |
+| `dpp` `ppn` `nett` `total` | number | server/mock-computed values |
 
-### Draft dan form frontend
-
-`PurchaseOrderDraft` adalah state UI sebelum validasi. Foreign key dapat bernilai `null`:
-
-```ts
-{
-  date: string,
-  supplier_id: number | null,
-  pkp_active: boolean,
-  department_id: number | null,
-  warehouse_id: number | null,
-  purchase_type: string | null,
-  address: string,
-  description: string,
-  lines: PurchaseOrderLineDraft[]
-}
-```
-
-`PurchaseOrderForm` adalah output validasi Valibot. `supplier_id`, `department_id`,
-`warehouse_id`, dan `lines[].product_id` sudah menjadi number yang valid.
-
-Response edit diubah menjadi draft melalui `toPurchaseOrderDraft()` pada
-`/Users/wahyuagung/Sites/RIN/erp-finance-v2/frontend/src/views/purchase-order/mappers.ts`.
-Form kemudian divalidasi melalui `parsePurchaseOrder()` dan diubah menjadi request melalui
-`toPurchaseOrderRequest()`. Enrichment supplier dan produk dilakukan oleh:
-
-- `composables/usePurchaseOrderSupplier.ts` — default alamat dan `pkp_active`;
-- `composables/usePurchaseOrderProduct.ts` — label produk dan default harga.
-
-### Request model: `PurchaseOrderRequest`
-
-Request hanya mengirim field bisnis berikut:
-
-```ts
-{
-  date: string,
-  supplier_id: number,
-  pkp_active: boolean,
-  department_id: number,
-  warehouse_id: number,
-  purchase_type: string | null,
-  address: string,
-  description: string,
-  lines: PurchaseOrderLineRequest[]
-}
-```
-
-`PurchaseOrderLineRequest` hanya berisi `product_id`, `quantity`, `price`, dan `discount`.
-Field label produk (`product_code`, `product_name`, `brand_name`, `unit_name`) serta field
-computed (`dpp`, `ppn`, `total`) tidak dikirim ke API.
-
-### `PurchaseOrderLine`
+## Entity: `PurchaseOrderLine`
 
 | Field | Type | Notes |
 |---|---|---|
-| `product_id` | number | Produk aktif |
-| `product_code` `product_name` | string \| undefined | Enrichment response |
-| `brand_name` `unit_name` | string \| undefined | Enrichment response |
-| `quantity` | number | Lebih besar dari 0 |
-| `price` | number | Lebih besar dari 0 |
-| `discount` | number | Minimal 0 dan tidak melebihi bruto |
-| `dpp` | number | `round(quantity × price) - discount`, minimal 0 |
-| `ppn` | number | `round(dpp × 11%)` bila `pkp_active=true`, selain itu 0 |
+| `product_id` | number | required; active product |
+| `product_code` `product_name` | string \| undefined | resolved product display fields |
+| `brand_name` `unit_name` | string \| undefined | resolved product display fields |
+| `quantity` | number | greater than 0 |
+| `price` | number | greater than 0 |
+| `discount` | number | at least 0; cannot exceed gross amount |
+| `dpp` | number | `round(quantity × price) - discount`, minimum 0 |
+| `ppn` | number | `round(dpp × 11%)` when `pkp_active`, otherwise 0 |
 | `total` | number | `dpp + ppn` |
 
-DPP, PPN, Nett, dan Total dihitung ulang oleh mock dari request/line response. `nett` sama
-dengan DPP pada prototype ini.
+## Status and guardrails
 
-## Status dan guardrail
-
-- PO baru dibuat dengan `approval_status: pending` dan `delivery_status: not_received`.
-- `pending` dapat disetujui atau ditolak melalui aksi dengan konfirmasi.
-- PO `rejected` dapat diajukan ulang menjadi `pending` melalui UI.
-- PO `approved`, `is_locked`, atau sudah memiliki penerimaan (`partial`/`full`) tidak dapat diedit atau dihapus.
-- PO hanya dapat dikunci setelah disetujui.
-- Status persetujuan, status barang, dan kunci adalah state yang terpisah.
-- PO yang sudah disetujui tidak dapat dibatalkan persetujuannya melalui mock.
-
-## Validasi form
-
-Schema Valibot pada
-`/Users/wahyuagung/Sites/RIN/erp-finance-v2/frontend/src/views/purchase-order/schema.ts`
-memvalidasi:
-
-- tanggal berformat `YYYY-MM-DD`;
-- supplier, departemen, dan gudang wajib dipilih;
-- status PKP wajib boolean;
-- alamat dan keterangan tidak boleh kosong;
-- minimal satu baris produk;
-- produk wajib dipilih;
-- jumlah dan harga lebih besar dari 0;
-- diskon tidak negatif dan tidak melebihi nilai bruto.
-
-HTTP `422` dengan `errors` dipetakan ke field form melalui `setServerErrors()`.
-Error operasional tanpa field error ditampilkan sebagai toaster oleh page.
+- New PO is created with `approval_status: pending`, `delivery_status: not_received`, and `is_locked: false`.
+- A pending PO can be approved or rejected through the detail actions.
+- A rejected PO can be resubmitted as pending through the detail action.
+- Approved, locked, or received PO cannot be edited or deleted.
+- A PO can be locked only after approval.
+- An approved PO cannot have its approval changed to another status by the mock.
+- Delete is a hard delete in the mock; it is not a soft-delete.
 
 ## Endpoints
 
@@ -154,10 +78,3 @@ Error operasional tanpa field error ditampilkan sebagai toaster oleh page.
 | DELETE | `/purchase-order/:id` | [delete-purchase-order](./delete-purchase-order.md) |
 | PATCH | `/purchase-order/:id/approval` | [update-purchase-order-status](./update-purchase-order-status.md) |
 | PATCH | `/purchase-order/:id/lock` | [update-purchase-order-lock](./update-purchase-order-lock.md) |
-## Dependencies master data
-
-Form menggunakan endpoint master berikut untuk enrichment. Endpoint tersebut bukan bagian
-dari contract endpoint PO dan didokumentasikan pada modul masing-masing:
-
-- `GET /supplier/:id` — modul [supplier](../supplier/index.md), untuk default alamat dan PKP;
-- `GET /product/:id` — modul [product](../product/index.md), untuk label produk dan default harga.

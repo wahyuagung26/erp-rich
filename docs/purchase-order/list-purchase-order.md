@@ -1,19 +1,19 @@
 ---
 type: API Endpoint
-title: List Order Pembelian
-description: Daftar PO dengan pencarian, filter status, sorting, dan pagination.
+title: List Purchase Order
+description: Paginated, filterable, sortable list of purchase orders.
 method: GET
 path: /purchase-order
 status: mock
 tags: [purchase-order, read, list]
-resource: /Users/wahyuagung/Sites/RIN/erp-finance-v2/frontend/src/mocks/modules/purchase-order.ts
+resource: /frontend/src/mocks/modules/purchase-order.ts
 timestamp: 2026-09-09T00:00:00Z
 ---
 
-# List Order Pembelian
+# List Purchase Order
 
-Dipakai oleh `PagePurchaseOrderTable.vue` melalui `useTableList`. Response sudah mengisi
-enrichment supplier, departemen, gudang, dan produk agar dapat ditampilkan di tabel.
+Backs `views/purchase-order/pages/PagePurchaseOrderTable.vue` (via the `useTableList`
+composable). Rows include resolved supplier, department, warehouse, and product display data.
 
 ## Request
 
@@ -21,26 +21,18 @@ enrichment supplier, departemen, gudang, dan produk agar dapat ditampilkan di ta
 
 | Name | Type | Required | Notes |
 |---|---|---|---|
-| `page` | number | no | default mengikuti [konvensi pagination](../conventions.md#pagination-list-endpoints) |
-| `per_page` | number | no | UI default 20; opsi UI 20 atau semua |
-| `sort_by` | string | no | `date`, `number`, `created_by`, `supplier_name`, `warehouse_name`, `total` |
-| `sort_order` | `asc` \| `desc` | no | urutan sorting |
-| `field` | string | no | field pencarian khusus |
-| `q` | string | no | pencarian header berdasarkan `field` |
-| `product_q` | string | no | mencari kode/nama/merk produk di dalam line |
-| `approval_status` | string | no | `pending`, `approved`, atau `rejected` |
-| `delivery_status` | string | no | `not_received`, `partial`, atau `full` |
-| `is_locked` | string | no | `true` atau `false` |
+| `page`, `per_page`, `sort_by`, `sort_order` | — | no | see [conventions](../conventions.md#pagination-list-endpoints) |
+| `field` | string | no | header search field |
+| `q` | string | no | matches the selected header field; case-insensitive |
+| `product_q` | string | no | matches product code, name, or brand in lines |
+| `approval_status` | string | no | `pending`, `approved`, or `rejected` |
+| `delivery_status` | string | no | `not_received`, `partial`, or `full` |
+| `is_locked` | string | no | `true` or `false` |
 
-Nilai `field` yang disediakan UI:
-
-```text
-number, date, created_by, supplier_code, supplier_name,
-warehouse_name, address, description
-```
-
-Jika `field` kosong, `q` dicari terhadap gabungan field pencarian tersebut. Filter status
-bersifat exact match.
+`sort_by` accepts `date`, `number`, `created_by`, `supplier_name`, `warehouse_name`, or
+`total`. The UI provides `number`, `date`, `created_by`, `supplier_code`, `supplier_name`,
+`warehouse_name`, `address`, and `description` as `field` options. If `field` is empty,
+`q` searches across those values.
 
 ## Response
 
@@ -70,17 +62,12 @@ bersifat exact match.
 }
 ```
 
-Entity list mengikuti shape `PurchaseOrder`; contoh di atas menampilkan field yang dipakai
-tabel.
-
 ## Errors
 
-| Status | When | Body |
-|---|---|---|
-| `401` | token tidak valid | mengikuti [konvensi auth](../conventions.md#auth) |
+Standard only (`401`).
 
 ## Notes
 
-- Tombol edit dan hapus hanya ditampilkan jika PO belum approved, belum locked, dan belum memiliki penerimaan.
-- Nomor PO membuka detail `/purchase-order/:id`.
-- Default sorting UI adalah tanggal menurun.
+- Default UI sorting is date descending.
+- Edit and delete actions are shown only when the PO is not approved, not locked, and has no receipt.
+- The transaction number opens [get-purchase-order](./get-purchase-order.md).

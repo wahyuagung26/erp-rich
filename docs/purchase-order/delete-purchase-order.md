@@ -1,19 +1,19 @@
 ---
 type: API Endpoint
-title: Delete Order Pembelian
-description: Menghapus PO yang masih writable menurut guardrail mock.
+title: Delete Purchase Order
+description: Delete a purchase order that is still writable.
 method: DELETE
 path: /purchase-order/:id
 status: mock
 tags: [purchase-order, write]
-resource: /Users/wahyuagung/Sites/RIN/erp-finance-v2/frontend/src/mocks/modules/purchase-order.ts
+resource: /frontend/src/mocks/modules/purchase-order.ts
 timestamp: 2026-09-09T00:00:00Z
 ---
 
-# Delete Order Pembelian
+# Delete Purchase Order
 
-Dipakai oleh aksi hapus di `PagePurchaseOrderTable.vue` dan
-`PagePurchaseOrderDetail.vue`. Kedua aksi memerlukan konfirmasi eksplisit.
+Backs the delete action in `views/purchase-order/pages/PagePurchaseOrderTable.vue` and
+`PagePurchaseOrderDetail.vue`, both behind a confirm dialog.
 
 ## Request
 
@@ -22,8 +22,6 @@ Dipakai oleh aksi hapus di `PagePurchaseOrderTable.vue` dan
 | Name | Type | Notes |
 |---|---|---|
 | `id` | number | `PurchaseOrder.id` |
-
-Tidak ada request body.
 
 ## Response
 
@@ -37,17 +35,11 @@ Tidak ada request body.
 
 | Status | When | Body |
 |---|---|---|
-| `401` | token tidak valid | mengikuti [konvensi auth](../conventions.md#auth) |
-| `404` | ID tidak ditemukan | `{ "message": "Purchase order tidak ditemukan" }` |
-| `422` | PO approved, locked, atau sudah memiliki penerimaan | `{ "message": "..." }` |
+| `404` | id not found | `{ "message": "Purchase order tidak ditemukan" }` |
+| `422` | PO is approved, locked, or has a receipt | `{ "message": "..." }` |
 
-## Guardrail
+## Notes
 
-Penghapusan ditolak jika:
-
-- `approval_status === approved`;
-- `is_locked === true`; atau
-- `delivery_status !== not_received`.
-
-Jika berhasil, row dihapus dari database mock, bukan soft-delete. UI menampilkan toaster
-sukses dan memuat ulang daftar atau kembali ke halaman list.
+The mock performs a hard delete; it does not set a soft-delete timestamp. Deletion is
+rejected when `approval_status` is `approved`, `is_locked` is true, or
+`delivery_status` is not `not_received`.

@@ -1,19 +1,19 @@
 ---
 type: API Endpoint
-title: Update Status Persetujuan Order Pembelian
-description: Mengubah status persetujuan PO melalui aksi yang dikonfirmasi pengguna.
+title: Update Purchase Order Approval Status
+description: Change a purchase order approval status through a confirmed detail action.
 method: PATCH
 path: /purchase-order/:id/approval
 status: mock
 tags: [purchase-order, write]
-resource: /Users/wahyuagung/Sites/RIN/erp-finance-v2/frontend/src/mocks/modules/purchase-order.ts
+resource: /frontend/src/mocks/modules/purchase-order.ts
 timestamp: 2026-09-09T00:00:00Z
 ---
 
-# Update Status Persetujuan Order Pembelian
+# Update Purchase Order Approval Status
 
-Dipakai oleh `PagePurchaseOrderDetail.vue`. UI meminta konfirmasi sebelum mengirim aksi
-Setujui, Tolak, atau Ajukan Ulang.
+Backs the approval actions in `views/purchase-order/pages/PagePurchaseOrderDetail.vue`.
+The UI confirms before sending approve, reject, or resubmit actions.
 
 ## Request
 
@@ -33,30 +33,20 @@ Setujui, Tolak, atau Ajukan Ulang.
 |---|---|---|
 | `status` | string | `pending`, `approved`, `rejected` |
 
-`pending` digunakan UI untuk mengajukan ulang PO yang `rejected`.
-
 ## Response
 
-`200`:
-
-```json
-{
-  "data": { "...PurchaseOrder": "entity response yang sudah di-resolve" },
-  "message": "Status persetujuan diperbarui"
-}
-```
-
-Saat `approved`, mock mengisi `approved_by` dari user lokal dan `approved_at` dengan
-timestamp ISO. Saat `rejected`, mock mengisi `rejection_reason`.
+`200`: `{ "data": { ...PurchaseOrder }, "message": "Status persetujuan diperbarui" }`.
+When approved, the mock sets `approved_by` and `approved_at`. When rejected, it sets
+`rejection_reason`.
 
 ## Errors
 
 | Status | When | Body |
 |---|---|---|
-| `401` | token tidak valid | mengikuti [konvensi auth](../conventions.md#auth) |
-| `404` | ID tidak ditemukan | `{ "message": "Purchase order tidak ditemukan" }` |
-| `422` | status tidak valid, PO locked, atau persetujuan approved dibatalkan | `{ "message": "..." }` |
+| `404` | id not found | `{ "message": "Purchase order tidak ditemukan" }` |
+| `422` | invalid status, locked PO, or changing an approved PO to another status | `{ "message": "..." }` |
 
-PO approved tidak dapat diubah menjadi status lain. PO locked tidak dapat mengubah status
-persetujuan. Mock menerima nilai status yang terdaftar; pembatasan aksi normal dilakukan
-oleh UI sesuai state PO.
+## Notes
+
+`pending` is used by the UI to resubmit a rejected PO. An approved PO cannot be changed to
+another approval status, and a locked PO cannot change approval status.

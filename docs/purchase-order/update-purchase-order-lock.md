@@ -1,19 +1,19 @@
 ---
 type: API Endpoint
-title: Update Kunci Order Pembelian
-description: Mengunci atau membuka kunci PO melalui aksi yang dikonfirmasi pengguna.
+title: Update Purchase Order Lock
+description: Lock or unlock a purchase order through a confirmed detail action.
 method: PATCH
 path: /purchase-order/:id/lock
 status: mock
 tags: [purchase-order, write]
-resource: /Users/wahyuagung/Sites/RIN/erp-finance-v2/frontend/src/mocks/modules/purchase-order.ts
+resource: /frontend/src/mocks/modules/purchase-order.ts
 timestamp: 2026-09-09T00:00:00Z
 ---
 
-# Update Kunci Order Pembelian
+# Update Purchase Order Lock
 
-Dipakai oleh `PagePurchaseOrderDetail.vue`. Aksi Kunci dan Buka Kunci meminta konfirmasi
-sebelum mengirim request.
+Backs the lock actions in `views/purchase-order/pages/PagePurchaseOrderDetail.vue`.
+The UI confirms before sending the request.
 
 ## Request
 
@@ -31,29 +31,22 @@ sebelum mengirim request.
 
 | Field | Type | Rules |
 |---|---|---|
-| `locked` | boolean | `true` untuk mengunci, `false` untuk membuka kunci |
+| `locked` | boolean | `true` to lock, `false` to unlock |
 
 ## Response
 
-`200`:
-
-```json
-{
-  "data": { "...PurchaseOrder": "entity response yang sudah di-resolve" },
-  "message": "PO dikunci"
-}
-```
-
-Jika `locked` false, message menjadi `Kunci PO dibuka` dan `lock_reason` menjadi null.
-Jika dikunci, mock mengisi `lock_reason` dengan alasan eksplisit dari pengguna.
+`200`: `{ "data": { ...PurchaseOrder }, "message": "PO dikunci" }`.
+When `locked` is false, the message is `Kunci PO dibuka` and `lock_reason` is null. When
+locked, the mock sets `lock_reason` to its explicit lock message.
 
 ## Errors
 
 | Status | When | Body |
 |---|---|---|
-| `401` | token tidak valid | mengikuti [konvensi auth](../conventions.md#auth) |
-| `404` | ID tidak ditemukan | `{ "message": "Purchase order tidak ditemukan" }` |
-| `422` | mencoba mengunci PO yang belum approved | `{ "message": "PO harus disetujui sebelum dikunci" }` |
+| `404` | id not found | `{ "message": "Purchase order tidak ditemukan" }` |
+| `422` | locking a PO that is not approved | `{ "message": "PO harus disetujui sebelum dikunci" }` |
 
-Mock hanya mensyaratkan approval saat `locked: true`. Pembukaan kunci dikirim melalui aksi
-terpisah setelah PO berada pada state locked.
+## Notes
+
+The mock requires approval when `locked` is true. Unlocking is sent as a separate action
+when the PO is locked.

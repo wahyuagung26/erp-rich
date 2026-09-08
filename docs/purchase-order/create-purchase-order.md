@@ -1,20 +1,19 @@
 ---
 type: API Endpoint
-title: Create Order Pembelian
-description: Membuat order pembelian baru dengan status pending.
+title: Create Purchase Order
+description: Add a new purchase order. Server assigns the transaction number and computed amounts.
 method: POST
 path: /purchase-order
 status: mock
 tags: [purchase-order, write]
-resource: /Users/wahyuagung/Sites/RIN/erp-finance-v2/frontend/src/mocks/modules/purchase-order.ts
+resource: /frontend/src/mocks/modules/purchase-order.ts
 timestamp: 2026-09-09T00:00:00Z
 ---
 
-# Create Order Pembelian
+# Create Purchase Order
 
-Membuat PO baru dari `PagePurchaseOrderTambah.vue`. Page menerima
-`PurchaseOrderRequest` dari `FormPurchaseOrder.vue`, mengirim request ke mock, menampilkan
-toaster sukses, lalu kembali ke `/purchase-order`.
+Backs `views/purchase-order/pages/PagePurchaseOrderTambah.vue`. Client-side validation:
+`frontend/src/views/purchase-order/schema.ts` (Valibot) — the backend must re-validate.
 
 ## Request
 
@@ -31,39 +30,26 @@ toaster sukses, lalu kembali ke `/purchase-order`.
   "address": "Alamat supplier",
   "description": "Pembelian kebutuhan operasional",
   "lines": [
-    {
-      "product_id": 1,
-      "quantity": 2,
-      "price": 3500000,
-      "discount": 0
-    }
+    { "product_id": 1, "quantity": 2, "price": 3500000, "discount": 0 }
   ]
 }
 ```
 
 | Field | Type | Rules |
 |---|---|---|
-| `date` | string | wajib, format `YYYY-MM-DD` |
-| `supplier_id` | number | wajib, supplier aktif |
-| `pkp_active` | boolean | wajib; menentukan PPN transaksi |
-| `department_id` | number | wajib, departemen aktif |
-| `warehouse_id` | number | wajib, gudang aktif |
-| `purchase_type` | string \| null | UI menyediakan `E-Money`, `Other`, atau `PVC`; mock menerima string atau null |
-| `address` | string | wajib setelah trim |
-| `description` | string | wajib setelah trim |
-| `lines` | array | minimal satu baris |
+| `date` | string | required; `YYYY-MM-DD` |
+| `supplier_id` | number | required; active supplier |
+| `pkp_active` | boolean | required; controls PPN calculation |
+| `department_id` | number | required; active department |
+| `warehouse_id` | number | required; active warehouse |
+| `purchase_type` | string \| null | UI options are `E-Money`, `Other`, `PVC`; mock accepts string or null |
+| `address` | string | required after trim |
+| `description` | string | required after trim |
+| `lines` | array | at least one line |
 
-Setiap line request memiliki:
-
-| Field | Type | Rules |
-|---|---|---|
-| `product_id` | number | produk aktif |
-| `quantity` | number | `> 0` |
-| `price` | number | `> 0` |
-| `discount` | number | `>= 0` dan tidak melebihi `quantity × price` |
-
-Client tidak mengirim `id`, `number`, status, label master, `dpp`, `ppn`, `nett`, atau
-`total`. Field tersebut dibuat atau di-resolve oleh mock.
+Each line contains `product_id` (active product), `quantity` (`> 0`), `price` (`> 0`),
+and `discount` (`>= 0`, not greater than `quantity × price`). Client does not send `id`,
+`number`, status fields, resolved labels, `dpp`, `ppn`, `nett`, or `total`.
 
 ## Response
 
@@ -120,14 +106,12 @@ Client tidak mengirim `id`, `number`, status, label master, `dpp`, `ppn`, `nett`
 }
 ```
 
-`ppn` bernilai 11% dari DPP jika `pkp_active` true dan 0 jika false.
-
 ## Errors
 
 | Status | When | Body |
 |---|---|---|
-| `401` | token tidak valid | mengikuti [konvensi auth](../conventions.md#auth) |
-| `422` | field header/line tidak valid | `{ "message": "Validasi gagal", "errors": { "field": ["Pesan"] } }` |
+| `422` | validation failure | `{ "message": "Validasi gagal", "errors": { "<field>": ["..."] } }` |
 
-Field error mock dapat menggunakan `date`, `supplier_id`, `pkp_active`, `department_id`,
-`warehouse_id`, `address`, `description`, atau `lines`.
+Field validation errors can use `date`, `supplier_id`, `pkp_active`, `department_id`,
+`warehouse_id`, `address`, `description`, or `lines`. The response amount fields are
+computed from the request lines; PPN is 11% of DPP when `pkp_active` is true and 0 otherwise.
