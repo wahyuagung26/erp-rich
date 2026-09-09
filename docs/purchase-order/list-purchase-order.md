@@ -7,7 +7,7 @@ path: /purchase-order
 status: mock
 tags: [purchase-order, read, list]
 resource: /frontend/src/mocks/modules/purchase-order.ts
-timestamp: 2026-09-09T00:00:00Z
+timestamp: 2026-09-10T00:00:00Z
 ---
 
 # List Purchase Order
@@ -22,16 +22,14 @@ composable). Rows include resolved supplier, department, warehouse, and product 
 | Name | Type | Required | Notes |
 |---|---|---|---|
 | `page`, `per_page`, `sort_by`, `sort_order` | — | no | see [conventions](../conventions.md#pagination-list-endpoints) |
-| `field` | string | no | header search field |
-| `q` | string | no | matches the selected header field; case-insensitive |
-| `product_q` | string | no | matches product code, name, or brand in lines |
+| `q` | string | no | matches number, date, created_by, supplier code/name, warehouse name, address, or description; case-insensitive |
 | `approval_status` | string | no | `pending`, `approved`, or `rejected` |
 | `delivery_status` | string | no | `not_received`, `partial`, or `full` |
+| `date_from` | string | no | `YYYY-MM-DD`, inclusive lower bound on `date` |
+| `date_to` | string | no | `YYYY-MM-DD`, inclusive upper bound on `date` |
 
 `sort_by` accepts `date`, `number`, `created_by`, `supplier_name`, `warehouse_name`, or
-`total`. The UI provides `number`, `date`, `created_by`, `supplier_code`, `supplier_name`,
-`warehouse_name`, `address`, and `description` as `field` options. If `field` is empty,
-`q` searches across those values.
+`total` — set via the sortable `Tanggal` / `Total` table headers.
 
 ## Response
 

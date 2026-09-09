@@ -100,22 +100,14 @@ function advanceNumber(date: string, seq: number): string {
 // Contract: docs/supplier-advance/
 export function registerSupplierAdvance(mock: MockAdapter) {
 	mock.onGet('/supplier-advance').reply((config) => {
-		const p = (config.params ?? {}) as ListParams
+		const p = (config.params ?? {}) as ListParams & { date_from?: string; date_to?: string }
 		let rows = db.supplierAdvance.map(resolve)
 		if (p.q) {
-			const f = String(p.field ?? '')
 			const q = String(p.q).toLowerCase()
-			rows = rows.filter((a) => {
-				const textByField: Record<string, string> = {
-					number: a.number,
-					supplier: `${a.supplier_code} ${a.supplier_name}`,
-					date: a.date,
-					description: a.description
-				}
-				if (f && textByField[f]) return textByField[f].toLowerCase().includes(q)
-				return Object.values(textByField).some((t) => t.toLowerCase().includes(q))
-			})
+			rows = rows.filter((a) => [a.number, a.supplier_code, a.supplier_name, a.date, a.description].join(' ').toLowerCase().includes(q))
 		}
+		if (p.date_from) rows = rows.filter((a) => a.date >= String(p.date_from))
+		if (p.date_to) rows = rows.filter((a) => a.date <= String(p.date_to))
 		rows = sortBy(rows, p.sort_by, p.sort_order)
 		return [200, paginate(rows, p)]
 	})

@@ -12,37 +12,29 @@ import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import FilterBar from '@/components/base/FilterBar.vue'
 import Input from '@/components/base/Input.vue'
-import Select from '@/components/base/Select.vue'
+import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
-import { limitOptions, searchFieldOptions, sortFieldOptions, sortOrderOptions } from '@/views/supplier-advance/schema'
 import type { SupplierAdvance, TableRow } from '@/utils/types'
 
 const router = useRouter()
-const { columns, pagination, loading, limit, fetchList, pageTo, applyFilters } = useTableList<SupplierAdvance>({
+const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<SupplierAdvance>({
 	endpoint: '/supplier-advance',
 	defaultLimit: 20
 })
 const { ask } = useConfirm()
 const toast = useToast()
 
-const searchField = ref('')
 const q = ref('')
-const sortByField = ref('date')
-const sortOrder = ref('desc')
-const limitSel = ref('20')
+const dateFrom = ref('')
+const dateTo = ref('')
 
 function applyAll() {
-	applyFilters({ field: searchField.value, q: q.value, sort_by: sortByField.value, sort_order: sortOrder.value })
+	applyFilters({ q: q.value, date_from: dateFrom.value, date_to: dateTo.value })
 }
 const runSearch = useDebounce(applyAll, 250)
-
-function onLimitChange() {
-	const lim = limitSel.value === 'all' ? 9999 : Number(limitSel.value)
-	pageTo({ limit: lim })
-}
 
 function remove(row: SupplierAdvance) {
 	ask({ title: 'Hapus uang muka supplier', message: `Hapus uang muka supplier "${row.number}"?`, type: 'danger', confirmText: 'Hapus' }, async () => {
@@ -58,13 +50,13 @@ function remove(row: SupplierAdvance) {
 
 const rows: TableRow[] = [
 	{ label: 'No', field: 'no', align: 'left' },
-	{ label: 'Nomor Transaksi', field: 'number', align: 'left' },
-	{ label: 'Tanggal', field: 'date', align: 'left' },
+	{ label: 'Nomor Transaksi', field: 'number', align: 'left', isSort: { activeSort: 'asc' } },
+	{ label: 'Tanggal', field: 'date', align: 'left', isSort: { activeSort: 'desc' } },
 	{ label: 'Departemen', field: 'department_name', align: 'left' },
 	{ label: 'Supplier', field: 'supplier_name', align: 'left' },
 	{ label: 'Nominal', field: 'amount', align: 'right' },
 	{ label: 'Terpakai', field: 'used', align: 'right' },
-	{ label: 'Saldo Tersedia', field: 'remaining', align: 'right' },
+	{ label: 'Saldo Tersedia', field: 'remaining', align: 'right', isSort: { activeSort: 'asc' } },
 	{ label: 'No Hutang Terakhir', field: 'last_payable_number', align: 'left' },
 	{ label: 'Keterangan', field: 'description', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
@@ -81,21 +73,18 @@ const rows: TableRow[] = [
 
 		<Panel>
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
-				<Select v-model="searchField" :options="searchFieldOptions" class="!w-44" placeholder="Cari Berdasarkan" @update:model-value="applyAll" />
-				<Input v-model="q" placeholder="Pencarian…" class="!w-60" @update:model-value="runSearch" />
-				<Select v-model="sortByField" :options="sortFieldOptions" class="!w-44" @update:model-value="applyAll" />
-				<Select v-model="sortOrder" :options="sortOrderOptions" class="!w-32" @update:model-value="applyAll" />
-				<Select v-model="limitSel" :options="limitOptions" class="!w-36" @update:model-value="onLimitChange" />
+				<Input v-model="q" placeholder="Cari nomor / supplier / keterangan…" class="!w-64" @update:model-value="runSearch" />
+				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" @change="applyAll" />
 			</FilterBar>
 
-			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading">
+			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
 				<template #table-content="{ row, column, rowIndex }">
 					<span v-if="row.field === 'no'" class="font-mono tnum text-ink-muted">
 						{{ ((pagination?.page ?? 1) - 1) * (pagination?.per_page ?? 20) + rowIndex + 1 }}
 					</span>
-					<a v-else-if="row.field === 'number'" class="text-primary-dark hover:underline" @click="router.push(`/supplier-advance/${column.id}`)">
+					<button v-else-if="row.field === 'number'" class="text-primary-dark hover:underline" @click="router.push(`/supplier-advance/${column.id}`)">
 						{{ column.number }}
-					</a>
+					</button>
 					<span v-else-if="row.field === 'date'" class="font-mono tnum text-ink-muted">{{ date(column.date as string) }}</span>
 					<span v-else-if="row.field === 'department_name'" class="text-ink">{{ column.department_name }}</span>
 					<span v-else-if="row.field === 'supplier_name'" class="text-ink">{{ column.supplier_code }} — {{ column.supplier_name }}</span>
@@ -134,7 +123,7 @@ const rows: TableRow[] = [
 			</Table>
 
 			<div class="mt-3">
-				<TablePagination :pagination="pagination" :limit-options="[limit]" @page-to="pageTo" />
+				<TablePagination :pagination="pagination" :show-limit="false" @page-to="pageTo" />
 			</div>
 		</Panel>
 	</div>

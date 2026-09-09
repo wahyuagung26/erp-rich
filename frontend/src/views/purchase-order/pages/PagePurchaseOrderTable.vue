@@ -14,6 +14,7 @@ import Panel from '@/components/base/Panel.vue'
 import FilterBar from '@/components/base/FilterBar.vue'
 import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
+import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Badge from '@/components/base/Badge.vue'
 import Table from '@/components/base/Table.vue'
@@ -25,45 +26,33 @@ import {
 	approvalStatusTone,
 	deliveryOptions,
 	deliveryStatusLabel,
-	deliveryStatusTone,
-	limitOptions,
-	searchFieldOptions,
-	sortFieldOptions,
-	sortOrderOptions
+	deliveryStatusTone
 } from '@/views/purchase-order/schema'
 import type { PurchaseOrder, PurchaseOrderApprovalStatus, PurchaseOrderDeliveryStatus, TableRow } from '@/utils/types'
 
 const router = useRouter()
-const { columns, pagination, loading, limit, fetchList, pageTo, applyFilters } = useTableList<PurchaseOrder>({
+const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<PurchaseOrder>({
 	endpoint: '/purchase-order',
 	defaultLimit: 20
 })
 const { ask } = useConfirm()
 const toast = useToast()
-const field = ref('')
 const q = ref('')
-const productQ = ref('')
 const approvalStatus = ref('')
 const deliveryStatus = ref('')
-const sortBy = ref('date')
-const sortOrder = ref('desc')
-const limitSel = ref('20')
+const dateFrom = ref('')
+const dateTo = ref('')
 
 function applyAll() {
 	applyFilters({
-		field: field.value,
 		q: q.value,
-		product_q: productQ.value,
 		approval_status: approvalStatus.value,
 		delivery_status: deliveryStatus.value,
-		sort_by: sortBy.value,
-		sort_order: sortOrder.value
+		date_from: dateFrom.value,
+		date_to: dateTo.value
 	})
 }
 const runSearch = useDebounce(applyAll, 250)
-function onLimitChange() {
-	pageTo({ limit: limitSel.value === 'all' ? 9999 : Number(limitSel.value) })
-}
 function canWrite(row: PurchaseOrder) {
 	return row.approval_status !== 'approved' && row.delivery_status === 'not_received'
 }
@@ -83,12 +72,12 @@ function remove(row: PurchaseOrder) {
 const rows: TableRow[] = [
 	{ label: 'No', field: 'no' },
 	{ label: 'Nomor', field: 'number' },
-	{ label: 'Tanggal', field: 'date' },
+	{ label: 'Tanggal', field: 'date', isSort: { activeSort: 'desc' } },
 	{ label: 'Departemen', field: 'department_name' },
 	{ label: 'Pembuat', field: 'created_by' },
 	{ label: 'Supplier', field: 'supplier_name' },
 	{ label: 'Keterangan', field: 'description' },
-	{ label: 'Total', field: 'total', align: 'right' },
+	{ label: 'Total', field: 'total', align: 'right', isSort: { activeSort: 'asc' } },
 	{ label: 'Status Barang', field: 'delivery_status' },
 	{ label: 'Status', field: 'approval_status' },
 	{ label: '', field: 'action', align: 'right' }
@@ -104,16 +93,12 @@ const rows: TableRow[] = [
 		>
 		<Panel>
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
-				<Select v-model="field" :options="searchFieldOptions" class="!w-44" @update:model-value="applyAll" />
-				<Input v-model="q" placeholder="Cari…" class="!w-52" @update:model-value="runSearch" />
-				<Input v-model="productQ" placeholder="Cari produk/merk…" class="!w-52" @update:model-value="runSearch" />
+				<Input v-model="q" placeholder="Cari nomor / supplier / keterangan…" class="!w-64" @update:model-value="runSearch" />
 				<Select v-model="approvalStatus" :options="approvalOptions" class="!w-52" @update:model-value="applyAll" />
 				<Select v-model="deliveryStatus" :options="deliveryOptions" class="!w-48" @update:model-value="applyAll" />
-				<Select v-model="sortBy" :options="sortFieldOptions" class="!w-40" @update:model-value="applyAll" />
-				<Select v-model="sortOrder" :options="sortOrderOptions" class="!w-32" @update:model-value="applyAll" />
-				<Select v-model="limitSel" :options="limitOptions" class="!w-36" @update:model-value="onLimitChange" />
+				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" @change="applyAll" />
 			</FilterBar>
-			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading">
+			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
 				<template #table-content="{ row, column, rowIndex }">
 					<span v-if="row.field === 'no'" class="font-mono tnum text-ink-muted">{{
 						((pagination?.page ?? 1) - 1) * (pagination?.per_page ?? 20) + rowIndex + 1
@@ -157,7 +142,7 @@ const rows: TableRow[] = [
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>
-			<div class="mt-3"><TablePagination :pagination="pagination" :limit-options="[limit]" @page-to="pageTo" /></div>
+			<div class="mt-3"><TablePagination :pagination="pagination" :show-limit="false" @page-to="pageTo" /></div>
 		</Panel>
 	</div>
 </template>

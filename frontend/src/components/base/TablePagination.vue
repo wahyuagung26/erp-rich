@@ -6,8 +6,9 @@ import type { Pagination } from '@/utils/types'
 // Table footer: rows-per-page + range + page nav. Rendered once under every list
 // (via useTableList). Emits `pageTo` with `{ limit }` or `{ page }` — both handled
 // by useTableList.pageTo.
-const props = withDefaults(defineProps<{ pagination?: Pagination; limitOptions?: number[] }>(), {
-	limitOptions: () => [10, 25, 50, 100]
+const props = withDefaults(defineProps<{ pagination?: Pagination; limitOptions?: number[]; showLimit?: boolean }>(), {
+	limitOptions: () => [10, 25, 50, 100],
+	showLimit: true
 })
 const emit = defineEmits<{ pageTo: [{ page?: number; limit?: number }] }>()
 
@@ -31,7 +32,7 @@ function go(p: number) {
 <template>
 	<div class="flex flex-wrap items-center justify-between gap-3 text-s text-ink-muted">
 		<div class="flex items-center gap-4">
-			<label class="inline-flex items-center gap-2">
+			<label v-if="showLimit" class="inline-flex items-center gap-2">
 				<span>Tampilkan</span>
 				<select
 					:value="perPage"

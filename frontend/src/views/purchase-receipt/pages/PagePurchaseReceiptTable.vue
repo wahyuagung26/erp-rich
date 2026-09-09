@@ -1,0 +1,124 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
+import { IconEye, IconPencil, IconPlus, IconTrash } from '@tabler/icons-vue'
+import api from '@/utils/api'
+import { useTableList } from '@/composables/useTableList'
+import { useDebounce } from '@/composables/useDebounce'
+import { useConfirm } from '@/composables/useConfirm'
+import { useToast } from '@/composables/useToast'
+import { date } from '@/utils/format'
+import PageHeader from '@/components/base/PageHeader.vue'
+import Panel from '@/components/base/Panel.vue'
+import FilterBar from '@/components/base/FilterBar.vue'
+import Input from '@/components/base/Input.vue'
+import Select from '@/components/base/Select.vue'
+import DateRangePicker from '@/components/base/DateRangePicker.vue'
+import Button from '@/components/base/Button.vue'
+import Table from '@/components/base/Table.vue'
+import TablePagination from '@/components/base/TablePagination.vue'
+import { invoiceOptions } from '@/views/purchase-receipt/schema'
+import type { PurchaseReceipt, TableRow } from '@/utils/types'
+
+const router = useRouter()
+const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<PurchaseReceipt>({
+	endpoint: '/purchase-receipt',
+	defaultLimit: 20
+})
+const { ask } = useConfirm()
+const toast = useToast()
+const q = ref('')
+const invoiceStatus = ref('')
+const dateFrom = ref('')
+const dateTo = ref('')
+
+function applyAll() {
+	applyFilters({ q: q.value, invoice_status: invoiceStatus.value, date_from: dateFrom.value, date_to: dateTo.value })
+}
+const runSearch = useDebounce(applyAll, 250)
+function canWrite(row: PurchaseReceipt) {
+	return row.invoice_status !== 'invoiced'
+}
+function remove(row: PurchaseReceipt) {
+	ask(
+		{ title: 'Hapus penerimaan pembelian', message: `Hapus penerimaan pembelian “${row.number}”?`, type: 'danger', confirmText: 'Hapus' },
+		async () => {
+			try {
+				await api.delete(`/purchase-receipt/${row.id}`)
+				toast.success('Penerimaan pembelian dihapus')
+				fetchList()
+			} catch (error) {
+				if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Penerimaan pembelian tidak dapat dihapus')
+				else toast.error('Penerimaan pembelian tidak dapat dihapus')
+			}
+		}
+	)
+}
+
+const rows: TableRow[] = [
+	{ label: 'No', field: 'no' },
+	{ label: 'Tanggal', field: 'date', isSort: { activeSort: 'desc' } },
+	{ label: 'BM #', field: 'number', isSort: { activeSort: 'asc' } },
+	{ label: 'Gudang', field: 'warehouse_label' },
+	{ label: 'SJ Supplier', field: 'delivery_note_number' },
+	{ label: 'Supplier', field: 'supplier_name' },
+	{ label: 'Keterangan', field: 'description' },
+	{ label: '', field: 'action', align: 'right' }
+]
+</script>
+
+<template>
+	<div class="space-y-4 p-4">
+		<PageHeader title="Penerimaan Pembelian" subtitle="Pembelian"
+			><template #actions
+				><Button size="sm" @click="router.push('/purchase-receipt/tambah')"><IconPlus class="h-4 w-4" /> Tambah</Button></template
+			></PageHeader
+		>
+		<Panel>
+			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
+				<Input v-model="q" placeholder="Cari nomor / gudang / supplier / SJ…" class="!w-64" @update:model-value="runSearch" />
+				<Select v-model="invoiceStatus" :options="invoiceOptions" class="!w-52" @update:model-value="applyAll" />
+				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" @change="applyAll" />
+			</FilterBar>
+			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
+				<template #table-content="{ row, column, rowIndex }">
+					<span v-if="row.field === 'no'" class="font-mono tnum text-ink-muted">{{
+						((pagination?.page ?? 1) - 1) * (pagination?.per_page ?? 20) + rowIndex + 1
+					}}</span>
+					<span v-else-if="row.field === 'date'" class="font-mono tnum text-ink-muted">{{ date(column.date as string) }}</span>
+					<button v-else-if="row.field === 'number'" class="text-primary-dark hover:underline" @click="router.push(`/purchase-receipt/${column.id}`)">
+						{{ column.number }}
+					</button>
+					<span v-else-if="row.field === 'warehouse_label'">{{ column.warehouse_label || '–' }}</span>
+					<span v-else-if="row.field === 'supplier_name'">{{ column.supplier_code }} — {{ column.supplier_name }}</span>
+					<span v-else-if="row.field === 'description'" class="text-ink-muted">{{ column.description || '–' }}</span>
+					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
+						<button
+							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
+							title="Lihat detail"
+							@click="router.push(`/purchase-receipt/${column.id}`)"
+						>
+							<IconEye class="h-4 w-4" /></button
+						><template v-if="canWrite(column as unknown as PurchaseReceipt)"
+							><button
+								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
+								title="Edit penerimaan pembelian"
+								@click="router.push(`/purchase-receipt/edit/${column.id}`)"
+							>
+								<IconPencil class="h-4 w-4" /></button
+							><button
+								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-danger-soft hover:text-danger"
+								title="Hapus penerimaan pembelian"
+								@click="remove(column as unknown as PurchaseReceipt)"
+							>
+								<IconTrash class="h-4 w-4" /></button
+						></template>
+					</div>
+					<span v-else>{{ column[row.field] }}</span>
+				</template>
+			</Table>
+			<div class="mt-3"><TablePagination :pagination="pagination" :show-limit="false" @page-to="pageTo" /></div>
+		</Panel>
+	</div>
+</template>

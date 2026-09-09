@@ -7,7 +7,7 @@ path: /supplier-advance
 status: mock
 tags: [supplier-advance, read, list]
 resource: /frontend/src/mocks/modules/supplier-advance.ts
-timestamp: 2026-09-08T10:00:00Z
+timestamp: 2026-09-10T00:00:00Z
 ---
 
 # List Supplier Advance
@@ -20,9 +20,10 @@ Backs `views/supplier-advance/pages/PageSupplierAdvanceTable.vue` (via `useTable
 
 | Name | Type | Required | Notes |
 |---|---|---|---|
-| `page`, `per_page`, `sort_by`, `sort_order` | — | no | `sort_by` accepts `date`, `number`, `supplier_name`, `remaining` |
-| `field` | string | no | `number` \| `supplier` \| `date` \| `description`; when omitted `q` matches every column |
-| `q` | string | no | search text, matched against `field` (or all columns when `field` is empty) |
+| `page`, `per_page`, `sort_by`, `sort_order` | — | no | `sort_by` accepts `date`, `number`, `remaining` — set via the sortable `Tanggal` / `Nomor Transaksi` / `Saldo Tersedia` table headers |
+| `q` | string | no | matches number, supplier code/name, date, or description; case-insensitive |
+| `date_from` | string | no | `YYYY-MM-DD`, inclusive lower bound on `date` |
+| `date_to` | string | no | `YYYY-MM-DD`, inclusive upper bound on `date` |
 
 `used` / `remaining` / `last_payable_number` are computed per row from the
 advance's usage rows, so they are always current without being stored twice.

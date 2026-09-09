@@ -618,3 +618,80 @@ export interface PurchaseOrderRequest {
 	description: string
 	lines: PurchaseOrderLineRequest[]
 }
+
+// Penerimaan Pembelian (Purchase Receipt) — receives goods against an approved
+// PurchaseOrder. Lines are fixed by the PO (one per PO line), not freely added.
+// `ordered_quantity`/`received_quantity`/`remaining_quantity` are always computed
+// excluding the receipt being read/edited itself — see docs/purchase-receipt/.
+export type PurchaseReceiptInvoiceStatus = 'not_invoiced' | 'invoiced'
+
+export interface PurchaseReceiptLine {
+	product_id: number
+	product_code?: string
+	product_name?: string
+	brand_code?: string
+	brand_name?: string
+	unit_name?: string
+	ordered_quantity: number
+	received_quantity: number
+	remaining_quantity: number
+	quantity: number
+	warehouse_id: number | null
+	warehouse_code?: string
+	warehouse_name?: string
+}
+
+export interface PurchaseReceipt {
+	id: number
+	number: string
+	purchase_order_id: number
+	purchase_order_number?: string
+	purchase_order_date?: string
+	purchase_order_description?: string
+	supplier_id?: number
+	supplier_code?: string
+	supplier_name?: string
+	delivery_note_number: string
+	description: string
+	department_id: number
+	department_code?: string
+	department_name?: string
+	invoice_status: PurchaseReceiptInvoiceStatus
+	date: string
+	warehouse_label?: string
+	created_by: string
+	lines: PurchaseReceiptLine[]
+}
+
+// API input only — no resolved labels, no computed ordered/received/remaining.
+export interface PurchaseReceiptLineRequest {
+	product_id: number
+	quantity: number
+	warehouse_id: number | null
+}
+
+export interface PurchaseReceiptRequest {
+	purchase_order_id: number
+	delivery_note_number: string
+	description: string
+	department_id: number
+	date: string
+	lines: PurchaseReceiptLineRequest[]
+}
+
+// Lookup response for the receipt form — a PO's reference info plus its lines
+// pre-computed with ordered/received/remaining quantity. See
+// docs/purchase-receipt/get-purchase-order-receivable-lines.md.
+export interface PurchaseOrderReceivableLines {
+	purchase_order: {
+		id: number
+		number: string
+		date: string
+		description: string
+		supplier_code?: string
+		supplier_name?: string
+		department_id: number
+		warehouse_id: number
+	}
+	lines: PurchaseReceiptLine[]
+}

@@ -26,6 +26,7 @@ import { registerCashAdvance } from './modules/cash-advance'
 import { registerSupplierAdvance } from './modules/supplier-advance'
 import { registerCashPosition } from './modules/cash-position'
 import { registerPurchaseOrder } from './modules/purchase-order'
+import { registerPurchaseReceipt } from './modules/purchase-receipt'
 import { registerDashboard } from './modules/dashboard'
 import { registerCashFlow } from './modules/cash-flow'
 
@@ -58,6 +59,7 @@ const modules = [
 	registerSupplierAdvance,
 	registerCashPosition,
 	registerPurchaseOrder,
+	registerPurchaseReceipt,
 	registerDashboard,
 	registerCashFlow
 ]

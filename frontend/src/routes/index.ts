@@ -27,6 +27,7 @@ import cashAdvance from './cash-advance'
 import supplierAdvance from './supplier-advance'
 import cashPosition from './cash-position'
 import purchaseOrder from './purchase-order'
+import purchaseReceipt from './purchase-receipt'
 
 const routes: RouteRecordRaw[] = [
 	{ path: '/', redirect: '/dashboard' },
@@ -61,6 +62,7 @@ const routes: RouteRecordRaw[] = [
 			...supplierAdvance,
 			...cashPosition,
 			...purchaseOrder,
+			...purchaseReceipt,
 			{
 				path: '/design-system',
 				name: 'DesignSystem',

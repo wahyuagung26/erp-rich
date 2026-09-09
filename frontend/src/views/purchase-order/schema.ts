@@ -121,43 +121,6 @@ export const pkpOptions = [
 	{ label: 'Nonaktif PKP', value: 'false' }
 ]
 
-export const searchFieldOptions = [
-	{ label: 'Semua', value: '' },
-	{ label: 'Nomor Transaksi', value: 'number' },
-	{ label: 'Tanggal', value: 'date' },
-	{ label: 'Pembuat', value: 'created_by' },
-	{ label: 'Kode Supplier', value: 'supplier_code' },
-	{ label: 'Nama Supplier', value: 'supplier_name' },
-	{ label: 'Gudang', value: 'warehouse_name' },
-	{ label: 'Alamat', value: 'address' },
-	{ label: 'Keterangan', value: 'description' }
-]
-
-export const productSearchFieldOptions = [
-	{ label: 'Nama Produk', value: 'product_name' },
-	{ label: 'Kode Produk', value: 'product_code' },
-	{ label: 'Merk', value: 'brand_name' }
-]
-
-export const sortFieldOptions = [
-	{ label: 'Tanggal', value: 'date' },
-	{ label: 'Nomor Transaksi', value: 'number' },
-	{ label: 'Pembuat', value: 'created_by' },
-	{ label: 'Supplier', value: 'supplier_name' },
-	{ label: 'Gudang', value: 'warehouse_name' },
-	{ label: 'Total', value: 'total' }
-]
-
-export const sortOrderOptions = [
-	{ label: 'Menaik', value: 'asc' },
-	{ label: 'Menurun', value: 'desc' }
-]
-
-export const limitOptions = [
-	{ label: 'Maks. 20 data', value: '20' },
-	{ label: 'Semua data', value: 'all' }
-]
-
 export const approvalOptions = [
 	{ label: 'Semua status persetujuan', value: '' },
 	...Object.entries(approvalStatusLabel).map(([value, label]) => ({ value, label }))

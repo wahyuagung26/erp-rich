@@ -122,31 +122,26 @@ function writeGuard(row: PurchaseOrder): string | null {
 
 export function registerPurchaseOrder(mock: MockAdapter) {
 	mock.onGet('/purchase-order').reply((config) => {
-		const p = (config.params ?? {}) as ListParams & { approval_status?: string; delivery_status?: string; product_q?: string }
+		const p = (config.params ?? {}) as ListParams & {
+			approval_status?: string
+			delivery_status?: string
+			date_from?: string
+			date_to?: string
+		}
 		let rows = db.purchaseOrder.map(resolve)
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
-			const field = String(p.field || '')
-			rows = rows.filter((row) => {
-				const values: Record<string, string> = {
-					number: row.number,
-					date: row.date,
-					created_by: row.created_by,
-					supplier_code: row.supplier_code || '',
-					supplier_name: row.supplier_name || '',
-					warehouse_name: row.warehouse_name || '',
-					address: row.address,
-					description: row.description
-				}
-				return (field ? values[field] : Object.values(values).join(' '))?.toLowerCase().includes(q)
-			})
+			rows = rows.filter((row) =>
+				[row.number, row.date, row.created_by, row.supplier_code, row.supplier_name, row.warehouse_name, row.address, row.description]
+					.join(' ')
+					.toLowerCase()
+					.includes(q)
+			)
 		}
 		if (p.approval_status) rows = rows.filter((row) => row.approval_status === p.approval_status)
 		if (p.delivery_status) rows = rows.filter((row) => row.delivery_status === p.delivery_status)
-		if (p.product_q) {
-			const q = String(p.product_q).toLowerCase()
-			rows = rows.filter((row) => row.lines.some((line) => `${line.product_code} ${line.product_name} ${line.brand_name}`.toLowerCase().includes(q)))
-		}
+		if (p.date_from) rows = rows.filter((row) => row.date >= String(p.date_from))
+		if (p.date_to) rows = rows.filter((row) => row.date <= String(p.date_to))
 		return [200, paginate(sortBy(rows, p.sort_by, p.sort_order), p)]
 	})
 
