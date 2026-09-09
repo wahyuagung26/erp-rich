@@ -27,7 +27,6 @@ import {
 	deliveryStatusLabel,
 	deliveryStatusTone,
 	limitOptions,
-	lockOptions,
 	searchFieldOptions,
 	sortFieldOptions,
 	sortOrderOptions
@@ -46,7 +45,6 @@ const q = ref('')
 const productQ = ref('')
 const approvalStatus = ref('')
 const deliveryStatus = ref('')
-const isLocked = ref('')
 const sortBy = ref('date')
 const sortOrder = ref('desc')
 const limitSel = ref('20')
@@ -58,7 +56,6 @@ function applyAll() {
 		product_q: productQ.value,
 		approval_status: approvalStatus.value,
 		delivery_status: deliveryStatus.value,
-		is_locked: isLocked.value,
 		sort_by: sortBy.value,
 		sort_order: sortOrder.value
 	})
@@ -68,7 +65,7 @@ function onLimitChange() {
 	pageTo({ limit: limitSel.value === 'all' ? 9999 : Number(limitSel.value) })
 }
 function canWrite(row: PurchaseOrder) {
-	return row.approval_status !== 'approved' && !row.is_locked && row.delivery_status === 'not_received'
+	return row.approval_status !== 'approved' && row.delivery_status === 'not_received'
 }
 function remove(row: PurchaseOrder) {
 	ask({ title: 'Hapus order pembelian', message: `Hapus order pembelian “${row.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
@@ -94,7 +91,6 @@ const rows: TableRow[] = [
 	{ label: 'Total', field: 'total', align: 'right' },
 	{ label: 'Status Barang', field: 'delivery_status' },
 	{ label: 'Status', field: 'approval_status' },
-	{ label: 'Kunci', field: 'is_locked' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -113,7 +109,6 @@ const rows: TableRow[] = [
 				<Input v-model="productQ" placeholder="Cari produk/merk…" class="!w-52" @update:model-value="runSearch" />
 				<Select v-model="approvalStatus" :options="approvalOptions" class="!w-52" @update:model-value="applyAll" />
 				<Select v-model="deliveryStatus" :options="deliveryOptions" class="!w-48" @update:model-value="applyAll" />
-				<Select v-model="isLocked" :options="lockOptions" class="!w-36" @update:model-value="applyAll" />
 				<Select v-model="sortBy" :options="sortFieldOptions" class="!w-40" @update:model-value="applyAll" />
 				<Select v-model="sortOrder" :options="sortOrderOptions" class="!w-32" @update:model-value="applyAll" />
 				<Select v-model="limitSel" :options="limitOptions" class="!w-36" @update:model-value="onLimitChange" />
@@ -137,7 +132,6 @@ const rows: TableRow[] = [
 					<Badge v-else-if="row.field === 'approval_status'" :tone="approvalStatusTone[column.approval_status as PurchaseOrderApprovalStatus]">{{
 						approvalStatusLabel[column.approval_status as PurchaseOrderApprovalStatus]
 					}}</Badge>
-					<span v-else-if="row.field === 'is_locked'">{{ column.is_locked ? 'Dikunci' : '–' }}</span>
 					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
 						<button
 							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"

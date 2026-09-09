@@ -168,12 +168,6 @@ export const deliveryOptions = [
 	...Object.entries(deliveryStatusLabel).map(([value, label]) => ({ value, label }))
 ]
 
-export const lockOptions = [
-	{ label: 'Semua kunci', value: '' },
-	{ label: 'Dikunci', value: 'true' },
-	{ label: 'Tidak dikunci', value: 'false' }
-]
-
 interface LineAmounts {
 	quantity: number
 	price: number

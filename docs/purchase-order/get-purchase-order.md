@@ -41,6 +41,4 @@ The detail page exposes actions according to the current state:
 
 - `pending`: approve or reject;
 - `rejected`: resubmit as `pending`;
-- `approved` and unlocked: lock;
-- locked: unlock;
 - writable PO: edit or delete.

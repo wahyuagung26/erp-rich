@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconArrowLeft, IconCheck, IconLock, IconPencil, IconRefresh, IconTrash, IconX } from '@tabler/icons-vue'
+import { IconArrowLeft, IconCheck, IconPencil, IconRefresh, IconTrash, IconX } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
@@ -35,11 +35,8 @@ async function load() {
 		loading.value = false
 	}
 }
-const canEdit = computed(() =>
-	Boolean(order.value && order.value.approval_status !== 'approved' && !order.value.is_locked && order.value.delivery_status === 'not_received')
-)
-const canApprove = computed(() => order.value?.approval_status === 'pending' && !order.value.is_locked)
-const canLock = computed(() => order.value?.approval_status === 'approved' && !order.value.is_locked)
+const canEdit = computed(() => Boolean(order.value && order.value.approval_status !== 'approved' && order.value.delivery_status === 'not_received'))
+const canApprove = computed(() => order.value?.approval_status === 'pending')
 function updateApproval(status: PurchaseOrderApprovalStatus) {
 	const value = order.value
 	if (!value) return
@@ -58,27 +55,6 @@ function updateApproval(status: PurchaseOrderApprovalStatus) {
 				toast.success('Status persetujuan diperbarui')
 			} catch (error) {
 				if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Status persetujuan tidak dapat diubah')
-			}
-		}
-	)
-}
-function updateLock(locked: boolean) {
-	const value = order.value
-	if (!value) return
-	ask(
-		{
-			title: locked ? 'Kunci order pembelian' : 'Buka kunci order pembelian',
-			message: `${locked ? 'Kunci' : 'Buka kunci'} order pembelian “${value.number}”?`,
-			type: 'info',
-			confirmText: locked ? 'Kunci' : 'Buka Kunci'
-		},
-		async () => {
-			try {
-				const res = await api.patch<{ data: PurchaseOrder }>(`/purchase-order/${value.id}/lock`, { locked })
-				order.value = res.data.data
-				toast.success(locked ? 'Order pembelian dikunci' : 'Kunci order pembelian dibuka')
-			} catch (error) {
-				if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Kunci tidak dapat diubah')
 			}
 		}
 	)
@@ -110,10 +86,9 @@ function remove() {
 					><Button v-if="canEdit" size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button
 					><Button v-if="canApprove" size="sm" @click="updateApproval('approved')"><IconCheck class="h-4 w-4" /> Setujui</Button
 					><Button v-if="canApprove" size="sm" variant="danger" @click="updateApproval('rejected')"><IconX class="h-4 w-4" /> Tolak</Button
-					><Button v-if="order?.approval_status === 'rejected' && !order.is_locked" size="sm" variant="secondary" @click="updateApproval('pending')"
+					><Button v-if="order?.approval_status === 'rejected'" size="sm" variant="secondary" @click="updateApproval('pending')"
 						><IconRefresh class="h-4 w-4" /> Ajukan Ulang</Button
-					><Button v-if="canLock" size="sm" variant="subtle" @click="updateLock(true)"><IconLock class="h-4 w-4" /> Kunci</Button
-					><Button v-if="order?.is_locked" size="sm" variant="subtle" @click="updateLock(false)"><IconLock class="h-4 w-4" /> Buka Kunci</Button>
+					>
 				</div></template
 			></PageHeader
 		><Panel v-if="loading"><Skeleton :lines="10" /></Panel
@@ -171,10 +146,6 @@ function remove() {
 						<div>
 							<dt class="text-s text-ink-muted">Disetujui Oleh</dt>
 							<dd class="mt-1">{{ order.approved_by || '–' }}</dd>
-						</div>
-						<div v-if="order.lock_reason">
-							<dt class="text-s text-ink-muted">Alasan Kunci</dt>
-							<dd class="mt-1 text-danger">{{ order.lock_reason }}</dd>
 						</div>
 					</dl>
 				</section>

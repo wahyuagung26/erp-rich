@@ -42,7 +42,6 @@ const columns: TableRow[] = [
 <template>
 	<section class="space-y-3">
 		<h3 class="subhead">Riwayat Pemakaian Uang Muka</h3>
-		<p class="text-s text-ink-subtle">Pemakaian uang muka untuk pembayaran hutang supplier.</p>
 		<Table :rows="columns" :columns="rows as unknown as Record<string, unknown>[]" :loading="loading" empty-text="Belum ada pemakaian uang muka">
 			<template #table-content="{ row, column, rowIndex }">
 				<span v-if="row.field === 'no'" class="font-mono tnum text-ink-muted">{{ rowIndex + 1 }}</span>

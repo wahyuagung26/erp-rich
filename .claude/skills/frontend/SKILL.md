@@ -40,8 +40,7 @@ applyFilters }` + a debounced `runSearch = useDebounce(() => applyFilters({...})
 **`<Table>` custom columns.** `#table-header` is a *per-cell* slot inside the column `v-for` —
 overriding it means handling every field yourself, including reproducing the sort button. So a
 select-all / bulk-action control goes in a **toolbar row above the table**, not in a header
-cell; only per-row controls (a row checkbox) go through `#table-content`. Reference:
-`PageJournalTable.vue` (bulk-approve checkbox column).
+cell; only per-row controls (a row checkbox) go through `#table-content`.
 
 ## 2. Vue gotchas that pass `vue-tsc` and blow up (or blank out) at runtime
 
@@ -49,13 +48,12 @@ cell; only per-row controls (a row checkbox) go through `#table-content`. Refere
   store state into a local `reactive()` — use a shallow spread, nested by hand
   (`{ ...v, attachment: v.attachment && { ...v.attachment }, lines: v.lines.map(l => ({ ...l })) }`)
   or `toRaw`, **never `structuredClone(props.initialValue)`**. `structuredClone` is only safe on
-  plain seed data (see `mocks/db.ts`). This one typechecks clean and crashes on first render —
+  plain (non-reactive) objects. This one typechecks clean and crashes on first render —
   exactly the trap the "render the page" step exists for.
 - **`#actions` slot content must be wrapped in one flex container.** `PageHeader` and `Panel`
   render the slot's children as *direct flex items* of a `justify-between` row, so two or more
   buttons spray edge-to-edge across the whole width. Always
   `<template #actions><div class="flex flex-wrap items-center gap-2">…</div></template>`.
-  Reference: `PageSupplierDetail.vue`, `PageJournalDetail.vue`.
 
 ## 3. The Tailwind palette is CLOSED
 
@@ -76,6 +74,50 @@ colours (the `views/auth/` navy `#121925`, gold `#d4a04a`) may use `[#hex]` arbi
 `docs/<module>/` (OKF contract) → `src/mocks/modules/<module>.ts` → `src/views/<module>/` →
 `src/routes/<module>.ts` (+ aggregate in `routes/index.ts`) → `src/constant/nav.ts`.
 Keep the three sets 1:1 (endpoint ↔ doc file ↔ mock handler). Details: root `CLAUDE.md`.
+
+## 4a. The CRUD contract — validation & error handling
+
+Every module follows the same shape for validation and failure. Don't invent a per-module
+variant.
+
+- **`schema.ts`** — one valibot schema + a `validate<Entity>(data): Record<string,string> |
+  null` helper that returns `{ field: firstMessage }` (flatten the issues, first message per
+  field) or `null` when valid. Enum option lists and their label/tone maps live here too.
+- **`components/Form<X>.vue`** — `props: { initial?: Partial<Form>, submitLabel?, loading? }`,
+  `emits: { submit: [Form] }`. `const form = reactive({...})` seeded field-by-field from
+  `props.initial?.x ?? default` (**not** `structuredClone` — §2). Local `errors =
+  ref<Record<string,string>>({})`, passed per field as `<FormField :error="errors.x">`.
+  `onSubmit()` runs `validate`, assigns `errors.value`, and `emit('submit', { ...form })`
+  only when it passed. Expose a `setServerErrors(e: Record<string,string[]>)` that merges
+  `{ k: msgs[0] }` into `errors` — `defineExpose({ setServerErrors })`.
+- **`pages/Page<X>Tambah|Edit.vue`** — own `saving` / `loading` / `notFound` + a `formRef`.
+  `save()`:
+  ```ts
+  saving.value = true
+  try {
+    await api.post('/x', payload)               // or api.put(`/x/${id}`, payload)
+    toast.success('… ditambahkan')              // past-tense, Bahasa
+    router.push('/x')                            // list, or the detail route after an edit
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 422) {
+      formRef.value?.setServerErrors(err.response.data?.errors ?? {})
+      return                                     // STAY on the form — never redirect on error
+    }
+    throw err
+  } finally { saving.value = false }
+  ```
+  `load()` on Edit/Detail: `try { … } catch { notFound.value = true }` → render an empty
+  state (never a toast for a failed load). A record whose state forbids editing (approved,
+  locked, already fulfilled…) → an empty-state panel explaining why, not a disabled form.
+- **List delete** — `useConfirm().ask({ type: 'danger', confirmText: 'Hapus' }, cb)`; in the
+  callback `try { await api.delete(…); toast.success(…); refetch() } catch (e) {
+  toast.error(axios.isAxiosError(e) ? e.response?.data?.message ?? fallback : fallback) }`.
+- **Mock side mirrors it** — field errors return `422 { message: 'Validasi gagal', errors: {
+  <field>: [msg] } }`; a business-rule block (state guard) returns `422 { message }` with no
+  `errors`; a missing id returns `404 { message }`. Re-check every rule server-side — the
+  client `validate` is UX, not the gate.
+- **401 is global** (the shared axios instance clears the token and routes to login). Never
+  add a per-call 401 branch.
 
 ## 5. Definition of done — run ALL of these before claiming it works
 
@@ -108,17 +150,20 @@ A change that passes `vue-tsc` but was never rendered is **not done**.
 - **Sections grouped by whitespace + a light heading**: each group is a `<section
   class="space-y-3">` with an `<h3 class="subhead">` (now a plain uppercase `text-ink-subtle`
   label — the old full-bleed grey bar was removed, it read as box-in-box next to filled
-  inputs), `space-y-8` between sections on the `<form>`. Reference: `FormSupplier.vue`
-  (also `FormAkun`, `FormJurnalLines`).
+  inputs), `space-y-8` between sections on the `<form>`. **No subtitle that just restates the
+  heading** — a `<p class="text-s text-ink-subtle">` under the `<h3>` is only for micro-copy
+  explaining behaviour the user can't infer ("this account is auto-credited for the total",
+  "TOP 0 = cash / COD"), never a description of the section. Legacy screens carry filler
+  subtitles; drop them on port.
 - **Filled inputs**; **`font-mono .tnum` only for money (`<Amount>`) and dates** — NOT codes,
   transaction numbers, phone, or formatted phrases ("30 hari").
 - **Form width**: `DefaultLayout` centres every page in `mx-auto max-w-[1200px]`. Inside that,
   a form `<Panel class="max-w-5xl">` **left-aligned** (edge lines up with breadcrumb / page
   title / the list page's full-width Panel); never `mx-auto` on the Panel, never a full-width
   Panel with the width cap on an inner `<form>`. **Two exceptions → Panel goes full-width** (no
-  cap, same as the list): a form with a wide line-item `<table>` (`FormJournalLines.vue`), or a
-  form with too few / too short fields to fill 5xl (small master-data: Merk/Satuan/Cabang). See
-  the DESIGN_SYSTEM.md "small forms" addendum.
+  cap, same as the list): a form with a wide line-item `<table>`, or a form with too few /
+  too short fields to fill 5xl (small master data). See the DESIGN_SYSTEM.md "small forms"
+  addendum.
 - **Density** prop (`comfortable`/`compact`).
 - **Action buttons**: forms → primary at the END of the flow; detail/read pages → all actions
   (`[← Kembali] [✎ Edit] [🗑 Hapus]`, all icon+label) in `PageHeader #actions`, wrapped in one

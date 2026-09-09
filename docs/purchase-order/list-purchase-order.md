@@ -27,7 +27,6 @@ composable). Rows include resolved supplier, department, warehouse, and product 
 | `product_q` | string | no | matches product code, name, or brand in lines |
 | `approval_status` | string | no | `pending`, `approved`, or `rejected` |
 | `delivery_status` | string | no | `not_received`, `partial`, or `full` |
-| `is_locked` | string | no | `true` or `false` |
 
 `sort_by` accepts `date`, `number`, `created_by`, `supplier_name`, `warehouse_name`, or
 `total`. The UI provides `number`, `date`, `created_by`, `supplier_code`, `supplier_name`,
@@ -54,7 +53,6 @@ composable). Rows include resolved supplier, department, warehouse, and product 
       "description": "Pembelian kebutuhan operasional",
       "approval_status": "pending",
       "delivery_status": "not_received",
-      "is_locked": false,
       "total": 7770000
     }
   ],
@@ -69,5 +67,5 @@ Standard only (`401`).
 ## Notes
 
 - Default UI sorting is date descending.
-- Edit and delete actions are shown only when the PO is not approved, not locked, and has no receipt.
+- Edit and delete actions are shown only when the PO is not approved and has no receipt.
 - The transaction number opens [get-purchase-order](./get-purchase-order.md).

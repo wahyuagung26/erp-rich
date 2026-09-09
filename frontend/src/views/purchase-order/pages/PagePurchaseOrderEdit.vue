@@ -35,9 +35,7 @@ async function load() {
 		loading.value = false
 	}
 }
-const blocked = computed(
-	() => !order.value || order.value.approval_status === 'approved' || order.value.is_locked || order.value.delivery_status !== 'not_received'
-)
+const blocked = computed(() => !order.value || order.value.approval_status === 'approved' || order.value.delivery_status !== 'not_received')
 async function save(payload: PurchaseOrderRequest) {
 	saving.value = true
 	try {
@@ -72,7 +70,7 @@ async function save(payload: PurchaseOrderRequest) {
 		><Panel v-else-if="blocked"
 			><EmptyState
 				title="Order pembelian tidak dapat diubah"
-				description="PO yang disetujui, dikunci, atau sudah memiliki penerimaan barang tidak boleh diubah." /></Panel
+				description="PO yang disetujui atau sudah memiliki penerimaan barang tidak boleh diubah." /></Panel
 		><FormPurchaseOrder
 			v-else
 			ref="formRef"

@@ -44,9 +44,9 @@ When approved, the mock sets `approved_by` and `approved_at`. When rejected, it 
 | Status | When | Body |
 |---|---|---|
 | `404` | id not found | `{ "message": "Purchase order tidak ditemukan" }` |
-| `422` | invalid status, locked PO, or changing an approved PO to another status | `{ "message": "..." }` |
+| `422` | invalid status, or changing an approved PO to another status | `{ "message": "..." }` |
 
 ## Notes
 
 `pending` is used by the UI to resubmit a rejected PO. An approved PO cannot be changed to
-another approval status, and a locked PO cannot change approval status.
+another approval status.

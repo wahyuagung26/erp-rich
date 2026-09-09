@@ -120,7 +120,6 @@ function remove() {
 			<div class="space-y-8">
 				<section class="space-y-3">
 					<h3 class="subhead">Informasi Transaksi</h3>
-					<p class="text-s text-ink-subtle">Identitas transaksi dan konteks pencatatan.</p>
 					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
 							<dt class="text-s text-ink-muted">Nomor Transaksi</dt>
@@ -147,7 +146,6 @@ function remove() {
 
 				<section class="space-y-3">
 					<h3 class="subhead">Pembayaran dan Saldo</h3>
-					<p class="text-s text-ink-subtle">Nilai uang muka, sumber dana, dan klasifikasi arus kas.</p>
 					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
 							<dt class="text-s text-ink-muted">Nominal</dt>

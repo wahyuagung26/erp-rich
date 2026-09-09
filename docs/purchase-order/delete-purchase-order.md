@@ -36,10 +36,9 @@ Backs the delete action in `views/purchase-order/pages/PagePurchaseOrderTable.vu
 | Status | When | Body |
 |---|---|---|
 | `404` | id not found | `{ "message": "Purchase order tidak ditemukan" }` |
-| `422` | PO is approved, locked, or has a receipt | `{ "message": "..." }` |
+| `422` | PO is approved or has a receipt | `{ "message": "..." }` |
 
 ## Notes
 
 The mock performs a hard delete; it does not set a soft-delete timestamp. Deletion is
-rejected when `approval_status` is `approved`, `is_locked` is true, or
-`delivery_status` is not `not_received`.
+rejected when `approval_status` is `approved` or `delivery_status` is not `not_received`.

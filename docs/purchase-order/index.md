@@ -1,9 +1,9 @@
 ---
 type: OKF Module
 title: Purchase Order (Order Pembelian)
-description: Purchase order dengan supplier, gudang, departemen, detail produk, kalkulasi pajak, approval, delivery status, dan lock.
+description: Purchase order dengan supplier, gudang, departemen, detail produk, kalkulasi pajak, approval, dan delivery status.
 tags: [purchase-order, procurement]
-timestamp: 2026-09-09T00:00:00Z
+timestamp: 2026-09-09T12:00:00Z
 ---
 
 # Purchase Order
@@ -11,7 +11,7 @@ timestamp: 2026-09-09T00:00:00Z
 Order pembelian dengan data mock V2. Consumed by
 `frontend/src/views/purchase-order/` (list, detail, tambah, edit).
 
-`PurchaseOrder` memiliki status persetujuan, status barang, dan status lock yang terpisah.
+`PurchaseOrder` memiliki status persetujuan dan status barang yang terpisah.
 Field DPP, PPN, Nett, dan Total dihitung dari baris produk; field tersebut bukan input
 client. `pkp_active` dipilih pada level transaksi dan menentukan apakah PPN menggunakan
 11% dari DPP atau 0.
@@ -35,8 +35,6 @@ client. `pkp_active` dipilih pada level transaksi dan menentukan apakah PPN meng
 | `description` | string | required |
 | `approval_status` | enum | `pending`, `approved`, `rejected` |
 | `delivery_status` | enum | `not_received`, `partial`, `full` |
-| `is_locked` | boolean | explicit transaction lock |
-| `lock_reason` | string \| null | populated when locked |
 | `rejection_reason` | string \| null | populated when rejected |
 | `approved_by` `approved_at` | string \| null | approval metadata |
 | `created_by` | string | creator name |
@@ -59,11 +57,10 @@ client. `pkp_active` dipilih pada level transaksi dan menentukan apakah PPN meng
 
 ## Status and guardrails
 
-- New PO is created with `approval_status: pending`, `delivery_status: not_received`, and `is_locked: false`.
+- New PO is created with `approval_status: pending` and `delivery_status: not_received`.
 - A pending PO can be approved or rejected through the detail actions.
 - A rejected PO can be resubmitted as pending through the detail action.
-- Approved, locked, or received PO cannot be edited or deleted.
-- A PO can be locked only after approval.
+- Approved or received PO cannot be edited or deleted.
 - An approved PO cannot have its approval changed to another status by the mock.
 - Delete is a hard delete in the mock; it is not a soft-delete.
 
@@ -77,4 +74,3 @@ client. `pkp_active` dipilih pada level transaksi dan menentukan apakah PPN meng
 | PUT | `/purchase-order/:id` | [update-purchase-order](./update-purchase-order.md) |
 | DELETE | `/purchase-order/:id` | [delete-purchase-order](./delete-purchase-order.md) |
 | PATCH | `/purchase-order/:id/approval` | [update-purchase-order-status](./update-purchase-order-status.md) |
-| PATCH | `/purchase-order/:id/lock` | [update-purchase-order-lock](./update-purchase-order-lock.md) |

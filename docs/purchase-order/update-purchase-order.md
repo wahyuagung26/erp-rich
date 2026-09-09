@@ -43,6 +43,6 @@ The existing `id` and `number` are retained, and the current approval status is 
 
 ## Notes
 
-The mock rejects update when `approval_status` is `approved`, `is_locked` is true, or
-`delivery_status` is not `not_received`. A validation `422` may include field errors;
+The mock rejects update when `approval_status` is `approved` or `delivery_status` is not
+`not_received`. A validation `422` may include field errors;
 a guard error contains only `message`.

@@ -588,8 +588,6 @@ export interface PurchaseOrder {
 	description: string
 	approval_status: PurchaseOrderApprovalStatus
 	delivery_status: PurchaseOrderDeliveryStatus
-	is_locked: boolean
-	lock_reason: string | null
 	rejection_reason: string | null
 	approved_by: string | null
 	approved_at: string | null

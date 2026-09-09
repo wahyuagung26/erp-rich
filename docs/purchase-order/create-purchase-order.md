@@ -76,8 +76,6 @@ and `discount` (`>= 0`, not greater than `quantity × price`). Client does not s
     "description": "Pembelian kebutuhan operasional",
     "approval_status": "pending",
     "delivery_status": "not_received",
-    "is_locked": false,
-    "lock_reason": null,
     "rejection_reason": null,
     "approved_by": null,
     "approved_at": null,

@@ -102,8 +102,6 @@ function buildRow(body: PurchaseOrderRequest, id: number, number: string, status
 		description: String(body.description).trim(),
 		approval_status: status,
 		delivery_status: 'not_received',
-		is_locked: false,
-		lock_reason: null,
 		rejection_reason: null,
 		approved_by: null,
 		approved_at: null,
@@ -118,14 +116,13 @@ function buildRow(body: PurchaseOrderRequest, id: number, number: string, status
 
 function writeGuard(row: PurchaseOrder): string | null {
 	if (row.approval_status === 'approved') return 'PO yang sudah disetujui tidak boleh diubah'
-	if (row.is_locked) return row.lock_reason || 'PO sudah dikunci dan tidak boleh diubah'
 	if (row.delivery_status !== 'not_received') return 'PO yang sudah memiliki penerimaan barang tidak boleh diubah'
 	return null
 }
 
 export function registerPurchaseOrder(mock: MockAdapter) {
 	mock.onGet('/purchase-order').reply((config) => {
-		const p = (config.params ?? {}) as ListParams & { approval_status?: string; delivery_status?: string; is_locked?: string; product_q?: string }
+		const p = (config.params ?? {}) as ListParams & { approval_status?: string; delivery_status?: string; product_q?: string }
 		let rows = db.purchaseOrder.map(resolve)
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
@@ -146,7 +143,6 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 		}
 		if (p.approval_status) rows = rows.filter((row) => row.approval_status === p.approval_status)
 		if (p.delivery_status) rows = rows.filter((row) => row.delivery_status === p.delivery_status)
-		if (p.is_locked !== undefined && p.is_locked !== '') rows = rows.filter((row) => String(row.is_locked) === String(p.is_locked))
 		if (p.product_q) {
 			const q = String(p.product_q).toLowerCase()
 			rows = rows.filter((row) => row.lines.some((line) => `${line.product_code} ${line.product_name} ${line.brand_name}`.toLowerCase().includes(q)))
@@ -196,7 +192,6 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 		const body = JSON.parse(config.data) as { status?: PurchaseOrderApprovalStatus }
 		if (!row) return [404, { message: 'Purchase order tidak ditemukan' }]
 		if (!['pending', 'approved', 'rejected'].includes(String(body.status))) return [422, { message: 'Status persetujuan tidak valid' }]
-		if (row.is_locked) return [422, { message: row.lock_reason || 'PO sudah dikunci' }]
 		if (row.approval_status === 'approved' && body.status !== 'approved')
 			return [422, { message: 'Persetujuan PO yang sudah disetujui tidak dapat dibatalkan' }]
 		row.approval_status = body.status as PurchaseOrderApprovalStatus
@@ -204,15 +199,5 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 		row.approved_by = body.status === 'approved' ? userName() : null
 		row.approved_at = body.status === 'approved' ? new Date().toISOString() : null
 		return [200, { data: resolve(row), message: 'Status persetujuan diperbarui' }]
-	})
-
-	mock.onPatch(/\/purchase-order\/\d+\/lock$/).reply((config) => {
-		const row = db.purchaseOrder.find((item) => item.id === parentIdOf(config.url))
-		const body = JSON.parse(config.data) as { locked?: boolean }
-		if (!row) return [404, { message: 'Purchase order tidak ditemukan' }]
-		if (body.locked && row.approval_status !== 'approved') return [422, { message: 'PO harus disetujui sebelum dikunci' }]
-		row.is_locked = Boolean(body.locked)
-		row.lock_reason = row.is_locked ? 'PO dikunci secara eksplisit oleh pengguna.' : null
-		return [200, { data: resolve(row), message: row.is_locked ? 'PO dikunci' : 'Kunci PO dibuka' }]
 	})
 }
