@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconArrowLeft, IconCheck, IconPaperclip, IconPencil, IconRefresh, IconTrash, IconX } from '@tabler/icons-vue'
+import { IconArrowLeft, IconCheck, IconPencil, IconRefresh, IconTrash, IconX } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
@@ -168,25 +168,20 @@ function remove() {
 							<dt class="text-s text-ink-muted">Nilai</dt>
 							<dd class="mt-1 text-m text-ink"><Amount :value="advance.amount" /></dd>
 						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Penyelesaian</dt>
-							<dd class="mt-1 text-m">
-								<Badge :tone="settlementTone[settlementOf(advance.used, advance.amount)]">
-									{{ settlementLabel[settlementOf(advance.used, advance.amount)] }}
-								</Badge>
-							</dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Terpakai</dt>
-							<dd class="mt-1 text-m text-ink"><Amount :value="advance.used" /></dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Sisa</dt>
-							<dd class="mt-1 text-m text-ink"><Amount :value="advance.remaining" /></dd>
-						</div>
 						<div class="md:col-span-3">
 							<dt class="text-s text-ink-muted">Keterangan</dt>
 							<dd class="mt-1 whitespace-pre-line text-m text-ink">{{ advance.description || '–' }}</dd>
+						</div>
+						<div class="md:col-span-3">
+							<dt class="text-s text-ink-muted">Lampiran</dt>
+							<dd class="mt-1 text-m">
+								<ul v-if="advance.attachments.length" class="space-y-1">
+									<li v-for="(file, index) in advance.attachments" :key="file.name + index">
+										<a :href="file.data_url" :download="file.name" target="_blank" class="text-primary-dark hover:underline">{{ file.name }}</a>
+									</li>
+								</ul>
+								<span v-else class="text-ink-muted">–</span>
+							</dd>
 						</div>
 					</dl>
 				</section>
@@ -206,24 +201,34 @@ function remove() {
 							<dt class="text-s text-ink-muted">Arus Kas</dt>
 							<dd class="mt-1 text-m text-ink">{{ advance.cash_flow_name ?? advance.cash_flow ?? '–' }}</dd>
 						</div>
+					</dl>
+				</section>
+
+				<section class="space-y-3">
+					<h3 class="subhead">Realisasi</h3>
+					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
-							<dt class="text-s text-ink-muted">Lampiran</dt>
+							<dt class="text-s text-ink-muted">Penyelesaian</dt>
 							<dd class="mt-1 text-m">
-								<ul v-if="advance.attachments.length" class="space-y-1">
-									<li v-for="(file, index) in advance.attachments" :key="file.name + index">
-										<a
-											:href="file.data_url"
-											:download="file.name"
-											target="_blank"
-											class="inline-flex items-center gap-1 text-primary-dark hover:underline"
-										>
-											<IconPaperclip class="h-4 w-4" /> {{ file.name }}
-										</a>
-									</li>
-								</ul>
-								<span v-else class="text-ink-muted">–</span>
+								<Badge :tone="settlementTone[settlementOf(advance.used, advance.amount)]">
+									{{ settlementLabel[settlementOf(advance.used, advance.amount)] }}
+								</Badge>
 							</dd>
 						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Terpakai</dt>
+							<dd class="mt-1 text-m text-ink"><Amount :value="advance.used" /></dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Sisa</dt>
+							<dd class="mt-1 text-m text-ink"><Amount :value="advance.remaining" /></dd>
+						</div>
+					</dl>
+				</section>
+
+				<section v-if="advance.status === 'approved' || advance.rejection_reason" class="space-y-3">
+					<h3 class="subhead">Persetujuan</h3>
+					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<template v-if="advance.status === 'approved'">
 							<div>
 								<dt class="text-s text-ink-muted">Disetujui oleh</dt>

@@ -7,7 +7,7 @@ path: /cash-advance/:id/settlement
 status: mock
 tags: [cash-advance, settlement, read, list]
 resource: /frontend/src/mocks/modules/cash-advance.ts
-timestamp: 2026-09-08T12:00:00Z
+timestamp: 2026-11-05T16:00:00Z
 ---
 
 # List Cash Advance Settlement
@@ -34,8 +34,12 @@ array under `data` with **no pagination `meta`**.
   "data": [
     {
       "id": 1, "cash_advance_id": 2, "number": "PU-2608-001", "date": "2026-08-10",
-      "amount": 500000, "remaining_after": 1000000,
-      "attachment": { "name": "kwitansi.pdf", "type": "application/pdf", "size": 1024, "data_url": "data:application/pdf;base64,..." }
+      "description": "Pembelian ATK kantor",
+      "attachments": [{ "name": "kwitansi.pdf", "type": "application/pdf", "size": 1024, "data_url": "data:application/pdf;base64,..." }],
+      "lines": [
+        { "account_id": 2, "account_code": "6000101", "account_name": "Beban Gaji Pokok", "department_id": 1, "department_code": "FIN", "department_name": "Finance", "cash_flow": "OPERASI_OUT", "cash_flow_name": "Operasi Out", "detail_description": "Pembelian ATK", "debit": 500000, "credit": 0 }
+      ],
+      "amount": 500000, "remaining_after": 1000000
     }
   ]
 }

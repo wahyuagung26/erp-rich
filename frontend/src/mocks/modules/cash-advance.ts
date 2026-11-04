@@ -3,7 +3,7 @@ import { db } from '../db'
 import { nextId, paginate, sortBy, type ListParams } from '../lib'
 import type { CashAdvance, CashAdvanceSettlement, JournalStatus } from '@/utils/types'
 
-type CashAdvanceSettlementRequest = Pick<CashAdvanceSettlement, 'date' | 'amount' | 'attachment'>
+type CashAdvanceSettlementRequest = Pick<CashAdvanceSettlement, 'date' | 'description' | 'attachments' | 'lines'>
 
 type CashAdvanceRequest = Omit<
 	CashAdvance,
@@ -127,24 +127,55 @@ function recalcAdvance(advance: CashAdvance) {
 	advance.remaining = advance.amount - advance.used
 }
 
+// Re-resolve the denormalized account / department / cash-flow labels of every settlement line.
+function resolveLines(lines: CashAdvanceSettlement['lines']): CashAdvanceSettlement['lines'] {
+	return lines.map((line) => {
+		const account = db.account.find((a) => a.id === Number(line.account_id))
+		const department = line.department_id ? db.department.find((d) => d.id === Number(line.department_id)) : undefined
+		const flow = line.cash_flow ? db.cashFlow.find((f) => f.code === line.cash_flow) : undefined
+		return {
+			...line,
+			account_code: account?.code,
+			account_name: account?.name,
+			department_code: department?.code,
+			department_name: department?.name,
+			cash_flow_name: flow?.name
+		}
+	})
+}
+
 function withRemainingAfter(rows: CashAdvanceSettlement[], advanceAmount: number): CashAdvanceSettlement[] {
 	let cumulative = 0
 	return rows.map((row) => {
 		cumulative += row.amount
-		return { ...row, remaining_after: advanceAmount - cumulative }
+		return { ...row, lines: resolveLines(row.lines), remaining_after: advanceAmount - cumulative }
 	})
 }
 
+const lineTotal = (lines: CashAdvanceSettlement['lines']) => lines.reduce((sum, l) => sum + (Number(l.debit) || 0) - (Number(l.credit) || 0), 0)
+
 function validateSettlementRequest(body: CashAdvanceSettlementRequest, advance: CashAdvance, excludeId?: number): string | null {
 	if (!isDate(body.date)) return 'Tanggal wajib diisi'
-	const amount = Number(body.amount) || 0
-	if (amount <= 0) return 'Nilai wajib diisi'
+	if (!Array.isArray(body.lines) || !body.lines.length) return 'Minimal satu detail biaya harus ditambahkan'
+	for (const line of body.lines) {
+		const account = db.account.find((a) => a.id === Number(line.account_id) && !a.deleted_at)
+		if (!account) return 'Akun perkiraan tidak valid'
+		if (!db.department.find((d) => d.id === Number(line.department_id) && !d.deleted_at)) return 'Departemen wajib dipilih'
+		if (line.cash_flow && !db.cashFlow.find((f) => f.code === line.cash_flow)) return 'Arus kas tidak valid'
+		const debit = Number(line.debit) || 0
+		const credit = Number(line.credit) || 0
+		if (debit < 0 || credit < 0) return 'Nominal tidak boleh negatif'
+		if (debit > 0 === credit > 0) return 'Setiap detail biaya harus berisi debit atau kredit saja'
+	}
+	const amount = lineTotal(body.lines)
+	if (amount <= 0) return 'Total debit harus lebih besar dari total kredit'
 	const otherUsed = settlementsOf(advance.id)
 		.filter((s) => s.id !== excludeId)
 		.reduce((sum, s) => sum + s.amount, 0)
 	const cap = advance.amount - otherUsed
-	if (amount > cap) return `Nilai tidak boleh melebihi sisa uang muka (${cap})`
-	if (!body.attachment) return 'Lampiran wajib diunggah'
+	if (amount > cap) return `Total biaya tidak boleh melebihi sisa uang muka (${cap})`
+	if (!Array.isArray(body.attachments) || !body.attachments.length) return 'Lampiran wajib diunggah'
+	if (body.attachments.length > 10) return 'Maksimal 10 lampiran'
 	return null
 }
 
@@ -271,7 +302,7 @@ export function registerCashAdvance(mock: MockAdapter) {
 
 		const body = JSON.parse(config.data) as CashAdvanceSettlementRequest
 		const error = validateSettlementRequest(body, advance)
-		if (error) return [422, { message: error, errors: { amount: [error] } }]
+		if (error) return [422, { message: error, errors: { lines: [error] } }]
 
 		const seq = db.cashAdvanceSettlement.length + 1
 		const row: CashAdvanceSettlement = {
@@ -279,9 +310,11 @@ export function registerCashAdvance(mock: MockAdapter) {
 			cash_advance_id: advance.id,
 			number: settlementNumber(body.date, seq),
 			date: body.date,
-			amount: Number(body.amount) || 0,
-			remaining_after: 0,
-			attachment: body.attachment
+			description: String(body.description ?? '').trim(),
+			attachments: body.attachments,
+			lines: body.lines,
+			amount: lineTotal(body.lines),
+			remaining_after: 0
 		}
 		db.cashAdvanceSettlement.push(row)
 		recalcAdvance(advance)
@@ -298,11 +331,13 @@ export function registerCashAdvance(mock: MockAdapter) {
 
 		const body = JSON.parse(config.data) as CashAdvanceSettlementRequest
 		const error = validateSettlementRequest(body, advance, row.id)
-		if (error) return [422, { message: error, errors: { amount: [error] } }]
+		if (error) return [422, { message: error, errors: { lines: [error] } }]
 
 		row.date = body.date
-		row.amount = Number(body.amount) || 0
-		row.attachment = body.attachment
+		row.description = String(body.description ?? '').trim()
+		row.attachments = body.attachments
+		row.lines = body.lines
+		row.amount = lineTotal(body.lines)
 		recalcAdvance(advance)
 		const saved = withRemainingAfter(settlementsOf(advance.id), advance.amount).find((s) => s.id === row.id)
 		return [200, { data: saved, message: 'Penyelesaian uang muka diperbarui' }]

@@ -3,7 +3,7 @@ type: OKF Module
 title: Cash Advance
 description: Operational cash advance (uang muka operasional) — an amount handed to a recipient against a department, tracked to settlement, with the same approval workflow as Journal.
 tags: [cash-advance, advance, approval, settlement]
-timestamp: 2026-11-05T14:00:00Z
+timestamp: 2026-11-05T16:00:00Z
 ---
 
 # Cash Advance
@@ -54,9 +54,11 @@ advance's `status` is `approved`.
 | `cash_advance_id` | number | owning [`CashAdvance`](#entity-cashadvance) |
 | `number` | string | server-assigned, e.g. `PU-2609-001`; not user-editable |
 | `date` | string | `YYYY-MM-DD` |
-| `amount` | number | "Nilai"; required, `> 0`, and `<=` the advance's remaining at the time |
+| `description` | string | "Keterangan"; optional |
+| `attachments` | object[] | 1–10 PDF/JPG/JPEG/PNG files, max 5 MB each; at least one required |
+| `lines` | object[] | expense lines ("Detail Biaya"): `account_id`, `department_id`, `cash_flow?`, `detail_description?`, `debit`, `credit` (+ denormalized `account_*` / `department_*` / `cash_flow_name`, response only). At least one |
+| `amount` | number | "Nilai" — server-computed = Σ`debit` − Σ`credit` of `lines`; must be `> 0` and `<=` the advance's remaining at the time |
 | `remaining_after` | number | "Sisa Setelah" — response-only, computed = advance `amount` minus the running sum of settlements up to and including this one, ordered by `date` then `id` |
-| `attachment` | object \| null | one PDF/JPG/JPEG/PNG attachment; max 5 MB; required |
 
 ## Endpoints
 

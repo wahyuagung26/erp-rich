@@ -7,13 +7,13 @@ path: /cash-advance/:id/settlement/:settlementId
 status: mock
 tags: [cash-advance, settlement, write]
 resource: /frontend/src/mocks/modules/cash-advance.ts
-timestamp: 2026-09-08T12:00:00Z
+timestamp: 2026-11-05T16:00:00Z
 ---
 
 # Update Cash Advance Settlement
 
 Same body as [Create Cash Advance Settlement](./create-cash-advance-settlement.md).
-Only allowed while the parent advance's `status` is `approved`. The amount cap
+Only allowed while the parent advance's `status` is `approved`. The total (`amount`) cap
 excludes this row's own current amount (so re-saving the same amount always
 passes). The parent `CashAdvance.used`/`remaining` are recomputed after the edit.
 
@@ -31,8 +31,11 @@ passes). The parent `CashAdvance.used`/`remaining` are recomputed after the edit
 ```json
 {
   "date": "2026-08-10",
-  "amount": 450000,
-  "attachment": { "name": "kwitansi-revisi.pdf", "type": "application/pdf", "size": 1024, "data_url": "data:application/pdf;base64,..." }
+  "description": "Pembelian ATK kantor (revisi)",
+  "attachments": [{ "name": "kwitansi-revisi.pdf", "type": "application/pdf", "size": 1024, "data_url": "data:application/pdf;base64,..." }],
+  "lines": [
+    { "account_id": 2, "department_id": 1, "cash_flow": "OPERASI_OUT", "detail_description": "Pembelian ATK", "debit": 450000, "credit": 0 }
+  ]
 }
 ```
 
@@ -45,4 +48,4 @@ passes). The parent `CashAdvance.used`/`remaining` are recomputed after the edit
 | Status | When | Body |
 |---|---|---|
 | `404` | `id`/`settlementId` do not match | `{ "message": "..." }` |
-| `422` | advance not `approved`, invalid date, invalid amount, amount exceeds remaining, or missing attachment | `{ "message": "...", "errors": { "amount": ["..."] } }` |
+| `422` | advance not `approved`, invalid date, invalid line, total not `> 0`, total exceeds remaining, or missing attachments | `{ "message": "...", "errors": { "lines": ["..."] } }` |

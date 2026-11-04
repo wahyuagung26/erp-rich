@@ -2,10 +2,10 @@
 import { watch } from 'vue'
 import { IconX } from '@tabler/icons-vue'
 
-const props = withDefaults(defineProps<{ open: boolean; title?: string; size?: 'sm' | 'md' | 'lg' }>(), { size: 'md' })
+const props = withDefaults(defineProps<{ open: boolean; title?: string; size?: 'sm' | 'md' | 'lg' | 'xl' }>(), { size: 'md' })
 const emit = defineEmits<{ close: [] }>()
 
-const widths = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl' }
+const widths = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-5xl' }
 
 // lock scroll while open
 watch(

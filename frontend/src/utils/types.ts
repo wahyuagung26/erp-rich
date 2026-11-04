@@ -516,17 +516,20 @@ export interface CashAdvance {
 }
 
 // Settlement / realization record against a CashAdvance — see docs/cash-advance/.
-// Only allowed while the parent advance is `approved`. `remaining_after` is a
-// response-only running balance, recomputed by the mock from settlement order
-// (by date then id), not user-editable.
+// Only allowed while the parent advance is `approved`. A settlement is a set of
+// expense lines (`lines`); `amount` is server-computed = Σdebit − Σcredit.
+// `remaining_after` is a response-only running balance, recomputed by the mock
+// from settlement order (by date then id), not user-editable.
 export interface CashAdvanceSettlement {
 	id: number
 	cash_advance_id: number
 	number: string
 	date: string
+	description: string
+	attachments: JournalAttachment[]
+	lines: JournalLine[]
 	amount: number
 	remaining_after: number
-	attachment: JournalAttachment | null
 }
 
 // Supplier advance (uang muka supplier) — see docs/supplier-advance/. A deposit /

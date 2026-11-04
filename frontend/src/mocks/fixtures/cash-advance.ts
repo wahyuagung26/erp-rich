@@ -118,25 +118,38 @@ export const cashAdvanceSeed: CashAdvance[] = [
 ]
 
 // Settlement history — amounts sum to the `used` seeded on cash advances 2 and 3 above.
+// Each settlement books its whole amount as one expense line (account 2, department 1).
+const expense = (amount: number, detail: string, account_id = 2): CashAdvanceSettlement['lines'][number] => ({
+	account_id,
+	department_id: 1,
+	cash_flow: 'OPERASI_OUT',
+	detail_description: detail,
+	debit: amount,
+	credit: 0
+})
+const settlement = (
+	id: number,
+	cash_advance_id: number,
+	number: string,
+	date: string,
+	amount: number,
+	remaining_after: number,
+	description: string
+): CashAdvanceSettlement => ({
+	id,
+	cash_advance_id,
+	number,
+	date,
+	description,
+	attachments: [settlementAttachment],
+	lines: [expense(amount, description)],
+	amount,
+	remaining_after
+})
+
 export const cashAdvanceSettlementSeed: CashAdvanceSettlement[] = [
-	{
-		id: 1,
-		cash_advance_id: 2,
-		number: 'PU-2608-001',
-		date: '2026-08-10',
-		amount: 500000,
-		remaining_after: 1000000,
-		attachment: settlementAttachment
-	},
-	{ id: 2, cash_advance_id: 2, number: 'PU-2608-002', date: '2026-08-20', amount: 400000, remaining_after: 600000, attachment: settlementAttachment },
-	{
-		id: 3,
-		cash_advance_id: 3,
-		number: 'PU-2608-003',
-		date: '2026-08-15',
-		amount: 1200000,
-		remaining_after: 1000000,
-		attachment: settlementAttachment
-	},
-	{ id: 4, cash_advance_id: 3, number: 'PU-2608-004', date: '2026-08-25', amount: 1000000, remaining_after: 0, attachment: settlementAttachment }
+	settlement(1, 2, 'PU-2608-001', '2026-08-10', 500000, 1000000, 'Pembelian ATK kantor'),
+	settlement(2, 2, 'PU-2608-002', '2026-08-20', 400000, 600000, 'Konsumsi rapat bulanan'),
+	settlement(3, 3, 'PU-2608-003', '2026-08-15', 1200000, 1000000, 'Biaya transport tim lapangan'),
+	settlement(4, 3, 'PU-2608-004', '2026-08-25', 1000000, 0, 'Biaya transport tim lapangan (lanjutan)')
 ]
