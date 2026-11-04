@@ -3,7 +3,7 @@ type: OKF Module
 title: Cash Position
 description: Daily cash & bank position report — per cash/bank account, yesterday's balance plus the day's movements, computed live from approved journals. Company-scoped, read-only.
 tags: [report, cash, bank, accounting]
-timestamp: 2026-09-08T09:00:00Z
+timestamp: 2026-11-05T09:00:00Z
 ---
 
 # Cash Position
@@ -38,6 +38,8 @@ per account:
 | `date` | string | `YYYY-MM-DD`, the report date (echoed back) |
 | `rows` | `CashPositionRow[]` | one per `cash_bank` account, ordered by `account_code` |
 | `total` | object | column sums: `{ opening, cash_in, cash_out, closing }` |
+| `cash_flow_closing` | number | "Saldo Kas Akhir Laporan Arus Kas" — see [get-cash-position](./get-cash-position.md) |
+| `difference` | number | "Selisih" = `total.closing − cash_flow_closing` |
 
 ### `CashPositionRow`
 

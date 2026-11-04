@@ -586,6 +586,8 @@ export interface CashPosition {
 	date: string
 	rows: CashPositionRow[]
 	total: { opening: number; cash_in: number; cash_out: number; closing: number }
+	cash_flow_closing: number
+	difference: number
 }
 
 export type PurchaseOrderApprovalStatus = 'pending' | 'approved' | 'rejected'

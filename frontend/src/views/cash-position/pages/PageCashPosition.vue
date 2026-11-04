@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
-import { IconFileSpreadsheet, IconRefresh } from '@tabler/icons-vue'
+import { IconArrowDownLeft, IconArrowUpRight, IconBuildingBank, IconFileSpreadsheet, IconRefresh } from '@tabler/icons-vue'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useCompanyStore } from '@/stores/company'
@@ -60,9 +60,9 @@ function exportReport() {
 			<Skeleton v-if="loading || !report" :lines="4" />
 			<template v-else>
 				<div class="grid grid-cols-1 divide-y divide-hairline sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-					<StatTile label="Akun Kas & Bank Aktif" :value="`${report.rows.length} Akun`" />
-					<StatTile label="Total Uang Masuk" :value="`Rp ${money(report.total.cash_in)}`" />
-					<StatTile label="Total Uang Keluar" :value="`Rp ${money(report.total.cash_out)}`" />
+					<StatTile label="Akun Kas & Bank Aktif" :value="`${report.rows.length} Akun`" :icon="IconBuildingBank" />
+					<StatTile label="Total Uang Masuk" :value="`Rp ${money(report.total.cash_in)}`" :icon="IconArrowDownLeft" icon-tone="success" />
+					<StatTile label="Total Uang Keluar" :value="`Rp ${money(report.total.cash_out)}`" :icon="IconArrowUpRight" icon-tone="danger" />
 				</div>
 
 				<div class="mt-4 overflow-x-auto">
@@ -97,6 +97,14 @@ function exportReport() {
 								<td class="px-3 py-3 text-right"><Amount :value="report.total.cash_in" /></td>
 								<td class="px-3 py-3 text-right"><Amount :value="report.total.cash_out" /></td>
 								<td class="px-3 py-3 text-right"><Amount :value="report.total.closing" /></td>
+							</tr>
+							<tr class="border-t border-hairline">
+								<td class="px-3 py-3 text-right font-semibold text-ink" colspan="5">Saldo Kas Akhir Laporan Arus Kas</td>
+								<td class="px-3 py-3 text-right"><Amount :value="report.cash_flow_closing" /></td>
+							</tr>
+							<tr class="border-t border-hairline">
+								<td class="px-3 py-3 text-right font-semibold text-ink" colspan="5">Selisih (Saldo Hari Ini - Saldo Kas Akhir)</td>
+								<td class="px-3 py-3 text-right"><Amount :value="report.difference" /></td>
 							</tr>
 						</tfoot>
 					</table>
