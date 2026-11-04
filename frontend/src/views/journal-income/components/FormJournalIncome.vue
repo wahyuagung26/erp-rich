@@ -415,7 +415,12 @@ function submit() {
 								<th class="px-2 py-2">Akun Perkiraan<span class="text-danger">*</span></th>
 								<th class="px-2 py-2">Departemen</th>
 								<th class="px-2 py-2">Keterangan</th>
-								<th class="px-2 py-2 text-right">Debit</th>
+								<th class="px-2 py-2 text-right">
+									<span class="inline-flex items-center justify-end gap-3">
+										Debit
+										<Checkbox :model-value="draftDebitEnabled" label="Aktifkan" class="!text-s font-normal" @update:model-value="toggleDraftDebit" />
+									</span>
+								</th>
 								<th class="px-2 py-2 text-right">Kredit</th>
 								<th class="px-2 py-2 text-right">Aksi</th>
 							</tr>
@@ -447,9 +452,6 @@ function submit() {
 									<Input v-model="lineDraft.detail_description" placeholder="Keterangan (opsional)" @keydown.enter.prevent="saveDetail" />
 								</td>
 								<td class="min-w-[150px] px-2 py-2">
-									<div class="mb-1 flex justify-end">
-										<Checkbox :model-value="draftDebitEnabled" label="aktifkan" @update:model-value="toggleDraftDebit" />
-									</div>
 									<MoneyInput
 										blank-zero
 										placeholder="0"

@@ -415,7 +415,17 @@ function submit() {
 								<th class="px-2 py-2">Departemen</th>
 								<th class="px-2 py-2">Keterangan</th>
 								<th class="px-2 py-2 text-right">Debit</th>
-								<th class="px-2 py-2 text-right">Kredit</th>
+								<th class="px-2 py-2 text-right">
+									<span class="inline-flex items-center justify-end gap-3">
+										Kredit
+										<Checkbox
+											:model-value="draftCreditEnabled"
+											label="Aktifkan"
+											class="!text-s font-normal"
+											@update:model-value="toggleDraftCredit"
+										/>
+									</span>
+								</th>
 								<th class="px-2 py-2 text-right">Aksi</th>
 							</tr>
 						</thead>
@@ -456,9 +466,6 @@ function submit() {
 									<p v-if="draftError('amount')" class="mt-1 text-xs text-danger">{{ draftError('amount') }}</p>
 								</td>
 								<td class="min-w-[150px] px-2 py-2">
-									<div class="mb-1 flex justify-end">
-										<Checkbox :model-value="draftCreditEnabled" label="aktifkan" @update:model-value="toggleDraftCredit" />
-									</div>
 									<MoneyInput
 										blank-zero
 										placeholder="0"
