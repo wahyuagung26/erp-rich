@@ -159,6 +159,7 @@ Full rules in `frontend/DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
   background), `space-y-8` between sections. A hairline (`border-hairline`) is a last resort
   (table row dividers, sticky header underline).
 - **Row actions**: the action column of a list table is one `<RowActions :id base @remove :can-modify>` kebab menu (Lihat detail / Edit / Hapus), never a row of icon buttons — it stays one icon wide however many actions a row has. `can-modify=false` leaves only "Lihat detail". Extra items: `:actions="[{ label, icon, onClick, danger?, hidden? }]"` (render between Edit and Hapus, still shown when `can-modify` is false).
+- **Inline edit in tables**: a table whose cells save on their own (Harga Produk) uses `<InlineEdit kind="money|number|text" :model-value @save>` — value + pencil, click → input + ✓ (Enter saves, Esc/blur cancels), like dashboard-kpi-it. Grids that submit with a form (e.g. PO/receipt lines) keep plain always-visible inputs.
 - **Outlined inputs** (`border border-ink-subtle/30 bg-panel` — white field with a light border, like dashboard-kpi-it; disabled → `bg-fill`); focus uses the global ring.
 - **Numeric spine**: `.tnum` (Inter tabular digits) only where digit-alignment aids column scanning — **never a monospace font; numbers, codes and dates use the same Inter family as every other field** —
   amounts and dates. NOT identifiers (account code, transaction/invoice number), phone, or

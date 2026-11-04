@@ -7,13 +7,13 @@ path: /product/:id/price
 status: mock
 tags: [product, pricing, write]
 resource: /frontend/src/mocks/modules/product.ts
-timestamp: 2026-09-07T10:00:00Z
+timestamp: 2026-11-04T18:00:00Z
 ---
 
 # Update Product Price
 
-Backs the inline "Simpan" action in
-`views/product-price/pages/PageProductPriceTable.vue`. A lightweight alternative
+Backs the click-to-edit price cells (✓ / Enter) in
+`views/product-price/pages/PageProductPriceTable.vue`. Each cell saves on its own, sending both current prices with the one that changed. A lightweight alternative
 to [update-product](../product/update-product.md) — the pricing screen has only
 two editable numbers per row, so it sends only those instead of a full product body.
 

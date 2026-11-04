@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
-import { IconDeviceFloppy } from '@tabler/icons-vue'
+import { reactive } from 'vue'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
@@ -10,7 +9,7 @@ import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import FilterBar from '@/components/base/FilterBar.vue'
 import Input from '@/components/base/Input.vue'
-import MoneyInput from '@/components/base/MoneyInput.vue'
+import InlineEdit from '@/components/base/InlineEdit.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Table from '@/components/base/Table.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
@@ -33,35 +32,17 @@ function onFilter<K extends keyof typeof filters>(key: K, value: (typeof filters
 	runSearch()
 }
 
-// One editable draft per row, reset to server values on every fetch.
-type PriceDraft = { selling_price: number; last_purchase_price: number }
-const drafts = reactive<Record<number, PriceDraft>>({})
-const savingId = reactive<{ value: number | null }>({ value: null })
-
-watch(
-	() => columns.value,
-	(rows) => {
-		for (const k of Object.keys(drafts)) delete drafts[Number(k)]
-		for (const r of rows) drafts[r.id] = { selling_price: r.selling_price, last_purchase_price: r.last_purchase_price }
-	},
-	{ immediate: true }
-)
-
-const isDirty = (row: Product) =>
-	!!drafts[row.id] && (drafts[row.id].selling_price !== row.selling_price || drafts[row.id].last_purchase_price !== row.last_purchase_price)
-
-const marginValue = (row: Product) => (drafts[row.id]?.selling_price ?? row.selling_price) - row.hpp_avg
+const marginValue = (row: Product) => row.selling_price - row.hpp_avg
 const marginPct = (row: Product) => (row.hpp_avg > 0 ? `${((marginValue(row) / row.hpp_avg) * 100).toFixed(2)}%` : '—')
 
-async function save(row: Product) {
-	const draft = drafts[row.id]
-	if (![draft.selling_price, draft.last_purchase_price].every((n) => Number.isInteger(n) && n >= 0)) {
+// Each price saves on its own: send the row's current prices with the one field that changed.
+async function save(row: Product, field: 'selling_price' | 'last_purchase_price', value: number) {
+	if (!Number.isInteger(value) || value < 0) {
 		toast.error('Harga harus bilangan bulat dan tidak negatif')
 		return
 	}
-	savingId.value = row.id
 	try {
-		await api.patch(`/product/${row.id}/price`, draft)
+		await api.patch(`/product/${row.id}/price`, { selling_price: row.selling_price, last_purchase_price: row.last_purchase_price, [field]: value })
 		toast.success(`Harga "${row.name}" diperbarui`)
 		fetchList()
 	} catch (err) {
@@ -72,8 +53,6 @@ async function save(row: Product) {
 		} else {
 			toast.error('Harga produk gagal diperbarui')
 		}
-	} finally {
-		savingId.value = null
 	}
 }
 
@@ -93,8 +72,7 @@ const rows: TableRow[] = [
 	{ label: 'HPP Rata-rata', field: 'hpp_avg', align: 'right' },
 	{ label: 'Harga Beli Sebelum Pajak', field: 'last_purchase_price', align: 'right' },
 	{ label: 'Harga Jual Sebelum Pajak', field: 'selling_price', align: 'right' },
-	{ label: 'Margin', field: 'margin', align: 'right' },
-	{ label: '', field: 'action', align: 'right' }
+	{ label: 'Margin', field: 'margin', align: 'right' }
 ]
 </script>
 
@@ -128,30 +106,19 @@ const rows: TableRow[] = [
 					<span v-if="row.field === 'code'" class="text-ink">{{ column.code }}</span>
 					<span v-else-if="row.field === 'name'" class="text-ink">{{ column.name }}</span>
 					<span v-else-if="row.field === 'hpp_avg'"><Amount :value="column.hpp_avg as number" muted /></span>
-					<MoneyInput
-						v-else-if="row.field === 'last_purchase_price'"
-						:model-value="drafts[(column as unknown as Product).id]?.last_purchase_price ?? 0"
-						@update:model-value="(v) => (drafts[(column as unknown as Product).id].last_purchase_price = v)"
-					/>
-					<MoneyInput
-						v-else-if="row.field === 'selling_price'"
-						:model-value="drafts[(column as unknown as Product).id]?.selling_price ?? 0"
-						@update:model-value="(v) => (drafts[(column as unknown as Product).id].selling_price = v)"
-					/>
+					<InlineEdit
+						v-else-if="row.field === 'last_purchase_price' || row.field === 'selling_price'"
+						kind="money"
+						:label="`${row.label} ${column.name}`"
+						:model-value="column[row.field] as number"
+						@save="(v) => save(column as unknown as Product, row.field as 'selling_price' | 'last_purchase_price', v as number)"
+					>
+						<Amount :value="column[row.field] as number" />
+					</InlineEdit>
 					<span v-else-if="row.field === 'margin'" class="whitespace-nowrap">
 						<Amount :value="marginValue(column as unknown as Product)" />
 						<span class="ml-1 text-s text-ink-subtle">{{ marginPct(column as unknown as Product) }}</span>
 					</span>
-					<div v-else-if="row.field === 'action'" class="flex justify-end">
-						<button
-							v-if="isDirty(column as unknown as Product)"
-							class="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-s text-ink-invert hover:bg-primary-dark disabled:opacity-50"
-							:disabled="savingId.value === (column as unknown as Product).id"
-							@click="save(column as unknown as Product)"
-						>
-							<IconDeviceFloppy class="h-3.5 w-3.5" /> Simpan
-						</button>
-					</div>
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>

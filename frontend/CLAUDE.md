@@ -141,6 +141,7 @@ Full rules in `DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
     which loads everything at once. `<Select>` is for fixed enums only (status, type). Reference:
     `FormProduct.vue`, `FormSalesExpense.vue`.
 - **Row actions**: the action column of a list table is one `<RowActions :id base @remove :can-modify>` kebab menu (Lihat detail / Edit / Hapus), never a row of icon buttons — it stays one icon wide however many actions a row has. `can-modify=false` leaves only "Lihat detail". Extra items: `:actions="[{ label, icon, onClick, danger?, hidden? }]"` (render between Edit and Hapus, still shown when `can-modify` is false).
+- **Inline edit in tables**: a table whose cells save on their own (Harga Produk) uses `<InlineEdit kind="money|number|text" :model-value @save>` — value + pencil, click → input + ✓ (Enter saves, Esc/blur cancels), like dashboard-kpi-it. Grids that submit with a form (e.g. PO/receipt lines) keep plain always-visible inputs.
 - **Action button placement**: form pages (Tambah/Edit) put primary actions at the **end of the
   flow** (Simpan/Batal after all fields). Detail/read-only pages put all actions **top-right** via
   `PageHeader #actions`, ordered `[← Kembali] [✎ Edit] [🗑 Hapus]` (all iconed, matching the table
