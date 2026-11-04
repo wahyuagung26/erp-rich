@@ -25,6 +25,8 @@ It is almost certainly already there:
 - composables: `useTableList` (the whole list/table/sort/filter/paginate loop), `useToast`,
   `useConfirm`, `useDebounce`, `onClickOutside`
 
+**Dropdown that references another menu's data** (Merk, Cabang, Akun, Sub Akun, …) → `AsyncSelect` (search + infinite scroll; pass `initial-label` from the denormalized code/name on edit; `@select` gives the picked row). Never an eager-fetch `<Select>` — plain `Select` is only for fixed enums.
+
 `<Input>` takes a `#suffix` slot (trailing icon/button) and an `addon` prop (trailing unit
 label, Bootstrap input-group style — e.g. `addon="hari"`). If a base component is *close* but
 missing one thing, add the missing thing to the component (a slot, a variant) — don't inline

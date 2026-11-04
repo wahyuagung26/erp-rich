@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { IconDeviceFloppy, IconX } from '@tabler/icons-vue'
-import api from '@/utils/api'
 import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
-import Select from '@/components/base/Select.vue'
+import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import RadioGroup from '@/components/base/RadioGroup.vue'
 import Button from '@/components/base/Button.vue'
 import { TRANSACTION_TYPE_OPTIONS, PAYMENT_METHOD_OPTIONS, validatePaymentType, type PaymentTypeForm } from '@/views/payment-type/schema'
-import type { ApiList, Account } from '@/utils/types'
+import type { PaymentType } from '@/utils/types'
 
-const props = defineProps<{ initial?: Partial<PaymentTypeForm>; isEdit?: boolean; submitLabel?: string; loading?: boolean }>()
+const props = defineProps<{ initial?: Partial<PaymentType>; isEdit?: boolean; submitLabel?: string; loading?: boolean }>()
 const emit = defineEmits<{ submit: [PaymentTypeForm] }>()
 
 const router = useRouter()
@@ -25,11 +24,9 @@ const form = reactive<PaymentTypeForm>({
 	method: props.initial?.method ?? 'cash_bank'
 })
 
-const accountOptions = ref<{ label: string; value: number }[]>([])
-onMounted(async () => {
-	const res = await api.get<ApiList<Account>>('/account', { params: { per_page: 100 } })
-	accountOptions.value = res.data.data.map((a) => ({ label: `${a.code} — ${a.name}`, value: a.id }))
-})
+// Already-denormalized on the entity — no resolve-by-id fetch needed on edit.
+const initialAccountLabel = props.initial?.account_code ? `${props.initial.account_code} — ${props.initial.account_name}` : undefined
+const accountLabel = (item: Record<string, unknown>) => `${item.code} — ${item.name}`
 
 const errors = ref<Record<string, string>>({})
 
@@ -59,10 +56,12 @@ defineExpose({ setServerErrors })
 						<Input v-model="form.name" placeholder="mis. Tunai" />
 					</FormField>
 					<FormField label="Akun Perkiraan" required :error="errors.account_id">
-						<Select
-							:model-value="form.account_id || ''"
-							placeholder="Pilih akun perkiraan"
-							:options="accountOptions"
+						<AsyncSelect
+							:model-value="form.account_id || null"
+							endpoint="/account"
+							:option-label="accountLabel"
+							:initial-label="initialAccountLabel"
+							placeholder="Cari akun perkiraan…"
 							@update:model-value="(v) => (form.account_id = Number(v))"
 						/>
 					</FormField>

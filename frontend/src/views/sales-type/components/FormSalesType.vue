@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { IconDeviceFloppy, IconX } from '@tabler/icons-vue'
-import api from '@/utils/api'
 import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
-import Select from '@/components/base/Select.vue'
+import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Button from '@/components/base/Button.vue'
 import { validateSalesType, type SalesTypeForm } from '@/views/sales-type/schema'
-import type { ApiList, Account } from '@/utils/types'
+import type { SalesType } from '@/utils/types'
 
-const props = defineProps<{ initial?: Partial<SalesTypeForm>; isEdit?: boolean; submitLabel?: string; loading?: boolean }>()
+const props = defineProps<{ initial?: Partial<SalesType>; isEdit?: boolean; submitLabel?: string; loading?: boolean }>()
 const emit = defineEmits<{ submit: [SalesTypeForm] }>()
 
 const router = useRouter()
@@ -26,12 +25,12 @@ const form = reactive<SalesTypeForm>({
 	expense_account_id: props.initial?.expense_account_id ?? 0
 })
 
-// shared by all account pickers below — one fetch, reused
-const accountOptions = ref<{ label: string; value: number }[]>([])
-onMounted(async () => {
-	const res = await api.get<ApiList<Account>>('/account', { params: { per_page: 100 } })
-	accountOptions.value = res.data.data.map((a) => ({ label: `${a.code} — ${a.name}`, value: a.id }))
-})
+// Already-denormalized on the entity — no resolve-by-id fetch needed on edit.
+const accountLabel = (item: Record<string, unknown>) => `${item.code} — ${item.name}`
+const initialLabel = (kind: 'revenue' | 'discount' | 'cogs' | 'inventory' | 'expense') => {
+	const code = props.initial?.[`${kind}_account_code`]
+	return code ? `${code} — ${props.initial?.[`${kind}_account_name`]}` : undefined
+}
 
 const errors = ref<Record<string, string>>({})
 
@@ -61,42 +60,52 @@ defineExpose({ setServerErrors })
 						<Input v-model="form.name" placeholder="mis. Bahan Baku" />
 					</FormField>
 					<FormField label="Akun Pendapatan" required :error="errors.revenue_account_id">
-						<Select
-							:model-value="form.revenue_account_id || ''"
-							placeholder="Pilih akun pendapatan"
-							:options="accountOptions"
+						<AsyncSelect
+							:model-value="form.revenue_account_id || null"
+							endpoint="/account"
+							:option-label="accountLabel"
+							:initial-label="initialLabel('revenue')"
+							placeholder="Cari akun pendapatan…"
 							@update:model-value="(v) => (form.revenue_account_id = Number(v))"
 						/>
 					</FormField>
 					<FormField label="Akun Diskon" required :error="errors.discount_account_id">
-						<Select
-							:model-value="form.discount_account_id || ''"
-							placeholder="Pilih akun diskon"
-							:options="accountOptions"
+						<AsyncSelect
+							:model-value="form.discount_account_id || null"
+							endpoint="/account"
+							:option-label="accountLabel"
+							:initial-label="initialLabel('discount')"
+							placeholder="Cari akun diskon…"
 							@update:model-value="(v) => (form.discount_account_id = Number(v))"
 						/>
 					</FormField>
 					<FormField label="Akun HPP" required :error="errors.cogs_account_id">
-						<Select
-							:model-value="form.cogs_account_id || ''"
-							placeholder="Pilih akun HPP"
-							:options="accountOptions"
+						<AsyncSelect
+							:model-value="form.cogs_account_id || null"
+							endpoint="/account"
+							:option-label="accountLabel"
+							:initial-label="initialLabel('cogs')"
+							placeholder="Cari akun HPP…"
 							@update:model-value="(v) => (form.cogs_account_id = Number(v))"
 						/>
 					</FormField>
 					<FormField label="Akun Persediaan" required :error="errors.inventory_account_id">
-						<Select
-							:model-value="form.inventory_account_id || ''"
-							placeholder="Pilih akun persediaan"
-							:options="accountOptions"
+						<AsyncSelect
+							:model-value="form.inventory_account_id || null"
+							endpoint="/account"
+							:option-label="accountLabel"
+							:initial-label="initialLabel('inventory')"
+							placeholder="Cari akun persediaan…"
 							@update:model-value="(v) => (form.inventory_account_id = Number(v))"
 						/>
 					</FormField>
 					<FormField label="Akun Biaya" required :error="errors.expense_account_id">
-						<Select
-							:model-value="form.expense_account_id || ''"
-							placeholder="Pilih akun biaya"
-							:options="accountOptions"
+						<AsyncSelect
+							:model-value="form.expense_account_id || null"
+							endpoint="/account"
+							:option-label="accountLabel"
+							:initial-label="initialLabel('expense')"
+							placeholder="Cari akun biaya…"
 							@update:model-value="(v) => (form.expense_account_id = Number(v))"
 						/>
 					</FormField>

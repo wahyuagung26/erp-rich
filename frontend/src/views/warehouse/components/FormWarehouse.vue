@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { IconDeviceFloppy, IconX } from '@tabler/icons-vue'
-import api from '@/utils/api'
 import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
+import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Textarea from '@/components/base/Textarea.vue'
 import Button from '@/components/base/Button.vue'
 import { validateWarehouse, WAREHOUSE_TYPES, type WarehouseForm } from '@/views/warehouse/schema'
-import type { ApiList, Branch } from '@/utils/types'
+import type { Warehouse } from '@/utils/types'
 
-const props = defineProps<{ initial?: Partial<WarehouseForm>; isEdit?: boolean; submitLabel?: string; loading?: boolean }>()
+const props = defineProps<{ initial?: Partial<Warehouse>; isEdit?: boolean; submitLabel?: string; loading?: boolean }>()
 const emit = defineEmits<{ submit: [WarehouseForm] }>()
 
 const router = useRouter()
@@ -25,11 +25,9 @@ const form = reactive<WarehouseForm>({
 	address: props.initial?.address ?? ''
 })
 
-const branchOptions = ref<{ label: string; value: number }[]>([])
-onMounted(async () => {
-	const res = await api.get<ApiList<Branch>>('/branch', { params: { per_page: 100 } })
-	branchOptions.value = res.data.data.map((b) => ({ label: `${b.code} — ${b.name}`, value: b.id }))
-})
+// Already-denormalized on the entity — no resolve-by-id fetch needed on edit.
+const initialBranchLabel = props.initial?.branch_code ? `${props.initial.branch_code} — ${props.initial.branch_name}` : undefined
+const branchLabel = (item: Record<string, unknown>) => `${item.code} — ${item.name}`
 
 const errors = ref<Record<string, string>>({})
 
@@ -62,10 +60,12 @@ defineExpose({ setServerErrors })
 						<Select v-model="form.type" :options="[...WAREHOUSE_TYPES]" class="max-w-[240px]" />
 					</FormField>
 					<FormField label="Cabang" required :error="errors.branch_id">
-						<Select
-							:model-value="form.branch_id || ''"
-							placeholder="Pilih cabang"
-							:options="branchOptions"
+						<AsyncSelect
+							:model-value="form.branch_id || null"
+							endpoint="/branch"
+							:option-label="branchLabel"
+							:initial-label="initialBranchLabel"
+							placeholder="Cari cabang…"
 							@update:model-value="(v) => (form.branch_id = Number(v))"
 						/>
 					</FormField>

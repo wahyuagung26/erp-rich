@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import { reactive, ref, computed, onMounted } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { IconDeviceFloppy, IconX } from '@tabler/icons-vue'
-import api from '@/utils/api'
 import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
-import Select from '@/components/base/Select.vue'
+import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import RadioGroup from '@/components/base/RadioGroup.vue'
 import Button from '@/components/base/Button.vue'
 import { validateSubAccount, type SubAccountForm } from '@/views/sub-account/schema'
-import type { ApiList, AccountGroup } from '@/utils/types'
+import type { SubAccount } from '@/utils/types'
 
 const props = defineProps<{
-	initial?: Partial<SubAccountForm> & { code?: string }
+	initial?: Partial<SubAccount>
 	isEdit?: boolean
 	submitLabel?: string
 	loading?: boolean
@@ -24,19 +23,18 @@ const router = useRouter()
 
 const form = reactive<SubAccountForm>({
 	account_group_id: props.initial?.account_group_id ?? 0,
-	code_suffix: props.initial?.code_suffix ?? props.initial?.code?.slice(-3) ?? '',
+	code_suffix: props.initial?.code?.slice(-3) ?? '',
 	name: props.initial?.name ?? '',
 	normal_balance: props.initial?.normal_balance ?? 'debit'
 })
 
-const groupOptions = ref<{ label: string; value: number; code: string }[]>([])
-onMounted(async () => {
-	const res = await api.get<ApiList<AccountGroup>>('/account-group', { params: { per_page: 100 } })
-	groupOptions.value = res.data.data.map((g) => ({ label: `${g.code} — ${g.name}`, value: g.id, code: g.code }))
-})
+// Already-denormalized on the entity — no resolve-by-id fetch needed on edit.
+const initialGroupLabel = props.initial?.account_group_code ? `${props.initial.account_group_code} — ${props.initial.account_group_name}` : undefined
+const groupLabel = (item: Record<string, unknown>) => `${item.code} — ${item.name}`
 
 // first 2 digits of the code — derived from the selected group, not user-entered
-const prefix = computed(() => (groupOptions.value.find((g) => g.value === form.account_group_id)?.code ?? '').padStart(2, '0'))
+const groupCode = ref(props.initial?.account_group_code ?? '')
+const prefix = computed(() => groupCode.value.padStart(2, '0'))
 
 const errors = ref<Record<string, string>>({})
 
@@ -65,11 +63,14 @@ defineExpose({ setServerErrors })
 						:error="errors.account_group_id"
 						:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : undefined"
 					>
-						<Select
-							:model-value="form.account_group_id || ''"
-							placeholder="Pilih group perkiraan"
+						<AsyncSelect
+							:model-value="form.account_group_id || null"
+							endpoint="/account-group"
+							:option-label="groupLabel"
+							:initial-label="initialGroupLabel"
+							placeholder="Cari group perkiraan…"
 							:disabled="isEdit"
-							:options="groupOptions"
+							@select="(item) => (groupCode = (item?.code as string) ?? '')"
 							@update:model-value="(v) => (form.account_group_id = Number(v))"
 						/>
 					</FormField>

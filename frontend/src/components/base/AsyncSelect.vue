@@ -8,9 +8,11 @@ import type { ApiList } from '@/utils/types'
 
 // Single-select async combobox: search-as-you-type + infinite-scroll pagination
 // against a real list endpoint (q/page/per_page — same contract useTableList
-// uses). For the eager "fetch <=100 rows once" case (small master data — Merk,
-// Satuan, etc.) plain <Select> is still the right, simpler choice; reach for
-// this when a list can realistically outgrow one page (Produk, Supplier, Customer).
+// uses). RULE: any dropdown whose options come from another menu's data (Merk,
+// Cabang, Akun, Sub Akun, ...) uses this, never an eager-fetch <Select>. Plain
+// <Select> is only for fixed picklists (enums like status/type). Pass the already-
+// denormalized code/name as `initialLabel` on edit; use `@select` to read other
+// fields of the picked row (e.g. its `code`).
 //
 // Not a generic SFC: Vue's template type inference can't pin a generic from a
 // callback prop alone (no typed `items` prop to anchor it, and `endpoint` is
@@ -34,7 +36,7 @@ const props = withDefaults(
 	{ perPage: 20, placeholder: 'Pilih…' }
 )
 
-const emit = defineEmits<{ 'update:modelValue': [number | string | null] }>()
+const emit = defineEmits<{ 'update:modelValue': [number | string | null]; select: [item: Row | null] }>()
 
 const root = ref<HTMLElement>()
 const searchInput = ref<HTMLInputElement>()
@@ -93,12 +95,14 @@ function onScroll(e: Event) {
 function pick(item: Row) {
 	selectedLabel.value = props.optionLabel(item)
 	emit('update:modelValue', valueOf(item))
+	emit('select', item)
 	onClose()
 }
 
 function clear() {
 	selectedLabel.value = ''
 	emit('update:modelValue', null)
+	emit('select', null)
 }
 
 onClickOutside(root, onClose)

@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { reactive, ref, computed, onMounted } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { IconDeviceFloppy, IconX } from '@tabler/icons-vue'
-import api from '@/utils/api'
 import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
+import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Button from '@/components/base/Button.vue'
 import { AKUN_TYPES, validateAccount, type AccountForm } from '@/views/account/schema'
-import type { ApiList, SubAccount } from '@/utils/types'
+import type { Account } from '@/utils/types'
 
 const props = defineProps<{
-	initial?: Partial<AccountForm> & { code?: string }
+	initial?: Partial<Account>
 	isEdit?: boolean
 	submitLabel?: string
 	loading?: boolean
@@ -23,19 +23,17 @@ const router = useRouter()
 
 const form = reactive<AccountForm>({
 	sub_account_id: props.initial?.sub_account_id ?? 0,
-	code_suffix: props.initial?.code_suffix ?? props.initial?.code?.slice(-2) ?? '',
+	code_suffix: props.initial?.code?.slice(-2) ?? '',
 	name: props.initial?.name ?? '',
 	type: props.initial?.type ?? 'asset'
 })
 
-const subAccountOptions = ref<{ label: string; value: number; code: string }[]>([])
-onMounted(async () => {
-	const res = await api.get<ApiList<SubAccount>>('/sub-account', { params: { per_page: 100 } })
-	subAccountOptions.value = res.data.data.map((s) => ({ label: `${s.code} — ${s.name}`, value: s.id, code: s.code }))
-})
+// Already-denormalized on the entity — no resolve-by-id fetch needed on edit.
+const initialSubAccountLabel = props.initial?.sub_account_code ? `${props.initial.sub_account_code} — ${props.initial.sub_account_name}` : undefined
+const subAccountLabel = (item: Record<string, unknown>) => `${item.code} — ${item.name}`
 
 // first 5 digits of the code — derived from the selected sub account, not user-entered
-const prefix = computed(() => subAccountOptions.value.find((s) => s.value === form.sub_account_id)?.code ?? '')
+const prefix = ref(props.initial?.sub_account_code ?? '')
 
 const errors = ref<Record<string, string>>({})
 
@@ -59,11 +57,14 @@ defineExpose({ setServerErrors })
 				<h3 class="subhead">Informasi Akun Perkiraan</h3>
 				<div class="space-y-4">
 					<FormField label="Sub Akun" required :error="errors.sub_account_id" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : undefined">
-						<Select
-							:model-value="form.sub_account_id || ''"
-							placeholder="Pilih sub akun"
+						<AsyncSelect
+							:model-value="form.sub_account_id || null"
+							endpoint="/sub-account"
+							:option-label="subAccountLabel"
+							:initial-label="initialSubAccountLabel"
+							placeholder="Cari sub akun…"
 							:disabled="isEdit"
-							:options="subAccountOptions"
+							@select="(item) => (prefix = (item?.code as string) ?? '')"
 							@update:model-value="(v) => (form.sub_account_id = Number(v))"
 						/>
 					</FormField>
