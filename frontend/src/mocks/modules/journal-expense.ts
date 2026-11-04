@@ -68,7 +68,8 @@ function resolve(row: JournalExpense): JournalExpense {
 function validateRequest(body: JournalExpenseRequest): string | null {
 	if (!String(body.voucher ?? '').trim()) return 'Voucher wajib diisi'
 	if (!String(body.description ?? '').trim()) return 'Keterangan wajib diisi'
-	if (!body.attachment) return 'Lampiran wajib diunggah'
+	if (!Array.isArray(body.attachments) || !body.attachments.length) return 'Lampiran wajib diunggah'
+	if (body.attachments.length > 5) return 'Maksimal 5 lampiran'
 
 	const cashAccount = db.account.find((a) => a.id === Number(body.cash_account_id) && !a.deleted_at)
 	if (!cashAccount) return 'Akun kas/bank tidak valid'
@@ -102,7 +103,7 @@ function buildRow(
 		date: body.date,
 		voucher: body.voucher.trim(),
 		description: body.description.trim(),
-		attachment: body.attachment,
+		attachments: body.attachments,
 		cash_account_id: Number(body.cash_account_id),
 		department_id: Number(body.department_id),
 		cash_flow: String(body.cash_flow),

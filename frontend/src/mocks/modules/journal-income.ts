@@ -68,7 +68,8 @@ function resolve(row: JournalIncome): JournalIncome {
 function validateRequest(body: JournalIncomeRequest): string | null {
 	if (!String(body.voucher ?? '').trim()) return 'Voucher wajib diisi'
 	if (!String(body.description ?? '').trim()) return 'Keterangan wajib diisi'
-	if (!body.attachment) return 'Lampiran wajib diunggah'
+	if (!Array.isArray(body.attachments) || !body.attachments.length) return 'Lampiran wajib diunggah'
+	if (body.attachments.length > 5) return 'Maksimal 5 lampiran'
 
 	const cashAccount = db.account.find((a) => a.id === Number(body.cash_account_id) && !a.deleted_at)
 	if (!cashAccount) return 'Akun kas/bank tidak valid'
@@ -79,10 +80,14 @@ function validateRequest(body: JournalIncomeRequest): string | null {
 	if (!Array.isArray(body.lines) || body.lines.length < 1) return 'Minimal satu detail jurnal'
 	for (const line of body.lines) {
 		if (!db.account.find((a) => a.id === Number(line.account_id) && !a.deleted_at)) return 'Akun perkiraan tidak valid'
-		if (Number(line.debit) > 0) return 'Baris pemasukan hanya boleh mengisi kredit'
-		if (!(Number(line.credit) > 0)) return 'Setiap baris wajib mengisi kredit'
+		const debit = Number(line.debit) || 0
+		const credit = Number(line.credit) || 0
+		if (debit < 0 || credit < 0 || (debit > 0 && credit > 0)) return 'Isi debit atau kredit saja'
+		if (!debit && !credit) return 'Setiap baris wajib mengisi debit atau kredit'
 	}
-	if (body.lines.reduce((sum, l) => sum + (Number(l.credit) || 0), 0) <= 0) return 'Total pemasukan harus lebih dari nol'
+	const credits = body.lines.reduce((sum, l) => sum + (Number(l.credit) || 0), 0)
+	const debits = body.lines.reduce((sum, l) => sum + (Number(l.debit) || 0), 0)
+	if (credits - debits <= 0) return 'Total pemasukan harus lebih besar dari total potongan'
 	return null
 }
 
@@ -90,21 +95,22 @@ function buildRow(
 	body: JournalIncomeRequest,
 	base: Pick<JournalIncome, 'id' | 'number' | 'status' | 'rejection_reason' | 'approved_by' | 'approved_at'>
 ): JournalIncome {
-	// Income lines are credit-only; the cash/bank account is debited with the total.
-	const lines = body.lines.map((line) => ({ ...lineOf(line), debit: 0 }))
+	// Credit lines are income; debit lines are potongan. The cash/bank account is debited with what's left.
+	const lines = body.lines.map((line) => lineOf(line))
 	const total = lines.reduce((sum, l) => sum + l.credit, 0)
+	const cashIn = total - lines.reduce((sum, l) => sum + l.debit, 0)
 	return {
 		...base,
 		date: body.date,
 		voucher: body.voucher.trim(),
 		description: body.description.trim(),
-		attachment: body.attachment,
+		attachments: body.attachments,
 		cash_account_id: Number(body.cash_account_id),
 		department_id: Number(body.department_id),
 		cash_flow: String(body.cash_flow),
 		lines,
 		total,
-		cash_in: total
+		cash_in: cashIn
 	}
 }
 

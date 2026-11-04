@@ -39,7 +39,7 @@ const toForm = (value: JournalExpense): JournalExpenseForm => ({
 	date: value.date,
 	voucher: value.voucher,
 	description: value.description,
-	attachment: value.attachment,
+	attachments: value.attachments.map((a) => ({ ...a })),
 	cash_account_id: value.cash_account_id,
 	cash_account_code: value.cash_account_code,
 	cash_account_name: value.cash_account_name,
@@ -75,7 +75,7 @@ async function save(payload: JournalExpenseForm) {
 	<div class="space-y-4 p-4">
 		<PageHeader title="Edit Jurnal Pengeluaran" subtitle="Jurnal Pengeluaran">
 			<template v-if="journal" #actions>
-				<div class="flex items-center gap-2">
+				<div class="flex items-center gap-2 self-start">
 					<Badge :tone="journalStatusTone[journal.status]">{{ journalStatusLabel[journal.status] }}</Badge>
 				</div>
 			</template>

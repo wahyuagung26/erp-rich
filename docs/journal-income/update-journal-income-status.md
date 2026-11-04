@@ -20,10 +20,10 @@ Identical semantics to [update-journal-status](../journal/update-journal-status.
 { "status": "approved", "date": "2026-08-03" }
 ```
 
-| Field | Type | Rules |
-|---|---|---|
-| `status` | enum | `submitted → approved/rejected`, `rejected → submitted` |
-| `date` | string | optional, only on `status: approved` — `YYYY-MM-DD`; overrides the journal date at approval time |
+| Field    | Type   | Rules                                                                                            |
+| -------- | ------ | ------------------------------------------------------------------------------------------------ |
+| `status` | enum   | `submitted → approved/rejected`, `rejected → submitted`                                          |
+| `date`   | string | optional, only on `status: approved` — `YYYY-MM-DD`; overrides the journal date at approval time |
 
 ## Response
 

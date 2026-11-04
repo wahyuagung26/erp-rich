@@ -40,7 +40,7 @@ async function save(payload: JournalIncomeForm) {
 	<div class="space-y-4 p-4">
 		<PageHeader title="Buat Jurnal Pemasukan" subtitle="Jurnal Pemasukan">
 			<template #actions>
-				<div class="flex items-center gap-2"><Badge tone="warning">Belum Disetujui</Badge></div>
+				<div class="flex items-center gap-2 self-start"><Badge tone="warning">Belum Disetujui</Badge></div>
 			</template>
 		</PageHeader>
 		<FormJournalIncome ref="formRef" :loading="saving" @submit="save" />

@@ -9,7 +9,7 @@ export const journalExpenseFormSchema = v.object({
 	date: v.string(),
 	voucher: v.string(),
 	description: v.string(),
-	attachment: v.nullable(journalAttachmentSchema),
+	attachments: v.array(journalAttachmentSchema),
 	cash_account_id: v.number(),
 	cash_account_code: v.optional(v.string()),
 	cash_account_name: v.optional(v.string()),
