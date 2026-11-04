@@ -7,7 +7,7 @@ path: /purchase-receipt
 status: mock
 tags: [purchase-receipt, read, list]
 resource: /frontend/src/mocks/modules/purchase-receipt.ts
-timestamp: 2026-09-10T00:00:00Z
+timestamp: 2026-11-05T00:00:00Z
 ---
 
 # List Purchase Receipt
@@ -28,7 +28,7 @@ composable).
 | `date_to` | string | no | `YYYY-MM-DD`, inclusive upper bound on `date` |
 
 `sort_by` accepts `date`, `number`, `warehouse_label`, `delivery_note_number`, or
-`supplier_name` — set via the sortable `Tanggal` / `BM #` / `Gudang` / `SJ Supplier` /
+`supplier_name` — set via the sortable `Tanggal` / `Nomor` / `Gudang` / `SJ Supplier` /
 `Supplier` table headers.
 
 ## Response

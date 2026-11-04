@@ -122,7 +122,7 @@ function remove() {
 					<h3 class="subhead">Informasi Transaksi</h3>
 					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
-							<dt class="text-s text-ink-muted">Nomor Transaksi</dt>
+							<dt class="text-s text-ink-muted">Nomor</dt>
 							<dd class="mt-1 text-m text-ink">{{ advance.number }}</dd>
 						</div>
 						<div>

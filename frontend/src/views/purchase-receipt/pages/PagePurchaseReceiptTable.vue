@@ -25,8 +25,7 @@ import type { PurchaseReceipt, TableRow } from '@/utils/types'
 
 const router = useRouter()
 const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<PurchaseReceipt>({
-	endpoint: '/purchase-receipt',
-	defaultLimit: 20
+	endpoint: '/purchase-receipt'
 })
 const { ask } = useConfirm()
 const toast = useToast()
@@ -59,9 +58,8 @@ function remove(row: PurchaseReceipt) {
 }
 
 const rows: TableRow[] = [
-	{ label: 'No', field: 'no' },
 	{ label: 'Tanggal', field: 'date', isSort: { activeSort: 'desc' } },
-	{ label: 'BM #', field: 'number', isSort: { activeSort: 'asc' } },
+	{ label: 'Nomor', field: 'number', isSort: { activeSort: 'asc' } },
 	{ label: 'Gudang', field: 'warehouse_label', isSort: { activeSort: 'asc' } },
 	{ label: 'SJ Supplier', field: 'delivery_note_number', isSort: { activeSort: 'asc' } },
 	{ label: 'Supplier', field: 'supplier_name', isSort: { activeSort: 'asc' } },
@@ -91,20 +89,35 @@ const rows: TableRow[] = [
 				:loading="loading"
 				@handle-sort="handleSort"
 			>
-				<template #table-content="{ row, column, rowIndex }">
-					<span v-if="row.field === 'no'" class="tnum text-ink-muted">{{
-						((pagination?.page ?? 1) - 1) * (pagination?.per_page ?? 20) + rowIndex + 1
-					}}</span>
-					<span v-else-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
-					<button v-else-if="row.field === 'number'" class="text-primary-dark hover:underline" @click="router.push(`/purchase-receipt/${column.id}`)">
+				<template #table-content="{ row, column }">
+					<span v-if="row.field === 'date'" class="tnum whitespace-nowrap text-ink-muted">{{ date(column.date as string) }}</span>
+					<button
+						v-else-if="row.field === 'number'"
+						class="whitespace-nowrap text-left text-primary-dark hover:underline"
+						@click="router.push(`/purchase-receipt/${column.id}`)"
+					>
 						{{ column.number }}
 					</button>
-					<span v-else-if="row.field === 'warehouse_label'">{{ column.warehouse_label || '–' }}</span>
-					<span v-else-if="row.field === 'supplier_name'">{{ column.supplier_code }} — {{ column.supplier_name }}</span>
-					<Badge v-else-if="row.field === 'invoice_status'" :tone="invoiceStatusTone[column.invoice_status as keyof typeof invoiceStatusTone]">
+					<span v-else-if="row.field === 'warehouse_label'" class="text-ink">{{ column.warehouse_label || '–' }}</span>
+					<span v-else-if="row.field === 'delivery_note_number'" class="whitespace-nowrap text-ink">{{ column.delivery_note_number || '–' }}</span>
+					<div
+						v-else-if="row.field === 'supplier_name'"
+						class="min-w-[150px] max-w-[200px] leading-snug"
+						:title="`${column.supplier_code} — ${column.supplier_name}`"
+					>
+						<p class="line-clamp-2 text-ink">{{ column.supplier_name }}</p>
+						<p class="text-s text-ink-muted">{{ column.supplier_code }}</p>
+					</div>
+					<Badge
+						v-else-if="row.field === 'invoice_status'"
+						class="whitespace-nowrap"
+						:tone="invoiceStatusTone[column.invoice_status as keyof typeof invoiceStatusTone]"
+					>
 						{{ invoiceStatusLabel[column.invoice_status as keyof typeof invoiceStatusLabel] ?? column.invoice_status }}
 					</Badge>
-					<span v-else-if="row.field === 'description'" class="text-ink-muted">{{ column.description || '–' }}</span>
+					<p v-else-if="row.field === 'description'" class="line-clamp-2 max-w-[220px] text-ink-muted" :title="column.description as string">
+						{{ column.description || '–' }}
+					</p>
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"
@@ -115,7 +128,7 @@ const rows: TableRow[] = [
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>
-			<div class="mt-3"><TablePagination :pagination="pagination" :show-limit="false" @page-to="pageTo" /></div>
+			<div class="mt-3"><TablePagination :pagination="pagination" @page-to="pageTo" /></div>
 		</Panel>
 	</div>
 </template>

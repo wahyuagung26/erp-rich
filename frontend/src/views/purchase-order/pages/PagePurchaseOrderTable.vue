@@ -33,8 +33,7 @@ import type { PurchaseOrder, PurchaseOrderApprovalStatus, PurchaseOrderDeliveryS
 
 const router = useRouter()
 const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<PurchaseOrder>({
-	endpoint: '/purchase-order',
-	defaultLimit: 20
+	endpoint: '/purchase-order'
 })
 const { ask } = useConfirm()
 const toast = useToast()
@@ -71,15 +70,12 @@ function remove(row: PurchaseOrder) {
 }
 
 const rows: TableRow[] = [
-	{ label: 'No', field: 'no' },
-	{ label: 'Nomor', field: 'number' },
 	{ label: 'Tanggal', field: 'date', isSort: { activeSort: 'desc' } },
+	{ label: 'Nomor', field: 'number' },
 	{ label: 'Departemen', field: 'department_name' },
-	{ label: 'Pembuat', field: 'created_by' },
 	{ label: 'Supplier', field: 'supplier_name' },
 	{ label: 'Keterangan', field: 'description' },
 	{ label: 'Total', field: 'total', align: 'right', isSort: { activeSort: 'asc' } },
-	{ label: 'Status Barang', field: 'delivery_status' },
 	{ label: 'Status', field: 'approval_status' },
 	{ label: '', field: 'action', align: 'right' }
 ]
@@ -106,24 +102,39 @@ const rows: TableRow[] = [
 				:loading="loading"
 				@handle-sort="handleSort"
 			>
-				<template #table-content="{ row, column, rowIndex }">
-					<span v-if="row.field === 'no'" class="tnum text-ink-muted">{{
-						((pagination?.page ?? 1) - 1) * (pagination?.per_page ?? 20) + rowIndex + 1
-					}}</span>
-					<button v-else-if="row.field === 'number'" class="text-primary-dark hover:underline" @click="router.push(`/purchase-order/${column.id}`)">
-						{{ column.number }}
-					</button>
-					<span v-else-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
-					<span v-else-if="row.field === 'department_name'">{{ column.department_code }} — {{ column.department_name }}</span>
-					<span v-else-if="row.field === 'supplier_name'">{{ column.supplier_code }} — {{ column.supplier_name }}</span>
-					<span v-else-if="row.field === 'description'" class="text-ink-muted">{{ column.description || '–' }}</span>
+				<template #table-content="{ row, column }">
+					<div v-if="row.field === 'number'" class="leading-snug">
+						<button class="whitespace-nowrap text-left text-primary-dark hover:underline" @click="router.push(`/purchase-order/${column.id}`)">
+							{{ column.number }}
+						</button>
+						<p class="text-s text-ink-muted">oleh {{ column.created_by }}</p>
+					</div>
+					<span v-else-if="row.field === 'date'" class="tnum whitespace-nowrap text-ink-muted">{{ date(column.date as string) }}</span>
+					<span v-else-if="row.field === 'department_name'" class="text-ink">{{ column.department_name }}</span>
+					<div
+						v-else-if="row.field === 'supplier_name'"
+						class="min-w-[150px] max-w-[200px] leading-snug"
+						:title="`${column.supplier_code} — ${column.supplier_name}`"
+					>
+						<p class="line-clamp-2 text-ink">{{ column.supplier_name }}</p>
+						<p class="text-s text-ink-muted">{{ column.supplier_code }}</p>
+					</div>
+					<p
+						v-else-if="row.field === 'description'"
+						class="line-clamp-2 min-w-[130px] max-w-[200px] text-ink-muted"
+						:title="column.description as string"
+					>
+						{{ column.description || '–' }}
+					</p>
 					<Amount v-else-if="row.field === 'total'" :value="column.total as number" />
-					<Badge v-else-if="row.field === 'delivery_status'" :tone="deliveryStatusTone[column.delivery_status as PurchaseOrderDeliveryStatus]">{{
-						deliveryStatusLabel[column.delivery_status as PurchaseOrderDeliveryStatus]
-					}}</Badge>
-					<Badge v-else-if="row.field === 'approval_status'" :tone="approvalStatusTone[column.approval_status as PurchaseOrderApprovalStatus]">{{
-						approvalStatusLabel[column.approval_status as PurchaseOrderApprovalStatus]
-					}}</Badge>
+					<div v-else-if="row.field === 'approval_status'" class="flex flex-col items-start gap-1">
+						<Badge class="whitespace-nowrap" :tone="approvalStatusTone[column.approval_status as PurchaseOrderApprovalStatus]">{{
+							approvalStatusLabel[column.approval_status as PurchaseOrderApprovalStatus]
+						}}</Badge>
+						<Badge class="whitespace-nowrap" :tone="deliveryStatusTone[column.delivery_status as PurchaseOrderDeliveryStatus]">{{
+							deliveryStatusLabel[column.delivery_status as PurchaseOrderDeliveryStatus]
+						}}</Badge>
+					</div>
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"
@@ -134,7 +145,7 @@ const rows: TableRow[] = [
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>
-			<div class="mt-3"><TablePagination :pagination="pagination" :show-limit="false" @page-to="pageTo" /></div>
+			<div class="mt-3"><TablePagination :pagination="pagination" @page-to="pageTo" /></div>
 		</Panel>
 	</div>
 </template>

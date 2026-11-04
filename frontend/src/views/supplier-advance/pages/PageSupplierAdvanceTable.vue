@@ -22,8 +22,7 @@ import type { SupplierAdvance, TableRow } from '@/utils/types'
 
 const router = useRouter()
 const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<SupplierAdvance>({
-	endpoint: '/supplier-advance',
-	defaultLimit: 20
+	endpoint: '/supplier-advance'
 })
 const { ask } = useConfirm()
 const toast = useToast()
@@ -50,16 +49,13 @@ function remove(row: SupplierAdvance) {
 }
 
 const rows: TableRow[] = [
-	{ label: 'No', field: 'no', align: 'left' },
-	{ label: 'Nomor Transaksi', field: 'number', align: 'left', isSort: { activeSort: 'asc' } },
 	{ label: 'Tanggal', field: 'date', align: 'left', isSort: { activeSort: 'desc' } },
+	{ label: 'Nomor', field: 'number', align: 'left', isSort: { activeSort: 'asc' } },
 	{ label: 'Departemen', field: 'department_name', align: 'left' },
 	{ label: 'Supplier', field: 'supplier_name', align: 'left' },
 	{ label: 'Nominal', field: 'amount', align: 'right' },
 	{ label: 'Terpakai', field: 'used', align: 'right' },
 	{ label: 'Saldo Tersedia', field: 'remaining', align: 'right', isSort: { activeSort: 'asc' } },
-	{ label: 'No Hutang Terakhir', field: 'last_payable_number', align: 'left' },
-	{ label: 'Keterangan', field: 'description', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -85,21 +81,33 @@ const rows: TableRow[] = [
 				:loading="loading"
 				@handle-sort="handleSort"
 			>
-				<template #table-content="{ row, column, rowIndex }">
-					<span v-if="row.field === 'no'" class="tnum text-ink-muted">
-						{{ ((pagination?.page ?? 1) - 1) * (pagination?.per_page ?? 20) + rowIndex + 1 }}
-					</span>
-					<button v-else-if="row.field === 'number'" class="text-primary-dark hover:underline" @click="router.push(`/supplier-advance/${column.id}`)">
-						{{ column.number }}
-					</button>
-					<span v-else-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
+				<template #table-content="{ row, column }">
+					<div v-if="row.field === 'number'" class="leading-snug">
+						<button class="whitespace-nowrap text-left text-primary-dark hover:underline" @click="router.push(`/supplier-advance/${column.id}`)">
+							{{ column.number }}
+						</button>
+						<p class="max-w-[180px] truncate text-s text-ink-muted" :title="column.description as string">{{ column.description || '–' }}</p>
+					</div>
+					<span v-else-if="row.field === 'date'" class="tnum whitespace-nowrap text-ink-muted">{{ date(column.date as string) }}</span>
 					<span v-else-if="row.field === 'department_name'" class="text-ink">{{ column.department_name }}</span>
-					<span v-else-if="row.field === 'supplier_name'" class="text-ink">{{ column.supplier_code }} — {{ column.supplier_name }}</span>
+					<div
+						v-else-if="row.field === 'supplier_name'"
+						class="min-w-[150px] max-w-[200px] leading-snug"
+						:title="`${column.supplier_code} — ${column.supplier_name}`"
+					>
+						<p class="line-clamp-2 text-ink">{{ column.supplier_name }}</p>
+						<p class="text-s text-ink-muted">{{ column.supplier_code }}</p>
+					</div>
 					<Amount v-else-if="row.field === 'amount'" :value="column.amount as number" />
-					<Amount v-else-if="row.field === 'used'" :value="column.used as number" />
+					<div
+						v-else-if="row.field === 'used'"
+						class="leading-snug"
+						:title="column.last_payable_number ? 'Hutang terakhir yang memakai uang muka ini' : ''"
+					>
+						<Amount :value="column.used as number" />
+						<p v-if="column.last_payable_number" class="whitespace-nowrap text-s text-ink-muted">{{ column.last_payable_number }}</p>
+					</div>
 					<Amount v-else-if="row.field === 'remaining'" :value="column.remaining as number" />
-					<span v-else-if="row.field === 'last_payable_number'" class="text-ink-muted">{{ column.last_payable_number || '–' }}</span>
-					<span v-else-if="row.field === 'description'" class="text-ink-muted">{{ column.description || '–' }}</span>
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"
@@ -112,7 +120,7 @@ const rows: TableRow[] = [
 			</Table>
 
 			<div class="mt-3">
-				<TablePagination :pagination="pagination" :show-limit="false" @page-to="pageTo" />
+				<TablePagination :pagination="pagination" @page-to="pageTo" />
 			</div>
 		</Panel>
 	</div>
