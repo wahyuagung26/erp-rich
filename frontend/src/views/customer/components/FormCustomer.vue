@@ -51,17 +51,17 @@ defineExpose({ setServerErrors })
 			<!-- Sections are separated by whitespace + a light heading, not a grey bar. -->
 			<section class="space-y-3">
 				<h3 class="subhead">Identitas</h3>
-				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
-					<FormField v-if="code" class="col-span-2" label="Kode Customer">
+				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
+					<FormField v-if="code" class="sm:col-span-2" label="Kode Customer">
 						<Input :model-value="code" mono disabled class="max-w-[180px]" />
 					</FormField>
-					<FormField class="col-span-2" label="Nama Customer" required :error="errors.name">
+					<FormField class="sm:col-span-2" label="Nama Customer" required :error="errors.name">
 						<Input v-model="form.name" placeholder="mis. PT Samudra Edukasi Raya" />
 					</FormField>
-					<FormField class="col-span-2" label="Alamat" :error="errors.address">
+					<FormField class="sm:col-span-2" label="Alamat" :error="errors.address">
 						<Textarea v-model="form.address" :rows="2" placeholder="Alamat lengkap customer" />
 					</FormField>
-					<FormField class="col-span-2" label="Kota" :error="errors.city">
+					<FormField class="sm:col-span-2" label="Kota" :error="errors.city">
 						<Input v-model="form.city" class="max-w-xs" placeholder="mis. Madiun" />
 					</FormField>
 				</div>
@@ -69,7 +69,7 @@ defineExpose({ setServerErrors })
 
 			<section class="space-y-3">
 				<h3 class="subhead">Kontak</h3>
-				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 					<FormField label="Telepon" :error="errors.phone">
 						<Input v-model="form.phone" mono placeholder="0812-3456-7890" />
 					</FormField>
@@ -105,7 +105,7 @@ defineExpose({ setServerErrors })
 
 			<section class="space-y-3">
 				<h3 class="subhead">Rekening Bank</h3>
-				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 					<FormField label="Nama Bank" :error="errors.bank_name">
 						<Input v-model="form.bank_name" placeholder="mis. BCA" />
 					</FormField>

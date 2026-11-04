@@ -72,7 +72,7 @@ function remove() {
 			<div class="space-y-8">
 				<section class="space-y-3">
 					<h3 class="subhead">Informasi Produk</h3>
-					<dl class="grid grid-cols-[180px_1fr] gap-x-4 gap-y-2.5 text-m">
+					<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[180px_1fr] gap-x-4 gap-y-2.5 text-m">
 						<dt class="text-ink-muted">Kode Produk</dt>
 						<dd class="text-ink">{{ product.code }}</dd>
 						<dt class="text-ink-muted">Nama Produk</dt>
@@ -98,7 +98,7 @@ function remove() {
 
 				<section class="space-y-3">
 					<h3 class="subhead">Harga</h3>
-					<dl class="grid grid-cols-[180px_1fr] gap-x-4 gap-y-2.5 text-m">
+					<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[180px_1fr] gap-x-4 gap-y-2.5 text-m">
 						<dt class="text-ink-muted">Harga Beli Terakhir</dt>
 						<dd class="text-ink"><Amount :value="product.last_purchase_price" /></dd>
 						<dt class="text-ink-muted">Harga Jual</dt>

@@ -68,7 +68,7 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.sub_account_id = Number(v))"
 						/>
 					</FormField>
-					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+					<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 						<FormField
 							label="Kode Akun Perkiraan"
 							required

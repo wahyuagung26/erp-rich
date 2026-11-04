@@ -19,7 +19,7 @@ const onRefresh = useAttrs().onRefresh as (() => void) | undefined
 		<Button
 			v-if="onRefresh"
 			variant="outline"
-			class="!h-auto !px-2.5 self-stretch"
+			class="!h-auto min-h-[38px] !px-2.5 self-stretch"
 			aria-label="Muat ulang"
 			:disabled="loading"
 			title="Terapkan filter & muat ulang data"

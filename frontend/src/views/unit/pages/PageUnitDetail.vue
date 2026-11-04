@@ -66,7 +66,7 @@ function remove() {
 		<Panel v-else>
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Satuan</h3>
-				<dl class="grid grid-cols-[140px_1fr] gap-x-4 gap-y-2.5 text-m">
+				<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[140px_1fr] gap-x-4 gap-y-2.5 text-m">
 					<dt class="text-ink-muted">Kode Satuan</dt>
 					<dd class="text-ink">{{ unit.code }}</dd>
 					<dt class="text-ink-muted">Nama Satuan</dt>

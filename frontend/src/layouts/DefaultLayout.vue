@@ -3,6 +3,9 @@ import AppSidebar from '@/components/common/AppSidebar.vue'
 import AppTopbar from '@/components/common/AppTopbar.vue'
 import ConfirmDialog from '@/components/base/ConfirmDialog.vue'
 import ToastHost from '@/components/common/ToastHost.vue'
+import { useUiStore } from '@/stores/ui'
+
+const ui = useUiStore()
 
 // App shell. Rail + topbar + scrollable content. No borders anywhere —
 // surfaces read apart through the canvas gap (Borderless Design).
@@ -11,6 +14,7 @@ import ToastHost from '@/components/common/ToastHost.vue'
 <template>
 	<div class="flex h-screen">
 		<AppSidebar />
+		<div v-if="ui.mobileNavOpen" class="fixed inset-0 z-30 bg-black/40 lg:hidden" @click="ui.toggleMobileNav(false)" />
 		<div class="flex min-w-0 flex-1 flex-col gap-2">
 			<AppTopbar />
 			<main class="min-h-0 flex-1 overflow-y-auto">

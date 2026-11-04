@@ -49,7 +49,7 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Tipe Pembayaran</h3>
 				<div class="space-y-4">
-					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+					<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 						<FormField label="Kode" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
 							<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. TP01" />
 						</FormField>
@@ -67,7 +67,7 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.account_id = Number(v))"
 						/>
 					</FormField>
-					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+					<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 						<FormField label="Transaksi" required :error="errors.transaction_type">
 							<RadioGroup v-model="form.transaction_type" inline :options="[...TRANSACTION_TYPE_OPTIONS]" />
 						</FormField>

@@ -69,7 +69,7 @@ function remove() {
 		<Panel v-else>
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Akun Perkiraan</h3>
-				<dl class="grid grid-cols-[140px_1fr] gap-x-4 gap-y-2.5 text-m">
+				<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[140px_1fr] gap-x-4 gap-y-2.5 text-m">
 					<dt class="text-ink-muted">Sub Akun</dt>
 					<dd class="text-ink">{{ account.sub_account_code }} — {{ account.sub_account_name }}</dd>
 					<dt class="text-ink-muted">Kode Akun Perkiraan</dt>

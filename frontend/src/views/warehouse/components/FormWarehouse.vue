@@ -50,7 +50,7 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Gudang</h3>
 				<div class="space-y-4">
-					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+					<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 						<FormField label="Kode Gudang" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
 							<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. GD1" />
 						</FormField>
@@ -58,7 +58,7 @@ defineExpose({ setServerErrors })
 							<Input v-model="form.name" placeholder="mis. Gudang Pusat" />
 						</FormField>
 					</div>
-					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+					<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 						<FormField label="Jenis Gudang" required :error="errors.type">
 							<Select v-model="form.type" :options="[...WAREHOUSE_TYPES]" />
 						</FormField>

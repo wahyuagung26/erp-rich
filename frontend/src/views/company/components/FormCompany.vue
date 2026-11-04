@@ -69,7 +69,7 @@ defineExpose({ setServerErrors })
 		<form class="space-y-8" @submit.prevent="onSubmit">
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Perusahaan</h3>
-				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 					<FormField label="Kode Perusahaan" required :error="errors.code" hint="Handle singkat, mis. RIN. Harus unik.">
 						<Input v-model="form.code" mono placeholder="RIN" />
 					</FormField>
@@ -83,7 +83,7 @@ defineExpose({ setServerErrors })
 						<Input v-model="form.npwp" mono placeholder="00.000.000.0-000.000" />
 					</FormField>
 					<FormField
-						class="col-span-2"
+						class="sm:col-span-2"
 						label="Logo Perusahaan"
 						:error="errors.logo_url"
 						hint="JPG, PNG, GIF, atau WEBP. Maksimal 2 MB. Kosongkan untuk mempertahankan logo saat ini."
@@ -100,7 +100,7 @@ defineExpose({ setServerErrors })
 							<button v-if="form.logo_url" type="button" class="text-s text-danger hover:underline" @click="form.logo_url = ''">Hapus</button>
 						</div>
 					</FormField>
-					<FormField class="col-span-2" label="Alamat" :error="errors.address">
+					<FormField class="sm:col-span-2" label="Alamat" :error="errors.address">
 						<Textarea v-model="form.address" :rows="3" placeholder="Alamat lengkap perusahaan" />
 					</FormField>
 				</div>
@@ -108,8 +108,8 @@ defineExpose({ setServerErrors })
 
 			<section class="space-y-3">
 				<h3 class="subhead">Pengaturan</h3>
-				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
-					<FormField class="col-span-2" label="Tipe Perusahaan" required :error="errors.company_type">
+				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
+					<FormField class="sm:col-span-2" label="Tipe Perusahaan" required :error="errors.company_type">
 						<Select
 							:model-value="form.company_type"
 							:options="COMPANY_TYPES.map((o) => ({ label: o.label, value: o.value }))"
@@ -117,11 +117,11 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.company_type = v as CompanyType)"
 						/>
 					</FormField>
-					<FormField class="col-span-2" label="Pendataan Karyawan?">
+					<FormField class="sm:col-span-2" label="Pendataan Karyawan?">
 						<Checkbox v-model="form.hr_enabled" label="Ya, aktifkan untuk modul HR" />
 					</FormField>
 					<FormField
-						class="col-span-2"
+						class="sm:col-span-2"
 						label="Warna Header Laporan"
 						required
 						:error="errors.report_header_color"

@@ -70,7 +70,7 @@ function remove() {
 		<Panel v-else>
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Tipe Pembayaran</h3>
-				<dl class="grid grid-cols-[160px_1fr] gap-x-4 gap-y-2.5 text-m">
+				<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[160px_1fr] gap-x-4 gap-y-2.5 text-m">
 					<dt class="text-ink-muted">Kode</dt>
 					<dd class="text-ink">{{ paymentType.code }}</dd>
 					<dt class="text-ink-muted">Nama</dt>

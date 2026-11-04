@@ -49,7 +49,7 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Detail Rekening Bank</h3>
 				<div class="space-y-4">
-					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+					<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 						<FormField label="Kode Bank" required :error="errors.bank_code">
 							<Input v-model="form.bank_code" mono maxlength="12" placeholder="mis. CIMB" />
 						</FormField>

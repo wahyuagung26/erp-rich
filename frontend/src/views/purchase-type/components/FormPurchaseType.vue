@@ -43,7 +43,7 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Jenis Pembelian</h3>
 				<div class="space-y-4">
-					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+					<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 						<FormField
 							label="Kode Jenis Pembelian"
 							required

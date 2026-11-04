@@ -71,7 +71,7 @@ function remove() {
 			<div class="space-y-8">
 				<section class="space-y-3">
 					<h3 class="subhead">Identitas</h3>
-					<dl class="grid grid-cols-[160px_1fr] gap-x-4 gap-y-2.5 text-m">
+					<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[160px_1fr] gap-x-4 gap-y-2.5 text-m">
 						<dt class="text-ink-muted">Kode Customer</dt>
 						<dd class="text-ink">{{ customer.code }}</dd>
 						<dt class="text-ink-muted">Nama Customer</dt>
@@ -85,7 +85,7 @@ function remove() {
 
 				<section class="space-y-3">
 					<h3 class="subhead">Kontak</h3>
-					<dl class="grid grid-cols-[160px_1fr] gap-x-4 gap-y-2.5 text-m">
+					<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[160px_1fr] gap-x-4 gap-y-2.5 text-m">
 						<dt class="text-ink-muted">Telepon</dt>
 						<dd class="text-ink">{{ dash(customer.phone) }}</dd>
 						<dt class="text-ink-muted">Email</dt>
@@ -95,7 +95,7 @@ function remove() {
 
 				<section class="space-y-3">
 					<h3 class="subhead">Pajak &amp; Pembayaran</h3>
-					<dl class="grid grid-cols-[160px_1fr] items-center gap-x-4 gap-y-2.5 text-m">
+					<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[160px_1fr] items-center gap-x-4 gap-y-2.5 text-m">
 						<dt class="text-ink-muted">Status PKP</dt>
 						<dd>
 							<Badge :tone="customer.pkp ? 'success' : 'neutral'">{{ customer.pkp ? 'PKP' : 'Non-PKP' }}</Badge>
@@ -109,7 +109,7 @@ function remove() {
 
 				<section class="space-y-3">
 					<h3 class="subhead">Rekening Bank</h3>
-					<dl class="grid grid-cols-[160px_1fr] gap-x-4 gap-y-2.5 text-m">
+					<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[160px_1fr] gap-x-4 gap-y-2.5 text-m">
 						<dt class="text-ink-muted">Nama Bank</dt>
 						<dd class="text-ink">{{ dash(customer.bank_name) }}</dd>
 						<dt class="text-ink-muted">No. Rekening</dt>

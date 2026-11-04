@@ -105,17 +105,17 @@ defineExpose({ setServerErrors })
 		<form class="space-y-8" @submit.prevent="onSubmit">
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Produk</h3>
-				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 					<FormField label="Kode Produk" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
 						<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. PRD001" />
 					</FormField>
 					<FormField label="Nama Produk" required :error="errors.name">
 						<Input v-model="form.name" placeholder="mis. Kulkas 2 Pintu" />
 					</FormField>
-					<FormField class="col-span-2" label="Jenis Produk" required :error="errors.type">
+					<FormField class="sm:col-span-2" label="Jenis Produk" required :error="errors.type">
 						<RadioGroup v-model="form.type" inline :options="[...PRODUCT_TYPES]" />
 					</FormField>
-					<FormField class="col-span-2" label="Foto Produk" :error="errors.photo_url" hint="JPG, PNG, GIF, atau WEBP. Maksimal 2 MB.">
+					<FormField class="sm:col-span-2" label="Foto Produk" :error="errors.photo_url" hint="JPG, PNG, GIF, atau WEBP. Maksimal 2 MB.">
 						<div class="flex items-center gap-3">
 							<img v-if="form.photo_url" :src="form.photo_url" alt="Foto produk" class="h-14 w-14 rounded-md object-contain" />
 							<div v-else class="grid h-14 w-14 place-items-center rounded-md bg-fill text-xs text-ink-subtle">Foto</div>
@@ -133,7 +133,7 @@ defineExpose({ setServerErrors })
 
 			<section class="space-y-3">
 				<h3 class="subhead">Klasifikasi</h3>
-				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 					<FormField label="Merk" required :error="errors.brand_id">
 						<AsyncSelect
 							:model-value="form.brand_id || null"
@@ -174,7 +174,7 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.supplier_id = Number(v))"
 						/>
 					</FormField>
-					<FormField class="col-span-2" label="Satuan" required :error="errors.unit_id">
+					<FormField class="sm:col-span-2" label="Satuan" required :error="errors.unit_id">
 						<AsyncSelect
 							:model-value="form.unit_id || null"
 							endpoint="/unit"
@@ -190,8 +190,14 @@ defineExpose({ setServerErrors })
 
 			<section class="space-y-3">
 				<h3 class="subhead">Stok &amp; Harga</h3>
-				<div class="grid grid-cols-2 gap-x-5 gap-y-4">
-					<FormField class="col-span-2" label="Stok Minimal" required :error="errors.min_stock" hint="Batas stok minimal untuk peringatan restock.">
+				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
+					<FormField
+						class="sm:col-span-2"
+						label="Stok Minimal"
+						required
+						:error="errors.min_stock"
+						hint="Batas stok minimal untuk peringatan restock."
+					>
 						<Input
 							:model-value="form.min_stock"
 							type="number"
@@ -207,10 +213,10 @@ defineExpose({ setServerErrors })
 					<FormField label="Harga Jual" required :error="errors.selling_price" hint="Nominal rupiah tanpa desimal.">
 						<MoneyInput v-model="form.selling_price" />
 					</FormField>
-					<FormField class="col-span-2" label="HPP Rata-rata" hint="Dihitung otomatis dari transaksi pembelian. Tidak bisa diubah manual.">
+					<FormField class="sm:col-span-2" label="HPP Rata-rata" hint="Dihitung otomatis dari transaksi pembelian. Tidak bisa diubah manual.">
 						<MoneyInput :model-value="props.initial?.hpp_avg ?? 0" disabled class="max-w-[240px]" />
 					</FormField>
-					<FormField class="col-span-2" label="Keterangan" :error="errors.notes">
+					<FormField class="sm:col-span-2" label="Keterangan" :error="errors.notes">
 						<Textarea v-model="form.notes" :rows="2" placeholder="Keterangan produk" />
 					</FormField>
 				</div>

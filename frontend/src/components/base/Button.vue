@@ -28,7 +28,7 @@ const sizes: Record<string, string> = {
 }
 
 const classes = computed(() => [
-	'inline-flex items-center justify-center rounded-md font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none',
+	'inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none',
 	variants[props.variant],
 	sizes[props.size],
 	props.block && 'w-full'

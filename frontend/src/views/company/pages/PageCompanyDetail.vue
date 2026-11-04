@@ -70,7 +70,7 @@ function remove() {
 			<div class="space-y-8">
 				<section class="space-y-3">
 					<h3 class="subhead">Informasi Perusahaan</h3>
-					<dl class="grid grid-cols-[180px_1fr] gap-x-4 gap-y-2.5 text-m">
+					<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[180px_1fr] gap-x-4 gap-y-2.5 text-m">
 						<dt class="text-ink-muted">Kode Perusahaan</dt>
 						<dd class="text-ink">{{ company.code }}</dd>
 						<dt class="text-ink-muted">Nama Pendek</dt>
@@ -91,7 +91,7 @@ function remove() {
 
 				<section class="space-y-3">
 					<h3 class="subhead">Pengaturan</h3>
-					<dl class="grid grid-cols-[180px_1fr] items-center gap-x-4 gap-y-2.5 text-m">
+					<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[180px_1fr] items-center gap-x-4 gap-y-2.5 text-m">
 						<dt class="text-ink-muted">Tipe Perusahaan</dt>
 						<dd class="text-ink">{{ companyTypeLabel(company.company_type) }}</dd>
 						<dt class="text-ink-muted">Pendataan Karyawan</dt>

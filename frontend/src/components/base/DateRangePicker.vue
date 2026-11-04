@@ -18,9 +18,9 @@ function setTo(value: string) {
 </script>
 
 <template>
-	<div class="flex items-center gap-2">
-		<DatePicker :model-value="from" :max="to" :disabled="disabled" class="!w-40" @update:model-value="setFrom" />
+	<div class="flex w-full items-center gap-2 sm:w-auto">
+		<DatePicker :model-value="from" :max="to" :disabled="disabled" class="min-w-0 flex-1 sm:!w-40 sm:flex-none" @update:model-value="setFrom" />
 		<span class="text-s text-ink-subtle">s/d</span>
-		<DatePicker :model-value="to" :min="from" :disabled="disabled" class="!w-40" @update:model-value="setTo" />
+		<DatePicker :model-value="to" :min="from" :disabled="disabled" class="min-w-0 flex-1 sm:!w-40 sm:flex-none" @update:model-value="setTo" />
 	</div>
 </template>
