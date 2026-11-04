@@ -80,12 +80,12 @@ async function save(payload: JournalIncomeForm) {
 				</div>
 			</template>
 		</PageHeader>
-		<Panel v-if="loading" class="max-w-5xl"><Skeleton :lines="5" /></Panel>
-		<Panel v-else-if="notFound || !journal" class="max-w-5xl">
+		<Panel v-if="loading"><Skeleton :lines="5" /></Panel>
+		<Panel v-else-if="notFound || !journal">
 			<EmptyState title="Jurnal pemasukan tidak ditemukan" description="Data mungkin sudah dihapus." />
 			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push('/journal-income')">Kembali</Button></div>
 		</Panel>
-		<Panel v-else-if="journal.status !== 'submitted'" class="max-w-5xl">
+		<Panel v-else-if="journal.status !== 'submitted'">
 			<EmptyState title="Jurnal tidak dapat diedit" description="Hanya jurnal dengan status Menunggu Persetujuan yang dapat diedit." />
 			<div class="mt-3 flex justify-center">
 				<Button variant="secondary" @click="router.push(`/journal-income/${journal.id}`)">Lihat Detail</Button>

@@ -84,13 +84,13 @@ async function save(payload: SupplierAdvanceRequest) {
 <template>
 	<div class="space-y-4 p-4">
 		<PageHeader title="Uang Muka Supplier" subtitle="Pembelian" />
-		<Panel v-if="loading" class="max-w-5xl"><Skeleton :lines="6" /></Panel>
-		<Panel v-else-if="notFound || !advance" class="max-w-5xl">
+		<Panel v-if="loading"><Skeleton :lines="6" /></Panel>
+		<Panel v-else-if="notFound || !advance">
 			<EmptyState title="Uang muka supplier tidak ditemukan" description="Data mungkin sudah dihapus." />
 			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push('/supplier-advance')">Kembali</Button></div>
 		</Panel>
 		<template v-else-if="locked">
-			<Panel class="max-w-5xl">
+			<Panel>
 				<EmptyState title="Uang muka tidak dapat diubah" description="Uang muka yang sudah dipakai di Hutang Supplier tidak boleh diubah." />
 				<div class="mt-3 flex justify-center">
 					<Button variant="secondary" @click="router.push(`/supplier-advance/${advance.id}`)">Lihat Detail</Button>

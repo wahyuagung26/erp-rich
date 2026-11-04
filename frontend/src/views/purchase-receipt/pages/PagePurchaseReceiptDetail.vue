@@ -56,125 +56,123 @@ function remove() {
 
 <template>
 	<div class="space-y-4 p-4">
-		<div class="max-w-5xl space-y-4">
-			<PageHeader title="Detail Penerimaan Pembelian" subtitle="Pembelian"
-				><template #actions
-					><div class="flex flex-wrap items-center gap-2">
-						<Badge v-if="receipt" :tone="invoiceStatusTone[receipt.invoice_status]">{{ invoiceStatusLabel[receipt.invoice_status] }}</Badge
-						><Button size="sm" variant="subtle" @click="router.push('/purchase-receipt')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button
-						><Button v-if="canWrite" size="sm" variant="secondary" @click="router.push(`/purchase-receipt/edit/${receipt!.id}`)"
-							><IconPencil class="h-4 w-4" /> Edit</Button
-						><Button v-if="canWrite" size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button>
-					</div></template
-				></PageHeader
-			><Panel v-if="loading"><Skeleton :lines="10" /></Panel
-			><Panel v-else-if="notFound || !receipt"
-				><EmptyState title="Penerimaan pembelian tidak ditemukan" description="Data mungkin sudah dihapus." /></Panel
-			><Panel v-else
-				><div class="space-y-8">
-					<section class="space-y-3">
-						<h3 class="subhead">Informasi Transaksi</h3>
-						<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-							<div>
-								<dt class="text-s text-ink-muted">Nomor Penerimaan</dt>
-								<dd class="mt-1">{{ receipt.number }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Tanggal Penerimaan</dt>
-								<dd class="mt-1 font-mono tnum">{{ date(receipt.date) }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Order Pembelian</dt>
-								<dd class="mt-1">{{ receipt.purchase_order_number }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Departemen</dt>
-								<dd class="mt-1">{{ receipt.department_code }} — {{ receipt.department_name }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Surat Jalan Supplier</dt>
-								<dd class="mt-1">{{ receipt.delivery_note_number }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Dibuat Oleh</dt>
-								<dd class="mt-1">{{ receipt.created_by }}</dd>
-							</div>
-							<div class="md:col-span-3">
-								<dt class="text-s text-ink-muted">Keterangan</dt>
-								<dd class="mt-1 whitespace-pre-line">{{ receipt.description }}</dd>
-							</div>
-						</dl>
-					</section>
-
-					<section class="space-y-3">
-						<h3 class="subhead">Referensi Order Pembelian</h3>
-						<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-							<div>
-								<dt class="text-s text-ink-muted">Tanggal PO</dt>
-								<dd class="mt-1 font-mono tnum">{{ receipt.purchase_order_date ? date(receipt.purchase_order_date) : '–' }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Supplier</dt>
-								<dd class="mt-1">{{ receipt.supplier_code }} — {{ receipt.supplier_name }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Keterangan PO</dt>
-								<dd class="mt-1">{{ receipt.purchase_order_description || '–' }}</dd>
-							</div>
-						</dl>
-					</section>
-
-					<section class="space-y-3">
-						<h3 class="subhead">Produk</h3>
-						<div class="overflow-x-auto">
-							<table class="w-full min-w-[1120px] text-m">
-								<thead>
-									<tr class="border-b border-hairline text-left text-s text-ink-muted">
-										<th class="px-3 py-2">No.</th>
-										<th class="px-3 py-2">No Produk</th>
-										<th class="px-3 py-2">Nama Produk</th>
-										<th class="px-3 py-2">Merk</th>
-										<th class="px-3 py-2">Satuan</th>
-										<th class="px-3 py-2 text-right">Permintaan</th>
-										<th class="px-3 py-2 text-right">Belum Terima</th>
-										<th class="px-3 py-2 text-right">Sudah Terima</th>
-										<th class="px-3 py-2 text-right">Jumlah</th>
-										<th class="px-3 py-2">Gudang</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr v-for="(line, index) in receipt.lines" :key="index" class="border-b border-hairline last:border-0">
-										<td class="px-3 py-3 font-mono tnum">{{ index + 1 }}</td>
-										<td class="px-3 py-3">{{ line.product_code }}</td>
-										<td class="px-3 py-3">{{ line.product_name }}</td>
-										<td class="px-3 py-3">{{ line.brand_name || '–' }}</td>
-										<td class="px-3 py-3">{{ line.unit_name || '–' }}</td>
-										<td class="px-3 py-3 text-right font-mono tnum">{{ line.ordered_quantity }}</td>
-										<td class="px-3 py-3 text-right font-mono tnum">{{ line.remaining_quantity }}</td>
-										<td class="px-3 py-3 text-right font-mono tnum">{{ line.received_quantity }}</td>
-										<td class="px-3 py-3 text-right font-mono tnum">{{ line.quantity }}</td>
-										<td class="px-3 py-3">{{ line.warehouse_code ? `${line.warehouse_code} — ${line.warehouse_name}` : '–' }}</td>
-									</tr>
-								</tbody>
-							</table>
+		<PageHeader title="Detail Penerimaan Pembelian" subtitle="Pembelian"
+			><template #actions
+				><div class="flex flex-wrap items-center gap-2">
+					<Badge v-if="receipt" :tone="invoiceStatusTone[receipt.invoice_status]">{{ invoiceStatusLabel[receipt.invoice_status] }}</Badge
+					><Button size="sm" variant="subtle" @click="router.push('/purchase-receipt')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button
+					><Button v-if="canWrite" size="sm" variant="secondary" @click="router.push(`/purchase-receipt/edit/${receipt!.id}`)"
+						><IconPencil class="h-4 w-4" /> Edit</Button
+					><Button v-if="canWrite" size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button>
+				</div></template
+			></PageHeader
+		><Panel v-if="loading"><Skeleton :lines="10" /></Panel
+		><Panel v-else-if="notFound || !receipt"
+			><EmptyState title="Penerimaan pembelian tidak ditemukan" description="Data mungkin sudah dihapus." /></Panel
+		><Panel v-else
+			><div class="space-y-8">
+				<section class="space-y-3">
+					<h3 class="subhead">Informasi Transaksi</h3>
+					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
+						<div>
+							<dt class="text-s text-ink-muted">Nomor Penerimaan</dt>
+							<dd class="mt-1">{{ receipt.number }}</dd>
 						</div>
-					</section>
+						<div>
+							<dt class="text-s text-ink-muted">Tanggal Penerimaan</dt>
+							<dd class="mt-1 font-mono tnum">{{ date(receipt.date) }}</dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Order Pembelian</dt>
+							<dd class="mt-1">{{ receipt.purchase_order_number }}</dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Departemen</dt>
+							<dd class="mt-1">{{ receipt.department_code }} — {{ receipt.department_name }}</dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Surat Jalan Supplier</dt>
+							<dd class="mt-1">{{ receipt.delivery_note_number }}</dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Dibuat Oleh</dt>
+							<dd class="mt-1">{{ receipt.created_by }}</dd>
+						</div>
+						<div class="md:col-span-3">
+							<dt class="text-s text-ink-muted">Keterangan</dt>
+							<dd class="mt-1 whitespace-pre-line">{{ receipt.description }}</dd>
+						</div>
+					</dl>
+				</section>
 
-					<section class="space-y-3">
-						<h3 class="subhead">Ringkasan</h3>
-						<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
-							<div>
-								<dt class="text-s text-ink-muted">Jumlah Produk Diterima</dt>
-								<dd class="mt-1 font-mono tnum">{{ summary.productCount }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Total Kuantitas Diterima</dt>
-								<dd class="mt-1 font-mono tnum">{{ summary.totalQuantity }}</dd>
-							</div>
-						</dl>
-					</section>
-				</div></Panel
-			>
-		</div>
+				<section class="space-y-3">
+					<h3 class="subhead">Referensi Order Pembelian</h3>
+					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
+						<div>
+							<dt class="text-s text-ink-muted">Tanggal PO</dt>
+							<dd class="mt-1 font-mono tnum">{{ receipt.purchase_order_date ? date(receipt.purchase_order_date) : '–' }}</dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Supplier</dt>
+							<dd class="mt-1">{{ receipt.supplier_code }} — {{ receipt.supplier_name }}</dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Keterangan PO</dt>
+							<dd class="mt-1">{{ receipt.purchase_order_description || '–' }}</dd>
+						</div>
+					</dl>
+				</section>
+
+				<section class="space-y-3">
+					<h3 class="subhead">Produk</h3>
+					<div class="overflow-x-auto">
+						<table class="w-full min-w-[1120px] text-m">
+							<thead>
+								<tr class="border-b border-hairline text-left text-s text-ink-muted">
+									<th class="px-3 py-2">No.</th>
+									<th class="px-3 py-2">No Produk</th>
+									<th class="px-3 py-2">Nama Produk</th>
+									<th class="px-3 py-2">Merk</th>
+									<th class="px-3 py-2">Satuan</th>
+									<th class="px-3 py-2 text-right">Permintaan</th>
+									<th class="px-3 py-2 text-right">Belum Terima</th>
+									<th class="px-3 py-2 text-right">Sudah Terima</th>
+									<th class="px-3 py-2 text-right">Jumlah</th>
+									<th class="px-3 py-2">Gudang</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="(line, index) in receipt.lines" :key="index" class="border-b border-hairline last:border-0">
+									<td class="px-3 py-3 font-mono tnum">{{ index + 1 }}</td>
+									<td class="px-3 py-3">{{ line.product_code }}</td>
+									<td class="px-3 py-3">{{ line.product_name }}</td>
+									<td class="px-3 py-3">{{ line.brand_name || '–' }}</td>
+									<td class="px-3 py-3">{{ line.unit_name || '–' }}</td>
+									<td class="px-3 py-3 text-right font-mono tnum">{{ line.ordered_quantity }}</td>
+									<td class="px-3 py-3 text-right font-mono tnum">{{ line.remaining_quantity }}</td>
+									<td class="px-3 py-3 text-right font-mono tnum">{{ line.received_quantity }}</td>
+									<td class="px-3 py-3 text-right font-mono tnum">{{ line.quantity }}</td>
+									<td class="px-3 py-3">{{ line.warehouse_code ? `${line.warehouse_code} — ${line.warehouse_name}` : '–' }}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</section>
+
+				<section class="space-y-3">
+					<h3 class="subhead">Ringkasan</h3>
+					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
+						<div>
+							<dt class="text-s text-ink-muted">Jumlah Produk Diterima</dt>
+							<dd class="mt-1 font-mono tnum">{{ summary.productCount }}</dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Total Kuantitas Diterima</dt>
+							<dd class="mt-1 font-mono tnum">{{ summary.totalQuantity }}</dd>
+						</div>
+					</dl>
+				</section>
+			</div></Panel
+		>
 	</div>
 </template>

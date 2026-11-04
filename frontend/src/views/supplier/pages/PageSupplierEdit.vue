@@ -60,8 +60,8 @@ async function save(payload: SupplierForm) {
 <template>
 	<div class="space-y-4 p-4">
 		<PageHeader title="Edit Supplier" subtitle="Master data vendor" />
-		<Panel v-if="loading" class="max-w-5xl"><Skeleton :lines="6" /></Panel>
-		<Panel v-else-if="notFound || !supplier" class="max-w-5xl">
+		<Panel v-if="loading"><Skeleton :lines="6" /></Panel>
+		<Panel v-else-if="notFound || !supplier">
 			<EmptyState title="Supplier tidak ditemukan" description="Data mungkin sudah dihapus." />
 			<div class="mt-3 flex justify-center">
 				<Button variant="secondary" @click="router.push('/supplier')">Kembali</Button>

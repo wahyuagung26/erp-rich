@@ -57,8 +57,8 @@ async function save(payload: ProductForm) {
 <template>
 	<div class="space-y-4 p-4">
 		<PageHeader title="Edit Produk" subtitle="Master data produk" />
-		<Panel v-if="loading" class="max-w-5xl"><Skeleton :lines="4" /></Panel>
-		<Panel v-else-if="notFound || !product" class="max-w-5xl">
+		<Panel v-if="loading"><Skeleton :lines="4" /></Panel>
+		<Panel v-else-if="notFound || !product">
 			<EmptyState title="Produk tidak ditemukan" description="Data mungkin sudah dihapus." />
 			<div class="mt-3 flex justify-center">
 				<Button variant="secondary" @click="router.push('/product')">Kembali</Button>

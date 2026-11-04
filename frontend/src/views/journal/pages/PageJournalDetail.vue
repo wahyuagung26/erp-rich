@@ -106,133 +106,131 @@ function remove() {
 
 <template>
 	<div class="space-y-4 p-4">
-		<div class="max-w-5xl space-y-4">
-			<PageHeader title="Detail Jurnal" subtitle="Jurnal Umum">
-				<template #actions>
-					<div class="flex flex-wrap items-center gap-2">
-						<Badge v-if="journal" :tone="journalStatusTone[journal.status]" class="mr-1">{{ journalStatusLabel[journal.status] }}</Badge>
-						<Button size="sm" variant="subtle" @click="router.push('/journal')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
-						<template v-if="journal?.status === 'submitted'">
-							<Button size="sm" variant="secondary" @click="router.push(`/journal/edit/${journal.id}`)"><IconPencil class="h-4 w-4" /> Edit</Button>
-							<Button size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button>
-							<Button size="sm" @click="openApprove"><IconCheck class="h-4 w-4" /> Setujui</Button>
-							<Button size="sm" variant="danger" @click="changeStatus('rejected')"><IconX class="h-4 w-4" /> Tolak</Button>
-						</template>
-						<Button v-else-if="journal?.status === 'rejected'" size="sm" variant="secondary" @click="changeStatus('submitted')">
-							<IconRefresh class="h-4 w-4" /> Ajukan Ulang
-						</Button>
-					</div>
-				</template>
-			</PageHeader>
-
-			<Panel v-if="loading"><Skeleton :lines="8" /></Panel>
-			<Panel v-else-if="notFound || !journal">
-				<EmptyState title="Jurnal tidak ditemukan" description="Data mungkin sudah dihapus." />
-			</Panel>
-			<Panel v-else>
-				<div class="space-y-8">
-					<section class="space-y-3">
-						<h3 class="subhead">Informasi Jurnal</h3>
-						<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-							<div>
-								<dt class="text-s text-ink-muted">No. Transaksi</dt>
-								<dd class="mt-1 text-m text-ink">{{ journal.number }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Tanggal</dt>
-								<dd class="mt-1 text-m text-ink">{{ date(journal.date) }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Voucher</dt>
-								<dd class="mt-1 text-m text-ink">{{ journal.voucher }}</dd>
-							</div>
-							<div class="md:col-span-2">
-								<dt class="text-s text-ink-muted">Keterangan</dt>
-								<dd class="mt-1 whitespace-pre-line text-m text-ink">{{ journal.description }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Lampiran</dt>
-								<dd class="mt-1 text-m">
-									<a
-										v-if="journal.attachment"
-										:href="journal.attachment.data_url"
-										:download="journal.attachment.name"
-										target="_blank"
-										class="text-primary-dark hover:underline"
-										>{{ journal.attachment.name }}</a
-									><span v-else class="text-ink-muted">–</span>
-								</dd>
-							</div>
-							<template v-if="journal.status === 'approved'">
-								<div>
-									<dt class="text-s text-ink-muted">Disetujui oleh</dt>
-									<dd class="mt-1 text-m text-ink">{{ journal.approved_by ?? '–' }}</dd>
-								</div>
-								<div>
-									<dt class="text-s text-ink-muted">Waktu Persetujuan</dt>
-									<dd class="mt-1 text-m text-ink">{{ journal.approved_at ? date(journal.approved_at, 'DD MMM YYYY HH:mm') : '–' }}</dd>
-								</div>
-							</template>
-							<div v-if="journal.rejection_reason" class="md:col-span-3">
-								<dt class="text-s text-ink-muted">Alasan Penolakan</dt>
-								<dd class="mt-1 text-m text-danger">{{ journal.rejection_reason }}</dd>
-							</div>
-						</dl>
-					</section>
-
-					<section class="space-y-3">
-						<h3 class="subhead">Detail Jurnal</h3>
-						<div class="overflow-x-auto">
-							<table class="w-full min-w-[760px] text-m">
-								<thead>
-									<tr class="border-b border-hairline text-left text-s text-ink-muted">
-										<th class="px-3 py-2">Akun Perkiraan</th>
-										<th class="px-3 py-2">Departemen</th>
-										<th class="px-3 py-2">Arus Kas</th>
-										<th class="px-3 py-2 text-right">Debit</th>
-										<th class="px-3 py-2 text-right">Kredit</th>
-										<th class="px-3 py-2">Keterangan</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr v-for="(line, index) in journal.lines" :key="index" class="border-b border-hairline last:border-0">
-										<td class="px-3 py-3 text-ink">{{ line.account_code }} — {{ line.account_name }}</td>
-										<td class="px-3 py-3 text-ink">{{ line.department_code ? `${line.department_code} — ${line.department_name}` : '–' }}</td>
-										<td class="px-3 py-3 text-ink">{{ line.cash_flow ? (line.cash_flow_name ?? line.cash_flow) : '–' }}</td>
-										<td class="px-3 py-3 text-right"><Amount :value="line.debit" /></td>
-										<td class="px-3 py-3 text-right"><Amount :value="line.credit" /></td>
-										<td class="px-3 py-3 text-ink">{{ line.detail_description || '–' }}</td>
-									</tr>
-								</tbody>
-								<tfoot>
-									<tr class="border-t border-hairline text-s">
-										<td class="px-3 py-3 text-ink-muted" colspan="3">Total</td>
-										<td class="px-3 py-3 text-right"><Amount :value="journal.total" /></td>
-										<td class="px-3 py-3 text-right"><Amount :value="journal.total" /></td>
-										<td class="px-3 py-3"></td>
-									</tr>
-								</tfoot>
-							</table>
-						</div>
-					</section>
-				</div>
-			</Panel>
-
-			<Modal :open="approveOpen" title="Setujui Jurnal" size="sm" @close="approveOpen = false">
-				<p class="text-s text-ink-muted">
-					Konfirmasi persetujuan jurnal <span class="text-ink">{{ journal?.number }}</span
-					>. Tanggal jurnal dapat disesuaikan sebelum disetujui.
-				</p>
-				<FormField class="mt-4" label="Tanggal Jurnal" required>
-					<DatePicker v-model="approveDate" />
-				</FormField>
-				<template #footer>
-					<Button variant="subtle" @click="approveOpen = false">Batal</Button>
-					<Button :loading="approving" :disabled="!approveDate" @click="confirmApprove">
-						<IconCheck v-if="!approving" class="h-4 w-4" /> Setujui
+		<PageHeader title="Detail Jurnal" subtitle="Jurnal Umum">
+			<template #actions>
+				<div class="flex flex-wrap items-center gap-2">
+					<Badge v-if="journal" :tone="journalStatusTone[journal.status]" class="mr-1">{{ journalStatusLabel[journal.status] }}</Badge>
+					<Button size="sm" variant="subtle" @click="router.push('/journal')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
+					<template v-if="journal?.status === 'submitted'">
+						<Button size="sm" variant="secondary" @click="router.push(`/journal/edit/${journal.id}`)"><IconPencil class="h-4 w-4" /> Edit</Button>
+						<Button size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button>
+						<Button size="sm" @click="openApprove"><IconCheck class="h-4 w-4" /> Setujui</Button>
+						<Button size="sm" variant="danger" @click="changeStatus('rejected')"><IconX class="h-4 w-4" /> Tolak</Button>
+					</template>
+					<Button v-else-if="journal?.status === 'rejected'" size="sm" variant="secondary" @click="changeStatus('submitted')">
+						<IconRefresh class="h-4 w-4" /> Ajukan Ulang
 					</Button>
-				</template>
-			</Modal>
-		</div>
+				</div>
+			</template>
+		</PageHeader>
+
+		<Panel v-if="loading"><Skeleton :lines="8" /></Panel>
+		<Panel v-else-if="notFound || !journal">
+			<EmptyState title="Jurnal tidak ditemukan" description="Data mungkin sudah dihapus." />
+		</Panel>
+		<Panel v-else>
+			<div class="space-y-8">
+				<section class="space-y-3">
+					<h3 class="subhead">Informasi Jurnal</h3>
+					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
+						<div>
+							<dt class="text-s text-ink-muted">No. Transaksi</dt>
+							<dd class="mt-1 text-m text-ink">{{ journal.number }}</dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Tanggal</dt>
+							<dd class="mt-1 text-m text-ink">{{ date(journal.date) }}</dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Voucher</dt>
+							<dd class="mt-1 text-m text-ink">{{ journal.voucher }}</dd>
+						</div>
+						<div class="md:col-span-2">
+							<dt class="text-s text-ink-muted">Keterangan</dt>
+							<dd class="mt-1 whitespace-pre-line text-m text-ink">{{ journal.description }}</dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Lampiran</dt>
+							<dd class="mt-1 text-m">
+								<a
+									v-if="journal.attachment"
+									:href="journal.attachment.data_url"
+									:download="journal.attachment.name"
+									target="_blank"
+									class="text-primary-dark hover:underline"
+									>{{ journal.attachment.name }}</a
+								><span v-else class="text-ink-muted">–</span>
+							</dd>
+						</div>
+						<template v-if="journal.status === 'approved'">
+							<div>
+								<dt class="text-s text-ink-muted">Disetujui oleh</dt>
+								<dd class="mt-1 text-m text-ink">{{ journal.approved_by ?? '–' }}</dd>
+							</div>
+							<div>
+								<dt class="text-s text-ink-muted">Waktu Persetujuan</dt>
+								<dd class="mt-1 text-m text-ink">{{ journal.approved_at ? date(journal.approved_at, 'DD MMM YYYY HH:mm') : '–' }}</dd>
+							</div>
+						</template>
+						<div v-if="journal.rejection_reason" class="md:col-span-3">
+							<dt class="text-s text-ink-muted">Alasan Penolakan</dt>
+							<dd class="mt-1 text-m text-danger">{{ journal.rejection_reason }}</dd>
+						</div>
+					</dl>
+				</section>
+
+				<section class="space-y-3">
+					<h3 class="subhead">Detail Jurnal</h3>
+					<div class="overflow-x-auto">
+						<table class="w-full min-w-[760px] text-m">
+							<thead>
+								<tr class="border-b border-hairline text-left text-s text-ink-muted">
+									<th class="px-3 py-2">Akun Perkiraan</th>
+									<th class="px-3 py-2">Departemen</th>
+									<th class="px-3 py-2">Arus Kas</th>
+									<th class="px-3 py-2 text-right">Debit</th>
+									<th class="px-3 py-2 text-right">Kredit</th>
+									<th class="px-3 py-2">Keterangan</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="(line, index) in journal.lines" :key="index" class="border-b border-hairline last:border-0">
+									<td class="px-3 py-3 text-ink">{{ line.account_code }} — {{ line.account_name }}</td>
+									<td class="px-3 py-3 text-ink">{{ line.department_code ? `${line.department_code} — ${line.department_name}` : '–' }}</td>
+									<td class="px-3 py-3 text-ink">{{ line.cash_flow ? (line.cash_flow_name ?? line.cash_flow) : '–' }}</td>
+									<td class="px-3 py-3 text-right"><Amount :value="line.debit" /></td>
+									<td class="px-3 py-3 text-right"><Amount :value="line.credit" /></td>
+									<td class="px-3 py-3 text-ink">{{ line.detail_description || '–' }}</td>
+								</tr>
+							</tbody>
+							<tfoot>
+								<tr class="border-t border-hairline text-s">
+									<td class="px-3 py-3 text-ink-muted" colspan="3">Total</td>
+									<td class="px-3 py-3 text-right"><Amount :value="journal.total" /></td>
+									<td class="px-3 py-3 text-right"><Amount :value="journal.total" /></td>
+									<td class="px-3 py-3"></td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+				</section>
+			</div>
+		</Panel>
+
+		<Modal :open="approveOpen" title="Setujui Jurnal" size="sm" @close="approveOpen = false">
+			<p class="text-s text-ink-muted">
+				Konfirmasi persetujuan jurnal <span class="text-ink">{{ journal?.number }}</span
+				>. Tanggal jurnal dapat disesuaikan sebelum disetujui.
+			</p>
+			<FormField class="mt-4" label="Tanggal Jurnal" required>
+				<DatePicker v-model="approveDate" />
+			</FormField>
+			<template #footer>
+				<Button variant="subtle" @click="approveOpen = false">Batal</Button>
+				<Button :loading="approving" :disabled="!approveDate" @click="confirmApprove">
+					<IconCheck v-if="!approving" class="h-4 w-4" /> Setujui
+				</Button>
+			</template>
+		</Modal>
 	</div>
 </template>

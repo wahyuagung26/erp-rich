@@ -65,7 +65,7 @@ defineExpose({ setServerErrors })
 
 <template>
 	<!-- Left edge aligns with the breadcrumb / page title / list panel. -->
-	<Panel class="max-w-5xl">
+	<Panel>
 		<form class="space-y-8" @submit.prevent="onSubmit">
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Perusahaan</h3>

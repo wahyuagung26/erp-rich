@@ -46,7 +46,7 @@ defineExpose({ setServerErrors })
 
 <template>
 	<!-- Left edge aligns with the breadcrumb / page title / list panel; fills most of the page frame. -->
-	<Panel class="max-w-5xl">
+	<Panel>
 		<form class="space-y-8" @submit.prevent="onSubmit">
 			<!-- Sections are separated by whitespace + a light heading, not a grey bar. -->
 			<section class="space-y-3">

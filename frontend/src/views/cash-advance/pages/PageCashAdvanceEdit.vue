@@ -88,13 +88,13 @@ async function save(payload: CashAdvanceRequest) {
 				</div>
 			</template>
 		</PageHeader>
-		<Panel v-if="loading" class="max-w-5xl"><Skeleton :lines="5" /></Panel>
-		<Panel v-else-if="notFound || !advance" class="max-w-5xl">
+		<Panel v-if="loading"><Skeleton :lines="5" /></Panel>
+		<Panel v-else-if="notFound || !advance">
 			<EmptyState title="Uang muka operasional tidak ditemukan" description="Data mungkin sudah dihapus." />
 			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push('/cash-advance')">Kembali</Button></div>
 		</Panel>
 		<template v-else-if="advance.status !== 'submitted'">
-			<Panel class="max-w-5xl">
+			<Panel>
 				<EmptyState title="Uang muka tidak dapat diedit" description="Hanya uang muka dengan status Menunggu Persetujuan yang dapat diedit." />
 				<div class="mt-3 flex justify-center">
 					<Button variant="secondary" @click="router.push(`/cash-advance/${advance.id}`)">Lihat Detail</Button>

@@ -57,8 +57,8 @@ async function save(payload: CustomerForm) {
 <template>
 	<div class="space-y-4 p-4">
 		<PageHeader title="Edit Customer" subtitle="Master data pelanggan" />
-		<Panel v-if="loading" class="max-w-5xl"><Skeleton :lines="6" /></Panel>
-		<Panel v-else-if="notFound || !customer" class="max-w-5xl">
+		<Panel v-if="loading"><Skeleton :lines="6" /></Panel>
+		<Panel v-else-if="notFound || !customer">
 			<EmptyState title="Customer tidak ditemukan" description="Data mungkin sudah dihapus." />
 			<div class="mt-3 flex justify-center">
 				<Button variant="secondary" @click="router.push('/customer')">Kembali</Button>
