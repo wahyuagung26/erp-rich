@@ -73,7 +73,7 @@ function remove() {
 					<dt class="text-ink-muted">Sub Akun</dt>
 					<dd class="text-ink">{{ account.sub_account_code }} — {{ account.sub_account_name }}</dd>
 					<dt class="text-ink-muted">Kode Akun Perkiraan</dt>
-					<dd class="font-mono tnum text-ink">{{ account.code }}</dd>
+					<dd class="tnum text-ink">{{ account.code }}</dd>
 					<dt class="text-ink-muted">Nama Akun Perkiraan</dt>
 					<dd class="text-ink">{{ account.name }}</dd>
 					<dt class="text-ink-muted">Tipe Akun</dt>

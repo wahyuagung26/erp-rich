@@ -60,11 +60,7 @@ function remove(row: SubAccount) {
 
 			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
 				<template #table-content="{ row, column }">
-					<button
-						v-if="row.field === 'code'"
-						class="font-mono tnum text-primary-dark hover:underline"
-						@click="router.push(`/sub-account/${column.id}`)"
-					>
+					<button v-if="row.field === 'code'" class="tnum text-primary-dark hover:underline" @click="router.push(`/sub-account/${column.id}`)">
 						{{ column.code }}
 					</button>
 					<span v-else-if="row.field === 'normal_balance'" class="text-ink-muted">{{ column.normal_balance === 'debit' ? 'Debit' : 'Kredit' }}</span>

@@ -113,13 +113,13 @@ Full rules in `DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
   — a grey bar reads as box-in-box next to `bg-fill` inputs), `space-y-8` between sections in
   `<form>`. A hairline (`border-hairline`) is a last resort: table row dividers, sticky header
   underline, stat-tile separators.
-- **Filled inputs** (`bg-fill`, no border); focus uses the global ring.
+- **Outlined inputs** (`border border-ink-subtle/30 bg-panel` — white field with a light border, like dashboard-kpi-it; disabled → `bg-fill`); focus uses the global ring.
 - **High density**: base font 13px (`text-m`). Table/form `comfortable`/`compact` modes toggle via
   topbar, persisted in `stores/ui`.
-- **Numeric spine**: `font-mono` + `.tnum` only where digit-alignment aids column scanning — amounts
+- **Numeric spine**: `.tnum` (Inter tabular digits) only where digit-alignment aids column scanning — **never a monospace font; numbers, codes and dates use the same Inter family as every other field** — amounts
   (via `<Amount>`, right-aligned, negatives red + parentheses) and dates. NOT identifiers (account
   code, transaction/invoice number), phone, or formatted phrases ("30 hari") — those are plain
-  Inter. In form inputs, `<Input mono>` is still fine for fixed-format entry (code, NPWP, phone).
+  Inter. `<Input mono>` now only turns on `.tnum` for fixed-format entry (code, NPWP, phone) — it does not change the font family.
 - Colors are RGB-channel CSS variables in `src/assets/tokens.css` (Tailwind alpha modifiers work,
   e.g. `bg-primary/10`; dark mode is a future `.dark {}` block — tokens and `darkMode: 'class'` are
   ready but no dark UI exists yet). Accent `primary` = `#0E7C6B`; changing it is one edit in

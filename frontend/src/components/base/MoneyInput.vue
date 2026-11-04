@@ -56,7 +56,9 @@ const { class: className, style, ...inputAttrs } = attrs
 
 <template>
 	<div class="relative w-full" :class="className" :style="style">
-		<div class="flex w-full items-stretch overflow-hidden rounded-md bg-fill focus-within:ring-2 focus-within:ring-primary/40">
+		<div
+			class="flex w-full items-stretch overflow-hidden rounded-md border border-ink-subtle/30 bg-panel focus-within:ring-2 focus-within:ring-primary/40"
+		>
 			<span class="flex select-none items-center whitespace-nowrap border-r border-hairline px-3 text-s text-ink-muted">Rp</span>
 			<input
 				ref="input"
@@ -65,7 +67,7 @@ const { class: className, style, ...inputAttrs } = attrs
 				inputmode="numeric"
 				:value="displayValue"
 				:disabled="disabled"
-				class="w-full bg-transparent px-3 py-2 text-right font-mono tnum text-m text-ink placeholder:text-ink-subtle outline-none disabled:opacity-50"
+				class="w-full bg-transparent px-3 py-2 text-right tnum text-m text-ink placeholder:text-ink-subtle outline-none disabled:opacity-50"
 				@focus="onFocus"
 				@input="onInput"
 				@blur="onBlur"

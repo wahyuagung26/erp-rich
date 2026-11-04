@@ -125,7 +125,7 @@ function calculated(line: PurchaseOrderLineDraft) {
 				</thead>
 				<tbody>
 					<tr v-for="(line, index) in lines" :key="`${line.product_id}-${index}`" class="border-b border-hairline last:border-0">
-						<td class="px-3 py-3 font-mono tnum">{{ index + 1 }}</td>
+						<td class="px-3 py-3 tnum">{{ index + 1 }}</td>
 						<td class="px-3 py-3">
 							<div v-if="!disabled" class="flex gap-1">
 								<button
@@ -150,7 +150,7 @@ function calculated(line: PurchaseOrderLineDraft) {
 						<td class="px-3 py-3">{{ line.product_name }}</td>
 						<td class="px-3 py-3">{{ line.brand_name || '–' }}</td>
 						<td class="px-3 py-3">{{ line.unit_name || '–' }}</td>
-						<td class="px-3 py-3 text-right font-mono tnum">{{ line.quantity }}</td>
+						<td class="px-3 py-3 text-right tnum">{{ line.quantity }}</td>
 						<td class="px-3 py-3 text-right"><Amount :value="line.price" /></td>
 						<td class="px-3 py-3 text-right"><Amount :value="line.discount" /></td>
 						<td class="px-3 py-3 text-right"><Amount :value="calculated(line).dpp" /></td>

@@ -29,7 +29,12 @@ const hasSuffix = !!useSlots().suffix
 <template>
 	<div class="relative w-full" :class="[attrs.class]">
 		<!-- with `addon`, input + trailing label share one filled pill (Bootstrap input-group) -->
-		<div :class="['flex w-full items-stretch', addon && 'overflow-hidden rounded-md bg-fill focus-within:ring-2 focus-within:ring-primary/40']">
+		<div
+			:class="[
+				'flex w-full items-stretch',
+				addon && 'overflow-hidden rounded-md border border-ink-subtle/30 bg-panel focus-within:ring-2 focus-within:ring-primary/40'
+			]"
+		>
 			<input
 				v-bind="inputAttrs"
 				:type="type"
@@ -38,9 +43,9 @@ const hasSuffix = !!useSlots().suffix
 				:disabled="disabled"
 				:class="[
 					'w-full px-3 py-2 text-m text-ink placeholder:text-ink-subtle disabled:opacity-50',
-					addon ? 'bg-transparent focus-visible:ring-0' : 'rounded-md bg-fill',
+					addon ? 'bg-transparent focus-visible:ring-0' : 'rounded-md border border-ink-subtle/30 bg-panel disabled:bg-fill',
 					align === 'right' && 'text-right',
-					mono && 'font-mono tnum',
+					mono && 'tnum',
 					hasSuffix && 'pr-9'
 				]"
 				@input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"

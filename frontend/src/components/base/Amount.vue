@@ -11,7 +11,7 @@ const negative = computed(() => isNegative(props.value))
 </script>
 
 <template>
-	<span class="font-mono tnum tabular-nums" :class="[negative ? 'text-danger' : muted ? 'text-ink-subtle' : 'text-ink']">
+	<span class="tnum tabular-nums" :class="[negative ? 'text-danger' : muted ? 'text-ink-subtle' : 'text-ink']">
 		{{ text }}
 	</span>
 </template>

@@ -158,12 +158,12 @@ Full rules in `frontend/DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
   `<section class="space-y-3">` + `<h3 class="subhead">` (plain uppercase label, no
   background), `space-y-8` between sections. A hairline (`border-hairline`) is a last resort
   (table row dividers, sticky header underline).
-- **Filled inputs** (`bg-fill`, no border); focus uses the global ring.
-- **Numeric spine**: `font-mono` + `.tnum` only where digit-alignment aids column scanning —
+- **Outlined inputs** (`border border-ink-subtle/30 bg-panel` — white field with a light border, like dashboard-kpi-it; disabled → `bg-fill`); focus uses the global ring.
+- **Numeric spine**: `.tnum` (Inter tabular digits) only where digit-alignment aids column scanning — **never a monospace font; numbers, codes and dates use the same Inter family as every other field** —
   amounts and dates. NOT identifiers (account code, transaction/invoice number), phone, or
   formatted phrases ("30 hari") — those are plain Inter. Money goes through `<Amount>`
   (negatives red + parentheses). `src/utils/format.ts` has `money`/`number`/`date`.
-  (In form inputs, `<Input mono>` is still fine for fixed-format entry: code, NPWP, phone.)
+  (`<Input mono>` now only turns on `.tnum` for fixed-format entry — code, NPWP, phone — it does not change the font family.)
 - Colors are RGB-channel CSS variables in `src/assets/tokens.css` (so Tailwind alpha
   modifiers work and dark mode is a later `.dark {}` block). Accent `primary` = `#0E7C6B`;
   changing it is one edit in `tokens.css`. Semantic names (`primary/danger/warning/success/info`,

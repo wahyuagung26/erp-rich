@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 const props = withDefaults(
 	defineProps<{
-		variant?: 'primary' | 'secondary' | 'danger' | 'subtle'
+		variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'subtle'
 		size?: 'sm' | 'md'
 		type?: 'button' | 'submit'
 		disabled?: boolean
@@ -18,6 +18,7 @@ defineEmits<{ click: [MouseEvent] }>()
 const variants: Record<string, string> = {
 	primary: 'bg-primary text-ink-invert hover:bg-primary-dark',
 	secondary: 'bg-fill text-ink hover:bg-hairline',
+	outline: 'border border-ink-subtle/30 bg-panel text-ink-muted hover:bg-fill hover:text-ink', // same outline as form inputs
 	danger: 'bg-danger text-ink-invert hover:opacity-90',
 	subtle: 'text-ink-muted hover:bg-fill'
 }

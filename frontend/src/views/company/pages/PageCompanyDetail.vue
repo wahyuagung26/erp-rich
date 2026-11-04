@@ -99,7 +99,7 @@ function remove() {
 						<dt class="text-ink-muted">Warna Header Laporan</dt>
 						<dd class="flex items-center gap-2">
 							<span class="inline-block h-5 w-8 rounded" :style="{ backgroundColor: company.report_header_color }" />
-							<span class="font-mono tnum text-ink">{{ company.report_header_color }}</span>
+							<span class="tnum text-ink">{{ company.report_header_color }}</span>
 						</dd>
 					</dl>
 				</section>

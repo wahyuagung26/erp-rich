@@ -61,7 +61,7 @@ const alignClass = (a?: string) => (a === 'right' ? 'text-right' : a === 'center
 				<tr v-for="(column, rowIndex) in columns" v-else :key="rowIndex" class="transition-colors hover:bg-fill">
 					<td v-for="row in rows" :key="row.field" :class="[pad, alignClass(row.align)]">
 						<slot name="table-content" :row="row" :column="column" :index="rowIndex" :row-index="rowIndex">
-							<span :class="{ 'font-mono tnum': row.align === 'right' }">{{ column[row.field] ?? '-' }}</span>
+							<span :class="{ tnum: row.align === 'right' }">{{ column[row.field] ?? '-' }}</span>
 						</slot>
 					</td>
 				</tr>

@@ -91,7 +91,7 @@ const tableData = [
 			<div class="space-y-2">
 				<p v-for="[label, cls] in typeScale" :key="label" :class="cls">
 					{{ label }} — Neraca konsolidasi
-					<span class="ml-2 font-mono tnum text-ink-muted">1.234.567</span>
+					<span class="ml-2 tnum text-ink-muted">1.234.567</span>
 				</p>
 			</div>
 		</Panel>
@@ -173,7 +173,7 @@ const tableData = [
 		<Panel title="Tabel">
 			<Table :rows="tableRows" :columns="tableData">
 				<template #table-content="{ row, column }">
-					<span v-if="row.field === 'code'" class="font-mono tnum">{{ column.code }}</span>
+					<span v-if="row.field === 'code'" class="tnum">{{ column.code }}</span>
 					<Amount v-else-if="row.field === 'total'" :value="column.total as number" />
 					<span v-else>{{ column[row.field] }}</span>
 				</template>

@@ -79,13 +79,13 @@ const rows: TableRow[] = [
 
 			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
 				<template #table-content="{ row, column, rowIndex }">
-					<span v-if="row.field === 'no'" class="font-mono tnum text-ink-muted">
+					<span v-if="row.field === 'no'" class="tnum text-ink-muted">
 						{{ ((pagination?.page ?? 1) - 1) * (pagination?.per_page ?? 20) + rowIndex + 1 }}
 					</span>
 					<button v-else-if="row.field === 'number'" class="text-primary-dark hover:underline" @click="router.push(`/supplier-advance/${column.id}`)">
 						{{ column.number }}
 					</button>
-					<span v-else-if="row.field === 'date'" class="font-mono tnum text-ink-muted">{{ date(column.date as string) }}</span>
+					<span v-else-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
 					<span v-else-if="row.field === 'department_name'" class="text-ink">{{ column.department_name }}</span>
 					<span v-else-if="row.field === 'supplier_name'" class="text-ink">{{ column.supplier_code }} — {{ column.supplier_name }}</span>
 					<Amount v-else-if="row.field === 'amount'" :value="column.amount as number" />

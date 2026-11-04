@@ -15,8 +15,17 @@ const onRefresh = useAttrs().onRefresh as (() => void) | undefined
 <template>
 	<div class="flex flex-wrap items-center gap-2">
 		<slot />
-		<Button v-if="onRefresh" size="sm" variant="secondary" :loading="loading" title="Terapkan filter & muat ulang" @click="onRefresh">
-			<IconRefresh class="h-4 w-4" />
+		<!-- same outline + height as the inputs beside it; the icon itself spins while loading (no layout shift) -->
+		<Button
+			v-if="onRefresh"
+			variant="outline"
+			class="!h-auto !px-2.5 self-stretch"
+			aria-label="Muat ulang"
+			:disabled="loading"
+			title="Terapkan filter & muat ulang data"
+			@click="onRefresh"
+		>
+			<IconRefresh :class="['h-4 w-4', loading && 'animate-spin']" />
 		</Button>
 	</div>
 </template>

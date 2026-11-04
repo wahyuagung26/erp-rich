@@ -157,7 +157,7 @@ A change that passes `vue-tsc` but was never rendered is **not done**.
   explaining behaviour the user can't infer ("this account is auto-credited for the total",
   "TOP 0 = cash / COD"), never a description of the section. Legacy screens carry filler
   subtitles; drop them on port.
-- **Filled inputs**; **`font-mono .tnum` only for money (`<Amount>`) and dates** — NOT codes,
+- **Outlined inputs** (white `bg-panel` + `border border-ink-subtle/30`, disabled = `bg-fill`); **`.tnum` (Inter tabular digits — never `font-mono`) only for money (`<Amount>`) and dates** — NOT codes,
   transaction numbers, phone, or formatted phrases ("30 hari").
 - **Form width**: `DefaultLayout` centres every page in `mx-auto max-w-[1200px]`. Inside that,
   a form `<Panel class="max-w-5xl">` **left-aligned** (edge lines up with breadcrumb / page

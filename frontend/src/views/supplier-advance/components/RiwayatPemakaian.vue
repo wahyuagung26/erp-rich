@@ -44,8 +44,8 @@ const columns: TableRow[] = [
 		<h3 class="subhead">Riwayat Pemakaian Uang Muka</h3>
 		<Table :rows="columns" :columns="rows as unknown as Record<string, unknown>[]" :loading="loading" empty-text="Belum ada pemakaian uang muka">
 			<template #table-content="{ row, column, rowIndex }">
-				<span v-if="row.field === 'no'" class="font-mono tnum text-ink-muted">{{ rowIndex + 1 }}</span>
-				<span v-else-if="row.field === 'date'" class="font-mono tnum text-ink-muted">{{ date(column.date as string) }}</span>
+				<span v-if="row.field === 'no'" class="tnum text-ink-muted">{{ rowIndex + 1 }}</span>
+				<span v-else-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
 				<span v-else-if="row.field === 'payable_number'" class="text-ink">{{ column.payable_number }}</span>
 				<span v-else-if="row.field === 'payment_number'" class="text-ink">{{ column.payment_number }}</span>
 				<span v-else-if="row.field === 'note'" class="text-ink-muted">{{ column.note || '–' }}</span>

@@ -124,7 +124,7 @@ defineExpose({ setServerErrors })
 				<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 					<div>
 						<dt class="text-s text-ink-muted">Tanggal PO</dt>
-						<dd class="mt-1 font-mono tnum">{{ formatDate(poReference.date) }}</dd>
+						<dd class="mt-1 tnum">{{ formatDate(poReference.date) }}</dd>
 					</div>
 					<div>
 						<dt class="text-s text-ink-muted">Supplier</dt>
@@ -148,11 +148,11 @@ defineExpose({ setServerErrors })
 				<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
 					<div>
 						<dt class="text-s text-ink-muted">Jumlah Produk Diterima</dt>
-						<dd class="mt-1 font-mono tnum">{{ summary.productCount }}</dd>
+						<dd class="mt-1 tnum">{{ summary.productCount }}</dd>
 					</div>
 					<div>
 						<dt class="text-s text-ink-muted">Total Kuantitas Diterima</dt>
-						<dd class="mt-1 font-mono tnum">{{ summary.totalQuantity }}</dd>
+						<dd class="mt-1 tnum">{{ summary.totalQuantity }}</dd>
 					</div>
 				</dl>
 			</section>

@@ -7,7 +7,7 @@ defineProps<{ label: string; value: string; delta?: string; deltaTone?: 'success
 <template>
 	<div class="px-4 py-3">
 		<p class="text-s text-ink-muted">{{ label }}</p>
-		<p class="mt-1 font-mono text-heading-m tnum text-ink">{{ value }}</p>
+		<p class="mt-1 text-heading-m tnum text-ink">{{ value }}</p>
 		<p
 			v-if="delta"
 			class="mt-0.5 text-s"

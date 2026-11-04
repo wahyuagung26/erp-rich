@@ -104,7 +104,7 @@ function remove() {
 						</div>
 						<div>
 							<dt class="text-s text-ink-muted">Tanggal</dt>
-							<dd class="mt-1 font-mono tnum">{{ date(order.date) }}</dd>
+							<dd class="mt-1 tnum">{{ date(order.date) }}</dd>
 						</div>
 						<div>
 							<dt class="text-s text-ink-muted">Supplier</dt>
@@ -171,13 +171,13 @@ function remove() {
 							</thead>
 							<tbody>
 								<tr v-for="(line, index) in order.lines" :key="index" class="border-b border-hairline last:border-0">
-									<td class="px-3 py-3 font-mono tnum">{{ index + 1 }}</td>
+									<td class="px-3 py-3 tnum">{{ index + 1 }}</td>
 									<td class="px-3 py-3">{{ line.product_code }}</td>
 									<td class="px-3 py-3">{{ line.product_name }}</td>
 									<td class="px-3 py-3">{{ line.brand_name || '–' }}</td>
 									<td class="px-3 py-3">{{ line.unit_name || '–' }}</td>
 
-									<td class="px-3 py-3 text-right font-mono tnum">{{ line.quantity }}</td>
+									<td class="px-3 py-3 text-right tnum">{{ line.quantity }}</td>
 									<td class="px-3 py-3 text-right"><Amount :value="line.price" /></td>
 									<td class="px-3 py-3 text-right"><Amount :value="line.discount" /></td>
 									<td class="px-3 py-3 text-right"><Amount :value="line.dpp" /></td>

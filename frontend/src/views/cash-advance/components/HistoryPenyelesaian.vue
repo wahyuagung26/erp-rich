@@ -161,8 +161,8 @@ function remove(row: CashAdvanceSettlement) {
 
 			<Table :rows="columns" :columns="rows as unknown as Record<string, unknown>[]" :loading="loading" empty-text="Belum ada penyelesaian">
 				<template #table-content="{ row, column, rowIndex }">
-					<span v-if="row.field === 'no'" class="font-mono tnum text-ink-muted">{{ rowIndex + 1 }}</span>
-					<span v-else-if="row.field === 'date'" class="font-mono tnum text-ink-muted">{{ date(column.date as string) }}</span>
+					<span v-if="row.field === 'no'" class="tnum text-ink-muted">{{ rowIndex + 1 }}</span>
+					<span v-else-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
 					<span v-else-if="row.field === 'number'" class="text-ink">{{ column.number }}</span>
 					<Amount v-else-if="row.field === 'amount'" :value="column.amount as number" />
 					<Amount v-else-if="row.field === 'remaining_after'" :value="column.remaining_after as number" />

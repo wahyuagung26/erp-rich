@@ -63,8 +63,8 @@ onMounted(async () => {
 		<Panel title="Jurnal Terakhir">
 			<Table :rows="rows" :columns="(summary?.recent_journals as unknown as Record<string, unknown>[]) ?? []" :loading="loading">
 				<template #table-content="{ row, column }">
-					<span v-if="row.field === 'date'" class="font-mono tnum text-ink-muted">{{ date(column.date as string) }}</span>
-					<span v-else-if="row.field === 'number'" class="font-mono text-ink-muted">{{ column.number }}</span>
+					<span v-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
+					<span v-else-if="row.field === 'number'" class="text-ink-muted">{{ column.number }}</span>
 					<Amount v-else-if="row.field === 'total'" :value="column.total as number" />
 					<span v-else>{{ column[row.field] }}</span>
 				</template>

@@ -135,7 +135,7 @@ const rows: TableRow[] = [
 						:disabled="(column.status as JournalStatus) !== 'submitted'"
 						@update:model-value="(v) => toggleRow(column.id as number, v)"
 					/>
-					<span v-else-if="row.field === 'date'" class="font-mono tnum text-ink-muted">{{ date(column.date as string) }}</span>
+					<span v-else-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
 					<span v-else-if="row.field === 'number'" class="text-ink">{{ column.number }}</span>
 					<span v-else-if="row.field === 'voucher'" class="text-ink">{{ column.voucher }}</span>
 					<Badge v-else-if="row.field === 'status'" :tone="statusTone[column.status as JournalStatus]" :title="column.rejection_reason as string">

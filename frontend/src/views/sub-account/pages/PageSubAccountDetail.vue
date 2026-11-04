@@ -70,7 +70,7 @@ function remove() {
 					<dt class="text-ink-muted">Group Perkiraan</dt>
 					<dd class="text-ink">{{ subAccount.account_group_code }} — {{ subAccount.account_group_name }}</dd>
 					<dt class="text-ink-muted">Kode Sub Akun</dt>
-					<dd class="font-mono tnum text-ink">{{ subAccount.code }}</dd>
+					<dd class="tnum text-ink">{{ subAccount.code }}</dd>
 					<dt class="text-ink-muted">Nama Sub Akun</dt>
 					<dd class="text-ink">{{ subAccount.name }}</dd>
 					<dt class="text-ink-muted">Saldo Normal</dt>

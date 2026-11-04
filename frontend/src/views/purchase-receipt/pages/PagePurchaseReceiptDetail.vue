@@ -80,7 +80,7 @@ function remove() {
 						</div>
 						<div>
 							<dt class="text-s text-ink-muted">Tanggal Penerimaan</dt>
-							<dd class="mt-1 font-mono tnum">{{ date(receipt.date) }}</dd>
+							<dd class="mt-1 tnum">{{ date(receipt.date) }}</dd>
 						</div>
 						<div>
 							<dt class="text-s text-ink-muted">Order Pembelian</dt>
@@ -110,7 +110,7 @@ function remove() {
 					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
 							<dt class="text-s text-ink-muted">Tanggal PO</dt>
-							<dd class="mt-1 font-mono tnum">{{ receipt.purchase_order_date ? date(receipt.purchase_order_date) : '–' }}</dd>
+							<dd class="mt-1 tnum">{{ receipt.purchase_order_date ? date(receipt.purchase_order_date) : '–' }}</dd>
 						</div>
 						<div>
 							<dt class="text-s text-ink-muted">Supplier</dt>
@@ -143,15 +143,15 @@ function remove() {
 							</thead>
 							<tbody>
 								<tr v-for="(line, index) in receipt.lines" :key="index" class="border-b border-hairline last:border-0">
-									<td class="px-3 py-3 font-mono tnum">{{ index + 1 }}</td>
+									<td class="px-3 py-3 tnum">{{ index + 1 }}</td>
 									<td class="px-3 py-3">{{ line.product_code }}</td>
 									<td class="px-3 py-3">{{ line.product_name }}</td>
 									<td class="px-3 py-3">{{ line.brand_name || '–' }}</td>
 									<td class="px-3 py-3">{{ line.unit_name || '–' }}</td>
-									<td class="px-3 py-3 text-right font-mono tnum">{{ line.ordered_quantity }}</td>
-									<td class="px-3 py-3 text-right font-mono tnum">{{ line.remaining_quantity }}</td>
-									<td class="px-3 py-3 text-right font-mono tnum">{{ line.received_quantity }}</td>
-									<td class="px-3 py-3 text-right font-mono tnum">{{ line.quantity }}</td>
+									<td class="px-3 py-3 text-right tnum">{{ line.ordered_quantity }}</td>
+									<td class="px-3 py-3 text-right tnum">{{ line.remaining_quantity }}</td>
+									<td class="px-3 py-3 text-right tnum">{{ line.received_quantity }}</td>
+									<td class="px-3 py-3 text-right tnum">{{ line.quantity }}</td>
 									<td class="px-3 py-3">{{ line.warehouse_code ? `${line.warehouse_code} — ${line.warehouse_name}` : '–' }}</td>
 								</tr>
 							</tbody>
@@ -164,11 +164,11 @@ function remove() {
 					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
 						<div>
 							<dt class="text-s text-ink-muted">Jumlah Produk Diterima</dt>
-							<dd class="mt-1 font-mono tnum">{{ summary.productCount }}</dd>
+							<dd class="mt-1 tnum">{{ summary.productCount }}</dd>
 						</div>
 						<div>
 							<dt class="text-s text-ink-muted">Total Kuantitas Diterima</dt>
-							<dd class="mt-1 font-mono tnum">{{ summary.totalQuantity }}</dd>
+							<dd class="mt-1 tnum">{{ summary.totalQuantity }}</dd>
 						</div>
 					</dl>
 				</section>

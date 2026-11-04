@@ -42,14 +42,14 @@ function updateWarehouse(index: number, value: number | string | null) {
 			</thead>
 			<tbody>
 				<tr v-for="(line, index) in lines" :key="line.product_id" class="border-b border-hairline last:border-0">
-					<td class="px-3 py-3 font-mono tnum">{{ index + 1 }}</td>
+					<td class="px-3 py-3 tnum">{{ index + 1 }}</td>
 					<td class="px-3 py-3">{{ line.product_code }}</td>
 					<td class="px-3 py-3">{{ line.product_name }}</td>
 					<td class="px-3 py-3">{{ line.brand_name || '–' }}</td>
 					<td class="px-3 py-3">{{ line.unit_name || '–' }}</td>
-					<td class="px-3 py-3 text-right font-mono tnum">{{ line.ordered_quantity }}</td>
-					<td class="px-3 py-3 text-right font-mono tnum">{{ line.remaining_quantity }}</td>
-					<td class="px-3 py-3 text-right font-mono tnum">{{ line.received_quantity }}</td>
+					<td class="px-3 py-3 text-right tnum">{{ line.ordered_quantity }}</td>
+					<td class="px-3 py-3 text-right tnum">{{ line.remaining_quantity }}</td>
+					<td class="px-3 py-3 text-right tnum">{{ line.received_quantity }}</td>
 					<td class="min-w-[120px] px-3 py-3">
 						<Input
 							type="number"

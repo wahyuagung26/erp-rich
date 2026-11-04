@@ -113,7 +113,7 @@ onClickOutside(root, onClose)
 		<button
 			type="button"
 			:disabled="disabled"
-			class="flex w-full items-center justify-between gap-2 rounded-md bg-fill px-3 py-2 text-left text-m text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-50"
+			class="flex w-full items-center justify-between gap-2 rounded-md border border-ink-subtle/30 bg-panel px-3 py-2 text-left text-m text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:bg-fill disabled:opacity-50"
 			@click="open ? onClose() : onOpen()"
 		>
 			<span :class="['truncate', !selectedLabel && 'text-ink-subtle']">{{ selectedLabel || placeholder }}</span>
