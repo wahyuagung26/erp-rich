@@ -58,7 +58,13 @@ function remove(row: SalesExpense) {
 				<Input v-model="q" placeholder="Cari kode / nama…" class="!w-64" @update:model-value="runSearch" />
 			</FilterBar>
 
-			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
+			<Table
+				@row-dblclick="(r) => router.push(`/sales-expense/${r.id}`)"
+				:rows="rows"
+				:columns="columns as unknown as Record<string, unknown>[]"
+				:loading="loading"
+				@handle-sort="handleSort"
+			>
 				<template #table-content="{ row, column }">
 					<button v-if="row.field === 'code'" class="text-primary-dark hover:underline" @click="router.push(`/sales-expense/${column.id}`)">
 						{{ column.code }}

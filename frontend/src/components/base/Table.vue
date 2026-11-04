@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, getCurrentInstance } from 'vue'
 import { IconArrowNarrowUp, IconArrowNarrowDown } from '@tabler/icons-vue'
 import Spinner from './Spinner.vue'
 import EmptyState from './EmptyState.vue'
@@ -18,7 +18,14 @@ const props = withDefaults(
 	{ density: 'comfortable', emptyText: 'Tidak ada data' }
 )
 
-defineEmits<{ handleSort: [TableRow] }>()
+const emit = defineEmits<{ handleSort: [TableRow]; rowDblclick: [Record<string, unknown>] }>()
+
+// Legacy ERP behaviour: double-click a row to open it. Clicks on buttons/links/inputs inside the row keep their own meaning.
+const clickable = !!getCurrentInstance()?.vnode.props?.onRowDblclick
+function onRowDblclick(e: MouseEvent, column: Record<string, unknown>) {
+	if ((e.target as HTMLElement).closest('button, a, input, label, select, textarea')) return
+	emit('rowDblclick', column)
+}
 
 const pad = computed(() => (props.density === 'compact' ? 'px-3 py-1.5' : 'px-4 py-2.5'))
 const alignClass = (a?: string) => (a === 'right' ? 'text-right' : a === 'center' ? 'text-center' : 'text-left')
@@ -58,7 +65,14 @@ const alignClass = (a?: string) => (a === 'right' ? 'text-right' : a === 'center
 						<EmptyState :title="emptyText" />
 					</td>
 				</tr>
-				<tr v-for="(column, rowIndex) in columns" v-else :key="rowIndex" class="transition-colors hover:bg-fill">
+				<tr
+					v-for="(column, rowIndex) in columns"
+					v-else
+					:key="rowIndex"
+					class="transition-colors hover:bg-fill"
+					:class="{ 'cursor-pointer': clickable }"
+					@dblclick="onRowDblclick($event, column)"
+				>
 					<td v-for="row in rows" :key="row.field" :class="[pad, alignClass(row.align)]">
 						<slot name="table-content" :row="row" :column="column" :index="rowIndex" :row-index="rowIndex">
 							<span :class="{ tnum: row.align === 'right' }">{{ column[row.field] ?? '-' }}</span>

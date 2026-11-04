@@ -74,7 +74,13 @@ function remove(row: Supplier) {
 				/>
 			</FilterBar>
 
-			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
+			<Table
+				@row-dblclick="(r) => router.push(`/supplier/${r.id}`)"
+				:rows="rows"
+				:columns="columns as unknown as Record<string, unknown>[]"
+				:loading="loading"
+				@handle-sort="handleSort"
+			>
 				<template #table-content="{ row, column }">
 					<button v-if="row.field === 'code'" class="text-primary-dark hover:underline" @click="router.push(`/supplier/${column.id}`)">
 						{{ column.code }}

@@ -128,7 +128,13 @@ const rows: TableRow[] = [
 				</Button>
 			</div>
 
-			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
+			<Table
+				@row-dblclick="(r) => router.push(`/journal-expense/${r.id}`)"
+				:rows="rows"
+				:columns="columns as unknown as Record<string, unknown>[]"
+				:loading="loading"
+				@handle-sort="handleSort"
+			>
 				<template #table-content="{ row, column }">
 					<Checkbox
 						v-if="row.field === 'select'"

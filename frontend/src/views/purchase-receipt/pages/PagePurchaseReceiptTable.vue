@@ -84,7 +84,13 @@ const rows: TableRow[] = [
 				<Select v-model="invoiceStatus" :options="invoiceOptions" class="!w-52" @update:model-value="applyAll" />
 				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" @change="applyAll" />
 			</FilterBar>
-			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">
+			<Table
+				@row-dblclick="(r) => router.push(`/purchase-receipt/${r.id}`)"
+				:rows="rows"
+				:columns="columns as unknown as Record<string, unknown>[]"
+				:loading="loading"
+				@handle-sort="handleSort"
+			>
 				<template #table-content="{ row, column, rowIndex }">
 					<span v-if="row.field === 'no'" class="tnum text-ink-muted">{{
 						((pagination?.page ?? 1) - 1) * (pagination?.per_page ?? 20) + rowIndex + 1
