@@ -32,6 +32,7 @@ const attachmentSchema = v.object({
 
 export const cashAdvanceDraftSchema = v.object({
 	number: v.string(),
+	voucher: v.string(),
 	date: v.string(),
 	department_id: v.nullable(v.number()),
 	department_code: v.optional(v.string()),
@@ -48,12 +49,13 @@ export const cashAdvanceDraftSchema = v.object({
 	advance_account_name: v.optional(v.string()),
 	cash_flow: v.string(),
 	cash_flow_name: v.optional(v.string()),
-	attachment: v.nullable(attachmentSchema)
+	attachments: v.array(attachmentSchema)
 })
 
 export type CashAdvanceDraft = v.InferOutput<typeof cashAdvanceDraftSchema>
 
 export const cashAdvanceRequestSchema = v.object({
+	voucher: v.pipe(v.string(), v.trim(), v.nonEmpty('Nomor voucher wajib diisi')),
 	date: v.pipe(v.string(), v.regex(/^\d{4}-\d{2}-\d{2}$/, 'Tanggal wajib diisi')),
 	department_id: v.pipe(
 		v.number('Departemen wajib dipilih'),
@@ -74,13 +76,14 @@ export const cashAdvanceRequestSchema = v.object({
 		v.check((n) => n > 0, 'Akun uang muka wajib dipilih')
 	),
 	cash_flow: v.string(),
-	attachment: v.object({ name: v.string(), type: v.string(), size: v.number(), data_url: v.string() }, 'Lampiran wajib diunggah')
+	attachments: v.pipe(v.array(attachmentSchema), v.minLength(1, 'Lampiran wajib diunggah'), v.maxLength(5, 'Maksimal 5 lampiran'))
 })
 
 export type CashAdvanceRequest = v.InferOutput<typeof cashAdvanceRequestSchema>
 
 export function parseCashAdvance(data: CashAdvanceDraft): { data: CashAdvanceRequest | null; errors: Record<string, string> | null } {
 	const result = v.safeParse(cashAdvanceRequestSchema, {
+		voucher: data.voucher,
 		date: data.date,
 		department_id: data.department_id,
 		recipient: data.recipient,
@@ -89,7 +92,7 @@ export function parseCashAdvance(data: CashAdvanceDraft): { data: CashAdvanceReq
 		cash_account_id: data.cash_account_id,
 		advance_account_id: data.advance_account_id,
 		cash_flow: data.cash_flow,
-		attachment: data.attachment
+		attachments: data.attachments
 	})
 	const errors = result.success
 		? {}
@@ -114,7 +117,7 @@ export const settlementRequestSchema = v.object({
 
 export type SettlementRequest = v.InferOutput<typeof settlementRequestSchema>
 
-export function parseSettlement(data: { date: string; amount: number; attachment: CashAdvanceDraft['attachment'] }, cap: number) {
+export function parseSettlement(data: { date: string; amount: number; attachment: v.InferOutput<typeof attachmentSchema> | null }, cap: number) {
 	const result = v.safeParse(settlementRequestSchema, data)
 	const errors = result.success
 		? {}

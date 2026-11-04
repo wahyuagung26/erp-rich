@@ -490,6 +490,7 @@ export interface JournalIncome {
 export interface CashAdvance {
 	id: number
 	number: string
+	voucher: string
 	date: string
 	department_id: number
 	department_code?: string
@@ -507,7 +508,7 @@ export interface CashAdvance {
 	advance_account_name?: string
 	cash_flow: string | null
 	cash_flow_name?: string
-	attachment: JournalAttachment | null
+	attachments: JournalAttachment[]
 	status: JournalStatus
 	rejection_reason: string | null
 	approved_by: string | null

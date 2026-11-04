@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconPaperclip, IconSend, IconX } from '@tabler/icons-vue'
+import { IconSend, IconX } from '@tabler/icons-vue'
 import api from '@/utils/api'
-import { useToast } from '@/composables/useToast'
 import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import DatePicker from '@/components/base/DatePicker.vue'
@@ -12,6 +11,7 @@ import Textarea from '@/components/base/Textarea.vue'
 import MoneyInput from '@/components/base/MoneyInput.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Button from '@/components/base/Button.vue'
+import AttachmentInput from '@/components/base/AttachmentInput.vue'
 import { parseCashAdvance, type CashAdvanceDraft, type CashAdvanceRequest } from '@/views/cash-advance/schema'
 import type { Account, CashFlow, Department } from '@/utils/types'
 
@@ -19,14 +19,15 @@ const emit = defineEmits<{ submit: [payload: CashAdvanceRequest] }>()
 const props = defineProps<{ loading?: boolean; initialValue?: CashAdvanceDraft; submitLabel?: string }>()
 
 const router = useRouter()
-const toast = useToast()
 const errors = ref<Record<string, string>>({})
+const isEdit = !!props.initialValue
 
 const form = reactive<CashAdvanceDraft>(
 	props.initialValue
-		? { ...props.initialValue, attachment: props.initialValue.attachment && { ...props.initialValue.attachment } }
+		? { ...props.initialValue, attachments: props.initialValue.attachments.map((file) => ({ ...file })) }
 		: {
 				number: '',
+				voucher: '',
 				date: new Date().toISOString().slice(0, 10),
 				department_id: null,
 				recipient: '',
@@ -36,7 +37,7 @@ const form = reactive<CashAdvanceDraft>(
 				cash_account_id: 0,
 				advance_account_id: 0,
 				cash_flow: '',
-				attachment: null
+				attachments: []
 			}
 )
 
@@ -116,35 +117,6 @@ async function onCashFlowChange(value: number | string | null) {
 	}
 }
 
-const MAX_ATTACHMENT = 5 * 1024 * 1024
-const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
-
-function onAttachmentPick(event: Event) {
-	const input = event.target as HTMLInputElement
-	const file = input.files?.[0]
-	if (!file) return
-	if (!ALLOWED_TYPES.includes(file.type)) {
-		toast.error('Lampiran harus berupa PDF, JPG, JPEG, atau PNG')
-		input.value = ''
-		return
-	}
-	if (file.size > MAX_ATTACHMENT) {
-		toast.error('Ukuran lampiran maksimal 5 MB')
-		input.value = ''
-		return
-	}
-	const reader = new FileReader()
-	reader.onload = () => {
-		// ponytail: keep prototype attachments as data URLs; switch to multipart upload when the backend exists.
-		form.attachment = { name: file.name, type: file.type, size: file.size, data_url: String(reader.result) }
-	}
-	reader.onerror = () => toast.error('Lampiran tidak dapat dibaca')
-	reader.readAsDataURL(file)
-}
-function removeAttachment() {
-	form.attachment = null
-}
-
 function submit() {
 	if (props.loading) return
 	const parsed = parseCashAdvance(form)
@@ -164,14 +136,14 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Uang Muka</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
-					<FormField label="No. Transaksi" hint="Nomor otomatis oleh sistem.">
+					<FormField label="No. Transaksi">
 						<Input :model-value="form.number" placeholder="Nomor otomatis" disabled />
 					</FormField>
 					<FormField label="Tanggal" required :error="errors.date">
 						<DatePicker v-model="form.date" />
 					</FormField>
-					<FormField label="Sisa" hint="Nilai dikurangi terpakai.">
-						<MoneyInput :model-value="remaining" disabled />
+					<FormField label="No. Voucher" required :error="errors.voucher">
+						<Input v-model="form.voucher" placeholder="Nomor bukti kas keluar" />
 					</FormField>
 					<FormField label="Departemen" required :error="errors.department_id">
 						<AsyncSelect
@@ -189,20 +161,31 @@ defineExpose({ setServerErrors })
 					<FormField label="Nilai" required :error="errors.amount">
 						<MoneyInput v-model="form.amount" />
 					</FormField>
+					<FormField class="md:col-span-2" label="Keterangan" hint="Opsional.">
+						<Textarea v-model="form.description" :rows="3" placeholder="Keterangan uang muka" />
+					</FormField>
+					<FormField label="Lampiran" required :error="errors.attachments" hint="PDF, JPG, atau PNG. Maks. 5 MB per file, hingga 5 file.">
+						<AttachmentInput v-model="form.attachments" />
+					</FormField>
 				</div>
 			</section>
 
 			<section class="space-y-3">
 				<h3 class="subhead">Akun & Arus Kas</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
-					<FormField label="Akun Kas / Bank" required :error="errors.cash_account_id">
+					<FormField
+						label="Sumber Dana (Kas / Bank)"
+						required
+						:error="errors.cash_account_id"
+						hint="Kas atau bank yang berkurang saat uang muka diberikan."
+					>
 						<AsyncSelect
 							:model-value="form.cash_account_id || null"
 							endpoint="/account"
 							:params="{ type: 'cash_bank' }"
 							:option-label="accountLabel"
 							:initial-label="form.cash_account_code ? `${form.cash_account_code} — ${form.cash_account_name}` : undefined"
-							placeholder="Cari akun kas/bank…"
+							placeholder="Pilih kas / bank…"
 							@update:model-value="onCashAccountChange"
 						/>
 					</FormField>
@@ -228,31 +211,19 @@ defineExpose({ setServerErrors })
 							@update:model-value="onCashFlowChange"
 						/>
 					</FormField>
-					<FormField label="Terpakai" hint="Terisi otomatis dari realisasi.">
-						<MoneyInput :model-value="form.used" disabled />
-					</FormField>
-					<FormField class="md:col-span-2" label="Lampiran" required :error="errors.attachment" hint="PDF, JPG, JPEG, atau PNG. Maksimal 5 MB.">
-						<div v-if="form.attachment" class="flex items-center gap-2 rounded-md bg-fill px-3 py-2 text-s">
-							<IconPaperclip class="h-4 w-4 shrink-0 text-primary" />
-							<span class="min-w-0 flex-1 truncate text-ink">{{ form.attachment.name }}</span>
-							<button type="button" class="text-danger hover:underline" @click="removeAttachment">Hapus</button>
-						</div>
-						<input
-							v-else
-							type="file"
-							accept="application/pdf,image/jpeg,image/png"
-							class="block w-full text-s text-ink-muted file:mr-2 file:rounded-md file:border-0 file:bg-fill file:px-3 file:py-2 file:text-s file:text-ink"
-							@change="onAttachmentPick"
-						/>
-					</FormField>
 				</div>
 			</section>
 
-			<section class="space-y-3">
-				<h3 class="subhead">Keterangan</h3>
-				<FormField label="Keterangan" hint="Opsional.">
-					<Textarea v-model="form.description" :rows="3" placeholder="Keterangan uang muka" />
-				</FormField>
+			<section v-if="isEdit" class="space-y-3">
+				<h3 class="subhead">Realisasi</h3>
+				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
+					<FormField label="Terpakai" hint="Terisi otomatis dari realisasi.">
+						<MoneyInput :model-value="form.used" disabled />
+					</FormField>
+					<FormField label="Sisa" hint="Nilai dikurangi terpakai.">
+						<MoneyInput :model-value="remaining" disabled />
+					</FormField>
+				</div>
 			</section>
 
 			<div class="flex flex-wrap gap-2 pt-2">

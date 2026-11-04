@@ -62,6 +62,7 @@ function resolve(row: CashAdvance): CashAdvance {
 
 function validateRequest(body: CashAdvanceRequest, existingUsed = 0): string | null {
 	if (!isDate(body.date)) return 'Tanggal wajib diisi'
+	if (!String(body.voucher ?? '').trim()) return 'Nomor voucher wajib diisi'
 	if (!db.department.find((d) => d.id === Number(body.department_id) && !d.deleted_at)) return 'Departemen tidak valid'
 	if (!String(body.recipient ?? '').trim()) return 'Penerima wajib diisi'
 	const amount = Number(body.amount) || 0
@@ -77,7 +78,8 @@ function validateRequest(body: CashAdvanceRequest, existingUsed = 0): string | n
 	if (advanceAccount.type !== 'asset') return 'Akun uang muka harus bertipe aset'
 
 	if (body.cash_flow && !db.cashFlow.find((f) => f.code === body.cash_flow)) return 'Arus kas tidak valid'
-	if (!body.attachment) return 'Lampiran wajib diunggah'
+	if (!Array.isArray(body.attachments) || !body.attachments.length) return 'Lampiran wajib diunggah'
+	if (body.attachments.length > 5) return 'Maksimal 5 lampiran'
 	return null
 }
 
@@ -88,6 +90,7 @@ function buildRow(
 	const amount = Number(body.amount) || 0
 	return {
 		...base,
+		voucher: String(body.voucher).trim(),
 		date: body.date,
 		department_id: Number(body.department_id),
 		recipient: String(body.recipient).trim(),
@@ -97,7 +100,7 @@ function buildRow(
 		cash_account_id: Number(body.cash_account_id),
 		advance_account_id: Number(body.advance_account_id),
 		cash_flow: body.cash_flow || null,
-		attachment: body.attachment
+		attachments: body.attachments
 	}
 }
 
@@ -152,7 +155,7 @@ export function registerCashAdvance(mock: MockAdapter) {
 		let rows = db.cashAdvance
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
-			rows = rows.filter((a) => `${a.number} ${a.recipient} ${a.date} ${a.description}`.toLowerCase().includes(q))
+			rows = rows.filter((a) => `${a.number} ${a.voucher} ${a.recipient} ${a.date} ${a.description}`.toLowerCase().includes(q))
 		}
 		if (p.approved === 'true') rows = rows.filter((a) => a.status === 'approved')
 		else if (p.approved === 'false') rows = rows.filter((a) => a.status !== 'approved')

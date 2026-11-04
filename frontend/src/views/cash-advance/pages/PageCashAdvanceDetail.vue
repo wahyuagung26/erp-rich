@@ -153,6 +153,10 @@ function remove() {
 							<dd class="mt-1 text-m text-ink">{{ date(advance.date) }}</dd>
 						</div>
 						<div>
+							<dt class="text-s text-ink-muted">No. Voucher</dt>
+							<dd class="mt-1 text-m text-ink">{{ advance.voucher }}</dd>
+						</div>
+						<div>
 							<dt class="text-s text-ink-muted">Departemen</dt>
 							<dd class="mt-1 text-m text-ink">{{ advance.department_code }} — {{ advance.department_name }}</dd>
 						</div>
@@ -191,7 +195,7 @@ function remove() {
 					<h3 class="subhead">Akun & Arus Kas</h3>
 					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
-							<dt class="text-s text-ink-muted">Akun Kas / Bank</dt>
+							<dt class="text-s text-ink-muted">Sumber Dana (Kas / Bank)</dt>
 							<dd class="mt-1 text-m text-ink">{{ advance.cash_account_code }} — {{ advance.cash_account_name }}</dd>
 						</div>
 						<div>
@@ -205,15 +209,18 @@ function remove() {
 						<div>
 							<dt class="text-s text-ink-muted">Lampiran</dt>
 							<dd class="mt-1 text-m">
-								<a
-									v-if="advance.attachment"
-									:href="advance.attachment.data_url"
-									:download="advance.attachment.name"
-									target="_blank"
-									class="inline-flex items-center gap-1 text-primary-dark hover:underline"
-								>
-									<IconPaperclip class="h-4 w-4" /> {{ advance.attachment.name }}
-								</a>
+								<ul v-if="advance.attachments.length" class="space-y-1">
+									<li v-for="(file, index) in advance.attachments" :key="file.name + index">
+										<a
+											:href="file.data_url"
+											:download="file.name"
+											target="_blank"
+											class="inline-flex items-center gap-1 text-primary-dark hover:underline"
+										>
+											<IconPaperclip class="h-4 w-4" /> {{ file.name }}
+										</a>
+									</li>
+								</ul>
 								<span v-else class="text-ink-muted">–</span>
 							</dd>
 						</div>

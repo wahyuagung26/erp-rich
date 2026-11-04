@@ -39,6 +39,7 @@ async function load() {
 
 const toForm = (value: CashAdvance): CashAdvanceDraft => ({
 	number: value.number,
+	voucher: value.voucher,
 	date: value.date,
 	department_id: value.department_id,
 	department_code: value.department_code,
@@ -55,7 +56,7 @@ const toForm = (value: CashAdvance): CashAdvanceDraft => ({
 	advance_account_name: value.advance_account_name,
 	cash_flow: value.cash_flow ?? '',
 	cash_flow_name: value.cash_flow_name,
-	attachment: value.attachment
+	attachments: value.attachments
 })
 
 async function save(payload: CashAdvanceRequest) {
@@ -83,7 +84,7 @@ async function save(payload: CashAdvanceRequest) {
 	<div class="space-y-4 p-4">
 		<PageHeader title="Edit Uang Muka Operasional" subtitle="Akuntansi">
 			<template v-if="advance" #actions>
-				<div class="flex items-center gap-2">
+				<div class="flex items-center gap-2 self-start">
 					<Badge :tone="journalStatusTone[advance.status]">{{ journalStatusLabel[advance.status] }}</Badge>
 				</div>
 			</template>

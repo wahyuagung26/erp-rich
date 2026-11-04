@@ -3,7 +3,7 @@ type: OKF Module
 title: Cash Advance
 description: Operational cash advance (uang muka operasional) — an amount handed to a recipient against a department, tracked to settlement, with the same approval workflow as Journal.
 tags: [cash-advance, advance, approval, settlement]
-timestamp: 2026-09-08T12:00:00Z
+timestamp: 2026-11-05T14:00:00Z
 ---
 
 # Cash Advance
@@ -25,6 +25,7 @@ advance's `status` is `approved`.
 |---|---|---|
 | `id` | number | auto-increment, server-assigned |
 | `number` | string | server-assigned, e.g. `UM-2609-001`; not user-editable |
+| `voucher` | string | "No. Voucher" — manual entry, required (cash-out proof number) |
 | `date` | string | `YYYY-MM-DD` |
 | `department_id` | number | required |
 | `department_code` / `department_name` | string | denormalized, response only |
@@ -33,13 +34,13 @@ advance's `status` is `approved`.
 | `amount` | number | "Nilai"; required, > 0 |
 | `used` | number | "Terpakai" — server-computed, read-only; `0` until a settlement flow exists |
 | `remaining` | number | "Sisa" — server-computed = `amount - used` |
-| `cash_account_id` | number | "Akun Kas / Bank"; must be a `cash_bank` [`Account`](../account/index.md) |
+| `cash_account_id` | number | "Sumber Dana (Kas / Bank)" — the cash/bank account reduced when the advance is paid out; must be a `cash_bank` [`Account`](../account/index.md) |
 | `cash_account_code` / `cash_account_name` | string | denormalized, response only |
 | `advance_account_id` | number | "Akun Uang Muka"; must be an `asset` [`Account`](../account/index.md) |
 | `advance_account_code` / `advance_account_name` | string | denormalized, response only |
 | `cash_flow` | string \| null | optional cash-flow code from [`CashFlow`](../cash-flow/index.md) |
 | `cash_flow_name` | string | denormalized, response only |
-| `attachment` | object \| null | one PDF/JPG/JPEG/PNG attachment; max 5 MB; required |
+| `attachments` | object[] | 1–5 PDF/JPG/JPEG/PNG files, max 5 MB each; at least one required |
 | `status` | enum | `submitted`, `approved`, or `rejected` |
 | `rejection_reason` | string \| null | set when a submitted advance is rejected |
 | `approved_by` | string \| null | approver's name; set on approve, cleared on re-submit |

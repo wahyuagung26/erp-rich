@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconPaperclip, IconPlus } from '@tabler/icons-vue'
+import { IconPlus } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
@@ -20,7 +20,7 @@ import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
 import { journalStatusLabel } from '@/views/cash-advance/schema'
-import type { CashAdvance, JournalAttachment, JournalStatus, TableRow } from '@/utils/types'
+import type { CashAdvance, JournalStatus, TableRow } from '@/utils/types'
 
 const router = useRouter()
 const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<CashAdvance>({ endpoint: '/cash-advance' })
@@ -46,10 +46,6 @@ const statusTone: Record<JournalStatus, 'neutral' | 'primary' | 'success' | 'dan
 	rejected: 'danger'
 }
 
-function attachmentOf(column: Record<string, unknown>): JournalAttachment | null {
-	return (column.attachment as JournalAttachment | null) ?? null
-}
-
 function remove(row: CashAdvance) {
 	ask({ title: 'Hapus uang muka', message: `Hapus uang muka "${row.number}"?`, type: 'danger', confirmText: 'Hapus' }, async () => {
 		await api.delete(`/cash-advance/${row.id}`)
@@ -59,17 +55,15 @@ function remove(row: CashAdvance) {
 }
 
 const rows: TableRow[] = [
-	{ label: 'No', field: 'no', align: 'left' },
 	{ label: 'Tanggal', field: 'date', align: 'left', isSort: { activeSort: 'desc' } },
 	{ label: 'Nomor', field: 'number', align: 'left', isSort: { activeSort: 'asc' } },
+	{ label: 'Voucher', field: 'voucher', align: 'left' },
 	{ label: 'Departemen', field: 'department_name', align: 'left' },
 	{ label: 'Penerima', field: 'recipient', align: 'left', isSort: { activeSort: 'asc' } },
-	{ label: 'Keterangan', field: 'description', align: 'left' },
 	{ label: 'Nilai', field: 'amount', align: 'right' },
 	{ label: 'Penyelesaian', field: 'used', align: 'right' },
 	{ label: 'Sisa', field: 'remaining', align: 'right', isSort: { activeSort: 'asc' } },
 	{ label: 'Status', field: 'status', align: 'left' },
-	{ label: 'Lampiran', field: 'attachment', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -84,7 +78,7 @@ const rows: TableRow[] = [
 
 		<Panel>
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
-				<Input v-model="q" placeholder="Cari nomor / penerima / tanggal / keterangan…" class="!w-72" @update:model-value="runSearch" />
+				<Input v-model="q" placeholder="Cari nomor / voucher / penerima / keterangan…" class="!w-72" @update:model-value="runSearch" />
 				<Select v-model="approved" class="!w-52" placeholder="Semua" :options="approvalOptions" @update:model-value="applyAll" />
 			</FilterBar>
 
@@ -95,32 +89,21 @@ const rows: TableRow[] = [
 				:loading="loading"
 				@handle-sort="handleSort"
 			>
-				<template #table-content="{ row, column, rowIndex }">
-					<span v-if="row.field === 'no'" class="tnum text-ink-muted">
-						{{ ((pagination?.page ?? 1) - 1) * (pagination?.per_page ?? 10) + rowIndex + 1 }}
-					</span>
-					<span v-else-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
-					<span v-else-if="row.field === 'number'" class="text-ink">{{ column.number }}</span>
-					<span v-else-if="row.field === 'department_name'" class="text-ink">{{ column.department_code }} — {{ column.department_name }}</span>
+				<template #table-content="{ row, column }">
+					<span v-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
+					<span v-else-if="row.field === 'number'" class="whitespace-nowrap text-ink">{{ column.number }}</span>
+					<span v-else-if="row.field === 'voucher'" class="whitespace-nowrap text-ink">{{ column.voucher }}</span>
+					<div v-else-if="row.field === 'department_name'" class="leading-snug">
+						<p class="text-ink">{{ column.department_name }}</p>
+						<p class="text-s text-ink-muted">{{ column.department_code }}</p>
+					</div>
 					<span v-else-if="row.field === 'recipient'" class="text-ink">{{ column.recipient }}</span>
-					<span v-else-if="row.field === 'description'" class="text-ink-muted">{{ column.description || '–' }}</span>
 					<Amount v-else-if="row.field === 'amount'" :value="column.amount as number" />
 					<Amount v-else-if="row.field === 'used'" :value="column.used as number" />
 					<Amount v-else-if="row.field === 'remaining'" :value="column.remaining as number" />
 					<Badge v-else-if="row.field === 'status'" :tone="statusTone[column.status as JournalStatus]" :title="column.rejection_reason as string">
 						{{ journalStatusLabel[column.status as JournalStatus] ?? column.status }}
 					</Badge>
-					<a
-						v-else-if="row.field === 'attachment' && attachmentOf(column)"
-						:href="attachmentOf(column)!.data_url"
-						:download="attachmentOf(column)!.name"
-						target="_blank"
-						class="inline-flex items-center gap-1 text-primary-dark hover:underline"
-						@click.stop
-					>
-						<IconPaperclip class="h-4 w-4" /> Lihat
-					</a>
-					<span v-else-if="row.field === 'attachment'" class="text-ink-muted">–</span>
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"

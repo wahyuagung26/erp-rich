@@ -33,7 +33,8 @@ const alignClass = (a?: string) => (a === 'right' ? 'text-right' : a === 'center
 
 <template>
 	<div class="overflow-x-auto rounded-md bg-panel">
-		<table class="w-full border-collapse text-m" :style="{ minWidth: rows.length * 110 + 'px' }">
+		<!-- phone: columns keep a readable width and the table scrolls sideways instead of wrapping text -->
+		<table class="w-full border-collapse text-m max-sm:min-w-[var(--table-min)]" :style="{ '--table-min': rows.length * 110 + 'px' }">
 			<thead class="sticky top-0 z-[1] bg-panel">
 				<tr class="border-b border-hairline">
 					<th v-for="(row, i) in rows" :key="row.field" :class="['font-semibold text-ink-muted', pad, alignClass(row.align)]">
