@@ -10,12 +10,15 @@ import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
+import { WAREHOUSE_TYPES } from '@/views/warehouse/schema'
 import type { Warehouse } from '@/utils/types'
 
 const route = useRoute()
 const router = useRouter()
 const { ask } = useConfirm()
 const toast = useToast()
+
+const typeLabel = (v: string) => WAREHOUSE_TYPES.find((t) => t.value === v)?.label ?? v
 
 const warehouse = ref<Warehouse>()
 const loading = ref(true)
@@ -71,6 +74,8 @@ function remove() {
 					<dd class="text-ink">{{ warehouse.code }}</dd>
 					<dt class="text-ink-muted">Nama Gudang</dt>
 					<dd class="text-ink">{{ warehouse.name }}</dd>
+					<dt class="text-ink-muted">Jenis Gudang</dt>
+					<dd class="text-ink">{{ typeLabel(warehouse.type) }}</dd>
 					<dt class="text-ink-muted">Cabang</dt>
 					<dd class="text-ink">{{ warehouse.branch_code }} — {{ warehouse.branch_name }}</dd>
 					<dt class="text-ink-muted">Alamat</dt>

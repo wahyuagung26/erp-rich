@@ -7,7 +7,7 @@ path: /warehouse
 status: mock
 tags: [warehouse, write]
 resource: /frontend/src/mocks/modules/warehouse.ts
-timestamp: 2026-09-05T15:00:00Z
+timestamp: 2026-11-04T10:00:00Z
 ---
 
 # Create Warehouse
@@ -26,13 +26,14 @@ Backs `views/warehouse/pages/PageWarehouseTambah.vue`. Client-side validation:
 ### Body
 
 ```json
-{ "code": "GD1", "name": "Gudang Pusat", "branch_id": 1, "address": "Jl. Kaum Kaler, Manonjaya, Tasikmalaya" }
+{ "code": "GD1", "name": "Gudang Pusat", "type": "main", "branch_id": 1, "address": "Jl. Kaum Kaler, Manonjaya, Tasikmalaya" }
 ```
 
 | Field | Type | Rules |
 |---|---|---|
 | `code` | string | required; unique within the active company across non-deleted rows; trimmed; immutable once created |
 | `name` | string | required; min 2 |
+| `type` | string | required; one of `main`, `return`, `mutation`, `mess`, `shipping` |
 | `branch_id` | number | required; must be a non-deleted `Branch` belonging to the active company |
 | `address` | string | optional |
 
@@ -45,7 +46,7 @@ the server assigns/resolves them (`company_id` is stamped from the active compan
 `201`:
 
 ```json
-{ "data": { "id": 4, "company_id": 1, "code": "GD1", "name": "Gudang Pusat", "branch_id": 1, "branch_code": "PST", "branch_name": "Kantor Pusat", "address": "Jl. Kaum Kaler, Manonjaya, Tasikmalaya", "deleted_at": null }, "message": "Gudang ditambahkan" }
+{ "data": { "id": 4, "company_id": 1, "code": "GD1", "name": "Gudang Pusat", "type": "main", "branch_id": 1, "branch_code": "PST", "branch_name": "Kantor Pusat", "address": "Jl. Kaum Kaler, Manonjaya, Tasikmalaya", "deleted_at": null }, "message": "Gudang ditambahkan" }
 ```
 
 ## Errors

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { IconEye, IconPencil, IconPlus, IconTrash } from '@tabler/icons-vue'
 import api from '@/utils/api'
+import Badge from '@/components/base/Badge.vue'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
 import { useConfirm } from '@/composables/useConfirm'
@@ -18,7 +19,7 @@ import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
-import { invoiceOptions } from '@/views/purchase-receipt/schema'
+import { invoiceOptions, invoiceStatusLabel, invoiceStatusTone } from '@/views/purchase-receipt/schema'
 import type { PurchaseReceipt, TableRow } from '@/utils/types'
 
 const router = useRouter()
@@ -60,9 +61,10 @@ const rows: TableRow[] = [
 	{ label: 'No', field: 'no' },
 	{ label: 'Tanggal', field: 'date', isSort: { activeSort: 'desc' } },
 	{ label: 'BM #', field: 'number', isSort: { activeSort: 'asc' } },
-	{ label: 'Gudang', field: 'warehouse_label' },
-	{ label: 'SJ Supplier', field: 'delivery_note_number' },
-	{ label: 'Supplier', field: 'supplier_name' },
+	{ label: 'Gudang', field: 'warehouse_label', isSort: { activeSort: 'asc' } },
+	{ label: 'SJ Supplier', field: 'delivery_note_number', isSort: { activeSort: 'asc' } },
+	{ label: 'Supplier', field: 'supplier_name', isSort: { activeSort: 'asc' } },
+	{ label: 'Status Invoice', field: 'invoice_status' },
 	{ label: 'Keterangan', field: 'description' },
 	{ label: '', field: 'action', align: 'right' }
 ]
@@ -92,6 +94,9 @@ const rows: TableRow[] = [
 					</button>
 					<span v-else-if="row.field === 'warehouse_label'">{{ column.warehouse_label || '–' }}</span>
 					<span v-else-if="row.field === 'supplier_name'">{{ column.supplier_code }} — {{ column.supplier_name }}</span>
+					<Badge v-else-if="row.field === 'invoice_status'" :tone="invoiceStatusTone[column.invoice_status as keyof typeof invoiceStatusTone]">
+						{{ invoiceStatusLabel[column.invoice_status as keyof typeof invoiceStatusLabel] ?? column.invoice_status }}
+					</Badge>
 					<span v-else-if="row.field === 'description'" class="text-ink-muted">{{ column.description || '–' }}</span>
 					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
 						<button

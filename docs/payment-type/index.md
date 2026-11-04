@@ -3,7 +3,7 @@ type: OKF Module
 title: Payment Type
 description: CRUD for payment-type master data — code + name + account + purchase/sale transaction scope + payment mechanism. Soft-delete, company-scoped.
 tags: [payment-type, master-data]
-timestamp: 2026-09-05T13:00:00Z
+timestamp: 2026-11-04T13:00:00Z
 ---
 
 # Payment Type
@@ -26,8 +26,8 @@ same active company; its `code`/`name` are denormalized onto the row for display
 (same pattern as `Warehouse.branch_code`/`branch_name`).
 
 `transaction_type` scopes which flow the payment type applies to (`purchase` \|
-`sale`); `method` is the payment mechanism (`cash` \| `return_deduction` \|
-`down_payment`). Both are fixed picklists, no company-specific customization.
+`sale`); `method` is the payment mechanism (`cash_bank` \| `return_deduction` \|
+`down_payment` \| `expense`). Both are fixed picklists, no company-specific customization.
 
 ## Entity: `PaymentType`
 
@@ -41,7 +41,7 @@ same active company; its `code`/`name` are denormalized onto the row for display
 | `account_code` | string | denormalized from `Account.code`, read-only |
 | `account_name` | string | denormalized from `Account.name`, read-only |
 | `transaction_type` | enum | `purchase` \| `sale` — "Transaksi" |
-| `method` | enum | `cash` \| `return_deduction` \| `down_payment` — "Jenis" |
+| `method` | enum | `cash_bank` \| `return_deduction` \| `down_payment` \| `expense` — "Jenis" (`expense` = "Biaya") |
 | `deleted_at` | string \| null | soft-delete marker (ISO 8601); non-null rows are excluded from every list and from get-by-id |
 
 ## Endpoints

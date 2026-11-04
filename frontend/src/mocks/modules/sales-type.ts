@@ -17,6 +17,7 @@ interface Body {
 	code: string
 	name: string
 	revenue_account_id: number
+	discount_account_id: number
 	cogs_account_id: number
 	inventory_account_id: number
 	expense_account_id: number
@@ -53,6 +54,8 @@ export function registerSalesType(mock: MockAdapter) {
 		if (codeTaken(body.code, companyId)) return [422, { message: 'Validasi gagal', errors: { code: ['Kode jenis sudah dipakai'] } }]
 		const revenueAccount = accountOf(Number(body.revenue_account_id), companyId)
 		if (!revenueAccount) return [422, { message: 'Validasi gagal', errors: { revenue_account_id: ['Akun pendapatan tidak valid'] } }]
+		const discountAccount = accountOf(Number(body.discount_account_id), companyId)
+		if (!discountAccount) return [422, { message: 'Validasi gagal', errors: { discount_account_id: ['Akun diskon tidak valid'] } }]
 		const cogsAccount = accountOf(Number(body.cogs_account_id), companyId)
 		if (!cogsAccount) return [422, { message: 'Validasi gagal', errors: { cogs_account_id: ['Akun HPP tidak valid'] } }]
 		const inventoryAccount = accountOf(Number(body.inventory_account_id), companyId)
@@ -68,6 +71,9 @@ export function registerSalesType(mock: MockAdapter) {
 			revenue_account_id: revenueAccount.id,
 			revenue_account_code: revenueAccount.code,
 			revenue_account_name: revenueAccount.name,
+			discount_account_id: discountAccount.id,
+			discount_account_code: discountAccount.code,
+			discount_account_name: discountAccount.name,
 			cogs_account_id: cogsAccount.id,
 			cogs_account_code: cogsAccount.code,
 			cogs_account_name: cogsAccount.name,
@@ -87,12 +93,14 @@ export function registerSalesType(mock: MockAdapter) {
 		const companyId = companyIdOf(config)
 		const body = JSON.parse(config.data) as Pick<
 			Body,
-			'name' | 'revenue_account_id' | 'cogs_account_id' | 'inventory_account_id' | 'expense_account_id'
+			'name' | 'revenue_account_id' | 'discount_account_id' | 'cogs_account_id' | 'inventory_account_id' | 'expense_account_id'
 		>
 		const idx = db.salesType.findIndex((s) => s.id === idOf(config.url) && !s.deleted_at && s.company_id === companyId)
 		if (idx === -1) return [404, { message: 'Jenis penjualan tidak ditemukan' }]
 		const revenueAccount = accountOf(Number(body.revenue_account_id), companyId as number)
 		if (!revenueAccount) return [422, { message: 'Validasi gagal', errors: { revenue_account_id: ['Akun pendapatan tidak valid'] } }]
+		const discountAccount = accountOf(Number(body.discount_account_id), companyId as number)
+		if (!discountAccount) return [422, { message: 'Validasi gagal', errors: { discount_account_id: ['Akun diskon tidak valid'] } }]
 		const cogsAccount = accountOf(Number(body.cogs_account_id), companyId as number)
 		if (!cogsAccount) return [422, { message: 'Validasi gagal', errors: { cogs_account_id: ['Akun HPP tidak valid'] } }]
 		const inventoryAccount = accountOf(Number(body.inventory_account_id), companyId as number)
@@ -106,6 +114,9 @@ export function registerSalesType(mock: MockAdapter) {
 			revenue_account_id: revenueAccount.id,
 			revenue_account_code: revenueAccount.code,
 			revenue_account_name: revenueAccount.name,
+			discount_account_id: discountAccount.id,
+			discount_account_code: discountAccount.code,
+			discount_account_name: discountAccount.name,
 			cogs_account_id: cogsAccount.id,
 			cogs_account_code: cogsAccount.code,
 			cogs_account_name: cogsAccount.name,

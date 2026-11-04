@@ -2,9 +2,21 @@ import * as v from 'valibot'
 
 const optionalText = v.optional(v.pipe(v.string(), v.trim()), '')
 
+export const WAREHOUSE_TYPES = [
+	{ label: 'Utama', value: 'main' },
+	{ label: 'Gudang Retur', value: 'return' },
+	{ label: 'Gudang Mutasi', value: 'mutation' },
+	{ label: 'Gudang Mess', value: 'mess' },
+	{ label: 'Gudang Pengiriman', value: 'shipping' }
+] as const
+
 export const warehouseSchema = v.object({
 	code: v.pipe(v.string(), v.trim(), v.nonEmpty('Kode gudang wajib diisi')),
 	name: v.pipe(v.string(), v.trim(), v.nonEmpty('Nama gudang wajib diisi'), v.minLength(2, 'Minimal 2 karakter')),
+	type: v.picklist(
+		WAREHOUSE_TYPES.map((t) => t.value),
+		'Pilih jenis gudang'
+	),
 	branch_id: v.pipe(
 		v.number('Cabang wajib dipilih'),
 		v.check((n) => n > 0, 'Cabang wajib dipilih')

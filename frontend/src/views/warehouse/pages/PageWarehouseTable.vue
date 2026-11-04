@@ -14,6 +14,7 @@ import Input from '@/components/base/Input.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
+import { WAREHOUSE_TYPES } from '@/views/warehouse/schema'
 import type { Warehouse, TableRow } from '@/utils/types'
 
 const router = useRouter()
@@ -31,6 +32,7 @@ const runSearch = useDebounce(() => applyFilters({ q: q.value }), 250)
 const rows: TableRow[] = [
 	{ label: 'Kode', field: 'code', align: 'left', isSort: { activeSort: 'asc' } },
 	{ label: 'Nama Gudang', field: 'name', align: 'left', isSort: { activeSort: 'asc' } },
+	{ label: 'Jenis Gudang', field: 'type', align: 'left' },
 	{ label: 'Cabang', field: 'branch_name', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
 ]
@@ -79,6 +81,7 @@ function remove(row: Warehouse) {
 							<IconTrash class="h-4 w-4" />
 						</button>
 					</div>
+					<span v-else-if="row.field === 'type'">{{ WAREHOUSE_TYPES.find((t) => t.value === column.type)?.label ?? column.type }}</span>
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>

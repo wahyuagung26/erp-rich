@@ -7,7 +7,7 @@ path: /warehouse/:id
 status: mock
 tags: [warehouse, read]
 resource: /frontend/src/mocks/modules/warehouse.ts
-timestamp: 2026-09-05T15:00:00Z
+timestamp: 2026-11-04T10:00:00Z
 ---
 
 # Get Warehouse

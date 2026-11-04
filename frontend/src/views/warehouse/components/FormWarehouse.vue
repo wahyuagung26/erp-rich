@@ -9,7 +9,7 @@ import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
 import Textarea from '@/components/base/Textarea.vue'
 import Button from '@/components/base/Button.vue'
-import { validateWarehouse, type WarehouseForm } from '@/views/warehouse/schema'
+import { validateWarehouse, WAREHOUSE_TYPES, type WarehouseForm } from '@/views/warehouse/schema'
 import type { ApiList, Branch } from '@/utils/types'
 
 const props = defineProps<{ initial?: Partial<WarehouseForm>; isEdit?: boolean; submitLabel?: string; loading?: boolean }>()
@@ -20,6 +20,7 @@ const router = useRouter()
 const form = reactive<WarehouseForm>({
 	code: props.initial?.code ?? '',
 	name: props.initial?.name ?? '',
+	type: props.initial?.type ?? 'main',
 	branch_id: props.initial?.branch_id ?? 0,
 	address: props.initial?.address ?? ''
 })
@@ -56,6 +57,9 @@ defineExpose({ setServerErrors })
 					</FormField>
 					<FormField label="Nama Gudang" required :error="errors.name">
 						<Input v-model="form.name" placeholder="mis. Gudang Pusat" />
+					</FormField>
+					<FormField label="Jenis Gudang" required :error="errors.type">
+						<Select v-model="form.type" :options="[...WAREHOUSE_TYPES]" class="max-w-[240px]" />
 					</FormField>
 					<FormField label="Cabang" required :error="errors.branch_id">
 						<Select

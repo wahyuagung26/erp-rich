@@ -27,9 +27,9 @@ composable).
 | `date_from` | string | no | `YYYY-MM-DD`, inclusive lower bound on `date` |
 | `date_to` | string | no | `YYYY-MM-DD`, inclusive upper bound on `date` |
 
-`sort_by` accepts `date`, `number`, `warehouse_label`, `description`, `supplier_code`,
-`supplier_name`, or `delivery_note_number` — set via the sortable `Tanggal` / `BM #` table
-headers.
+`sort_by` accepts `date`, `number`, `warehouse_label`, `delivery_note_number`, or
+`supplier_name` — set via the sortable `Tanggal` / `BM #` / `Gudang` / `SJ Supplier` /
+`Supplier` table headers.
 
 ## Response
 

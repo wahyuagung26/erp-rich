@@ -1,9 +1,9 @@
 ---
 type: OKF Module
 title: Warehouse (Master Warehouse)
-description: CRUD for warehouse master data — code + name + branch + optional address. Soft-delete, company-scoped.
+description: CRUD for warehouse master data — code + name + type + branch + optional address. Soft-delete, company-scoped.
 tags: [warehouse, master-data]
-timestamp: 2026-09-05T15:00:00Z
+timestamp: 2026-11-04T10:00:00Z
 ---
 
 # Warehouse
@@ -34,6 +34,7 @@ create/update (same pattern as `JournalLine.account_code`/`account_name`).
 | `company_id` | number | required; scopes the row to a company — see [conventions](../conventions.md#company-scoping) |
 | `code` | string | required, user-entered, unique within the company across non-deleted rows; **immutable after create** — "Kode Gudang" |
 | `name` | string | required; min 2 — "Nama Gudang" |
+| `type` | string | required; one of `main` (Utama), `return` (Gudang Retur), `mutation` (Gudang Mutasi), `mess` (Gudang Mess), `shipping` (Gudang Pengiriman) — "Jenis Gudang"; defaults to `main` in the form |
 | `branch_id` | number | required; must be a non-deleted `Branch` in the same company — "Cabang" |
 | `branch_code` | string | denormalized from `Branch.code`, read-only |
 | `branch_name` | string | denormalized from `Branch.name`, read-only |

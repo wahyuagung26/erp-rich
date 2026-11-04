@@ -7,7 +7,7 @@ path: /warehouse
 status: mock
 tags: [warehouse, read, list]
 resource: /frontend/src/mocks/modules/warehouse.ts
-timestamp: 2026-09-05T15:00:00Z
+timestamp: 2026-11-04T10:00:00Z
 ---
 
 # List Warehouse
@@ -36,7 +36,7 @@ Backs `views/warehouse/pages/PageWarehouseTable.vue` (via the `useTableList` com
 ```json
 {
   "data": [
-    { "id": 1, "company_id": 1, "code": "GD1", "name": "Gudang Pusat", "branch_id": 1, "branch_code": "PST", "branch_name": "Kantor Pusat", "address": "Jl. Kaum Kaler, Manonjaya, Tasikmalaya", "deleted_at": null }
+    { "id": 1, "company_id": 1, "code": "GD1", "name": "Gudang Pusat", "type": "main", "branch_id": 1, "branch_code": "PST", "branch_name": "Kantor Pusat", "address": "Jl. Kaum Kaler, Manonjaya, Tasikmalaya", "deleted_at": null }
   ],
   "meta": { "page": 1, "per_page": 10, "total": 3, "last_page": 1 }
 }

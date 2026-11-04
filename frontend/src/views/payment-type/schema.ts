@@ -6,9 +6,10 @@ export const TRANSACTION_TYPE_OPTIONS = [
 ] as const
 
 export const PAYMENT_METHOD_OPTIONS = [
-	{ label: 'Tunai', value: 'cash' },
+	{ label: 'Kas / Bank', value: 'cash_bank' },
 	{ label: 'Potong Retur', value: 'return_deduction' },
-	{ label: 'Uang Muka', value: 'down_payment' }
+	{ label: 'Uang Muka', value: 'down_payment' },
+	{ label: 'Biaya', value: 'expense' }
 ] as const
 
 export const paymentTypeSchema = v.object({

@@ -20,6 +20,7 @@ const form = reactive<SalesTypeForm>({
 	code: props.initial?.code ?? '',
 	name: props.initial?.name ?? '',
 	revenue_account_id: props.initial?.revenue_account_id ?? 0,
+	discount_account_id: props.initial?.discount_account_id ?? 0,
 	cogs_account_id: props.initial?.cogs_account_id ?? 0,
 	inventory_account_id: props.initial?.inventory_account_id ?? 0,
 	expense_account_id: props.initial?.expense_account_id ?? 0
@@ -65,6 +66,14 @@ defineExpose({ setServerErrors })
 							placeholder="Pilih akun pendapatan"
 							:options="accountOptions"
 							@update:model-value="(v) => (form.revenue_account_id = Number(v))"
+						/>
+					</FormField>
+					<FormField label="Akun Diskon" required :error="errors.discount_account_id">
+						<Select
+							:model-value="form.discount_account_id || ''"
+							placeholder="Pilih akun diskon"
+							:options="accountOptions"
+							@update:model-value="(v) => (form.discount_account_id = Number(v))"
 						/>
 					</FormField>
 					<FormField label="Akun HPP" required :error="errors.cogs_account_id">

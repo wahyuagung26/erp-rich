@@ -32,6 +32,7 @@ const rows: TableRow[] = [
 	{ label: 'Kode Jenis', field: 'code', align: 'left', isSort: { activeSort: 'asc' } },
 	{ label: 'Jenis', field: 'name', align: 'left', isSort: { activeSort: 'asc' } },
 	{ label: 'Akun Pendapatan', field: 'revenue_account_name', align: 'left' },
+	{ label: 'Akun Diskon', field: 'discount_account_name', align: 'left' },
 	{ label: 'Akun HPP', field: 'cogs_account_name', align: 'left' },
 	{ label: 'Akun Persediaan', field: 'inventory_account_name', align: 'left' },
 	{ label: 'Akun Biaya', field: 'expense_account_name', align: 'left' },

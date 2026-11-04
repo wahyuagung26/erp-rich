@@ -7,7 +7,7 @@ path: /payment-type
 status: mock
 tags: [payment-type, write]
 resource: /frontend/src/mocks/modules/payment-type.ts
-timestamp: 2026-09-05T13:00:00Z
+timestamp: 2026-11-04T13:00:00Z
 ---
 
 # Create Payment Type
@@ -27,7 +27,7 @@ must re-validate.
 ### Body
 
 ```json
-{ "code": "TP01", "name": "Tunai", "account_id": 1, "transaction_type": "sale", "method": "cash" }
+{ "code": "TP01", "name": "Tunai", "account_id": 1, "transaction_type": "sale", "method": "cash_bank" }
 ```
 
 | Field | Type | Rules |
@@ -36,7 +36,7 @@ must re-validate.
 | `name` | string | required; min 2 |
 | `account_id` | number | required; must be a non-deleted `Account` belonging to the active company |
 | `transaction_type` | enum | required; `purchase` \| `sale` |
-| `method` | enum | required; `cash` \| `return_deduction` \| `down_payment` |
+| `method` | enum | required; `cash_bank` \| `return_deduction` \| `down_payment` \| `expense` |
 
 `id`, `company_id`, `account_code`, `account_name` are **not**
 accepted from the client — the server assigns/resolves them (`company_id` from
@@ -51,7 +51,7 @@ the active company, see [conventions](../conventions.md#company-scoping)).
   "data": {
     "id": 3, "company_id": 1, "code": "TP01", "name": "Tunai",
     "account_id": 1, "account_code": "1000101", "account_name": "Kas Kecil",
-    "transaction_type": "sale", "method": "cash", "deleted_at": null
+    "transaction_type": "sale", "method": "cash_bank", "deleted_at": null
   },
   "message": "Tipe pembayaran ditambahkan"
 }

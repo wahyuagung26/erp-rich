@@ -114,143 +114,145 @@ function remove() {
 </script>
 
 <template>
-	<div class="max-w-5xl space-y-4 p-4">
-		<PageHeader title="Detail Uang Muka Operasional" subtitle="Akuntansi">
-			<template #actions>
-				<div class="flex flex-wrap items-center gap-2">
-					<Badge v-if="advance" :tone="journalStatusTone[advance.status]" class="mr-1">{{ journalStatusLabel[advance.status] }}</Badge>
-					<Button size="sm" variant="subtle" @click="router.push('/cash-advance')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
-					<template v-if="advance?.status === 'submitted'">
-						<Button size="sm" variant="secondary" @click="router.push(`/cash-advance/edit/${advance.id}`)">
-							<IconPencil class="h-4 w-4" /> Edit
-						</Button>
-						<Button size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button>
-						<Button size="sm" @click="openApprove"><IconCheck class="h-4 w-4" /> Setujui</Button>
-						<Button size="sm" variant="danger" @click="reject"><IconX class="h-4 w-4" /> Tolak</Button>
-					</template>
-					<Button v-else-if="advance?.status === 'rejected'" size="sm" variant="secondary" @click="resubmit">
-						<IconRefresh class="h-4 w-4" /> Ajukan Ulang
-					</Button>
-				</div>
-			</template>
-		</PageHeader>
-
-		<Panel v-if="loading"><Skeleton :lines="8" /></Panel>
-		<Panel v-else-if="notFound || !advance">
-			<EmptyState title="Uang muka operasional tidak ditemukan" description="Data mungkin sudah dihapus." />
-		</Panel>
-		<Panel v-else>
-			<div class="space-y-8">
-				<section class="space-y-3">
-					<h3 class="subhead">Informasi Uang Muka</h3>
-					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-						<div>
-							<dt class="text-s text-ink-muted">No. Transaksi</dt>
-							<dd class="mt-1 text-m text-ink">{{ advance.number }}</dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Tanggal</dt>
-							<dd class="mt-1 text-m text-ink">{{ date(advance.date) }}</dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Departemen</dt>
-							<dd class="mt-1 text-m text-ink">{{ advance.department_code }} — {{ advance.department_name }}</dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Penerima</dt>
-							<dd class="mt-1 text-m text-ink">{{ advance.recipient }}</dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Nilai</dt>
-							<dd class="mt-1 text-m text-ink"><Amount :value="advance.amount" /></dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Penyelesaian</dt>
-							<dd class="mt-1 text-m">
-								<Badge :tone="settlementTone[settlementOf(advance.used, advance.amount)]">
-									{{ settlementLabel[settlementOf(advance.used, advance.amount)] }}
-								</Badge>
-							</dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Terpakai</dt>
-							<dd class="mt-1 text-m text-ink"><Amount :value="advance.used" /></dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Sisa</dt>
-							<dd class="mt-1 text-m text-ink"><Amount :value="advance.remaining" /></dd>
-						</div>
-						<div class="md:col-span-3">
-							<dt class="text-s text-ink-muted">Keterangan</dt>
-							<dd class="mt-1 whitespace-pre-line text-m text-ink">{{ advance.description || '–' }}</dd>
-						</div>
-					</dl>
-				</section>
-
-				<section class="space-y-3">
-					<h3 class="subhead">Akun & Arus Kas</h3>
-					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-						<div>
-							<dt class="text-s text-ink-muted">Akun Kas / Bank</dt>
-							<dd class="mt-1 text-m text-ink">{{ advance.cash_account_code }} — {{ advance.cash_account_name }}</dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Akun Uang Muka</dt>
-							<dd class="mt-1 text-m text-ink">{{ advance.advance_account_code }} — {{ advance.advance_account_name }}</dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Arus Kas</dt>
-							<dd class="mt-1 text-m text-ink">{{ advance.cash_flow_name ?? advance.cash_flow ?? '–' }}</dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Lampiran</dt>
-							<dd class="mt-1 text-m">
-								<a
-									v-if="advance.attachment"
-									:href="advance.attachment.data_url"
-									:download="advance.attachment.name"
-									target="_blank"
-									class="inline-flex items-center gap-1 text-primary-dark hover:underline"
-								>
-									<IconPaperclip class="h-4 w-4" /> {{ advance.attachment.name }}
-								</a>
-								<span v-else class="text-ink-muted">–</span>
-							</dd>
-						</div>
-						<template v-if="advance.status === 'approved'">
-							<div>
-								<dt class="text-s text-ink-muted">Disetujui oleh</dt>
-								<dd class="mt-1 text-m text-ink">{{ advance.approved_by ?? '–' }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Waktu Persetujuan</dt>
-								<dd class="mt-1 text-m text-ink">{{ advance.approved_at ? date(advance.approved_at, 'DD MMM YYYY HH:mm') : '–' }}</dd>
-							</div>
+	<div class="space-y-4 p-4">
+		<div class="max-w-5xl space-y-4">
+			<PageHeader title="Detail Uang Muka Operasional" subtitle="Akuntansi">
+				<template #actions>
+					<div class="flex flex-wrap items-center gap-2">
+						<Badge v-if="advance" :tone="journalStatusTone[advance.status]" class="mr-1">{{ journalStatusLabel[advance.status] }}</Badge>
+						<Button size="sm" variant="subtle" @click="router.push('/cash-advance')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
+						<template v-if="advance?.status === 'submitted'">
+							<Button size="sm" variant="secondary" @click="router.push(`/cash-advance/edit/${advance.id}`)">
+								<IconPencil class="h-4 w-4" /> Edit
+							</Button>
+							<Button size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button>
+							<Button size="sm" @click="openApprove"><IconCheck class="h-4 w-4" /> Setujui</Button>
+							<Button size="sm" variant="danger" @click="reject"><IconX class="h-4 w-4" /> Tolak</Button>
 						</template>
-						<div v-if="advance.rejection_reason" class="md:col-span-3">
-							<dt class="text-s text-ink-muted">Alasan Penolakan</dt>
-							<dd class="mt-1 text-m text-danger">{{ advance.rejection_reason }}</dd>
-						</div>
-					</dl>
-				</section>
-			</div>
-		</Panel>
-		<HistoryPenyelesaian v-if="advance" :advance="advance" @changed="load" />
+						<Button v-else-if="advance?.status === 'rejected'" size="sm" variant="secondary" @click="resubmit">
+							<IconRefresh class="h-4 w-4" /> Ajukan Ulang
+						</Button>
+					</div>
+				</template>
+			</PageHeader>
 
-		<Modal :open="approveOpen" title="Setujui Uang Muka Operasional" size="sm" @close="approveOpen = false">
-			<p class="text-s text-ink-muted">
-				Konfirmasi persetujuan uang muka <span class="text-ink">{{ advance?.number }}</span
-				>. Tanggal dapat disesuaikan sebelum disetujui.
-			</p>
-			<FormField class="mt-4" label="Tanggal" required>
-				<DatePicker v-model="approveDate" />
-			</FormField>
-			<template #footer>
-				<Button variant="subtle" @click="approveOpen = false">Batal</Button>
-				<Button :loading="approving" :disabled="!approveDate" @click="confirmApprove">
-					<IconCheck v-if="!approving" class="h-4 w-4" /> Setujui
-				</Button>
-			</template>
-		</Modal>
+			<Panel v-if="loading"><Skeleton :lines="8" /></Panel>
+			<Panel v-else-if="notFound || !advance">
+				<EmptyState title="Uang muka operasional tidak ditemukan" description="Data mungkin sudah dihapus." />
+			</Panel>
+			<Panel v-else>
+				<div class="space-y-8">
+					<section class="space-y-3">
+						<h3 class="subhead">Informasi Uang Muka</h3>
+						<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
+							<div>
+								<dt class="text-s text-ink-muted">No. Transaksi</dt>
+								<dd class="mt-1 text-m text-ink">{{ advance.number }}</dd>
+							</div>
+							<div>
+								<dt class="text-s text-ink-muted">Tanggal</dt>
+								<dd class="mt-1 text-m text-ink">{{ date(advance.date) }}</dd>
+							</div>
+							<div>
+								<dt class="text-s text-ink-muted">Departemen</dt>
+								<dd class="mt-1 text-m text-ink">{{ advance.department_code }} — {{ advance.department_name }}</dd>
+							</div>
+							<div>
+								<dt class="text-s text-ink-muted">Penerima</dt>
+								<dd class="mt-1 text-m text-ink">{{ advance.recipient }}</dd>
+							</div>
+							<div>
+								<dt class="text-s text-ink-muted">Nilai</dt>
+								<dd class="mt-1 text-m text-ink"><Amount :value="advance.amount" /></dd>
+							</div>
+							<div>
+								<dt class="text-s text-ink-muted">Penyelesaian</dt>
+								<dd class="mt-1 text-m">
+									<Badge :tone="settlementTone[settlementOf(advance.used, advance.amount)]">
+										{{ settlementLabel[settlementOf(advance.used, advance.amount)] }}
+									</Badge>
+								</dd>
+							</div>
+							<div>
+								<dt class="text-s text-ink-muted">Terpakai</dt>
+								<dd class="mt-1 text-m text-ink"><Amount :value="advance.used" /></dd>
+							</div>
+							<div>
+								<dt class="text-s text-ink-muted">Sisa</dt>
+								<dd class="mt-1 text-m text-ink"><Amount :value="advance.remaining" /></dd>
+							</div>
+							<div class="md:col-span-3">
+								<dt class="text-s text-ink-muted">Keterangan</dt>
+								<dd class="mt-1 whitespace-pre-line text-m text-ink">{{ advance.description || '–' }}</dd>
+							</div>
+						</dl>
+					</section>
+
+					<section class="space-y-3">
+						<h3 class="subhead">Akun & Arus Kas</h3>
+						<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
+							<div>
+								<dt class="text-s text-ink-muted">Akun Kas / Bank</dt>
+								<dd class="mt-1 text-m text-ink">{{ advance.cash_account_code }} — {{ advance.cash_account_name }}</dd>
+							</div>
+							<div>
+								<dt class="text-s text-ink-muted">Akun Uang Muka</dt>
+								<dd class="mt-1 text-m text-ink">{{ advance.advance_account_code }} — {{ advance.advance_account_name }}</dd>
+							</div>
+							<div>
+								<dt class="text-s text-ink-muted">Arus Kas</dt>
+								<dd class="mt-1 text-m text-ink">{{ advance.cash_flow_name ?? advance.cash_flow ?? '–' }}</dd>
+							</div>
+							<div>
+								<dt class="text-s text-ink-muted">Lampiran</dt>
+								<dd class="mt-1 text-m">
+									<a
+										v-if="advance.attachment"
+										:href="advance.attachment.data_url"
+										:download="advance.attachment.name"
+										target="_blank"
+										class="inline-flex items-center gap-1 text-primary-dark hover:underline"
+									>
+										<IconPaperclip class="h-4 w-4" /> {{ advance.attachment.name }}
+									</a>
+									<span v-else class="text-ink-muted">–</span>
+								</dd>
+							</div>
+							<template v-if="advance.status === 'approved'">
+								<div>
+									<dt class="text-s text-ink-muted">Disetujui oleh</dt>
+									<dd class="mt-1 text-m text-ink">{{ advance.approved_by ?? '–' }}</dd>
+								</div>
+								<div>
+									<dt class="text-s text-ink-muted">Waktu Persetujuan</dt>
+									<dd class="mt-1 text-m text-ink">{{ advance.approved_at ? date(advance.approved_at, 'DD MMM YYYY HH:mm') : '–' }}</dd>
+								</div>
+							</template>
+							<div v-if="advance.rejection_reason" class="md:col-span-3">
+								<dt class="text-s text-ink-muted">Alasan Penolakan</dt>
+								<dd class="mt-1 text-m text-danger">{{ advance.rejection_reason }}</dd>
+							</div>
+						</dl>
+					</section>
+				</div>
+			</Panel>
+			<HistoryPenyelesaian v-if="advance" :advance="advance" @changed="load" />
+
+			<Modal :open="approveOpen" title="Setujui Uang Muka Operasional" size="sm" @close="approveOpen = false">
+				<p class="text-s text-ink-muted">
+					Konfirmasi persetujuan uang muka <span class="text-ink">{{ advance?.number }}</span
+					>. Tanggal dapat disesuaikan sebelum disetujui.
+				</p>
+				<FormField class="mt-4" label="Tanggal" required>
+					<DatePicker v-model="approveDate" />
+				</FormField>
+				<template #footer>
+					<Button variant="subtle" @click="approveOpen = false">Batal</Button>
+					<Button :loading="approving" :disabled="!approveDate" @click="confirmApprove">
+						<IconCheck v-if="!approving" class="h-4 w-4" /> Setujui
+					</Button>
+				</template>
+			</Modal>
+		</div>
 	</div>
 </template>

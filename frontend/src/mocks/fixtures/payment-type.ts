@@ -10,7 +10,7 @@ export const paymentTypeSeed: PaymentType[] = [
 		account_code: '1000101',
 		account_name: 'Kas Kecil',
 		transaction_type: 'sale',
-		method: 'cash',
+		method: 'cash_bank',
 		deleted_at: null
 	},
 	{

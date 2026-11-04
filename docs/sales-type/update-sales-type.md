@@ -1,20 +1,20 @@
 ---
 type: API Endpoint
 title: Update Sales Type
-description: Edit an existing sales type's name or its four account references. Code is immutable.
+description: Edit an existing sales type's name or its five account references. Code is immutable.
 method: PUT
 path: /sales-type/:id
 status: mock
 tags: [sales-type, write]
 resource: /frontend/src/mocks/modules/sales-type.ts
-timestamp: 2026-09-05T12:00:00Z
+timestamp: 2026-11-04T11:00:00Z
 ---
 
 # Update Sales Type
 
 Backs `views/sales-type/pages/PageSalesTypeEdit.vue`. The form shows
 `code` disabled — this endpoint ignores `code` even if sent. Unlike `code`, the
-four account references **are** editable here — re-validated the same as on create.
+five account references **are** editable here — re-validated the same as on create.
 
 ## Request
 
@@ -33,7 +33,7 @@ four account references **are** editable here — re-validated the same as on cr
 ### Body
 
 ```json
-{ "name": "Bahan Baku Impor", "revenue_account_id": 5, "cogs_account_id": 6, "inventory_account_id": 7, "expense_account_id": 2 }
+{ "name": "Bahan Baku Impor", "revenue_account_id": 5, "discount_account_id": 18, "cogs_account_id": 6, "inventory_account_id": 7, "expense_account_id": 2 }
 ```
 
 `code`, `id`, and `company_id` are ignored if sent — a row can't be moved to

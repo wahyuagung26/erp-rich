@@ -73,6 +73,8 @@ function remove() {
 					<dd class="text-ink">{{ salesType.name }}</dd>
 					<dt class="text-ink-muted">Akun Pendapatan</dt>
 					<dd class="text-ink">{{ salesType.revenue_account_code }} — {{ salesType.revenue_account_name }}</dd>
+					<dt class="text-ink-muted">Akun Diskon</dt>
+					<dd class="text-ink">{{ salesType.discount_account_code }} — {{ salesType.discount_account_name }}</dd>
 					<dt class="text-ink-muted">Akun HPP</dt>
 					<dd class="text-ink">{{ salesType.cogs_account_code }} — {{ salesType.cogs_account_name }}</dd>
 					<dt class="text-ink-muted">Akun Persediaan</dt>

@@ -188,5 +188,16 @@ export const accountSeed: Account[] = [
 		name: 'Bank CIMB Niaga - 9200 (IDR)',
 		type: 'cash_bank',
 		deleted_at: null
+	},
+	{
+		id: 18,
+		company_id: 1,
+		sub_account_id: 5,
+		sub_account_code: '40001',
+		sub_account_name: 'Penjualan',
+		code: '4000102',
+		name: 'Diskon Penjualan',
+		type: 'revenue',
+		deleted_at: null
 	}
 ]

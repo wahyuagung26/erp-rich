@@ -7,7 +7,7 @@ path: /sales-type/:id
 status: mock
 tags: [sales-type, read]
 resource: /frontend/src/mocks/modules/sales-type.ts
-timestamp: 2026-09-05T12:00:00Z
+timestamp: 2026-11-04T11:00:00Z
 ---
 
 # Get Sales Type

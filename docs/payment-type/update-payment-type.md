@@ -7,7 +7,7 @@ path: /payment-type/:id
 status: mock
 tags: [payment-type, write]
 resource: /frontend/src/mocks/modules/payment-type.ts
-timestamp: 2026-09-05T13:00:00Z
+timestamp: 2026-11-04T12:00:00Z
 ---
 
 # Update Payment Type
@@ -33,7 +33,7 @@ Backs `views/payment-type/pages/PagePaymentTypeEdit.vue`. The form shows
 ### Body
 
 ```json
-{ "name": "Tunai Kasir", "account_id": 1, "transaction_type": "sale", "method": "cash" }
+{ "name": "Tunai Kasir", "account_id": 1, "transaction_type": "sale", "method": "cash_bank" }
 ```
 
 `code`, `id`, and `company_id` are ignored if sent — a row can't be moved to

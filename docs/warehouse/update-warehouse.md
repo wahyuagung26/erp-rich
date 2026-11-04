@@ -1,19 +1,19 @@
 ---
 type: API Endpoint
 title: Update Warehouse
-description: Edit an existing warehouse's name, branch, or address. Code is immutable.
+description: Edit an existing warehouse's name, type, branch, or address. Code is immutable.
 method: PUT
 path: /warehouse/:id
 status: mock
 tags: [warehouse, write]
 resource: /frontend/src/mocks/modules/warehouse.ts
-timestamp: 2026-09-05T15:00:00Z
+timestamp: 2026-11-04T10:00:00Z
 ---
 
 # Update Warehouse
 
 Backs `views/warehouse/pages/PageWarehouseEdit.vue`. The form shows `code` disabled — this
-endpoint ignores `code` even if sent; `name`, `branch_id`, and `address` can change.
+endpoint ignores `code` even if sent; `name`, `type`, `branch_id`, and `address` can change.
 
 ## Request
 
@@ -32,7 +32,7 @@ endpoint ignores `code` even if sent; `name`, `branch_id`, and `address` can cha
 ### Body
 
 ```json
-{ "name": "Gudang Pusat 2", "branch_id": 1, "address": "Jl. Baru No. 10" }
+{ "name": "Gudang Pusat 2", "type": "return", "branch_id": 1, "address": "Jl. Baru No. 10" }
 ```
 
 `code`, `id`, and `company_id` are ignored if sent — a row can't be moved to

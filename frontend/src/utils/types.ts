@@ -180,6 +180,7 @@ export interface Warehouse {
 	company_id: number
 	code: string
 	name: string
+	type: 'main' | 'return' | 'mutation' | 'mess' | 'shipping'
 	branch_id: number
 	branch_code?: string
 	branch_name?: string
@@ -251,6 +252,9 @@ export interface SalesType {
 	revenue_account_id: number
 	revenue_account_code?: string
 	revenue_account_name?: string
+	discount_account_id: number
+	discount_account_code?: string
+	discount_account_name?: string
 	cogs_account_id: number
 	cogs_account_code?: string
 	cogs_account_name?: string
@@ -290,7 +294,7 @@ export interface PaymentType {
 	account_code?: string
 	account_name?: string
 	transaction_type: 'purchase' | 'sale'
-	method: 'cash' | 'return_deduction' | 'down_payment'
+	method: 'cash_bank' | 'return_deduction' | 'down_payment' | 'expense'
 	deleted_at: string | null
 }
 

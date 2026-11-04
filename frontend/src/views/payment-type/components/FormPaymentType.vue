@@ -22,7 +22,7 @@ const form = reactive<PaymentTypeForm>({
 	name: props.initial?.name ?? '',
 	account_id: props.initial?.account_id ?? 0,
 	transaction_type: props.initial?.transaction_type ?? 'sale',
-	method: props.initial?.method ?? 'cash'
+	method: props.initial?.method ?? 'cash_bank'
 })
 
 const accountOptions = ref<{ label: string; value: number }[]>([])

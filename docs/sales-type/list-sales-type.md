@@ -7,7 +7,7 @@ path: /sales-type
 status: mock
 tags: [sales-type, read, list]
 resource: /frontend/src/mocks/modules/sales-type.ts
-timestamp: 2026-09-05T12:00:00Z
+timestamp: 2026-11-04T11:00:00Z
 ---
 
 # List Sales Type
@@ -39,6 +39,7 @@ Backs `views/sales-type/pages/PageSalesTypeTable.vue` (via the `useTableList` co
     {
       "id": 1, "company_id": 1, "code": "RC0007", "name": "Bahan Baku",
       "revenue_account_id": 5, "revenue_account_code": "4000101", "revenue_account_name": "Penjualan Produk",
+      "discount_account_id": 18, "discount_account_code": "4000102", "discount_account_name": "Diskon Penjualan",
       "cogs_account_id": 6, "cogs_account_code": "6000102", "cogs_account_name": "Biaya Bahan Baku",
       "inventory_account_id": 7, "inventory_account_code": "1000102", "inventory_account_name": "Persediaan Bahan Baku",
       "expense_account_id": 2, "expense_account_code": "6000101", "expense_account_name": "Beban Gaji Pokok",

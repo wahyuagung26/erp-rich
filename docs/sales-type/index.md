@@ -1,15 +1,15 @@
 ---
 type: OKF Module
 title: Sales Type (Master Sales Type)
-description: CRUD for sales-type master data — maps a sales type to its revenue, COGS, inventory, and expense accounts. Soft-delete, company-scoped.
+description: CRUD for sales-type master data — maps a sales type to its revenue, discount, COGS, inventory, and expense accounts. Soft-delete, company-scoped.
 tags: [sales-type, master-data]
-timestamp: 2026-09-05T12:00:00Z
+timestamp: 2026-11-04T11:00:00Z
 ---
 
 # Sales Type
 
 Master data for sales types (e.g. "Bahan Baku", "Jasa"). Each sales type maps to
-four [Account](../account/index.md) accounts — revenue, COGS
+five [Account](../account/index.md) accounts — revenue, discount ("Diskon"), COGS
 ("HPP"), inventory, and expense ("Biaya") — so a future sales module can
 auto-fill journal entries per transaction without the user picking accounts every
 time. Consumed by `frontend/src/views/sales-type/`. Company-scoped — see
@@ -20,8 +20,8 @@ form shows it disabled, and the backend must ignore any `code` sent on update.
 `code` uniqueness is checked within the active company only. Same immutable-code
 contract as [Brand](../brand/index.md) / [ProductCategory](../product-category/index.md) /
 [Unit](../unit/index.md) / [Branch](../branch/index.md) / [Department](../department/index.md) /
-[Warehouse](../warehouse/index.md). Unlike those, the four account references
-(`revenue_account_id`, `cogs_account_id`, `inventory_account_id`, `expense_account_id`) **can**
+[Warehouse](../warehouse/index.md). Unlike those, the five account references
+(`revenue_account_id`, `discount_account_id`, `cogs_account_id`, `inventory_account_id`, `expense_account_id`) **can**
 be changed on update — only `code` is locked.
 
 Each `*_account_id` must reference a non-deleted `Account` belonging to the same
@@ -42,6 +42,9 @@ the sales module needs it.
 | `revenue_account_id` | number | required; non-deleted `Account` in the same company — "Akun Pendapatan" |
 | `revenue_account_code` | string | denormalized from `Account.code`, read-only |
 | `revenue_account_name` | string | denormalized from `Account.name`, read-only |
+| `discount_account_id` | number | required; non-deleted `Account` in the same company — "Akun Diskon" |
+| `discount_account_code` | string | denormalized, read-only |
+| `discount_account_name` | string | denormalized, read-only |
 | `cogs_account_id` | number | required; non-deleted `Account` in the same company — "Akun HPP" |
 | `cogs_account_code` | string | denormalized, read-only |
 | `cogs_account_name` | string | denormalized, read-only |

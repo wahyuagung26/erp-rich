@@ -7,7 +7,7 @@ path: /payment-type
 status: mock
 tags: [payment-type, read, list]
 resource: /frontend/src/mocks/modules/payment-type.ts
-timestamp: 2026-09-05T13:00:00Z
+timestamp: 2026-11-04T12:00:00Z
 ---
 
 # List Payment Type
@@ -39,7 +39,7 @@ Backs `views/payment-type/pages/PagePaymentTypeTable.vue` (via the `useTableList
     {
       "id": 1, "company_id": 1, "code": "TP01", "name": "Tunai",
       "account_id": 1, "account_code": "1000101", "account_name": "Kas Kecil",
-      "transaction_type": "sale", "method": "cash", "deleted_at": null
+      "transaction_type": "sale", "method": "cash_bank", "deleted_at": null
     }
   ],
   "meta": { "page": 1, "per_page": 10, "total": 2, "last_page": 1 }

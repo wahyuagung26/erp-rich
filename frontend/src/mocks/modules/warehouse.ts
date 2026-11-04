@@ -40,7 +40,7 @@ export function registerWarehouse(mock: MockAdapter) {
 	mock.onPost('/warehouse').reply((config) => {
 		const companyId = companyIdOf(config)
 		if (companyId === null) return [422, { message: 'Pilih perusahaan aktif terlebih dahulu' }]
-		const body = JSON.parse(config.data) as { code: string; name: string; branch_id: number; address?: string }
+		const body = JSON.parse(config.data) as { code: string; name: string; type: Warehouse['type']; branch_id: number; address?: string }
 		if (codeTaken(body.code, companyId)) return [422, { message: 'Validasi gagal', errors: { code: ['Kode gudang sudah dipakai'] } }]
 		const branch = branchOf(Number(body.branch_id), companyId)
 		if (!branch) return [422, { message: 'Validasi gagal', errors: { branch_id: ['Cabang tidak valid'] } }]
@@ -50,6 +50,7 @@ export function registerWarehouse(mock: MockAdapter) {
 			company_id: companyId,
 			code: body.code.trim(),
 			name: body.name,
+			type: body.type,
 			branch_id: branch.id,
 			branch_code: branch.code,
 			branch_name: branch.name,
@@ -62,7 +63,7 @@ export function registerWarehouse(mock: MockAdapter) {
 
 	mock.onPut(/\/warehouse\/\d+$/).reply((config) => {
 		const companyId = companyIdOf(config)
-		const body = JSON.parse(config.data) as { name: string; branch_id: number; address?: string }
+		const body = JSON.parse(config.data) as { name: string; type: Warehouse['type']; branch_id: number; address?: string }
 		const idx = db.warehouse.findIndex((w) => w.id === idOf(config.url) && !w.deleted_at && w.company_id === companyId)
 		if (idx === -1) return [404, { message: 'Gudang tidak ditemukan' }]
 		const branch = branchOf(Number(body.branch_id), companyId as number)
@@ -71,6 +72,7 @@ export function registerWarehouse(mock: MockAdapter) {
 		db.warehouse[idx] = {
 			...db.warehouse[idx],
 			name: body.name,
+			type: body.type,
 			branch_id: branch.id,
 			branch_code: branch.code,
 			branch_name: branch.name,

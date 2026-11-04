@@ -10,6 +10,7 @@ export const salesTypeSchema = v.object({
 	code: v.pipe(v.string(), v.trim(), v.nonEmpty('Kode jenis wajib diisi')),
 	name: v.pipe(v.string(), v.trim(), v.nonEmpty('Jenis wajib diisi'), v.minLength(2, 'Minimal 2 karakter')),
 	revenue_account_id: accountRef('Akun pendapatan wajib dipilih'),
+	discount_account_id: accountRef('Akun diskon wajib dipilih'),
 	cogs_account_id: accountRef('Akun HPP wajib dipilih'),
 	inventory_account_id: accountRef('Akun persediaan wajib dipilih'),
 	expense_account_id: accountRef('Akun biaya wajib dipilih')
