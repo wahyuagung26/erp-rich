@@ -28,7 +28,7 @@ export const journalFormSchema = v.object({
 	date: v.string(),
 	voucher: v.string(),
 	description: v.string(),
-	attachment: v.nullable(journalAttachmentSchema),
+	attachments: v.array(journalAttachmentSchema),
 	lines: v.array(journalLineSchema)
 })
 

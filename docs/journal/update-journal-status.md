@@ -18,10 +18,10 @@ timestamp: 2026-09-07T14:00:00Z
 { "status": "approved", "date": "2026-08-01" }
 ```
 
-| Field | Type | Rules |
-|---|---|---|
-| `status` | enum | `submitted → approved/rejected`, `rejected → submitted` |
-| `date` | string | optional, only on `status: approved` — `YYYY-MM-DD`; overrides the journal date at approval time |
+| Field    | Type   | Rules                                                                                            |
+| -------- | ------ | ------------------------------------------------------------------------------------------------ |
+| `status` | enum   | `submitted → approved/rejected`, `rejected → submitted`                                          |
+| `date`   | string | optional, only on `status: approved` — `YYYY-MM-DD`; overrides the journal date at approval time |
 
 ## Response
 

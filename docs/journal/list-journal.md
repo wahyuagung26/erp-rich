@@ -19,13 +19,13 @@ on the dashboard (first 5, see [dashboard-summary](../dashboard/dashboard-summar
 
 ### Query
 
-| Name | Type | Required | Notes |
-|---|---|---|---|
-| `page`, `per_page`, `sort_by`, `sort_order` | — | no | `sort_by` accepts `date`, `total` |
-| `q` | string | no | matches `number` + `voucher` + `description` |
-| `status` | enum | no | `submitted` / `approved` / `rejected` |
-| `date_from` | string | no | `YYYY-MM-DD`, inclusive lower bound on `date` |
-| `date_to` | string | no | `YYYY-MM-DD`, inclusive upper bound on `date` |
+| Name                                        | Type   | Required | Notes                                         |
+| ------------------------------------------- | ------ | -------- | --------------------------------------------- |
+| `page`, `per_page`, `sort_by`, `sort_order` | —      | no       | `sort_by` accepts `date`, `total`             |
+| `q`                                         | string | no       | matches `number` + `voucher` + `description`  |
+| `status`                                    | enum   | no       | `submitted` / `approved` / `rejected`         |
+| `date_from`                                 | string | no       | `YYYY-MM-DD`, inclusive lower bound on `date` |
+| `date_to`                                   | string | no       | `YYYY-MM-DD`, inclusive upper bound on `date` |
 
 ## Response
 
@@ -35,12 +35,31 @@ on the dashboard (first 5, see [dashboard-summary](../dashboard/dashboard-summar
 {
   "data": [
     {
-      "id": 1, "date": "2026-08-01", "number": "JU-2608-001",
-      "voucher": "VCR-2608-001", "description": "Pembayaran sewa kantor Agustus",
-      "status": "submitted", "rejection_reason": null, "approved_by": null, "approved_at": null, "total": 15000000,
+      "id": 1,
+      "date": "2026-08-01",
+      "number": "JU-2608-001",
+      "voucher": "VCR-2608-001",
+      "description": "Pembayaran sewa kantor Agustus",
+      "status": "submitted",
+      "rejection_reason": null,
+      "approved_by": null,
+      "approved_at": null,
+      "total": 15000000,
       "lines": [
-        { "account_id": 15, "account_code": "6-6100", "account_name": "Beban Sewa", "debit": 15000000, "credit": 0 },
-        { "account_id": 2, "account_code": "1-1100", "account_name": "Bank BCA", "debit": 0, "credit": 15000000 }
+        {
+          "account_id": 15,
+          "account_code": "6-6100",
+          "account_name": "Beban Sewa",
+          "debit": 15000000,
+          "credit": 0
+        },
+        {
+          "account_id": 2,
+          "account_code": "1-1100",
+          "account_name": "Bank BCA",
+          "debit": 0,
+          "credit": 15000000
+        }
       ]
     }
   ],

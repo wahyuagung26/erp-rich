@@ -39,7 +39,7 @@ const toForm = (value: Journal): JournalForm => ({
 	date: value.date,
 	voucher: value.voucher,
 	description: value.description,
-	attachment: value.attachment,
+	attachments: value.attachments.map((a) => ({ ...a })),
 	lines: value.lines.map((line: JournalLine) => ({ ...line }))
 })
 
@@ -67,7 +67,7 @@ async function save(payload: JournalForm) {
 	<div class="space-y-4 p-4">
 		<PageHeader title="Edit Jurnal" subtitle="Jurnal Umum">
 			<template v-if="journal" #actions>
-				<div class="flex items-center gap-2">
+				<div class="flex items-center gap-2 self-start">
 					<Badge :tone="journalStatusTone[journal.status]">{{ journalStatusLabel[journal.status] }}</Badge>
 				</div>
 			</template>

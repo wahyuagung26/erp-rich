@@ -4,18 +4,20 @@ import { integerInput, parseIntegerInput } from '@/utils/format'
 
 defineOptions({ inheritAttrs: false })
 
-const props = withDefaults(defineProps<{ modelValue?: number; disabled?: boolean }>(), { modelValue: 0 })
+// blankZero: show an empty field (placeholder visible) instead of "0" — for entry rows.
+const props = withDefaults(defineProps<{ modelValue?: number; disabled?: boolean; blankZero?: boolean }>(), { modelValue: 0 })
+const show = (value: number) => (props.blankZero && !value ? '' : integerInput(value))
 const emit = defineEmits<{ 'update:modelValue': [number] }>()
 
 const attrs = useAttrs()
 const input = ref<HTMLInputElement>()
-const displayValue = ref(integerInput(props.modelValue))
+const displayValue = ref(show(props.modelValue))
 const editing = ref(false)
 
 watch(
 	() => props.modelValue,
 	(value) => {
-		if (!editing.value) displayValue.value = integerInput(value)
+		if (!editing.value) displayValue.value = show(value)
 	}
 )
 
@@ -43,7 +45,7 @@ async function onInput(event: Event) {
 
 function onBlur() {
 	editing.value = false
-	displayValue.value = integerInput(props.modelValue)
+	displayValue.value = show(props.modelValue)
 }
 
 function onFocus() {
@@ -57,7 +59,7 @@ const { class: className, style, ...inputAttrs } = attrs
 <template>
 	<div class="relative w-full" :class="className" :style="style">
 		<div
-			class="flex w-full items-stretch overflow-hidden rounded-md border border-ink-subtle/30 bg-panel focus-within:ring-2 focus-within:ring-primary/40"
+			class="flex w-full items-stretch overflow-hidden rounded-md border border-ink-subtle/30 bg-panel focus-within:ring-2 focus-within:ring-primary/40 has-[:disabled]:bg-fill"
 		>
 			<span class="flex select-none items-center whitespace-nowrap border-r border-hairline px-3 text-s text-ink-muted">Rp</span>
 			<input

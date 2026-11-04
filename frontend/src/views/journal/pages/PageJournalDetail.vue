@@ -152,14 +152,12 @@ function remove() {
 						<div>
 							<dt class="text-s text-ink-muted">Lampiran</dt>
 							<dd class="mt-1 text-m">
-								<a
-									v-if="journal.attachment"
-									:href="journal.attachment.data_url"
-									:download="journal.attachment.name"
-									target="_blank"
-									class="text-primary-dark hover:underline"
-									>{{ journal.attachment.name }}</a
-								><span v-else class="text-ink-muted">–</span>
+								<ul v-if="journal.attachments.length" class="space-y-1">
+									<li v-for="file in journal.attachments" :key="file.name">
+										<a :href="file.data_url" :download="file.name" target="_blank" class="text-primary-dark hover:underline">{{ file.name }}</a>
+									</li>
+								</ul>
+								<span v-else class="text-ink-muted">–</span>
 							</dd>
 						</div>
 						<template v-if="journal.status === 'approved'">
@@ -184,7 +182,7 @@ function remove() {
 					<div class="overflow-x-auto">
 						<table class="w-full min-w-[760px] text-m">
 							<thead>
-								<tr class="border-b border-hairline text-left text-s text-ink-muted">
+								<tr class="bg-fill text-left text-s font-medium text-ink-muted [&>th:first-child]:rounded-l-md [&>th:last-child]:rounded-r-md">
 									<th class="px-3 py-2">Akun Perkiraan</th>
 									<th class="px-3 py-2">Departemen</th>
 									<th class="px-3 py-2">Arus Kas</th>
@@ -195,8 +193,17 @@ function remove() {
 							</thead>
 							<tbody>
 								<tr v-for="(line, index) in journal.lines" :key="index" class="border-b border-hairline last:border-0">
-									<td class="px-3 py-3 text-ink">{{ line.account_code }} — {{ line.account_name }}</td>
-									<td class="px-3 py-3 text-ink">{{ line.department_code ? `${line.department_code} — ${line.department_name}` : '–' }}</td>
+									<td class="px-3 py-3 text-ink">
+										<div>{{ line.account_name }}</div>
+										<div class="text-s text-ink-muted">{{ line.account_code }}</div>
+									</td>
+									<td class="px-3 py-3 text-ink">
+										<template v-if="line.department_code">
+											<div>{{ line.department_name }}</div>
+											<div class="text-s text-ink-muted">{{ line.department_code }}</div>
+										</template>
+										<template v-else>–</template>
+									</td>
 									<td class="px-3 py-3 text-ink">{{ line.cash_flow ? (line.cash_flow_name ?? line.cash_flow) : '–' }}</td>
 									<td class="px-3 py-3 text-right"><Amount :value="line.debit" /></td>
 									<td class="px-3 py-3 text-right"><Amount :value="line.credit" /></td>

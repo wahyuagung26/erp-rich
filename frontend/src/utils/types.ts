@@ -409,7 +409,7 @@ export interface Journal {
 	number: string
 	voucher: string
 	description: string
-	attachment: JournalAttachment | null
+	attachments: JournalAttachment[]
 	status: JournalStatus
 	rejection_reason: string | null
 	approved_by: string | null

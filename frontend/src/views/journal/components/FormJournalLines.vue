@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconPaperclip, IconPencil, IconPlus, IconSend, IconTrash, IconX } from '@tabler/icons-vue'
+import { IconCheck, IconDeviceFloppy, IconPaperclip, IconPencil, IconPlus, IconSend, IconTrash, IconX } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
 import Panel from '@/components/base/Panel.vue'
@@ -36,7 +36,7 @@ const form = reactive<JournalForm>(
 			// structuredClone chokes on Vue reactive proxies; a line has no nested objects.
 			{
 				...props.initialValue,
-				attachment: props.initialValue.attachment && { ...props.initialValue.attachment },
+				attachments: props.initialValue.attachments.map((file) => ({ ...file })),
 				lines: props.initialValue.lines.map((line) => ({ ...line }))
 			}
 		: {
@@ -44,7 +44,7 @@ const form = reactive<JournalForm>(
 				date: new Date().toISOString().slice(0, 10),
 				voucher: '',
 				description: '',
-				attachment: null,
+				attachments: [],
 				lines: []
 			}
 )
@@ -53,6 +53,8 @@ const totalDebit = computed(() => form.lines.reduce((sum, line) => sum + line.de
 const totalCredit = computed(() => form.lines.reduce((sum, line) => sum + line.credit, 0))
 const balanced = computed(() => totalDebit.value > 0 && totalDebit.value === totalCredit.value)
 const editingIndex = ref<number | null>(null)
+const isEdit = !!props.initialValue
+const fileInput = ref<HTMLInputElement>()
 
 function blank(): JournalFormLine {
 	return { account_id: 0, department_id: null, cash_flow: null, detail_description: '', debit: 0, credit: 0 }
@@ -138,43 +140,55 @@ function onCredit(line: JournalFormLine, value: number) {
 }
 
 const MAX_ATTACHMENT = 5 * 1024 * 1024
+const MAX_FILES = 5
 const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
 
-function onAttachmentPick(event: Event) {
-	const input = event.target as HTMLInputElement
-	const file = input.files?.[0]
-	if (!file) return
-	if (!ALLOWED_TYPES.includes(file.type)) {
-		toast.error('Lampiran harus berupa PDF, JPG, atau PNG')
-		input.value = ''
-		return
-	}
-	if (file.size > MAX_ATTACHMENT) {
-		toast.error('Ukuran lampiran maksimal 5 MB')
-		input.value = ''
-		return
-	}
-
-	const reader = new FileReader()
-	reader.onload = () => {
+const readFile = (file: File) =>
+	new Promise<JournalForm['attachments'][number]>((resolve, reject) => {
+		const reader = new FileReader()
 		// ponytail: keep prototype attachments as data URLs; switch to multipart upload when the backend exists.
-		form.attachment = { name: file.name, type: file.type, size: file.size, data_url: String(reader.result) }
+		reader.onload = () => resolve({ name: file.name, type: file.type, size: file.size, data_url: String(reader.result) })
+		reader.onerror = () => reject(new Error(file.name))
+		reader.readAsDataURL(file)
+	})
+
+async function onAttachmentPick(event: Event) {
+	const input = event.target as HTMLInputElement
+	const picked = Array.from(input.files ?? [])
+	input.value = '' // allow picking the same file again after removing it
+	for (const file of picked) {
+		if (form.attachments.length >= MAX_FILES) {
+			toast.error(`Maksimal ${MAX_FILES} lampiran`)
+			break
+		}
+		if (!ALLOWED_TYPES.includes(file.type)) {
+			toast.error(`${file.name}: lampiran harus berupa PDF, JPG, atau PNG`)
+			continue
+		}
+		if (file.size > MAX_ATTACHMENT) {
+			toast.error(`${file.name}: ukuran maksimal 5 MB`)
+			continue
+		}
+		try {
+			form.attachments.push(await readFile(file))
+		} catch {
+			toast.error(`${file.name}: lampiran tidak dapat dibaca`)
+		}
 	}
-	reader.onerror = () => toast.error('Lampiran tidak dapat dibaca')
-	reader.readAsDataURL(file)
 }
 
-function removeAttachment() {
-	form.attachment = null
+function removeAttachment(index: number) {
+	form.attachments.splice(index, 1)
 }
 
-function draftError(field: 'account' | 'cash_flow' | 'amount') {
+function draftError(field: 'account' | 'department' | 'cash_flow' | 'amount') {
 	return errors.value['draft.' + field]
 }
 
 function lineValidation(line: JournalFormLine, prefix: string) {
 	const next: Record<string, string> = {}
 	if (!line.account_id) next[prefix + '.account'] = 'Akun wajib dipilih'
+	if (!line.department_id) next[prefix + '.department'] = 'Departemen wajib dipilih'
 	if (cashFlowRequired(line) && !line.cash_flow) next[prefix + '.cash_flow'] = 'Arus kas wajib untuk akun kas/bank'
 	if (line.debit < 0 || line.credit < 0) next[prefix + '.amount'] = 'Nominal tidak boleh negatif'
 	if (line.debit > 0 && line.credit > 0) next[prefix + '.amount'] = 'Isi debit atau kredit saja'
@@ -209,6 +223,9 @@ function resetDraft() {
 
 async function saveDetail() {
 	if (lineDraft.account_id && !lineDraft.account_type) await loadAccount(lineDraft)
+	// Labels resolve asynchronously after a pick; wait for them so the new row never shows '–' for a chosen department / cash flow.
+	if (lineDraft.department_id && !lineDraft.department_code) await onDepartmentChange(lineDraft, lineDraft.department_id)
+	if (lineDraft.cash_flow && !lineDraft.cash_flow_name) await onCashFlowChange(lineDraft, lineDraft.cash_flow)
 	const lineErrors = lineValidation(lineDraft, 'draft')
 	clearDraftErrors()
 	if (Object.keys(lineErrors).length) {
@@ -217,6 +234,7 @@ async function saveDetail() {
 	}
 	if (editingIndex.value === null) form.lines.push({ ...lineDraft })
 	else form.lines[editingIndex.value] = { ...lineDraft }
+	clearLineErrors()
 	resetDraft()
 }
 
@@ -226,7 +244,15 @@ function editDetail(index: number) {
 	clearDraftErrors()
 }
 
+// Per-line errors ('lines.<i>.<field>') render under the cell of that row; indexes shift on delete/edit, so drop them and let the next submit re-validate.
+const lineError = (index: number, field: 'account' | 'department' | 'cash_flow' | 'amount') => errors.value[`lines.${index}.${field}`]
+const rowHasError = (index: number) => ['account', 'department', 'cash_flow', 'amount'].some((field) => lineError(index, field as 'account'))
+function clearLineErrors() {
+	errors.value = Object.fromEntries(Object.entries(errors.value).filter(([key]) => !key.startsWith('lines.')))
+}
+
 function removeDetail(index: number) {
+	clearLineErrors()
 	form.lines.splice(index, 1)
 	if (editingIndex.value === index) resetDraft()
 	else if (editingIndex.value !== null && editingIndex.value > index) editingIndex.value -= 1
@@ -237,7 +263,7 @@ function validate(): boolean {
 	if (!form.date) next.date = 'Tanggal wajib diisi'
 	if (!form.voucher.trim()) next.voucher = 'Voucher wajib diisi'
 	if (!form.description.trim()) next.description = 'Keterangan wajib diisi'
-	if (!form.attachment) next.attachment = 'Lampiran wajib diunggah'
+	if (!form.attachments.length) next.attachment = 'Lampiran wajib diunggah'
 	if (!form.lines.length) next.lines = 'Minimal satu detail jurnal harus ditambahkan'
 	if (draftHasInput.value) next.draft = 'Simpan detail terlebih dahulu sebelum mengajukan jurnal'
 
@@ -264,8 +290,8 @@ function submit() {
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Jurnal</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
-					<FormField label="No. Transaksi" :error="errors.number" hint="Kosongkan untuk nomor otomatis.">
-						<Input v-model="form.number" placeholder="Nomor otomatis" />
+					<FormField label="No. Transaksi" :error="errors.number">
+						<Input v-model="form.number" :disabled="isEdit" placeholder="Otomatis jika dikosongkan" />
 					</FormField>
 					<FormField label="Tanggal" required :error="errors.date">
 						<DatePicker v-model="form.date" />
@@ -274,102 +300,161 @@ function submit() {
 						<Input v-model="form.voucher" placeholder="Nomor / referensi voucher" />
 					</FormField>
 					<FormField class="md:col-span-2" label="Keterangan" required :error="errors.description">
-						<Textarea v-model="form.description" :rows="3" placeholder="Keterangan jurnal" />
+						<Textarea v-model="form.description" :rows="2" placeholder="Keterangan jurnal" />
 					</FormField>
-					<FormField label="Lampiran" required :error="errors.attachment" hint="PDF, JPG, atau PNG. Maksimal 5 MB.">
-						<div v-if="form.attachment" class="flex items-center gap-2 rounded-md bg-fill px-3 py-2 text-s">
-							<IconPaperclip class="h-4 w-4 shrink-0 text-primary" />
-							<span class="min-w-0 flex-1 truncate text-ink">{{ form.attachment.name }}</span>
-							<button type="button" class="text-danger hover:underline" @click="removeAttachment">Hapus</button>
+					<FormField label="Lampiran" required :error="errors.attachment" hint="PDF, JPG, atau PNG. Maks. 5 MB per file, hingga 5 file.">
+						<div class="space-y-1.5">
+							<div
+								v-for="(file, index) in form.attachments"
+								:key="file.name + index"
+								class="flex items-center gap-2 rounded-md border border-ink-subtle/30 bg-panel px-3 py-2 text-m"
+							>
+								<IconPaperclip class="h-4 w-4 shrink-0 text-primary" />
+								<span class="min-w-0 flex-1 truncate text-ink">{{ file.name }}</span>
+								<button type="button" class="shrink-0 text-s text-danger hover:underline" @click="removeAttachment(index)">Hapus</button>
+							</div>
+							<input ref="fileInput" type="file" multiple accept="application/pdf,image/jpeg,image/png" class="hidden" @change="onAttachmentPick" />
+							<Button
+								v-if="form.attachments.length < MAX_FILES"
+								type="button"
+								variant="outline"
+								block
+								class="!justify-start"
+								@click="fileInput?.click()"
+							>
+								<IconPlus class="h-4 w-4" /> {{ form.attachments.length ? 'Tambah file…' : 'Pilih file…' }}
+							</Button>
 						</div>
-						<input
-							v-else
-							type="file"
-							accept="application/pdf,image/jpeg,image/png"
-							class="block w-full text-s text-ink-muted file:mr-2 file:rounded-md file:border-0 file:bg-fill file:px-3 file:py-2 file:text-s file:text-ink"
-							@change="onAttachmentPick"
-						/>
 					</FormField>
 				</div>
 			</section>
 
-			<section class="space-y-3">
-				<h3 class="subhead">Tambah Detail</h3>
-				<div class="grid gap-4 xl:grid-cols-[minmax(220px,1.4fr)_minmax(180px,1fr)_minmax(160px,0.8fr)_minmax(150px,1fr)_minmax(150px,1fr)]">
-					<FormField label="Akun Perkiraan" required :error="draftError('account')">
-						<AsyncSelect
-							:model-value="lineDraft.account_id || null"
-							endpoint="/account"
-							:option-label="accountLabel"
-							:initial-label="lineDraft.account_code ? `${lineDraft.account_code} — ${lineDraft.account_name}` : undefined"
-							placeholder="Cari akun perkiraan…"
-							@update:model-value="(value) => onAccountChange(lineDraft, value)"
-						/>
-					</FormField>
-					<FormField label="Departemen">
-						<AsyncSelect
-							:model-value="lineDraft.department_id"
-							endpoint="/department"
-							:option-label="departmentLabel"
-							:initial-label="lineDraft.department_code ? `${lineDraft.department_code} — ${lineDraft.department_name}` : undefined"
-							placeholder="Pilih departemen…"
-							@update:model-value="(value) => onDepartmentChange(lineDraft, value)"
-						/>
-					</FormField>
-					<FormField label="Arus Kas" :required="cashFlowRequired(lineDraft)" :error="draftError('cash_flow')">
-						<AsyncSelect
-							:model-value="lineDraft.cash_flow ?? ''"
-							endpoint="/cash-flow"
-							:option-label="cashFlowLabel"
-							:option-value="cashFlowValue"
-							:initial-label="lineDraft.cash_flow ? `${lineDraft.cash_flow} — ${lineDraft.cash_flow_name ?? lineDraft.cash_flow}` : undefined"
-							placeholder="Cari arus kas…"
-							@update:model-value="(value) => onCashFlowChange(lineDraft, value)"
-						/>
-					</FormField>
-					<FormField label="Debit" :error="draftError('amount')">
-						<MoneyInput :model-value="lineDraft.debit" @update:model-value="(value) => onDebit(lineDraft, value)" />
-					</FormField>
-					<FormField label="Kredit" :error="draftError('amount')">
-						<MoneyInput :model-value="lineDraft.credit" @update:model-value="(value) => onCredit(lineDraft, value)" />
-					</FormField>
-				</div>
-				<FormField label="Keterangan Detail">
-					<Input v-model="lineDraft.detail_description" placeholder="Keterangan detail (opsional)" />
-				</FormField>
-				<div class="flex gap-2">
-					<Button type="button" size="sm" variant="secondary" @click="saveDetail">
-						<IconPlus class="h-4 w-4" /> {{ editingIndex === null ? 'Tambah Detail' : 'Simpan Detail' }}
-					</Button>
-					<Button v-if="editingIndex !== null" type="button" size="sm" variant="subtle" @click="resetDraft">Batal Edit</Button>
-				</div>
-				<p v-if="errors.draft" class="text-s text-danger">{{ errors.draft }}</p>
-			</section>
-
+			<!-- Entry row lives IN the table (same columns as the lines below): fill it, press Enter or +, the line drops in underneath. -->
 			<section class="space-y-3">
 				<h3 class="subhead">Detail Jurnal</h3>
-				<div v-if="form.lines.length" class="overflow-x-auto">
-					<table class="w-full min-w-[900px] text-m">
+				<div class="overflow-x-auto">
+					<table class="w-full min-w-[1000px] text-m">
 						<thead>
-							<tr class="border-b border-hairline text-left text-s text-ink-muted">
-								<th class="px-3 py-2">Akun Perkiraan</th>
-								<th class="px-3 py-2">Departemen</th>
-								<th class="px-3 py-2">Arus Kas</th>
-								<th class="px-3 py-2 text-right">Debit</th>
-								<th class="px-3 py-2 text-right">Kredit</th>
-								<th class="px-3 py-2">Keterangan</th>
-								<th class="px-3 py-2 text-right">Aksi</th>
+							<tr class="bg-fill text-left text-s font-medium text-ink-muted [&>th:first-child]:rounded-l-md [&>th:last-child]:rounded-r-md">
+								<th class="px-2 py-2">Akun Perkiraan<span class="text-danger">*</span></th>
+								<th class="px-2 py-2">Departemen<span class="text-danger">*</span></th>
+								<th class="px-2 py-2">Arus Kas</th>
+								<th class="px-2 py-2 text-right">Debit</th>
+								<th class="px-2 py-2 text-right">Kredit</th>
+								<th class="px-2 py-2">Keterangan</th>
+								<th class="px-2 py-2 text-right">Aksi</th>
 							</tr>
 						</thead>
 						<tbody>
-							<tr v-for="(line, index) in form.lines" :key="index" class="border-b border-hairline last:border-0">
-								<td class="px-3 py-3 text-ink">{{ line.account_code }} — {{ line.account_name }}</td>
-								<td class="px-3 py-3 text-ink">{{ line.department_code ? `${line.department_code} — ${line.department_name}` : '–' }}</td>
-								<td class="px-3 py-3 text-ink">{{ line.cash_flow ? (line.cash_flow_name ?? line.cash_flow) : '–' }}</td>
-								<td class="px-3 py-3 text-right"><Amount :value="line.debit" /></td>
-								<td class="px-3 py-3 text-right"><Amount :value="line.credit" /></td>
-								<td class="px-3 py-3 text-ink">{{ line.detail_description || '–' }}</td>
-								<td class="px-3 py-3">
+							<tr class="border-b border-hairline align-top">
+								<td class="min-w-[200px] px-2 py-2">
+									<AsyncSelect
+										:model-value="lineDraft.account_id || null"
+										endpoint="/account"
+										:option-label="accountLabel"
+										:initial-label="lineDraft.account_code ? `${lineDraft.account_code} — ${lineDraft.account_name}` : undefined"
+										placeholder="Cari akun perkiraan…"
+										@update:model-value="(value) => onAccountChange(lineDraft, value)"
+									/>
+									<p v-if="draftError('account')" class="mt-1 text-xs text-danger">{{ draftError('account') }}</p>
+								</td>
+								<td class="min-w-[150px] px-2 py-2">
+									<AsyncSelect
+										:model-value="lineDraft.department_id"
+										endpoint="/department"
+										:option-label="departmentLabel"
+										:initial-label="lineDraft.department_code ? `${lineDraft.department_code} — ${lineDraft.department_name}` : undefined"
+										placeholder="Pilih departemen…"
+										@update:model-value="(value) => onDepartmentChange(lineDraft, value)"
+									/>
+									<p v-if="draftError('department')" class="mt-1 text-xs text-danger">{{ draftError('department') }}</p>
+								</td>
+								<td class="min-w-[150px] px-2 py-2">
+									<AsyncSelect
+										:model-value="lineDraft.cash_flow ?? ''"
+										endpoint="/cash-flow"
+										:option-label="cashFlowLabel"
+										:option-value="cashFlowValue"
+										:initial-label="lineDraft.cash_flow ? `${lineDraft.cash_flow} — ${lineDraft.cash_flow_name ?? lineDraft.cash_flow}` : undefined"
+										:placeholder="cashFlowRequired(lineDraft) ? 'Arus kas (wajib)…' : 'Cari arus kas…'"
+										@update:model-value="(value) => onCashFlowChange(lineDraft, value)"
+									/>
+									<p v-if="draftError('cash_flow')" class="mt-1 text-xs text-danger">{{ draftError('cash_flow') }}</p>
+								</td>
+								<td class="min-w-[150px] px-2 py-2">
+									<MoneyInput
+										blank-zero
+										placeholder="0"
+										:model-value="lineDraft.debit"
+										@update:model-value="(value) => onDebit(lineDraft, value)"
+										@keydown.enter.prevent="saveDetail"
+									/>
+									<p v-if="draftError('amount')" class="mt-1 text-xs text-danger">{{ draftError('amount') }}</p>
+								</td>
+								<td class="min-w-[150px] px-2 py-2">
+									<MoneyInput
+										blank-zero
+										placeholder="0"
+										:model-value="lineDraft.credit"
+										@update:model-value="(value) => onCredit(lineDraft, value)"
+										@keydown.enter.prevent="saveDetail"
+									/>
+								</td>
+								<td class="min-w-[150px] px-2 py-2">
+									<Input v-model="lineDraft.detail_description" placeholder="Keterangan (opsional)" @keydown.enter.prevent="saveDetail" />
+								</td>
+								<td class="px-2 py-2">
+									<div class="flex justify-end gap-1">
+										<Button
+											type="button"
+											size="sm"
+											variant="secondary"
+											:title="editingIndex === null ? 'Tambah detail' : 'Simpan detail'"
+											@click="saveDetail"
+										>
+											<component :is="editingIndex === null ? IconPlus : IconCheck" class="h-4 w-4" />
+										</Button>
+										<Button v-if="editingIndex !== null" type="button" size="sm" variant="subtle" title="Batal edit" @click="resetDraft">
+											<IconX class="h-4 w-4" />
+										</Button>
+									</div>
+								</td>
+							</tr>
+							<tr v-if="!form.lines.length">
+								<td colspan="7" class="px-3 py-6 text-center text-s text-ink-muted">
+									Belum ada detail jurnal. Isi baris di atas, lalu tekan Enter atau tombol +.
+								</td>
+							</tr>
+							<tr
+								v-for="(line, index) in form.lines"
+								:key="index"
+								class="border-b border-hairline last:border-0"
+								:class="{ 'bg-primary/5': editingIndex === index, 'bg-danger-soft/40': rowHasError(index) && editingIndex !== index }"
+							>
+								<td class="px-2 py-3 text-ink">
+									<div class="text-ink">{{ line.account_name }}</div>
+									<div class="text-s text-ink-muted">{{ line.account_code }}</div>
+									<p v-if="lineError(index, 'account')" class="mt-1 text-xs text-danger">{{ lineError(index, 'account') }}</p>
+								</td>
+								<td class="px-2 py-3 text-ink">
+									<template v-if="line.department_code">
+										<div class="text-ink">{{ line.department_name }}</div>
+										<div class="text-s text-ink-muted">{{ line.department_code }}</div>
+									</template>
+									<template v-else>–</template>
+									<p v-if="lineError(index, 'department')" class="mt-1 text-xs text-danger">{{ lineError(index, 'department') }}</p>
+								</td>
+								<td class="px-2 py-3 text-ink">
+									{{ line.cash_flow ? (line.cash_flow_name ?? line.cash_flow) : '–' }}
+									<p v-if="lineError(index, 'cash_flow')" class="mt-1 text-xs text-danger">{{ lineError(index, 'cash_flow') }}</p>
+								</td>
+								<td class="px-2 py-3 text-right">
+									<Amount :value="line.debit" />
+									<p v-if="lineError(index, 'amount')" class="mt-1 text-xs text-danger">{{ lineError(index, 'amount') }}</p>
+								</td>
+								<td class="px-2 py-3 text-right"><Amount :value="line.credit" /></td>
+								<td class="px-2 py-3 text-ink">{{ line.detail_description || '–' }}</td>
+								<td class="px-2 py-3">
 									<div class="flex justify-end gap-1">
 										<button
 											type="button"
@@ -391,28 +476,36 @@ function submit() {
 								</td>
 							</tr>
 						</tbody>
-						<tfoot>
-							<tr class="border-t border-hairline text-s">
-								<td class="px-3 py-3 text-ink-muted" colspan="3">Total</td>
-								<td class="px-3 py-3 text-right"><Amount :value="totalDebit" /></td>
-								<td class="px-3 py-3 text-right"><Amount :value="totalCredit" /></td>
-								<td class="px-3 py-3" colspan="2">
-									<Badge :tone="balanced ? 'success' : 'danger'">{{ balanced ? 'Balance' : 'Belum balance' }}</Badge>
-								</td>
-							</tr>
-						</tfoot>
 					</table>
 				</div>
-				<p v-else class="rounded-md bg-canvas px-3 py-4 text-center text-s text-ink-muted">
-					Belum ada detail jurnal. Isi form di atas lalu klik Tambah Detail.
-				</p>
+				<p v-if="errors.draft" class="text-s text-danger">{{ errors.draft }}</p>
 				<p v-if="errors.lines" class="text-s text-danger">{{ errors.lines }}</p>
 				<p v-if="errors.balance" class="text-s text-danger">{{ errors.balance }}</p>
 			</section>
 
-			<div class="flex flex-wrap gap-2 pt-2">
-				<Button type="submit" :loading="loading"><IconSend v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan & Ajukan' }}</Button>
-				<Button variant="subtle" type="button" @click="router.push('/journal')"><IconX class="h-4 w-4" /> Batal</Button>
+			<!-- Sticky action bar: totals + balance + Simpan stay in view however long the lines get. -->
+			<div class="sticky bottom-0 z-10 -mx-4 -mb-4 flex flex-wrap items-center justify-between gap-3 border-t border-hairline bg-panel px-4 py-3">
+				<dl class="flex flex-wrap items-center gap-x-6 gap-y-1 text-s">
+					<div class="flex items-baseline gap-2">
+						<dt class="text-ink-muted">Total Debit</dt>
+						<dd class="text-m font-semibold"><Amount :value="totalDebit" /></dd>
+					</div>
+					<div class="flex items-baseline gap-2">
+						<dt class="text-ink-muted">Total Kredit</dt>
+						<dd class="text-m font-semibold"><Amount :value="totalCredit" /></dd>
+					</div>
+					<div v-if="!balanced && (totalDebit || totalCredit)" class="flex items-baseline gap-2">
+						<dt class="text-ink-muted">Selisih</dt>
+						<dd class="text-m font-semibold text-danger"><Amount :value="Math.abs(totalDebit - totalCredit)" /></dd>
+					</div>
+					<Badge :tone="balanced ? 'success' : 'danger'">{{ balanced ? 'Balance' : 'Belum balance' }}</Badge>
+				</dl>
+				<div class="flex gap-2">
+					<Button variant="secondary" type="button" @click="router.push('/journal')"><IconX class="h-4 w-4" /> Batal</Button>
+					<Button type="submit" :loading="loading">
+						<component :is="isEdit ? IconDeviceFloppy : IconSend" v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan & Ajukan' }}
+					</Button>
+				</div>
 			</div>
 		</form>
 	</Panel>

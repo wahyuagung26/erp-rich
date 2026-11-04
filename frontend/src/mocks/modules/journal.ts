@@ -44,13 +44,15 @@ function lineOf(line: JournalLine): JournalLine {
 function validateRequest(body: JournalRequest): string | null {
 	if (!String(body.voucher ?? '').trim()) return 'Voucher wajib diisi'
 	if (!String(body.description ?? '').trim()) return 'Keterangan wajib diisi'
-	if (!body.attachment) return 'Lampiran wajib diunggah'
+	if (!Array.isArray(body.attachments) || !body.attachments.length) return 'Lampiran wajib diunggah'
+	if (body.attachments.length > 5) return 'Maksimal 5 lampiran'
 	if (!Array.isArray(body.lines) || body.lines.length < 1) return 'Minimal satu detail jurnal'
 	for (const line of body.lines) {
 		const account = db.account.find((a) => a.id === Number(line.account_id) && !a.deleted_at)
 		if (!account) return 'Akun perkiraan tidak valid'
 		if (Number(line.debit) < 0 || Number(line.credit) < 0 || (Number(line.debit) > 0 && Number(line.credit) > 0))
 			return 'Debit dan kredit tidak valid'
+		if (!db.department.some((d) => d.id === Number(line.department_id) && !d.deleted_at)) return 'Departemen wajib dipilih'
 		if (account.type === 'cash_bank' && !line.cash_flow) return 'Arus kas wajib untuk akun kas/bank'
 	}
 	const debit = body.lines.reduce((sum, line) => sum + (Number(line.debit) || 0), 0)
@@ -95,7 +97,7 @@ export function registerJournal(mock: MockAdapter) {
 			date: body.date,
 			voucher: body.voucher.trim(),
 			description: body.description.trim(),
-			attachment: body.attachment,
+			attachments: body.attachments,
 			status: 'submitted',
 			rejection_reason: null,
 			approved_by: null,
@@ -119,7 +121,7 @@ export function registerJournal(mock: MockAdapter) {
 		journal.date = body.date
 		journal.voucher = body.voucher.trim()
 		journal.description = body.description.trim()
-		journal.attachment = body.attachment
+		journal.attachments = body.attachments
 		journal.lines = body.lines.map(lineOf)
 		journal.total = journal.lines.reduce((sum, line) => sum + line.debit, 0)
 		journal.rejection_reason = null
