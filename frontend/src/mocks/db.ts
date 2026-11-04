@@ -21,6 +21,7 @@ import { salesTypeSeed } from './fixtures/sales-type'
 import { purchaseTypeSeed } from './fixtures/purchase-type'
 import { paymentTypeSeed } from './fixtures/payment-type'
 import { salesExpenseSeed } from './fixtures/sales-expense'
+import { bankAccountSeed } from './fixtures/bank-account'
 import { productSeed } from './fixtures/product'
 import { purchaseOrderSeed } from './fixtures/purchase-order'
 import { purchaseReceiptSeed } from './fixtures/purchase-receipt'
@@ -51,6 +52,7 @@ import type {
 	PurchaseType,
 	PaymentType,
 	SalesExpense,
+	BankAccount,
 	Product,
 	PurchaseOrder,
 	PurchaseReceipt,
@@ -85,6 +87,7 @@ export const db: {
 	purchaseType: PurchaseType[]
 	paymentType: PaymentType[]
 	salesExpense: SalesExpense[]
+	bankAccount: BankAccount[]
 	product: Product[]
 	purchaseOrder: PurchaseOrder[]
 	purchaseReceipt: PurchaseReceipt[]
@@ -115,6 +118,7 @@ export const db: {
 	purchaseType: structuredClone(purchaseTypeSeed),
 	paymentType: structuredClone(paymentTypeSeed),
 	salesExpense: structuredClone(salesExpenseSeed),
+	bankAccount: structuredClone(bankAccountSeed),
 	product: structuredClone(productSeed),
 	purchaseOrder: structuredClone(purchaseOrderSeed),
 	purchaseReceipt: structuredClone(purchaseReceiptSeed),

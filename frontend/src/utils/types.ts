@@ -313,6 +313,23 @@ export interface SalesExpense {
 	deleted_at: string | null
 }
 
+// Master data: rekening bank / bank account. No user-entered code — identity is `id`;
+// `bank_code` is a plain editable label (non-unique). `account_id` is denormalized with
+// its code/name, same pattern as PaymentType.
+export interface BankAccount {
+	id: number
+	company_id: number
+	bank_code: string
+	bank_name: string
+	account_number: string
+	account_holder: string
+	account_id: number
+	account_code?: string
+	account_name?: string
+	notes: string
+	deleted_at: string | null
+}
+
 // Master data: produk / product. The most cross-referenced master-data entity —
 // five FKs (Brand, ProductCategory, SalesType, Supplier, Unit), each denormalized
 // onto the row same as Warehouse's branch_code/branch_name. `code` is user-entered
