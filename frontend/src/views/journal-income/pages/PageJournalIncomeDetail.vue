@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconArrowLeft, IconCheck, IconCornerDownRight, IconPencil, IconRefresh, IconTrash, IconX } from '@tabler/icons-vue'
+import { IconArrowLeft, IconCheck, IconCornerDownRight, IconPencil, IconPrinter, IconRefresh, IconTrash, IconX } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
@@ -102,6 +102,11 @@ function remove() {
 		}
 	})
 }
+// Opens the print view in a new tab; `?auto=1` makes it call window.print() once rendered.
+function printDoc() {
+	if (journal.value)
+		window.open(router.resolve({ name: 'JournalIncomePrint', params: { id: journal.value.id }, query: { auto: '1' } }).href, '_blank')
+}
 </script>
 
 <template>
@@ -111,6 +116,7 @@ function remove() {
 				<div class="flex flex-wrap items-center gap-2">
 					<Badge v-if="journal" :tone="journalStatusTone[journal.status]" class="mr-1">{{ journalStatusLabel[journal.status] }}</Badge>
 					<Button size="sm" variant="subtle" @click="router.push('/journal-income')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
+					<Button size="sm" variant="subtle" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button>
 					<template v-if="journal?.status === 'submitted'">
 						<Button size="sm" variant="secondary" @click="router.push(`/journal-income/edit/${journal.id}`)"
 							><IconPencil class="h-4 w-4" /> Edit</Button
@@ -147,6 +153,27 @@ function remove() {
 							<dt class="text-s text-ink-muted">Voucher</dt>
 							<dd class="mt-1 text-m text-ink">{{ journal.voucher }}</dd>
 						</div>
+						<div class="md:col-span-3">
+							<dt class="text-s text-ink-muted">Keterangan</dt>
+							<dd class="mt-1 whitespace-pre-line text-m text-ink">{{ journal.description }}</dd>
+						</div>
+						<div class="md:col-span-3">
+							<dt class="text-s text-ink-muted">Lampiran</dt>
+							<dd class="mt-1 text-m">
+								<ul v-if="journal.attachments.length" class="space-y-1">
+									<li v-for="(file, index) in journal.attachments" :key="file.name + index">
+										<a :href="file.data_url" :download="file.name" target="_blank" class="text-primary-dark hover:underline">{{ file.name }}</a>
+									</li>
+								</ul>
+								<span v-else class="text-ink-muted">–</span>
+							</dd>
+						</div>
+					</dl>
+				</section>
+
+				<section class="space-y-3">
+					<h3 class="subhead">Kas / Bank Penerima</h3>
+					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
 							<dt class="text-s text-ink-muted">Akun Kas / Bank</dt>
 							<dd class="mt-1 text-m text-ink">{{ journal.cash_account_code }} — {{ journal.cash_account_name }}</dd>
@@ -159,20 +186,15 @@ function remove() {
 							<dt class="text-s text-ink-muted">Arus Kas</dt>
 							<dd class="mt-1 text-m text-ink">{{ journal.cash_flow_name ?? journal.cash_flow }}</dd>
 						</div>
-						<div class="md:col-span-3">
-							<dt class="text-s text-ink-muted">Keterangan</dt>
-							<dd class="mt-1 whitespace-pre-line text-m text-ink">{{ journal.description }}</dd>
-						</div>
+					</dl>
+				</section>
+
+				<section class="space-y-3">
+					<h3 class="subhead">Persetujuan</h3>
+					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
-							<dt class="text-s text-ink-muted">Lampiran</dt>
-							<dd class="mt-1 text-m">
-								<ul v-if="journal.attachments.length" class="space-y-1">
-									<li v-for="file in journal.attachments" :key="file.name">
-										<a :href="file.data_url" :download="file.name" target="_blank" class="text-primary-dark hover:underline">{{ file.name }}</a>
-									</li>
-								</ul>
-								<span v-else class="text-ink-muted">–</span>
-							</dd>
+							<dt class="text-s text-ink-muted">Dibuat oleh</dt>
+							<dd class="mt-1 text-m text-ink">{{ journal.created_by }}</dd>
 						</div>
 						<template v-if="journal.status === 'approved'">
 							<div>

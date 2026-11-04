@@ -6,8 +6,8 @@ import { useRoute } from 'vue-router'
 import api from '@/utils/api'
 import { useCompanyStore } from '@/stores/company'
 import { date, money } from '@/utils/format'
-import PrintLayout from '@/views/cash-advance/components/PrintLayout.vue'
-import PrintSheet from '@/views/cash-advance/components/PrintSheet.vue'
+import PrintLayout from '@/components/print/PrintLayout.vue'
+import PrintSheet from '@/components/print/PrintSheet.vue'
 import type { CashAdvance, CashAdvanceSettlement } from '@/utils/types'
 
 const route = useRoute()
@@ -72,12 +72,12 @@ onMounted(async () => {
 				</div>
 			</div>
 			<div class="flex items-end">
-				<span class="w-40 shrink-0 font-bold">Nomor Uang Muka</span>:&nbsp;<span class="w-[70mm] border-b border-black px-1">{{
+				<span class="w-40 shrink-0 font-bold">Nomor Uang Muka</span>:&nbsp;<span class="w-[55mm] border-b border-black px-1">{{
 					advance.number
 				}}</span>
 			</div>
 			<div class="flex items-end">
-				<span class="w-40 shrink-0 font-bold">Nama Penerima</span>:&nbsp;<span class="w-[70mm] border-b border-black px-1">{{
+				<span class="w-40 shrink-0 font-bold">Nama Penerima</span>:&nbsp;<span class="w-[55mm] border-b border-black px-1">{{
 					advance.recipient
 				}}</span>
 			</div>

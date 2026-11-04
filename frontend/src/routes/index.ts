@@ -88,6 +88,19 @@ const routes: RouteRecordRaw[] = [
 		component: () => import('@/views/cash-advance/pages/PageCashAdvanceSettlementPrint.vue'),
 		meta: { auth: true }
 	},
+	{ path: '/journal/:id/cetak', name: 'JournalPrint', component: () => import('@/views/journal/pages/PageJournalPrint.vue'), meta: { auth: true } },
+	{
+		path: '/journal-expense/:id/cetak',
+		name: 'JournalExpensePrint',
+		component: () => import('@/views/journal-expense/pages/PageJournalExpensePrint.vue'),
+		meta: { auth: true }
+	},
+	{
+		path: '/journal-income/:id/cetak',
+		name: 'JournalIncomePrint',
+		component: () => import('@/views/journal-income/pages/PageJournalIncomePrint.vue'),
+		meta: { auth: true }
+	},
 	{ path: '/login', name: 'Login', component: () => import('@/views/auth/LoginView.vue') },
 	{ path: '/403', name: 'Forbidden', component: () => import('@/views/ForbiddenView.vue') },
 	{ path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFoundView.vue') }

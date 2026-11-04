@@ -7,7 +7,7 @@ path: /journal-expense
 status: mock
 tags: [journal, expense, write]
 resource: /frontend/src/mocks/modules/journal-expense.ts
-timestamp: 2026-11-04T21:00:00Z
+timestamp: 2026-11-05T20:00:00Z
 ---
 
 # Create Journal Expense
@@ -86,6 +86,7 @@ Server rejects unless `Σ debit − Σ credit > 0` (net cash out must be positiv
     "number": "JK-2609-001",
     "date": "2026-09-03",
     "voucher": "BKK-2609-001",
+    "created_by": "Sri Wahyuni",
     "description": "Pembayaran gaji & PPh 21 September",
     "cash_account_id": 2,
     "cash_account_code": "1-1100",

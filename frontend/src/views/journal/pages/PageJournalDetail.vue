@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconArrowLeft, IconCheck, IconPencil, IconRefresh, IconTrash, IconX } from '@tabler/icons-vue'
+import { IconArrowLeft, IconCheck, IconPencil, IconPrinter, IconRefresh, IconTrash, IconX } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
@@ -102,6 +102,10 @@ function remove() {
 		}
 	})
 }
+// Opens the print view in a new tab; `?auto=1` makes it call window.print() once rendered.
+function printDoc() {
+	if (journal.value) window.open(router.resolve({ name: 'JournalPrint', params: { id: journal.value.id }, query: { auto: '1' } }).href, '_blank')
+}
 </script>
 
 <template>
@@ -111,6 +115,7 @@ function remove() {
 				<div class="flex flex-wrap items-center gap-2">
 					<Badge v-if="journal" :tone="journalStatusTone[journal.status]" class="mr-1">{{ journalStatusLabel[journal.status] }}</Badge>
 					<Button size="sm" variant="subtle" @click="router.push('/journal')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
+					<Button size="sm" variant="subtle" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button>
 					<template v-if="journal?.status === 'submitted'">
 						<Button size="sm" variant="secondary" @click="router.push(`/journal/edit/${journal.id}`)"><IconPencil class="h-4 w-4" /> Edit</Button>
 						<Button size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button>
@@ -145,20 +150,30 @@ function remove() {
 							<dt class="text-s text-ink-muted">Voucher</dt>
 							<dd class="mt-1 text-m text-ink">{{ journal.voucher }}</dd>
 						</div>
-						<div class="md:col-span-2">
+						<div class="md:col-span-3">
 							<dt class="text-s text-ink-muted">Keterangan</dt>
 							<dd class="mt-1 whitespace-pre-line text-m text-ink">{{ journal.description }}</dd>
 						</div>
-						<div>
+						<div class="md:col-span-3">
 							<dt class="text-s text-ink-muted">Lampiran</dt>
 							<dd class="mt-1 text-m">
 								<ul v-if="journal.attachments.length" class="space-y-1">
-									<li v-for="file in journal.attachments" :key="file.name">
+									<li v-for="(file, index) in journal.attachments" :key="file.name + index">
 										<a :href="file.data_url" :download="file.name" target="_blank" class="text-primary-dark hover:underline">{{ file.name }}</a>
 									</li>
 								</ul>
 								<span v-else class="text-ink-muted">–</span>
 							</dd>
+						</div>
+					</dl>
+				</section>
+
+				<section class="space-y-3">
+					<h3 class="subhead">Persetujuan</h3>
+					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
+						<div>
+							<dt class="text-s text-ink-muted">Dibuat oleh</dt>
+							<dd class="mt-1 text-m text-ink">{{ journal.created_by }}</dd>
 						</div>
 						<template v-if="journal.status === 'approved'">
 							<div>
@@ -185,10 +200,10 @@ function remove() {
 								<tr class="bg-fill text-left text-s font-medium text-ink-muted [&>th:first-child]:rounded-l-md [&>th:last-child]:rounded-r-md">
 									<th class="px-3 py-2">Akun Perkiraan</th>
 									<th class="px-3 py-2">Departemen</th>
+									<th class="px-3 py-2">Keterangan</th>
 									<th class="px-3 py-2">Arus Kas</th>
 									<th class="px-3 py-2 text-right">Debit</th>
 									<th class="px-3 py-2 text-right">Kredit</th>
-									<th class="px-3 py-2">Keterangan</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -204,18 +219,17 @@ function remove() {
 										</template>
 										<template v-else>–</template>
 									</td>
+									<td class="px-3 py-3 text-ink">{{ line.detail_description || '–' }}</td>
 									<td class="px-3 py-3 text-ink">{{ line.cash_flow ? (line.cash_flow_name ?? line.cash_flow) : '–' }}</td>
 									<td class="px-3 py-3 text-right"><Amount :value="line.debit" /></td>
 									<td class="px-3 py-3 text-right"><Amount :value="line.credit" /></td>
-									<td class="px-3 py-3 text-ink">{{ line.detail_description || '–' }}</td>
 								</tr>
 							</tbody>
 							<tfoot>
 								<tr class="border-t border-hairline text-s">
-									<td class="px-3 py-3 text-ink-muted" colspan="3">Total</td>
+									<td class="px-3 py-3 text-ink-muted" colspan="4">Total</td>
 									<td class="px-3 py-3 text-right"><Amount :value="journal.total" /></td>
 									<td class="px-3 py-3 text-right"><Amount :value="journal.total" /></td>
-									<td class="px-3 py-3"></td>
 								</tr>
 							</tfoot>
 						</table>

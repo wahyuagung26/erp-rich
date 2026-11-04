@@ -3,7 +3,7 @@ type: OKF Module
 title: Journal
 description: Manual double-entry journal entries with approval workflow and balanced debit/credit lines.
 tags: [journal, double-entry]
-timestamp: 2026-11-04T20:00:00Z
+timestamp: 2026-11-05T19:00:00Z
 ---
 
 # Journal
@@ -19,6 +19,7 @@ Consumed by `frontend/src/views/journal/`. Lines reference [account](../account/
 | `number`           | string          | optional input; server-assigned when blank, e.g. `JU-2609-001`              |
 | `date`             | string          | `YYYY-MM-DD`                                                                |
 | `voucher`          | string          | free-text voucher/reference; required                                       |
+| `created_by`       | string          | name of the user who created it ("Diajukan" on the printout); server-assigned, read-only |
 | `description`      | string          | required                                                                    |
 | `attachments`      | array           | 1–5 PDF/JPG/PNG files, max 5 MB each; item `{ name, type, size, data_url }` |
 | `status`           | enum            | `submitted`, `approved`, or `rejected`                                      |

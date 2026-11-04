@@ -7,7 +7,7 @@ path: /journal
 status: mock
 tags: [journal, read, list]
 resource: /frontend/src/mocks/modules/journal.ts
-timestamp: 2026-09-07T15:00:00Z
+timestamp: 2026-11-05T19:00:00Z
 ---
 
 # List Journal
@@ -39,6 +39,7 @@ on the dashboard (first 5, see [dashboard-summary](../dashboard/dashboard-summar
       "date": "2026-08-01",
       "number": "JU-2608-001",
       "voucher": "VCR-2608-001",
+      "created_by": "Sri Wahyuni",
       "description": "Pembayaran sewa kantor Agustus",
       "status": "submitted",
       "rejection_reason": null,

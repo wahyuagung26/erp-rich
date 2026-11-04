@@ -13,6 +13,7 @@ type JournalIncomeRequest = Omit<
 	| 'rejection_reason'
 	| 'approved_by'
 	| 'approved_at'
+	| 'created_by'
 	| 'cash_account_code'
 	| 'cash_account_name'
 	| 'department_code'
@@ -93,7 +94,7 @@ function validateRequest(body: JournalIncomeRequest): string | null {
 
 function buildRow(
 	body: JournalIncomeRequest,
-	base: Pick<JournalIncome, 'id' | 'number' | 'status' | 'rejection_reason' | 'approved_by' | 'approved_at'>
+	base: Pick<JournalIncome, 'id' | 'number' | 'created_by' | 'status' | 'rejection_reason' | 'approved_by' | 'approved_at'>
 ): JournalIncome {
 	// Credit lines are income; debit lines are potongan. The cash/bank account is debited with what's left.
 	const lines = body.lines.map((line) => lineOf(line))
@@ -147,6 +148,7 @@ export function registerJournalIncome(mock: MockAdapter) {
 		const row = buildRow(body, {
 			id: nextId(db.journalIncome),
 			number: String(body.number ?? '').trim() || journalNumber(body.date, seq),
+			created_by: currentUserName(),
 			status: 'submitted',
 			rejection_reason: null,
 			approved_by: null,
@@ -169,6 +171,7 @@ export function registerJournalIncome(mock: MockAdapter) {
 			buildRow(body, {
 				id: row.id,
 				number: String(body.number ?? '').trim() || row.number,
+				created_by: row.created_by,
 				status: 'submitted',
 				rejection_reason: null,
 				approved_by: null,

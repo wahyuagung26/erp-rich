@@ -7,7 +7,7 @@ path: /journal
 status: mock
 tags: [journal, write]
 resource: /frontend/src/mocks/modules/journal.ts
-timestamp: 2026-11-04T20:00:00Z
+timestamp: 2026-11-05T19:00:00Z
 ---
 
 # Create Journal
@@ -81,6 +81,8 @@ Server rejects unless `sum(debit) === sum(credit)` and `> 0`.
     "id": 6,
     "number": "JU-2609-001",
     "date": "2026-09-03",
+    "voucher": "VCR-2609-001",
+    "created_by": "Sri Wahyuni",
     "description": "Pembayaran gaji September",
     "status": "submitted",
     "rejection_reason": null,

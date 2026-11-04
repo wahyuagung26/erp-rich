@@ -408,6 +408,7 @@ export interface Journal {
 	date: string
 	number: string
 	voucher: string
+	created_by: string
 	description: string
 	attachments: JournalAttachment[]
 	status: JournalStatus
@@ -437,6 +438,7 @@ export interface JournalExpense {
 	number: string
 	date: string
 	voucher: string
+	created_by: string
 	description: string
 	attachments: JournalAttachment[]
 	cash_account_id: number
@@ -466,6 +468,7 @@ export interface JournalIncome {
 	number: string
 	date: string
 	voucher: string
+	created_by: string
 	description: string
 	attachments: JournalAttachment[]
 	cash_account_id: number

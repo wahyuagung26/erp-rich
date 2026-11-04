@@ -6,8 +6,8 @@ import { useRoute } from 'vue-router'
 import api from '@/utils/api'
 import { useCompanyStore } from '@/stores/company'
 import { date, money } from '@/utils/format'
-import PrintLayout from '@/views/cash-advance/components/PrintLayout.vue'
-import PrintSheet from '@/views/cash-advance/components/PrintSheet.vue'
+import PrintLayout from '@/components/print/PrintLayout.vue'
+import PrintSheet from '@/components/print/PrintSheet.vue'
 import type { CashAdvance } from '@/utils/types'
 
 const route = useRoute()
@@ -60,12 +60,12 @@ onMounted(async () => {
 				</div>
 			</div>
 			<div class="flex items-end">
-				<span class="w-40 shrink-0 font-bold uppercase">No. Voucher</span>:&nbsp;<span class="w-[70mm] border-b border-black px-1">{{
+				<span class="w-40 shrink-0 font-bold uppercase">No. Voucher</span>:&nbsp;<span class="w-[55mm] border-b border-black px-1">{{
 					advance.voucher
 				}}</span>
 			</div>
 			<div class="flex items-end">
-				<span class="w-40 shrink-0 font-bold">Nama Penerima</span>:&nbsp;<span class="w-[70mm] border-b border-black px-1">{{
+				<span class="w-40 shrink-0 font-bold">Nama Penerima</span>:&nbsp;<span class="w-[55mm] border-b border-black px-1">{{
 					advance.recipient
 				}}</span>
 			</div>
@@ -85,22 +85,24 @@ onMounted(async () => {
 				<span class="ml-1 w-[40mm] border-b border-black px-1 text-right">{{ money(advance.amount) }}</span>
 			</div>
 
-			<div class="flex justify-end pt-3">
-				<div class="w-[150mm]">
-					<p class="mb-1 font-bold uppercase">Jurnal Terbentuk</p>
-					<div class="border border-black">
-						<div class="flex border-b border-black">
-							<span class="w-8 border-r border-black text-center">D</span>
-							<span class="flex-1 px-1">CoA : {{ advance.advance_account_code }} - {{ advance.advance_account_name }}</span>
-							<span class="px-1">{{ rp(advance.amount) }}</span>
+			<div class="flex justify-end pt-2">
+				<div class="flex w-[185mm] items-start gap-3">
+					<p class="shrink-0 pt-0.5 font-bold uppercase">Jurnal Terbentuk</p>
+					<div class="flex-1">
+						<div class="border border-black">
+							<div class="flex border-b border-black">
+								<span class="w-8 shrink-0 border-r border-black text-center">D</span>
+								<span class="flex-1 px-1">CoA : {{ advance.advance_account_code }} - {{ advance.advance_account_name }}</span>
+								<span class="px-1">{{ rp(advance.amount) }}</span>
+							</div>
+							<div class="flex">
+								<span class="w-8 shrink-0 border-r border-black text-center">C</span>
+								<span class="flex-1 px-1">CoA : {{ advance.cash_account_code }} - {{ advance.cash_account_name }}</span>
+								<span class="px-1">{{ rp(advance.amount) }}</span>
+							</div>
 						</div>
-						<div class="flex">
-							<span class="w-8 border-r border-black text-center">C</span>
-							<span class="flex-1 px-1">CoA : {{ advance.cash_account_code }} - {{ advance.cash_account_name }}</span>
-							<span class="px-1">{{ rp(advance.amount) }}</span>
-						</div>
+						<p class="mt-1 text-center font-serif text-[12px]">Tanggal : {{ date(advance.date, 'DD/MM/YYYY') }}</p>
 					</div>
-					<p class="mt-1 text-center">Tanggal : {{ date(advance.date, 'DD/MM/YYYY') }}</p>
 				</div>
 			</div>
 		</PrintSheet>
