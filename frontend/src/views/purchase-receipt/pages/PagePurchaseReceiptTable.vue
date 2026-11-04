@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconEye, IconPencil, IconPlus, IconTrash } from '@tabler/icons-vue'
+import { IconPlus } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import Badge from '@/components/base/Badge.vue'
 import { useTableList } from '@/composables/useTableList'
@@ -18,6 +18,7 @@ import Select from '@/components/base/Select.vue'
 import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
+import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import { invoiceOptions, invoiceStatusLabel, invoiceStatusTone } from '@/views/purchase-receipt/schema'
 import type { PurchaseReceipt, TableRow } from '@/utils/types'
@@ -98,28 +99,13 @@ const rows: TableRow[] = [
 						{{ invoiceStatusLabel[column.invoice_status as keyof typeof invoiceStatusLabel] ?? column.invoice_status }}
 					</Badge>
 					<span v-else-if="row.field === 'description'" class="text-ink-muted">{{ column.description || '–' }}</span>
-					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
-						<button
-							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
-							title="Lihat detail"
-							@click="router.push(`/purchase-receipt/${column.id}`)"
-						>
-							<IconEye class="h-4 w-4" /></button
-						><template v-if="canWrite(column as unknown as PurchaseReceipt)"
-							><button
-								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
-								title="Edit penerimaan pembelian"
-								@click="router.push(`/purchase-receipt/edit/${column.id}`)"
-							>
-								<IconPencil class="h-4 w-4" /></button
-							><button
-								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-danger-soft hover:text-danger"
-								title="Hapus penerimaan pembelian"
-								@click="remove(column as unknown as PurchaseReceipt)"
-							>
-								<IconTrash class="h-4 w-4" /></button
-						></template>
-					</div>
+					<RowActions
+						v-else-if="row.field === 'action'"
+						:id="column.id as number"
+						base="/purchase-receipt"
+						:can-modify="canWrite(column as unknown as PurchaseReceipt)"
+						@remove="remove(column as unknown as PurchaseReceipt)"
+					/>
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>

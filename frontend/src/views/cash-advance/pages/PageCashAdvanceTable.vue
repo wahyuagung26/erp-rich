@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconEye, IconPaperclip, IconPencil, IconPlus, IconTrash } from '@tabler/icons-vue'
+import { IconPaperclip, IconPlus } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
@@ -16,6 +16,7 @@ import Select from '@/components/base/Select.vue'
 import Button from '@/components/base/Button.vue'
 import Badge from '@/components/base/Badge.vue'
 import Table from '@/components/base/Table.vue'
+import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
 import { journalStatusLabel } from '@/views/cash-advance/schema'
@@ -114,31 +115,13 @@ const rows: TableRow[] = [
 						<IconPaperclip class="h-4 w-4" /> Lihat
 					</a>
 					<span v-else-if="row.field === 'attachment'" class="text-ink-muted">–</span>
-					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
-						<button
-							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
-							title="Lihat detail"
-							@click="router.push(`/cash-advance/${column.id}`)"
-						>
-							<IconEye class="h-4 w-4" />
-						</button>
-						<template v-if="(column.status as JournalStatus) === 'submitted'">
-							<button
-								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
-								title="Edit uang muka"
-								@click="router.push(`/cash-advance/edit/${column.id}`)"
-							>
-								<IconPencil class="h-4 w-4" />
-							</button>
-							<button
-								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-danger-soft hover:text-danger"
-								title="Hapus uang muka"
-								@click="remove(column as unknown as CashAdvance)"
-							>
-								<IconTrash class="h-4 w-4" />
-							</button>
-						</template>
-					</div>
+					<RowActions
+						v-else-if="row.field === 'action'"
+						:id="column.id as number"
+						base="/cash-advance"
+						:can-modify="(column.status as JournalStatus) === 'submitted'"
+						@remove="remove(column as unknown as CashAdvance)"
+					/>
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>

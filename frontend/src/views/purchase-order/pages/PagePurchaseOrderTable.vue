@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconEye, IconPencil, IconPlus, IconTrash } from '@tabler/icons-vue'
+import { IconPlus } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
@@ -18,6 +18,7 @@ import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Badge from '@/components/base/Badge.vue'
 import Table from '@/components/base/Table.vue'
+import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
 import {
@@ -117,28 +118,13 @@ const rows: TableRow[] = [
 					<Badge v-else-if="row.field === 'approval_status'" :tone="approvalStatusTone[column.approval_status as PurchaseOrderApprovalStatus]">{{
 						approvalStatusLabel[column.approval_status as PurchaseOrderApprovalStatus]
 					}}</Badge>
-					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
-						<button
-							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
-							title="Lihat detail"
-							@click="router.push(`/purchase-order/${column.id}`)"
-						>
-							<IconEye class="h-4 w-4" /></button
-						><template v-if="canWrite(column as unknown as PurchaseOrder)"
-							><button
-								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
-								title="Edit order pembelian"
-								@click="router.push(`/purchase-order/edit/${column.id}`)"
-							>
-								<IconPencil class="h-4 w-4" /></button
-							><button
-								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-danger-soft hover:text-danger"
-								title="Hapus order pembelian"
-								@click="remove(column as unknown as PurchaseOrder)"
-							>
-								<IconTrash class="h-4 w-4" /></button
-						></template>
-					</div>
+					<RowActions
+						v-else-if="row.field === 'action'"
+						:id="column.id as number"
+						base="/purchase-order"
+						:can-modify="canWrite(column as unknown as PurchaseOrder)"
+						@remove="remove(column as unknown as PurchaseOrder)"
+					/>
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>

@@ -140,6 +140,7 @@ Full rules in `DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
   - infinite scroll, `initial-label` from the denormalized code/name on edit) — never `<Select>`,
     which loads everything at once. `<Select>` is for fixed enums only (status, type). Reference:
     `FormProduct.vue`, `FormSalesExpense.vue`.
+- **Row actions**: the action column of a list table is one `<RowActions :id base @remove :can-modify>` kebab menu (Lihat detail / Edit / Hapus), never a row of icon buttons — it stays one icon wide however many actions a row has. `can-modify=false` leaves only "Lihat detail".
 - **Action button placement**: form pages (Tambah/Edit) put primary actions at the **end of the
   flow** (Simpan/Batal after all fields). Detail/read-only pages put all actions **top-right** via
   `PageHeader #actions`, ordered `[← Kembali] [✎ Edit] [🗑 Hapus]` (all iconed, matching the table

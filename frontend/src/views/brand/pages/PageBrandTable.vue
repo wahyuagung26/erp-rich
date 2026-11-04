@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconPlus, IconEye, IconPencil, IconTrash } from '@tabler/icons-vue'
+import { IconPlus } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
@@ -13,6 +13,7 @@ import FilterBar from '@/components/base/FilterBar.vue'
 import Input from '@/components/base/Input.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
+import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import type { Brand, TableRow } from '@/utils/types'
 
@@ -61,20 +62,7 @@ function remove(row: Brand) {
 					<button v-if="row.field === 'code'" class="text-primary-dark hover:underline" @click="router.push(`/brand/${column.id}`)">
 						{{ column.code }}
 					</button>
-					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
-						<button class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill" @click="router.push(`/brand/${column.id}`)">
-							<IconEye class="h-4 w-4" />
-						</button>
-						<button class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill" @click="router.push(`/brand/edit/${column.id}`)">
-							<IconPencil class="h-4 w-4" />
-						</button>
-						<button
-							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-danger-soft hover:text-danger"
-							@click="remove(column as unknown as Brand)"
-						>
-							<IconTrash class="h-4 w-4" />
-						</button>
-					</div>
+					<RowActions v-else-if="row.field === 'action'" :id="column.id as number" base="/brand" @remove="remove(column as unknown as Brand)" />
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>

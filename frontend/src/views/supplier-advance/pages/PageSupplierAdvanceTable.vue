@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconEye, IconPencil, IconPlus, IconTrash } from '@tabler/icons-vue'
+import { IconPlus } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
@@ -15,6 +15,7 @@ import Input from '@/components/base/Input.vue'
 import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
+import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
 import type { SupplierAdvance, TableRow } from '@/utils/types'
@@ -93,31 +94,13 @@ const rows: TableRow[] = [
 					<Amount v-else-if="row.field === 'remaining'" :value="column.remaining as number" />
 					<span v-else-if="row.field === 'last_payable_number'" class="text-ink-muted">{{ column.last_payable_number || '–' }}</span>
 					<span v-else-if="row.field === 'description'" class="text-ink-muted">{{ column.description || '–' }}</span>
-					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
-						<button
-							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
-							title="Lihat detail"
-							@click="router.push(`/supplier-advance/${column.id}`)"
-						>
-							<IconEye class="h-4 w-4" />
-						</button>
-						<template v-if="(column.used as number) === 0">
-							<button
-								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
-								title="Edit uang muka supplier"
-								@click="router.push(`/supplier-advance/edit/${column.id}`)"
-							>
-								<IconPencil class="h-4 w-4" />
-							</button>
-							<button
-								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-danger-soft hover:text-danger"
-								title="Hapus uang muka supplier"
-								@click="remove(column as unknown as SupplierAdvance)"
-							>
-								<IconTrash class="h-4 w-4" />
-							</button>
-						</template>
-					</div>
+					<RowActions
+						v-else-if="row.field === 'action'"
+						:id="column.id as number"
+						base="/supplier-advance"
+						:can-modify="(column.used as number) === 0"
+						@remove="remove(column as unknown as SupplierAdvance)"
+					/>
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>

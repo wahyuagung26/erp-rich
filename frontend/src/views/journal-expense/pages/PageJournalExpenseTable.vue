@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconCheck, IconEye, IconPencil, IconPlus, IconTrash } from '@tabler/icons-vue'
+import { IconCheck, IconPlus } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
@@ -19,6 +19,7 @@ import Badge from '@/components/base/Badge.vue'
 import Checkbox from '@/components/base/Checkbox.vue'
 import Modal from '@/components/base/Modal.vue'
 import Table from '@/components/base/Table.vue'
+import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
 import { journalStatusLabel } from '@/views/journal-expense/schema'
@@ -142,31 +143,13 @@ const rows: TableRow[] = [
 						{{ journalStatusLabel[column.status as JournalStatus] ?? column.status }}
 					</Badge>
 					<Amount v-else-if="row.field === 'cash_out'" :value="column.cash_out as number" />
-					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
-						<button
-							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
-							title="Lihat detail"
-							@click="router.push(`/journal-expense/${column.id}`)"
-						>
-							<IconEye class="h-4 w-4" />
-						</button>
-						<template v-if="(column.status as JournalStatus) === 'submitted'">
-							<button
-								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
-								title="Edit jurnal"
-								@click="router.push(`/journal-expense/edit/${column.id}`)"
-							>
-								<IconPencil class="h-4 w-4" />
-							</button>
-							<button
-								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-danger-soft hover:text-danger"
-								title="Hapus jurnal"
-								@click="remove(column as unknown as JournalExpense)"
-							>
-								<IconTrash class="h-4 w-4" />
-							</button>
-						</template>
-					</div>
+					<RowActions
+						v-else-if="row.field === 'action'"
+						:id="column.id as number"
+						base="/journal-expense"
+						:can-modify="(column.status as JournalStatus) === 'submitted'"
+						@remove="remove(column as unknown as JournalExpense)"
+					/>
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>
