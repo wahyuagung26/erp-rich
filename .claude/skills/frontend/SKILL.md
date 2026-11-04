@@ -167,6 +167,12 @@ A change that passes `vue-tsc` but was never rendered is **not done**.
   too short fields to fill 5xl (small master data). See the DESIGN_SYSTEM.md "small forms"
   addendum.
 - **Density** prop (`comfortable`/`compact`).
+- **Responsive: render ONE variant, never both.** If desktop and phone need different markup
+  (a table → per-row cards), switch with `const isMobile = useIsMobile()`
+  (`src/composables/useIsMobile.ts`, < 640px) and `v-if="isMobile"` / `v-else`. Do NOT render both
+  and hide one with `hidden sm:block` / `sm:hidden` — the hidden copy still mounts and bloats the
+  DOM. CSS classes are fine only for sizing one element (`max-sm:w-full`, `sm:grid-cols-3`).
+  Reference: `PageCashPosition.vue`.
 - **Action buttons**: forms → primary at the END of the flow; detail/read pages → all actions
   (`[← Kembali] [✎ Edit] [🗑 Hapus]`, all icon+label) in `PageHeader #actions`, wrapped in one
   `<div class="flex flex-wrap items-center gap-2">` (see §2 — an unwrapped slot sprays the

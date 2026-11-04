@@ -13,7 +13,8 @@ const onRefresh = useAttrs().onRefresh as (() => void) | undefined
 </script>
 
 <template>
-	<div class="flex flex-wrap items-center gap-2">
+	<!-- mobile: every control takes the full row so widths line up; sm+: inline row -->
+	<div class="flex flex-wrap items-center gap-2 max-sm:[&>*]:!w-full">
 		<slot />
 		<!-- same outline + height as the inputs beside it; the icon itself spins while loading (no layout shift) -->
 		<Button
@@ -26,6 +27,7 @@ const onRefresh = useAttrs().onRefresh as (() => void) | undefined
 			@click="onRefresh"
 		>
 			<IconRefresh :class="['h-4 w-4', loading && 'animate-spin']" />
+			<span class="sm:hidden">Muat ulang</span>
 		</Button>
 	</div>
 </template>

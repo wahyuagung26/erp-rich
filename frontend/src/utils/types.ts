@@ -583,7 +583,8 @@ export interface CashPositionRow {
 }
 
 export interface CashPosition {
-	date: string
+	date_from: string
+	date_to: string
 	rows: CashPositionRow[]
 	total: { opening: number; cash_in: number; cash_out: number; closing: number }
 	cash_flow_closing: number

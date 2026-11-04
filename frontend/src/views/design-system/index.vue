@@ -10,6 +10,7 @@ import Checkbox from '@/components/base/Checkbox.vue'
 import RadioGroup from '@/components/base/RadioGroup.vue'
 import Switch from '@/components/base/Switch.vue'
 import DatePicker from '@/components/base/DatePicker.vue'
+import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import FormField from '@/components/base/FormField.vue'
 import Badge from '@/components/base/Badge.vue'
 import Tabs from '@/components/base/Tabs.vue'
@@ -34,6 +35,8 @@ const check = ref(true)
 const radio = ref('a')
 const toggle = ref(true)
 const day = ref('2026-09-03')
+const rangeFrom = ref('2026-09-01')
+const rangeTo = ref('2026-09-15')
 const tab = ref('one')
 const modalOpen = ref(false)
 
@@ -122,6 +125,7 @@ const tableData = [
 						]"
 				/></FormField>
 				<FormField label="Tanggal"><DatePicker v-model="day" /></FormField>
+				<FormField label="Rentang Tanggal"><DateRangePicker v-model:from="rangeFrom" v-model:to="rangeTo" /></FormField>
 				<FormField label="Textarea" class="sm:col-span-2"><Textarea v-model="area" placeholder="Catatan…" /></FormField>
 				<FormField label="Checkbox & Switch">
 					<div class="flex items-center gap-4">

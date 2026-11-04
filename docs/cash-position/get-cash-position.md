@@ -1,13 +1,13 @@
 ---
 type: API Endpoint
 title: Get Cash Position
-description: Daily cash & bank position for the active company on a given date.
+description: Cash & bank position for the active company over a date range.
 method: GET
 path: /cash-position
 status: mock
 tags: [report, cash, bank, read]
 resource: /frontend/src/mocks/modules/cash-position.ts
-timestamp: 2026-11-05T09:00:00Z
+timestamp: 2026-11-05T12:00:00Z
 ---
 
 # Get Cash Position
@@ -26,7 +26,8 @@ Backs `views/cash-position/pages/PageCashPosition.vue`.
 
 | Name | Type | Required | Notes |
 |---|---|---|---|
-| `date` | string | no | `YYYY-MM-DD`; defaults to today |
+| `date_from` | string | no | `YYYY-MM-DD`; defaults to today |
+| `date_to` | string | no | `YYYY-MM-DD`; defaults to `date_from`; swapped if earlier than `date_from` |
 
 ## Response
 
@@ -35,7 +36,8 @@ Backs `views/cash-position/pages/PageCashPosition.vue`.
 ```json
 {
   "data": {
-    "date": "2026-09-08",
+    "date_from": "2026-09-08",
+    "date_to": "2026-09-08",
     "rows": [
       { "account_id": 1, "account_code": "1000101", "account_name": "Kas Kecil Operasional",
         "opening": 6000000, "cash_in": 3500000, "cash_out": 1200000, "closing": 8300000 },
@@ -49,13 +51,13 @@ Backs `views/cash-position/pages/PageCashPosition.vue`.
 }
 ```
 
-Returns `{ "data": { "date": <date>, "rows": [], "total": { … zeros } } }` when the
+Returns `{ "data": { "date_from": …, "date_to": …, "rows": [], "total": { … zeros } } }` when the
 active company has not resolved yet (no `X-Company-Id`).
 
 ## Notes
 
 - `rows` includes every `cash_bank` account even at zero.
 - Only `approved` journals contribute; `submitted` / `rejected` are ignored.
-- `cash_flow_closing` — cumulative Σ(debit − credit) of approved cash/bank movements dated ≤ `date` that carry an Arus Kas code (`cash_flow`). Movements without one (e.g. Jurnal Umum lines left untagged) count in `closing` but not here.
+- `cash_flow_closing` — cumulative Σ(debit − credit) of approved cash/bank movements dated ≤ `date_to` that carry an Arus Kas code (`cash_flow`). Movements without one (e.g. Jurnal Umum lines left untagged) count in `closing` but not here.
 - `difference` = `total.closing − cash_flow_closing`; non-zero means some cash movements are missing an Arus Kas code.
 - The report is recomputed on every request — there is no snapshot table.
