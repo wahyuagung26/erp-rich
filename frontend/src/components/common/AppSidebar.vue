@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { IconChevronsLeft, IconChevronRight } from '@tabler/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
-import { NAV } from '@/constant/nav'
+import { NAV, type NavItem } from '@/constant/nav'
 import { useUiStore } from '@/stores/ui'
 
 // Brand rail: deep-green gradient, light text. One-off brand surface (like the
@@ -22,8 +22,30 @@ onUnmounted(() => desktop.removeEventListener('change', onMq))
 const railCollapsed = computed(() => railPref.value && isDesktop.value)
 watch(
 	() => route.path,
-	() => ui.toggleMobileNav(false)
+	() => {
+		ui.toggleMobileNav(false)
+		fly.value = null
+	}
 )
+
+// Collapsed rail: a group is ONE icon; clicking it opens a labelled flyout with its children.
+// Fixed-positioned + teleported because the rail's <nav> scrolls (it would clip an absolute menu).
+const fly = ref<{ group: NavItem; top: number } | null>(null)
+const flyEl = ref<HTMLElement>()
+const groupActive = (g: NavItem) => !!g.children?.some((c) => route.path.startsWith(c.to!))
+async function toggleFly(group: NavItem, e: MouseEvent) {
+	if (fly.value?.group === group) return (fly.value = null)
+	const top = (e.currentTarget as HTMLElement).getBoundingClientRect().top
+	fly.value = { group, top }
+	await nextTick()
+	const h = flyEl.value?.offsetHeight ?? 0
+	fly.value = { group, top: Math.max(8, Math.min(top, window.innerHeight - h - 8)) } // keep it inside the viewport
+}
+function onDocDown(e: Event) {
+	if (fly.value && !(e.target as HTMLElement).closest('[data-fly]')) fly.value = null
+}
+onMounted(() => document.addEventListener('pointerdown', onDocDown))
+onUnmounted(() => document.removeEventListener('pointerdown', onDocDown))
 
 const linkClass = 'flex items-center gap-3 rounded-md px-2.5 py-2 text-m text-ink-invert/75 transition-colors hover:bg-white/10 hover:text-ink-invert'
 const activeClass = 'bg-white/15 !text-ink-invert font-medium'
@@ -66,17 +88,20 @@ const open = ref<Record<string, boolean>>(
 						<span class="flex-1 truncate text-left">{{ item.label }}</span>
 						<IconChevronRight class="h-4 w-4 shrink-0 transition-transform" :class="{ 'rotate-90': open[item.label] }" />
 					</button>
-					<div v-if="railCollapsed || open[item.label]" class="space-y-0.5">
-						<RouterLink
-							v-for="child in item.children"
-							:key="child.to"
-							:to="child.to!"
-							:class="[linkClass, { 'pl-9': !railCollapsed }]"
-							:active-class="activeClass"
-							:title="railCollapsed ? child.label : undefined"
-						>
+					<button
+						v-else
+						type="button"
+						data-fly
+						:class="[linkClass, 'w-full', groupActive(item) && activeClass]"
+						:title="item.label"
+						@click="toggleFly(item, $event)"
+					>
+						<component :is="item.icon" class="h-[18px] w-[18px] shrink-0" />
+					</button>
+					<div v-if="!railCollapsed && open[item.label]" class="space-y-0.5">
+						<RouterLink v-for="child in item.children" :key="child.to" :to="child.to!" :class="[linkClass, 'pl-9']" :active-class="activeClass">
 							<component :is="child.icon" class="h-[18px] w-[18px] shrink-0" />
-							<span v-if="!railCollapsed" class="truncate">{{ child.label }}</span>
+							<span class="truncate">{{ child.label }}</span>
 						</RouterLink>
 					</div>
 				</template>
@@ -91,4 +116,26 @@ const open = ref<Record<string, boolean>>(
 			<span v-if="!railCollapsed">Ciutkan</span>
 		</button>
 	</aside>
+
+	<Teleport to="body">
+		<div
+			v-if="fly && railCollapsed"
+			ref="flyEl"
+			data-fly
+			class="fixed left-[60px] z-50 max-h-[calc(100vh-16px)] min-w-[200px] overflow-y-auto rounded-md bg-panel py-1 shadow-overlay"
+			:style="{ top: fly.top + 'px' }"
+		>
+			<p class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-ink-subtle">{{ fly.group.label }}</p>
+			<RouterLink
+				v-for="child in fly.group.children"
+				:key="child.to"
+				:to="child.to!"
+				class="flex items-center gap-2.5 px-3 py-2 text-m text-ink hover:bg-fill"
+				active-class="!bg-primary-soft font-medium !text-primary-dark"
+			>
+				<component :is="child.icon" class="h-4 w-4 shrink-0" />
+				<span class="truncate">{{ child.label }}</span>
+			</RouterLink>
+		</div>
+	</Teleport>
 </template>
