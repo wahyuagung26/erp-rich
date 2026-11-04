@@ -59,6 +59,7 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Jurnal Pemasukan (Journal Income)        | [`journal-income/`](./journal-income/index.md)     | `views/journal-income/`   | `mocks/modules/journal-income.ts`   |
 | Uang Muka Operasional (Cash Advance)     | [`cash-advance/`](./cash-advance/index.md)         | `views/cash-advance/`     | `mocks/modules/cash-advance.ts`     |
 | Posisi Kas & Bank (Cash Position)        | [`cash-position/`](./cash-position/index.md)       | `views/cash-position/`    | `mocks/modules/cash-position.ts`    |
+| Posting & Closing                        | [`posting/`](./posting/index.md)                   | `views/posting/`          | `mocks/modules/posting.ts`          |
 | Uang Muka Supplier (Supplier Advance)    | [`supplier-advance/`](./supplier-advance/index.md) | `views/supplier-advance/` | `mocks/modules/supplier-advance.ts` |
 | Order Pembelian (Purchase Order)         | [`purchase-order/`](./purchase-order/index.md)     | `views/purchase-order/`   | `mocks/modules/purchase-order.ts`   |
 | Penerimaan Pembelian (Purchase Receipt)  | [`purchase-receipt/`](./purchase-receipt/index.md) | `views/purchase-receipt/` | `mocks/modules/purchase-receipt.ts` |

@@ -747,3 +747,56 @@ export interface PurchaseOrderReceivableLines {
 	}
 	lines: PurchaseReceiptLine[]
 }
+
+// Posting & Closing workspace — see docs/posting/. Periods are 'YYYY-MM'.
+export interface ClosingHistory {
+	period: string
+	closed_by: string
+	closed_at: string
+	total_debit: number
+	total_credit: number
+	profit: number
+}
+
+export interface ReopenHistory {
+	period: string
+	reason: string
+	opened_by: string
+	opened_at: string
+}
+
+export interface ClosingStatus {
+	closed_until: string | null
+	next_period: string
+	current_period: string
+	can_close: boolean
+	can_reopen: boolean
+	history: ClosingHistory[]
+	reopen_history: ReopenHistory[]
+	repost_pending: { period: string; posted: boolean }[]
+}
+
+export type ReconCheckStatus = 'pass' | 'fail' | 'warn'
+
+export interface ReconCheck {
+	key: 'trial_balance' | 'balance_sheet' | 'pending_journals'
+	label: string
+	status: ReconCheckStatus
+	unit: 'rupiah' | 'dokumen'
+	rows: { label: string; value: number }[]
+	difference: number
+}
+
+export interface ClosingReconciliation {
+	period: string
+	closed: boolean
+	status: 'ok' | 'warning' | 'error'
+	summary: { total_debit: number; total_credit: number; profit: number }
+	checks: ReconCheck[]
+}
+
+export interface PostingRun {
+	period: string
+	posted_by: string
+	posted_at: string
+}

@@ -30,7 +30,8 @@ import {
 	IconCoins,
 	IconPackageImport,
 	IconTruckDelivery,
-	IconBuildingBank
+	IconBuildingBank,
+	IconLock
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -78,7 +79,8 @@ export const NAV: NavItem[] = [
 			{ label: 'Jurnal Pemasukan', to: '/journal-income', icon: IconCashBanknote },
 			{ label: 'Jurnal Pengeluaran', to: '/journal-expense', icon: IconCashBanknoteOff },
 			{ label: 'Uang Muka Operasional', to: '/cash-advance', icon: IconWallet },
-			{ label: 'Posisi Kas & Bank', to: '/cash-position', icon: IconReportMoney }
+			{ label: 'Posisi Kas & Bank', to: '/cash-position', icon: IconReportMoney },
+			{ label: 'Posting', to: '/posting', icon: IconLock }
 		]
 	},
 	{

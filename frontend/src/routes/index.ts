@@ -28,6 +28,7 @@ import journalIncome from './journal-income'
 import cashAdvance from './cash-advance'
 import supplierAdvance from './supplier-advance'
 import cashPosition from './cash-position'
+import posting from './posting'
 import purchaseOrder from './purchase-order'
 import purchaseReceipt from './purchase-receipt'
 
@@ -65,6 +66,7 @@ const routes: RouteRecordRaw[] = [
 			...cashAdvance,
 			...supplierAdvance,
 			...cashPosition,
+			...posting,
 			...purchaseOrder,
 			...purchaseReceipt,
 			{

@@ -6,7 +6,7 @@
 //   node scripts/screenshot.mjs /journal /journal/tambah /journal/1
 //
 // Env: BASE_URL (default http://localhost:5173), OUT_DIR (default ./.screenshots),
-//      CHROME (default macOS Google Chrome), PORT (CDP port, default 9222).
+//      EVAL (async JS run in the page after load, result printed), CLICK (button text clicked after load, e.g. a tab label), CHROME (default macOS Google Chrome), PORT (CDP port, default 9222).
 // Auth: seeds localStorage token + an admin user, so auth-gated routes just work.
 
 import { spawn } from 'node:child_process'
@@ -67,6 +67,16 @@ for (const route of routes) {
 	const before = errors.length
 	await send('Page.navigate', { url: BASE_URL + route })
 	await wait(2500)
+	if (process.env.EVAL) {
+		const r = await send('Runtime.evaluate', { expression: process.env.EVAL, awaitPromise: true, returnByValue: true })
+		console.log(JSON.stringify(r.result?.value ?? r.exceptionDetails?.exception?.description, null, 1))
+	}
+	if (process.env.CLICK) {
+		await send('Runtime.evaluate', {
+			expression: `[...document.querySelectorAll('button')].find((b) => b.textContent.trim() === ${JSON.stringify(process.env.CLICK)})?.click()`
+		})
+		await wait(1500)
+	}
 	const { data } = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true })
 	const file = join(OUT_DIR, (route.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '') || 'root') + '.png')
 	writeFileSync(file, Buffer.from(data, 'base64'))

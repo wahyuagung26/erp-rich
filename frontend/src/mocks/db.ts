@@ -26,6 +26,7 @@ import { productSeed } from './fixtures/product'
 import { purchaseOrderSeed } from './fixtures/purchase-order'
 import { purchaseReceiptSeed } from './fixtures/purchase-receipt'
 import { cashFlowSeed } from './fixtures/cash-flow'
+import type { PostingState } from './fixtures/posting'
 import type {
 	Journal,
 	JournalExpense,
@@ -92,6 +93,7 @@ export const db: {
 	purchaseOrder: PurchaseOrder[]
 	purchaseReceipt: PurchaseReceipt[]
 	cashFlow: CashFlow[]
+	posting: Record<number, PostingState> // lazily seeded per company, see mocks/modules/posting.ts
 } = {
 	journal: structuredClone(journalSeed),
 	journalExpense: structuredClone(journalExpenseSeed),
@@ -122,5 +124,6 @@ export const db: {
 	product: structuredClone(productSeed),
 	purchaseOrder: structuredClone(purchaseOrderSeed),
 	purchaseReceipt: structuredClone(purchaseReceiptSeed),
-	cashFlow: structuredClone(cashFlowSeed)
+	cashFlow: structuredClone(cashFlowSeed),
+	posting: {}
 }
