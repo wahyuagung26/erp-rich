@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick, watch, onBeforeUnmount } from 'vue'
+import { ref, nextTick, watch, onBeforeUnmount, type Component } from 'vue'
 import { useRouter } from 'vue-router'
 import { IconDotsVertical, IconEye, IconPencil, IconTrash } from '@tabler/icons-vue'
 
@@ -7,7 +7,19 @@ import { IconDotsVertical, IconEye, IconPencil, IconTrash } from '@tabler/icons-
 // action column stays one icon wide however many actions a row has. The menu is teleported to
 // <body> and positioned with `fixed` because <Table> clips overflow (overflow-x-auto).
 // Routes follow the module convention: `${base}/${id}` (detail) and `${base}/edit/${id}`.
-const props = withDefaults(defineProps<{ base: string; id: number | string; canModify?: boolean }>(), { canModify: true })
+// Extra items go between Edit and Hapus (shown even when `canModify` is false): `:actions="[{ label: 'Setujui', icon: IconCheck, onClick: () => approve(row) }]"`.
+// `hidden` drops an item per row (e.g. by status); `danger` tints it red like Hapus.
+interface RowAction {
+	label: string
+	icon?: Component
+	onClick: () => void
+	danger?: boolean
+	hidden?: boolean
+}
+const props = withDefaults(defineProps<{ base: string; id: number | string; canModify?: boolean; actions?: RowAction[] }>(), {
+	canModify: true,
+	actions: () => []
+})
 const emit = defineEmits<{ remove: [] }>()
 
 const router = useRouter()
@@ -31,6 +43,10 @@ function close() {
 function go(path: string) {
 	close()
 	router.push(path)
+}
+function run(fn: () => void) {
+	close()
+	fn()
 }
 function remove() {
 	close()
@@ -82,14 +98,17 @@ const item = 'flex w-full items-center gap-2.5 px-3 py-2 text-left text-m hover:
 				<button type="button" role="menuitem" :class="[item, 'text-ink']" @click="go(`${props.base}/${props.id}`)">
 					<IconEye class="h-4 w-4 text-ink-muted" /> Lihat detail
 				</button>
-				<template v-if="canModify">
-					<button type="button" role="menuitem" :class="[item, 'text-ink']" @click="go(`${props.base}/edit/${props.id}`)">
-						<IconPencil class="h-4 w-4 text-ink-muted" /> Edit
-					</button>
-					<button type="button" role="menuitem" :class="[item, 'text-danger hover:bg-danger-soft']" @click="remove">
-						<IconTrash class="h-4 w-4" /> Hapus
+				<button v-if="canModify" type="button" role="menuitem" :class="[item, 'text-ink']" @click="go(`${props.base}/edit/${props.id}`)">
+					<IconPencil class="h-4 w-4 text-ink-muted" /> Edit
+				</button>
+				<template v-for="a in actions.filter((x) => !x.hidden)" :key="a.label">
+					<button type="button" role="menuitem" :class="[item, a.danger ? 'text-danger hover:bg-danger-soft' : 'text-ink']" @click="run(a.onClick)">
+						<component :is="a.icon" v-if="a.icon" :class="['h-4 w-4', !a.danger && 'text-ink-muted']" /> {{ a.label }}
 					</button>
 				</template>
+				<button v-if="canModify" type="button" role="menuitem" :class="[item, 'text-danger hover:bg-danger-soft']" @click="remove">
+					<IconTrash class="h-4 w-4" /> Hapus
+				</button>
 			</div>
 		</Teleport>
 	</div>
