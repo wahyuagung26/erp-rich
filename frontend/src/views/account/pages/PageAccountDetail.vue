@@ -69,15 +69,23 @@ function remove() {
 		<Panel v-else>
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Akun Perkiraan</h3>
-				<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[140px_1fr] gap-x-4 gap-y-2.5 text-m">
-					<dt class="text-ink-muted">Sub Akun</dt>
-					<dd class="text-ink">{{ account.sub_account_code }} — {{ account.sub_account_name }}</dd>
-					<dt class="text-ink-muted">Kode Akun Perkiraan</dt>
-					<dd class="tnum text-ink">{{ account.code }}</dd>
-					<dt class="text-ink-muted">Nama Akun Perkiraan</dt>
-					<dd class="text-ink">{{ account.name }}</dd>
-					<dt class="text-ink-muted">Tipe Akun</dt>
-					<dd class="text-ink">{{ typeLabel(account.type) }}</dd>
+				<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
+					<div>
+						<dt class="text-s text-ink-muted">Kode Akun Perkiraan</dt>
+						<dd class="mt-1 text-m text-ink">{{ account.code }}</dd>
+					</div>
+					<div>
+						<dt class="text-s text-ink-muted">Nama Akun Perkiraan</dt>
+						<dd class="mt-1 text-m text-ink">{{ account.name }}</dd>
+					</div>
+					<div>
+						<dt class="text-s text-ink-muted">Tipe Akun</dt>
+						<dd class="mt-1 text-m text-ink">{{ typeLabel(account.type) }}</dd>
+					</div>
+					<div>
+						<dt class="text-s text-ink-muted">Sub Akun</dt>
+						<dd class="mt-1 text-m text-ink">{{ account.sub_account_code }} — {{ account.sub_account_name }}</dd>
+					</div>
 				</dl>
 			</section>
 		</Panel>

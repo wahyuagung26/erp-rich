@@ -69,15 +69,23 @@ function remove() {
 		<Panel v-else>
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Group Akun</h3>
-				<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[140px_1fr] gap-x-4 gap-y-2.5 text-m">
-					<dt class="text-ink-muted">Kode Group Akun</dt>
-					<dd class="text-ink">{{ accountGroup.code }}</dd>
-					<dt class="text-ink-muted">Nama Group Akun</dt>
-					<dd class="text-ink">{{ accountGroup.name }}</dd>
-					<dt class="text-ink-muted">Neraca / Laba Rugi</dt>
-					<dd class="text-ink">{{ categoryLabel(accountGroup.category) }}</dd>
-					<dt class="text-ink-muted">Saldo Normal</dt>
-					<dd class="text-ink">{{ accountGroup.normal_balance === 'debit' ? 'Debit' : 'Kredit' }}</dd>
+				<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
+					<div>
+						<dt class="text-s text-ink-muted">Kode Group Akun</dt>
+						<dd class="mt-1 text-m text-ink">{{ accountGroup.code }}</dd>
+					</div>
+					<div>
+						<dt class="text-s text-ink-muted">Nama Group Akun</dt>
+						<dd class="mt-1 text-m text-ink">{{ accountGroup.name }}</dd>
+					</div>
+					<div>
+						<dt class="text-s text-ink-muted">Neraca / Laba Rugi</dt>
+						<dd class="mt-1 text-m text-ink">{{ categoryLabel(accountGroup.category) }}</dd>
+					</div>
+					<div>
+						<dt class="text-s text-ink-muted">Saldo Normal</dt>
+						<dd class="mt-1 text-m text-ink">{{ accountGroup.normal_balance === 'debit' ? 'Debit' : 'Kredit' }}</dd>
+					</div>
 				</dl>
 			</section>
 		</Panel>

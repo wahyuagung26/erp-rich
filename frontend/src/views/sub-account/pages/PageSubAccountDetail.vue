@@ -66,15 +66,23 @@ function remove() {
 		<Panel v-else>
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Sub Akun</h3>
-				<dl class="grid grid-cols-[110px_1fr] sm:grid-cols-[140px_1fr] gap-x-4 gap-y-2.5 text-m">
-					<dt class="text-ink-muted">Group Perkiraan</dt>
-					<dd class="text-ink">{{ subAccount.account_group_code }} — {{ subAccount.account_group_name }}</dd>
-					<dt class="text-ink-muted">Kode Sub Akun</dt>
-					<dd class="tnum text-ink">{{ subAccount.code }}</dd>
-					<dt class="text-ink-muted">Nama Sub Akun</dt>
-					<dd class="text-ink">{{ subAccount.name }}</dd>
-					<dt class="text-ink-muted">Saldo Normal</dt>
-					<dd class="text-ink">{{ subAccount.normal_balance === 'debit' ? 'Debit' : 'Kredit' }}</dd>
+				<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
+					<div>
+						<dt class="text-s text-ink-muted">Kode Sub Akun</dt>
+						<dd class="mt-1 text-m text-ink">{{ subAccount.code }}</dd>
+					</div>
+					<div>
+						<dt class="text-s text-ink-muted">Nama Sub Akun</dt>
+						<dd class="mt-1 text-m text-ink">{{ subAccount.name }}</dd>
+					</div>
+					<div>
+						<dt class="text-s text-ink-muted">Saldo Normal</dt>
+						<dd class="mt-1 text-m text-ink">{{ subAccount.normal_balance === 'debit' ? 'Debit' : 'Kredit' }}</dd>
+					</div>
+					<div>
+						<dt class="text-s text-ink-muted">Group Perkiraan</dt>
+						<dd class="mt-1 text-m text-ink">{{ subAccount.account_group_code }} — {{ subAccount.account_group_name }}</dd>
+					</div>
 				</dl>
 			</section>
 		</Panel>
