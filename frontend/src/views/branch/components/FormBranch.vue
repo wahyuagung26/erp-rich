@@ -43,12 +43,14 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Cabang</h3>
 				<div class="space-y-4">
-					<FormField label="Kode Cabang" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
-						<Input v-model="form.code" mono :disabled="isEdit" class="max-w-[200px]" placeholder="mis. PST" />
-					</FormField>
-					<FormField label="Nama Cabang" required :error="errors.name">
-						<Input v-model="form.name" placeholder="mis. Kantor Pusat" />
-					</FormField>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField label="Kode Cabang" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
+							<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. PST" />
+						</FormField>
+						<FormField label="Nama Cabang" required :error="errors.name">
+							<Input v-model="form.name" placeholder="mis. Kantor Pusat" />
+						</FormField>
+					</div>
 					<FormField label="Alamat" :error="errors.address">
 						<Textarea v-model="form.address" :rows="2" placeholder="Alamat lengkap cabang" />
 					</FormField>

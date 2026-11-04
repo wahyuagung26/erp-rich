@@ -68,24 +68,23 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.sub_account_id = Number(v))"
 						/>
 					</FormField>
-
-					<FormField
-						label="Kode Akun Perkiraan"
-						required
-						:error="errors.code_suffix"
-						:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : '5 digit pertama otomatis dari kode sub akun — isi 2 digit sisanya.'"
-					>
-						<Input v-if="isEdit" :model-value="initial?.code ?? ''" mono disabled class="max-w-[220px]" />
-						<div v-else class="flex max-w-[220px] items-stretch gap-1">
-							<Input :model-value="prefix" mono disabled align="right" class="w-24" />
-							<Input v-model="form.code_suffix" mono inputmode="numeric" maxlength="2" placeholder="01" />
-						</div>
-					</FormField>
-
-					<FormField label="Nama Akun Perkiraan" required :error="errors.name">
-						<Input v-model="form.name" placeholder="mis. Kas Kecil" />
-					</FormField>
-
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField
+							label="Kode Akun Perkiraan"
+							required
+							:error="errors.code_suffix"
+							:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : '5 digit pertama otomatis dari kode sub akun — isi 2 digit sisanya.'"
+						>
+							<Input v-if="isEdit" :model-value="initial?.code ?? ''" mono disabled />
+							<div v-else class="flex items-stretch gap-1">
+								<Input :model-value="prefix" mono disabled align="right" class="w-24" />
+								<Input v-model="form.code_suffix" mono inputmode="numeric" maxlength="2" placeholder="01" />
+							</div>
+						</FormField>
+						<FormField label="Nama Akun Perkiraan" required :error="errors.name">
+							<Input v-model="form.name" placeholder="mis. Kas Kecil" />
+						</FormField>
+					</div>
 					<FormField label="Tipe Akun" required :error="errors.type">
 						<Select v-model="form.type" :options="[...AKUN_TYPES]" />
 					</FormField>

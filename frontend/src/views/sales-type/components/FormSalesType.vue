@@ -53,52 +53,58 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Jenis Penjualan</h3>
 				<div class="space-y-4">
-					<FormField label="Kode Jenis" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
-						<Input v-model="form.code" mono :disabled="isEdit" class="max-w-[200px]" placeholder="mis. RC0007" />
-					</FormField>
-					<FormField label="Jenis" required :error="errors.name">
-						<Input v-model="form.name" placeholder="mis. Bahan Baku" />
-					</FormField>
-					<FormField label="Akun Pendapatan" required :error="errors.revenue_account_id">
-						<AsyncSelect
-							:model-value="form.revenue_account_id || null"
-							endpoint="/account"
-							:option-label="accountLabel"
-							:initial-label="initialLabel('revenue')"
-							placeholder="Cari akun pendapatan…"
-							@update:model-value="(v) => (form.revenue_account_id = Number(v))"
-						/>
-					</FormField>
-					<FormField label="Akun Diskon" required :error="errors.discount_account_id">
-						<AsyncSelect
-							:model-value="form.discount_account_id || null"
-							endpoint="/account"
-							:option-label="accountLabel"
-							:initial-label="initialLabel('discount')"
-							placeholder="Cari akun diskon…"
-							@update:model-value="(v) => (form.discount_account_id = Number(v))"
-						/>
-					</FormField>
-					<FormField label="Akun HPP" required :error="errors.cogs_account_id">
-						<AsyncSelect
-							:model-value="form.cogs_account_id || null"
-							endpoint="/account"
-							:option-label="accountLabel"
-							:initial-label="initialLabel('cogs')"
-							placeholder="Cari akun HPP…"
-							@update:model-value="(v) => (form.cogs_account_id = Number(v))"
-						/>
-					</FormField>
-					<FormField label="Akun Persediaan" required :error="errors.inventory_account_id">
-						<AsyncSelect
-							:model-value="form.inventory_account_id || null"
-							endpoint="/account"
-							:option-label="accountLabel"
-							:initial-label="initialLabel('inventory')"
-							placeholder="Cari akun persediaan…"
-							@update:model-value="(v) => (form.inventory_account_id = Number(v))"
-						/>
-					</FormField>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField label="Kode Jenis" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
+							<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. RC0007" />
+						</FormField>
+						<FormField label="Jenis" required :error="errors.name">
+							<Input v-model="form.name" placeholder="mis. Bahan Baku" />
+						</FormField>
+					</div>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField label="Akun Pendapatan" required :error="errors.revenue_account_id">
+							<AsyncSelect
+								:model-value="form.revenue_account_id || null"
+								endpoint="/account"
+								:option-label="accountLabel"
+								:initial-label="initialLabel('revenue')"
+								placeholder="Cari akun pendapatan…"
+								@update:model-value="(v) => (form.revenue_account_id = Number(v))"
+							/>
+						</FormField>
+						<FormField label="Akun Diskon" required :error="errors.discount_account_id">
+							<AsyncSelect
+								:model-value="form.discount_account_id || null"
+								endpoint="/account"
+								:option-label="accountLabel"
+								:initial-label="initialLabel('discount')"
+								placeholder="Cari akun diskon…"
+								@update:model-value="(v) => (form.discount_account_id = Number(v))"
+							/>
+						</FormField>
+					</div>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField label="Akun HPP" required :error="errors.cogs_account_id">
+							<AsyncSelect
+								:model-value="form.cogs_account_id || null"
+								endpoint="/account"
+								:option-label="accountLabel"
+								:initial-label="initialLabel('cogs')"
+								placeholder="Cari akun HPP…"
+								@update:model-value="(v) => (form.cogs_account_id = Number(v))"
+							/>
+						</FormField>
+						<FormField label="Akun Persediaan" required :error="errors.inventory_account_id">
+							<AsyncSelect
+								:model-value="form.inventory_account_id || null"
+								endpoint="/account"
+								:option-label="accountLabel"
+								:initial-label="initialLabel('inventory')"
+								placeholder="Cari akun persediaan…"
+								@update:model-value="(v) => (form.inventory_account_id = Number(v))"
+							/>
+						</FormField>
+					</div>
 					<FormField label="Akun Biaya" required :error="errors.expense_account_id">
 						<AsyncSelect
 							:model-value="form.expense_account_id || null"

@@ -37,7 +37,7 @@ only dynamically imports `src/mocks` when the flag is true, so this is zero appl
 
 **Single axios instance + swappable mock.** All HTTP goes through `src/utils/api.ts`. In dev,
 `src/mocks/index.ts` (the one entry point — lists `registerXxx` functions, one per module) attaches
-`axios-mock-adapter` to *that same instance*. Shared in-memory state lives in the single
+`axios-mock-adapter` to _that same instance_. Shared in-memory state lives in the single
 `src/mocks/db.ts` object (so cross-module reads, e.g. a dashboard aggregating journals, work); seed
 data in `src/mocks/fixtures/`; `paginate` / `sortBy` / `ListParams` helpers in `src/mocks/lib.ts`.
 
@@ -48,8 +48,7 @@ data in `src/mocks/fixtures/`; `paginate` / `sortBy` / `ListParams` helpers in `
 **List pages run on `useTableList`** (`src/composables/useTableList.ts`):
 
 ```ts
-const { columns, pagination, loading, limit, fetchList, handleSort, pageTo, applyFilters } =
-  useTableList<Akun>({ endpoint: '/akun' })
+const { columns, pagination, loading, limit, fetchList, handleSort, pageTo, applyFilters } = useTableList<Akun>({ endpoint: '/akun' })
 ```
 
 Fetches on mount, refetches on page/limit/sort/filter change. Wire it to `<Table>` +
@@ -77,8 +76,9 @@ Full-screen pages (e.g. `/login`) are top-level routes, not nested; everything e
 `DefaultLayout` (the app shell — sidebar, topbar, `mx-auto max-w-[1200px]` content wrapper).
 
 **Auth** (`stores/user.ts`): `login({ username, password })` → `POST /auth/login` → stores `token`
-+ `user` in `localStorage` (reload restores session); `logout()` clears both. A `401` on any
-non-login request clears the token and redirects to `/login`.
+
+- `user` in `localStorage` (reload restores session); `logout()` clears both. A `401` on any
+  non-login request clears the token and redirects to `/login`.
 
 **Routing guard** (`src/router/index.ts`): unauthenticated → redirect `/login?redirect=...`;
 authenticated hitting `/login` → `/dashboard`. `meta.roles` (`RoleName[]` from
@@ -137,9 +137,9 @@ Full rules in `DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
   free-text fields (name, address, notes) stretch to the Panel width.
 - **Reference dropdowns**: any dropdown whose options come from another module's data (Brand,
   Branch, Account, Sub Account, Account Group, Supplier, etc.) **must** use `<AsyncSelect>` (search
-  + infinite scroll, `initial-label` from the denormalized code/name on edit) — never `<Select>`,
-  which loads everything at once. `<Select>` is for fixed enums only (status, type). Reference:
-  `FormProduct.vue`, `FormSalesExpense.vue`.
+  - infinite scroll, `initial-label` from the denormalized code/name on edit) — never `<Select>`,
+    which loads everything at once. `<Select>` is for fixed enums only (status, type). Reference:
+    `FormProduct.vue`, `FormSalesExpense.vue`.
 - **Action button placement**: form pages (Tambah/Edit) put primary actions at the **end of the
   flow** (Simpan/Batal after all fields). Detail/read-only pages put all actions **top-right** via
   `PageHeader #actions`, ordered `[← Kembali] [✎ Edit] [🗑 Hapus]` (all iconed, matching the table
@@ -147,7 +147,7 @@ Full rules in `DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
   subtle + `IconTrash`). Since `Panel` is full width, `PageHeader` actions align to its right edge
   automatically — no extra wrapper needed.
 - `FilterBar` shows a reload button when given `@refresh` (e.g. `<FilterBar :loading="loading"
-  @refresh="runSearch">`) — every list page wires this; an explicit "apply filter & reload" is
+@refresh="runSearch">`) — every list page wires this; an explicit "apply filter & reload" is
   expected, not instant-filter-as-you-type alone.
 - `Input` has a `#suffix` slot (trailing icon/button, e.g. password toggle) and an `addon` prop
   (unit label glued to the right, e.g. `addon="hari"`). `class` passed to `Input` sizes the wrapper,

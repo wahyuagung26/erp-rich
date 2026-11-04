@@ -43,12 +43,14 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Channel</h3>
 				<div class="space-y-4">
-					<FormField label="Kode Channel" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
-						<Input v-model="form.code" mono :disabled="isEdit" class="max-w-[200px]" placeholder="mis. CH01" />
-					</FormField>
-					<FormField label="Nama Channel" required :error="errors.name">
-						<Input v-model="form.name" placeholder="mis. Toko Offline" />
-					</FormField>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField label="Kode Channel" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
+							<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. CH01" />
+						</FormField>
+						<FormField label="Nama Channel" required :error="errors.name">
+							<Input v-model="form.name" placeholder="mis. Toko Offline" />
+						</FormField>
+					</div>
 					<FormField label="Keterangan" :error="errors.notes">
 						<Textarea v-model="form.notes" :rows="2" placeholder="Keterangan channel" />
 					</FormField>

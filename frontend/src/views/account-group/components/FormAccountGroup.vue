@@ -42,30 +42,34 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Group Akun</h3>
 				<div class="space-y-4">
-					<FormField
-						label="Kode Group Akun"
-						required
-						:error="errors.code"
-						:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Angka, maksimal 2 digit. Harus unik.'"
-					>
-						<Input v-model="form.code" mono inputmode="numeric" maxlength="2" :disabled="isEdit" class="max-w-[200px]" placeholder="mis. 10" />
-					</FormField>
-					<FormField label="Nama Group Akun" required :error="errors.name">
-						<Input v-model="form.name" placeholder="mis. Aset" />
-					</FormField>
-					<FormField label="Neraca / Laba Rugi" required :error="errors.category">
-						<RadioGroup v-model="form.category" inline :options="[...ACCOUNT_GROUP_CATEGORIES]" />
-					</FormField>
-					<FormField label="Saldo Normal" required :error="errors.normal_balance">
-						<RadioGroup
-							v-model="form.normal_balance"
-							inline
-							:options="[
-								{ label: 'Debit', value: 'debit' },
-								{ label: 'Kredit', value: 'credit' }
-							]"
-						/>
-					</FormField>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField
+							label="Kode Group Akun"
+							required
+							:error="errors.code"
+							:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Angka, maksimal 2 digit. Harus unik.'"
+						>
+							<Input v-model="form.code" mono inputmode="numeric" maxlength="2" :disabled="isEdit" placeholder="mis. 10" />
+						</FormField>
+						<FormField label="Nama Group Akun" required :error="errors.name">
+							<Input v-model="form.name" placeholder="mis. Aset" />
+						</FormField>
+					</div>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField label="Neraca / Laba Rugi" required :error="errors.category">
+							<RadioGroup v-model="form.category" inline :options="[...ACCOUNT_GROUP_CATEGORIES]" />
+						</FormField>
+						<FormField label="Saldo Normal" required :error="errors.normal_balance">
+							<RadioGroup
+								v-model="form.normal_balance"
+								inline
+								:options="[
+									{ label: 'Debit', value: 'debit' },
+									{ label: 'Kredit', value: 'credit' }
+								]"
+							/>
+						</FormField>
+					</div>
 				</div>
 			</section>
 

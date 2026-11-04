@@ -49,12 +49,14 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Tipe Pembayaran</h3>
 				<div class="space-y-4">
-					<FormField label="Kode" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
-						<Input v-model="form.code" mono :disabled="isEdit" class="max-w-[200px]" placeholder="mis. TP01" />
-					</FormField>
-					<FormField label="Nama" required :error="errors.name">
-						<Input v-model="form.name" placeholder="mis. Tunai" />
-					</FormField>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField label="Kode" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
+							<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. TP01" />
+						</FormField>
+						<FormField label="Nama" required :error="errors.name">
+							<Input v-model="form.name" placeholder="mis. Tunai" />
+						</FormField>
+					</div>
 					<FormField label="Akun Perkiraan" required :error="errors.account_id">
 						<AsyncSelect
 							:model-value="form.account_id || null"
@@ -65,12 +67,14 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.account_id = Number(v))"
 						/>
 					</FormField>
-					<FormField label="Transaksi" required :error="errors.transaction_type">
-						<RadioGroup v-model="form.transaction_type" inline :options="[...TRANSACTION_TYPE_OPTIONS]" />
-					</FormField>
-					<FormField label="Jenis" required :error="errors.method">
-						<RadioGroup v-model="form.method" inline :options="[...PAYMENT_METHOD_OPTIONS]" />
-					</FormField>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField label="Transaksi" required :error="errors.transaction_type">
+							<RadioGroup v-model="form.transaction_type" inline :options="[...TRANSACTION_TYPE_OPTIONS]" />
+						</FormField>
+						<FormField label="Jenis" required :error="errors.method">
+							<RadioGroup v-model="form.method" inline :options="[...PAYMENT_METHOD_OPTIONS]" />
+						</FormField>
+					</div>
 				</div>
 			</section>
 

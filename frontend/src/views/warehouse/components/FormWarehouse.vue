@@ -50,25 +50,29 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Gudang</h3>
 				<div class="space-y-4">
-					<FormField label="Kode Gudang" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
-						<Input v-model="form.code" mono :disabled="isEdit" class="max-w-[200px]" placeholder="mis. GD1" />
-					</FormField>
-					<FormField label="Nama Gudang" required :error="errors.name">
-						<Input v-model="form.name" placeholder="mis. Gudang Pusat" />
-					</FormField>
-					<FormField label="Jenis Gudang" required :error="errors.type">
-						<Select v-model="form.type" :options="[...WAREHOUSE_TYPES]" class="max-w-[240px]" />
-					</FormField>
-					<FormField label="Cabang" required :error="errors.branch_id">
-						<AsyncSelect
-							:model-value="form.branch_id || null"
-							endpoint="/branch"
-							:option-label="branchLabel"
-							:initial-label="initialBranchLabel"
-							placeholder="Cari cabang…"
-							@update:model-value="(v) => (form.branch_id = Number(v))"
-						/>
-					</FormField>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField label="Kode Gudang" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
+							<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. GD1" />
+						</FormField>
+						<FormField label="Nama Gudang" required :error="errors.name">
+							<Input v-model="form.name" placeholder="mis. Gudang Pusat" />
+						</FormField>
+					</div>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField label="Jenis Gudang" required :error="errors.type">
+							<Select v-model="form.type" :options="[...WAREHOUSE_TYPES]" />
+						</FormField>
+						<FormField label="Cabang" required :error="errors.branch_id">
+							<AsyncSelect
+								:model-value="form.branch_id || null"
+								endpoint="/branch"
+								:option-label="branchLabel"
+								:initial-label="initialBranchLabel"
+								placeholder="Cari cabang…"
+								@update:model-value="(v) => (form.branch_id = Number(v))"
+							/>
+						</FormField>
+					</div>
 					<FormField label="Alamat" :error="errors.address">
 						<Textarea v-model="form.address" :rows="2" placeholder="Alamat lengkap gudang" />
 					</FormField>

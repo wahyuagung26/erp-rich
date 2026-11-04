@@ -74,24 +74,23 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.account_group_id = Number(v))"
 						/>
 					</FormField>
-
-					<FormField
-						label="Kode Sub Akun"
-						required
-						:error="errors.code_suffix"
-						:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : '2 digit pertama otomatis dari kode group perkiraan — isi 3 digit sisanya.'"
-					>
-						<Input v-if="isEdit" :model-value="initial?.code ?? ''" mono disabled class="max-w-[200px]" />
-						<div v-else class="flex max-w-[200px] items-stretch gap-1">
-							<Input :model-value="prefix" mono disabled align="right" class="w-16" />
-							<Input v-model="form.code_suffix" mono inputmode="numeric" maxlength="3" placeholder="001" />
-						</div>
-					</FormField>
-
-					<FormField label="Nama Sub Akun" required :error="errors.name">
-						<Input v-model="form.name" placeholder="mis. Kas Kecil" />
-					</FormField>
-
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField
+							label="Kode Sub Akun"
+							required
+							:error="errors.code_suffix"
+							:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : '2 digit pertama otomatis dari kode group perkiraan — isi 3 digit sisanya.'"
+						>
+							<Input v-if="isEdit" :model-value="initial?.code ?? ''" mono disabled />
+							<div v-else class="flex items-stretch gap-1">
+								<Input :model-value="prefix" mono disabled align="right" class="w-16" />
+								<Input v-model="form.code_suffix" mono inputmode="numeric" maxlength="3" placeholder="001" />
+							</div>
+						</FormField>
+						<FormField label="Nama Sub Akun" required :error="errors.name">
+							<Input v-model="form.name" placeholder="mis. Kas Kecil" />
+						</FormField>
+					</div>
 					<FormField label="Saldo Normal" required :error="errors.normal_balance">
 						<RadioGroup
 							v-model="form.normal_balance"

@@ -43,17 +43,19 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Jenis Pembelian</h3>
 				<div class="space-y-4">
-					<FormField
-						label="Kode Jenis Pembelian"
-						required
-						:error="errors.code"
-						:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Huruf kapital A-Z, maksimal 5 karakter. Harus unik.'"
-					>
-						<Input v-model="form.code" mono maxlength="5" :disabled="isEdit" class="max-w-[200px]" placeholder="mis. LOKAL" />
-					</FormField>
-					<FormField label="Nama Jenis Pembelian" required :error="errors.name">
-						<Input v-model="form.name" placeholder="mis. Pembelian Lokal" />
-					</FormField>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField
+							label="Kode Jenis Pembelian"
+							required
+							:error="errors.code"
+							:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Huruf kapital A-Z, maksimal 5 karakter. Harus unik.'"
+						>
+							<Input v-model="form.code" mono maxlength="5" :disabled="isEdit" placeholder="mis. LOKAL" />
+						</FormField>
+						<FormField label="Nama Jenis Pembelian" required :error="errors.name">
+							<Input v-model="form.name" placeholder="mis. Pembelian Lokal" />
+						</FormField>
+					</div>
 					<FormField label="Keterangan" :error="errors.notes">
 						<Textarea v-model="form.notes" :rows="2" placeholder="Keterangan jenis pembelian" />
 					</FormField>
