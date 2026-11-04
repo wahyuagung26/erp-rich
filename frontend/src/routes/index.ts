@@ -75,6 +75,19 @@ const routes: RouteRecordRaw[] = [
 			}
 		]
 	},
+	// Full-screen print view (no app shell) — opened in a new tab from the detail page.
+	{
+		path: '/cash-advance/:id/cetak',
+		name: 'CashAdvancePrint',
+		component: () => import('@/views/cash-advance/pages/PageCashAdvancePrint.vue'),
+		meta: { auth: true }
+	},
+	{
+		path: '/cash-advance/:id/settlement/:settlementId/cetak',
+		name: 'CashAdvanceSettlementPrint',
+		component: () => import('@/views/cash-advance/pages/PageCashAdvanceSettlementPrint.vue'),
+		meta: { auth: true }
+	},
 	{ path: '/login', name: 'Login', component: () => import('@/views/auth/LoginView.vue') },
 	{ path: '/403', name: 'Forbidden', component: () => import('@/views/ForbiddenView.vue') },
 	{ path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFoundView.vue') }

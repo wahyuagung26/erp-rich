@@ -491,6 +491,7 @@ export interface CashAdvance {
 	id: number
 	number: string
 	voucher: string
+	created_by: string
 	date: string
 	department_id: number
 	department_code?: string
@@ -524,6 +525,7 @@ export interface CashAdvanceSettlement {
 	id: number
 	cash_advance_id: number
 	number: string
+	created_by: string
 	date: string
 	description: string
 	attachments: JournalAttachment[]

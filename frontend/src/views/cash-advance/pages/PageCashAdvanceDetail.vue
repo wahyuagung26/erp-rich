@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconArrowLeft, IconCheck, IconPencil, IconRefresh, IconTrash, IconX } from '@tabler/icons-vue'
+import { IconArrowLeft, IconCheck, IconPencil, IconPrinter, IconRefresh, IconTrash, IconX } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
@@ -67,6 +67,11 @@ async function load() {
 	}
 }
 
+// Opens the print view in a new tab; `?auto=1` makes it call window.print() once rendered.
+function printDoc() {
+	if (advance.value) window.open(router.resolve({ name: 'CashAdvancePrint', params: { id: advance.value.id }, query: { auto: '1' } }).href, '_blank')
+}
+
 function reject() {
 	const value = advance.value
 	if (!value) return
@@ -120,6 +125,7 @@ function remove() {
 				<div class="flex flex-wrap items-center gap-2">
 					<Badge v-if="advance" :tone="journalStatusTone[advance.status]" class="mr-1">{{ journalStatusLabel[advance.status] }}</Badge>
 					<Button size="sm" variant="subtle" @click="router.push('/cash-advance')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
+					<Button size="sm" variant="subtle" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button>
 					<template v-if="advance?.status === 'submitted'">
 						<Button size="sm" variant="secondary" @click="router.push(`/cash-advance/edit/${advance.id}`)">
 							<IconPencil class="h-4 w-4" /> Edit

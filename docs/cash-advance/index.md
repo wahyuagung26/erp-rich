@@ -3,7 +3,7 @@ type: OKF Module
 title: Cash Advance
 description: Operational cash advance (uang muka operasional) — an amount handed to a recipient against a department, tracked to settlement, with the same approval workflow as Journal.
 tags: [cash-advance, advance, approval, settlement]
-timestamp: 2026-11-05T16:00:00Z
+timestamp: 2026-11-05T18:00:00Z
 ---
 
 # Cash Advance
@@ -26,6 +26,7 @@ advance's `status` is `approved`.
 | `id` | number | auto-increment, server-assigned |
 | `number` | string | server-assigned, e.g. `UM-2609-001`; not user-editable |
 | `voucher` | string | "No. Voucher" — manual entry, required (cash-out proof number) |
+| `created_by` | string | name of the user who created it ("Dibuat Oleh" on the printout); server-assigned, read-only |
 | `date` | string | `YYYY-MM-DD` |
 | `department_id` | number | required |
 | `department_code` / `department_name` | string | denormalized, response only |
@@ -53,6 +54,7 @@ advance's `status` is `approved`.
 | `id` | number | auto-increment, server-assigned |
 | `cash_advance_id` | number | owning [`CashAdvance`](#entity-cashadvance) |
 | `number` | string | server-assigned, e.g. `PU-2609-001`; not user-editable |
+| `created_by` | string | name of the user who created it ("Dibuat Oleh" on the printout); server-assigned, read-only |
 | `date` | string | `YYYY-MM-DD` |
 | `description` | string | "Keterangan"; optional |
 | `attachments` | object[] | 1–10 PDF/JPG/JPEG/PNG files, max 5 MB each; at least one required |

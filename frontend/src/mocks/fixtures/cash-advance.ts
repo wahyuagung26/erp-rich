@@ -1,6 +1,13 @@
 import type { CashAdvance, CashAdvanceSettlement } from '@/utils/types'
 
 const sampleAttachment = { name: 'bukti-uang-muka.pdf', type: 'application/pdf', size: 1024, data_url: 'data:application/pdf;base64,JVBERi0xLjQK' }
+const notaImage = {
+	name: 'nota-pendukung.png',
+	type: 'image/png',
+	size: 1755,
+	data_url:
+		'data:image/png;base64,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'
+}
 const settlementAttachment = {
 	name: 'kwitansi-penyelesaian.pdf',
 	type: 'application/pdf',
@@ -19,6 +26,7 @@ export const cashAdvanceSeed: CashAdvance[] = [
 		id: 1,
 		number: 'UM-2608-001',
 		voucher: 'BKK-2608-001',
+		created_by: 'Sri Wahyuni',
 		date: '2026-08-04',
 		department_id: 1,
 		recipient: 'Budi Santoso',
@@ -39,6 +47,7 @@ export const cashAdvanceSeed: CashAdvance[] = [
 		id: 2,
 		number: 'UM-2608-002',
 		voucher: 'BKK-2608-002',
+		created_by: 'Sri Wahyuni',
 		date: '2026-08-07',
 		department_id: 1,
 		recipient: 'Siti Rahayu',
@@ -49,7 +58,7 @@ export const cashAdvanceSeed: CashAdvance[] = [
 		cash_account_id: 1,
 		advance_account_id: 11,
 		cash_flow: 'OPERASI_OUT',
-		attachments: [sampleAttachment, { ...sampleAttachment, name: 'nota-pendukung.png', type: 'image/png' }],
+		attachments: [sampleAttachment, notaImage],
 		status: 'approved',
 		rejection_reason: null,
 		approved_by: 'Sri Wahyuni',
@@ -59,6 +68,7 @@ export const cashAdvanceSeed: CashAdvance[] = [
 		id: 3,
 		number: 'UM-2608-003',
 		voucher: 'BKK-2608-003',
+		created_by: 'Sri Wahyuni',
 		date: '2026-08-11',
 		department_id: 1,
 		recipient: 'Ahmad Fauzi',
@@ -79,6 +89,7 @@ export const cashAdvanceSeed: CashAdvance[] = [
 		id: 4,
 		number: 'UM-2608-004',
 		voucher: 'BKK-2608-004',
+		created_by: 'Sri Wahyuni',
 		date: '2026-08-15',
 		department_id: 1,
 		recipient: 'Dewi Lestari',
@@ -99,6 +110,7 @@ export const cashAdvanceSeed: CashAdvance[] = [
 		id: 5,
 		number: 'UM-2609-001',
 		voucher: 'BKK-2609-001',
+		created_by: 'Sri Wahyuni',
 		date: '2026-09-03',
 		department_id: 1,
 		recipient: 'Rudi Hartono',
@@ -134,21 +146,23 @@ const settlement = (
 	date: string,
 	amount: number,
 	remaining_after: number,
-	description: string
+	description: string,
+	extra: CashAdvanceSettlement['attachments'] = []
 ): CashAdvanceSettlement => ({
 	id,
 	cash_advance_id,
 	number,
+	created_by: 'Sri Wahyuni',
 	date,
 	description,
-	attachments: [settlementAttachment],
+	attachments: [settlementAttachment, ...extra],
 	lines: [expense(amount, description)],
 	amount,
 	remaining_after
 })
 
 export const cashAdvanceSettlementSeed: CashAdvanceSettlement[] = [
-	settlement(1, 2, 'PU-2608-001', '2026-08-10', 500000, 1000000, 'Pembelian ATK kantor'),
+	settlement(1, 2, 'PU-2608-001', '2026-08-10', 500000, 1000000, 'Pembelian ATK kantor', [notaImage]),
 	settlement(2, 2, 'PU-2608-002', '2026-08-20', 400000, 600000, 'Konsumsi rapat bulanan'),
 	settlement(3, 3, 'PU-2608-003', '2026-08-15', 1200000, 1000000, 'Biaya transport tim lapangan'),
 	settlement(4, 3, 'PU-2608-004', '2026-08-25', 1000000, 0, 'Biaya transport tim lapangan (lanjutan)')

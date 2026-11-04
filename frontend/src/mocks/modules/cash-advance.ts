@@ -15,6 +15,7 @@ type CashAdvanceRequest = Omit<
 	| 'rejection_reason'
 	| 'approved_by'
 	| 'approved_at'
+	| 'created_by'
 	| 'department_code'
 	| 'department_name'
 	| 'cash_account_code'
@@ -85,7 +86,7 @@ function validateRequest(body: CashAdvanceRequest, existingUsed = 0): string | n
 
 function buildRow(
 	body: CashAdvanceRequest,
-	base: Pick<CashAdvance, 'id' | 'number' | 'used' | 'status' | 'rejection_reason' | 'approved_by' | 'approved_at'>
+	base: Pick<CashAdvance, 'id' | 'number' | 'created_by' | 'used' | 'status' | 'rejection_reason' | 'approved_by' | 'approved_at'>
 ): CashAdvance {
 	const amount = Number(body.amount) || 0
 	return {
@@ -208,6 +209,7 @@ export function registerCashAdvance(mock: MockAdapter) {
 		const row = buildRow(body, {
 			id: nextId(db.cashAdvance),
 			number: advanceNumber(body.date, seq),
+			created_by: currentUserName(),
 			used: 0,
 			status: 'submitted',
 			rejection_reason: null,
@@ -231,6 +233,7 @@ export function registerCashAdvance(mock: MockAdapter) {
 			buildRow(body, {
 				id: row.id,
 				number: row.number,
+				created_by: row.created_by,
 				used: row.used,
 				status: 'submitted',
 				rejection_reason: null,
@@ -309,6 +312,7 @@ export function registerCashAdvance(mock: MockAdapter) {
 			id: nextId(db.cashAdvanceSettlement),
 			cash_advance_id: advance.id,
 			number: settlementNumber(body.date, seq),
+			created_by: currentUserName(),
 			date: body.date,
 			description: String(body.description ?? '').trim(),
 			attachments: body.attachments,

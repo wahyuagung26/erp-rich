@@ -32,7 +32,7 @@ Backs `views/cash-advance/pages/PageCashAdvanceTable.vue` (via `useTableList`).
 {
   "data": [
     {
-      "id": 1, "number": "UM-2608-001", "voucher": "BKK-2608-001", "date": "2026-08-04",
+      "id": 1, "number": "UM-2608-001", "voucher": "BKK-2608-001", "created_by": "Sri Wahyuni", "date": "2026-08-04",
       "department_id": 1, "department_code": "FIN", "department_name": "Finance",
       "recipient": "Budi Santoso", "description": "Uang muka perjalanan dinas Surabaya",
       "amount": 3000000, "used": 0, "remaining": 3000000,

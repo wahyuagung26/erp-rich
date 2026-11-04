@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import axios from 'axios'
-import { IconPaperclip, IconPencil, IconPlus, IconTrash } from '@tabler/icons-vue'
+import { useRouter } from 'vue-router'
+import { IconPaperclip, IconPencil, IconPlus, IconPrinter, IconTrash } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
@@ -18,6 +19,7 @@ import type { CashAdvance, CashAdvanceSettlement, TableRow } from '@/utils/types
 const props = defineProps<{ advance: CashAdvance }>()
 const emit = defineEmits<{ changed: [] }>()
 
+const router = useRouter()
 const { ask } = useConfirm()
 const toast = useToast()
 
@@ -54,6 +56,12 @@ const saving = ref(false)
 const formRef = ref<InstanceType<typeof FormPenyelesaian>>()
 // Remaining of the advance before this settlement (Legacy "Sisa Sebelum").
 const cap = computed(() => props.advance.remaining + (editing.value?.amount ?? 0))
+
+// Opens the print view in a new tab; `?auto=1` makes it call window.print() once rendered.
+function printRow(row: CashAdvanceSettlement) {
+	const to = { name: 'CashAdvanceSettlementPrint', params: { id: props.advance.id, settlementId: row.id }, query: { auto: '1' } }
+	window.open(router.resolve(to).href, '_blank')
+}
 
 function openAdd() {
 	editing.value = null
@@ -136,6 +144,13 @@ function remove(row: CashAdvanceSettlement) {
 					</span>
 					<span v-else-if="row.field === 'attachments'" class="text-ink-muted">–</span>
 					<div v-else-if="row.field === 'action'" class="flex justify-end gap-1">
+						<button
+							class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
+							title="Cetak penyelesaian"
+							@click="printRow(column as unknown as CashAdvanceSettlement)"
+						>
+							<IconPrinter class="h-4 w-4" />
+						</button>
 						<template v-if="canManage">
 							<button
 								class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-fill"
@@ -152,7 +167,6 @@ function remove(row: CashAdvanceSettlement) {
 								<IconTrash class="h-4 w-4" />
 							</button>
 						</template>
-						<span v-else class="text-ink-subtle">–</span>
 					</div>
 					<span v-else>{{ column[row.field] }}</span>
 				</template>

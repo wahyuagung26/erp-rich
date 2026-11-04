@@ -7,7 +7,7 @@ path: /cash-advance/:id/settlement
 status: mock
 tags: [cash-advance, settlement, write]
 resource: /frontend/src/mocks/modules/cash-advance.ts
-timestamp: 2026-11-05T16:00:00Z
+timestamp: 2026-11-05T18:00:00Z
 ---
 
 # Create Cash Advance Settlement
@@ -66,7 +66,7 @@ it must be `> 0` and `<=` the advance's current `remaining`.
 ```json
 {
   "data": {
-    "id": 6, "cash_advance_id": 2, "number": "PU-2609-001", "date": "2026-08-10",
+    "id": 6, "cash_advance_id": 2, "number": "PU-2609-001", "created_by": "Sri Wahyuni", "date": "2026-08-10",
     "description": "Pembelian ATK kantor",
     "attachments": [{ "name": "kwitansi.pdf", "type": "application/pdf", "size": 1024, "data_url": "data:application/pdf;base64,..." }],
     "lines": [

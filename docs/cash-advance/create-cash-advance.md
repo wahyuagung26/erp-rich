@@ -55,7 +55,7 @@ submitted for approval immediately.
 ```json
 {
   "data": {
-    "id": 6, "number": "UM-2609-001", "voucher": "BKK-2609-001", "date": "2026-09-08",
+    "id": 6, "number": "UM-2609-001", "voucher": "BKK-2609-001", "created_by": "Sri Wahyuni", "date": "2026-09-08",
     "department_id": 1, "department_code": "FIN", "department_name": "Finance",
     "recipient": "Budi Santoso", "description": "Uang muka perjalanan dinas Surabaya",
     "amount": 3000000, "used": 0, "remaining": 3000000,
