@@ -49,18 +49,20 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Detail Rekening Bank</h3>
 				<div class="space-y-4">
-					<FormField label="Kode Bank" required :error="errors.bank_code">
-						<Input v-model="form.bank_code" mono maxlength="12" class="max-w-[200px]" placeholder="mis. CIMB" />
-					</FormField>
-					<FormField label="Nama Bank" required :error="errors.bank_name">
-						<Input v-model="form.bank_name" maxlength="50" placeholder="mis. Bank CIMB Niaga - 3200 (IDR)" />
-					</FormField>
-					<FormField label="Rekening" required :error="errors.account_number">
-						<Input v-model="form.account_number" mono maxlength="50" class="max-w-xs" placeholder="Nomor rekening" />
-					</FormField>
-					<FormField label="Atas Nama" :error="errors.account_holder">
-						<Input v-model="form.account_holder" maxlength="100" placeholder="mis. PT Cakrawala Edukasi Aurora" />
-					</FormField>
+					<div class="grid grid-cols-2 gap-x-5 gap-y-4">
+						<FormField label="Kode Bank" required :error="errors.bank_code">
+							<Input v-model="form.bank_code" mono maxlength="12" placeholder="mis. CIMB" />
+						</FormField>
+						<FormField label="Nama Bank" required :error="errors.bank_name">
+							<Input v-model="form.bank_name" maxlength="50" placeholder="mis. Bank CIMB Niaga - 3200 (IDR)" />
+						</FormField>
+						<FormField label="Rekening" required :error="errors.account_number">
+							<Input v-model="form.account_number" mono maxlength="50" placeholder="Nomor rekening" />
+						</FormField>
+						<FormField label="Atas Nama" :error="errors.account_holder">
+							<Input v-model="form.account_holder" maxlength="100" placeholder="mis. PT Cakrawala Edukasi Aurora" />
+						</FormField>
+					</div>
 					<FormField label="Akun Perkiraan" required :error="errors.account_id">
 						<AsyncSelect
 							:model-value="form.account_id || null"
