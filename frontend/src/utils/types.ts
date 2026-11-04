@@ -298,6 +298,21 @@ export interface PaymentType {
 	deleted_at: string | null
 }
 
+// Master data: biaya penjualan / sales expense. `code` is user-entered and immutable
+// after create (same convention as Warehouse/PaymentType); `account_id` is denormalized
+// with its code/name, same pattern as PaymentType. `notes` is optional.
+export interface SalesExpense {
+	id: number
+	company_id: number
+	code: string
+	name: string
+	account_id: number
+	account_code?: string
+	account_name?: string
+	notes: string
+	deleted_at: string | null
+}
+
 // Master data: produk / product. The most cross-referenced master-data entity —
 // five FKs (Brand, ProductCategory, SalesType, Supplier, Unit), each denormalized
 // onto the row same as Warehouse's branch_code/branch_name. `code` is user-entered

@@ -47,6 +47,7 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Jenis Penjualan (Master Jenis Penjualan) | [`sales-type/`](./sales-type/index.md)             | `views/sales-type/`       | `mocks/modules/sales-type.ts`       |
 | Jenis Pembelian (Master Jenis Pembelian) | [`purchase-type/`](./purchase-type/index.md)       | `views/purchase-type/`    | `mocks/modules/purchase-type.ts`    |
 | Tipe Pembayaran (Master Tipe Pembayaran) | [`payment-type/`](./payment-type/index.md)         | `views/payment-type/`     | `mocks/modules/payment-type.ts`     |
+| Biaya Penjualan (Master Biaya Penjualan) | [`sales-expense/`](./sales-expense/index.md)       | `views/sales-expense/`    | `mocks/modules/sales-expense.ts`    |
 | Group Akun (Master Group Akun)           | [`account-group/`](./account-group/index.md)       | `views/account-group/`    | `mocks/modules/account-group.ts`    |
 | Sub Akun (Master Sub Akun)               | [`sub-account/`](./sub-account/index.md)           | `views/sub-account/`      | `mocks/modules/sub-account.ts`      |
 | Akun Perkiraan (Master Akun Perkiraan)   | [`account/`](./account/index.md)                   | `views/account/`          | `mocks/modules/account.ts`          |

@@ -13,6 +13,7 @@ import warehouse from './warehouse'
 import salesType from './sales-type'
 import purchaseType from './purchase-type'
 import paymentType from './payment-type'
+import salesExpense from './sales-expense'
 import product from './product'
 import productPrice from './product-price'
 import accountGroup from './account-group'
@@ -48,6 +49,7 @@ const routes: RouteRecordRaw[] = [
 			...salesType,
 			...purchaseType,
 			...paymentType,
+			...salesExpense,
 			...product,
 			...productPrice,
 			...accountGroup,

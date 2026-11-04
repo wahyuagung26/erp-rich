@@ -16,6 +16,7 @@ import { registerAccount } from './modules/account'
 import { registerSalesType } from './modules/sales-type'
 import { registerPurchaseType } from './modules/purchase-type'
 import { registerPaymentType } from './modules/payment-type'
+import { registerSalesExpense } from './modules/sales-expense'
 import { registerProduct } from './modules/product'
 import { registerSupplier } from './modules/supplier'
 import { registerCustomer } from './modules/customer'
@@ -49,6 +50,7 @@ const modules = [
 	registerSalesType,
 	registerPurchaseType,
 	registerPaymentType,
+	registerSalesExpense,
 	registerProduct,
 	registerSupplier,
 	registerCustomer,

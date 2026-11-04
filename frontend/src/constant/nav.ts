@@ -28,7 +28,8 @@ import {
 	IconCoin,
 	IconWallet,
 	IconCoins,
-	IconPackageImport
+	IconPackageImport,
+	IconTruckDelivery
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -59,6 +60,7 @@ export const NAV: NavItem[] = [
 			{ label: 'Jenis Penjualan', to: '/sales-type', icon: IconReceipt2 },
 			{ label: 'Jenis Pembelian', to: '/purchase-type', icon: IconShoppingCart },
 			{ label: 'Tipe Pembayaran', to: '/payment-type', icon: IconCreditCard },
+			{ label: 'Biaya Penjualan', to: '/sales-expense', icon: IconTruckDelivery },
 			{ label: 'Supplier', to: '/supplier', icon: IconBuildingWarehouse },
 			{ label: 'Customer', to: '/customer', icon: IconUsers }
 		]
