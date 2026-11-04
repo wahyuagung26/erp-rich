@@ -3,7 +3,10 @@ import { db } from '../db'
 import { nextId, paginate, sortBy, type ListParams } from '../lib'
 import type { Journal, JournalLine, JournalStatus } from '@/utils/types'
 
-type JournalRequest = Omit<Journal, 'id' | 'number' | 'total' | 'status' | 'rejection_reason' | 'approved_by' | 'approved_at' | 'created_by'> & {
+type JournalRequest = Omit<
+	Journal,
+	'id' | 'number' | 'total' | 'status' | 'rejection_reason' | 'approved_by' | 'approved_at' | 'created_by' | 'created_at'
+> & {
 	number?: string
 }
 
@@ -97,6 +100,7 @@ export function registerJournal(mock: MockAdapter) {
 			date: body.date,
 			voucher: body.voucher.trim(),
 			created_by: currentUserName(),
+			created_at: new Date().toISOString(),
 			description: body.description.trim(),
 			attachments: body.attachments,
 			status: 'submitted',

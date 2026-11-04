@@ -7,7 +7,7 @@ path: /cash-advance
 status: mock
 tags: [cash-advance, write]
 resource: /frontend/src/mocks/modules/cash-advance.ts
-timestamp: 2026-11-05T14:00:00Z
+timestamp: 2026-11-05T21:00:00Z
 ---
 
 # Create Cash Advance
@@ -55,7 +55,7 @@ submitted for approval immediately.
 ```json
 {
   "data": {
-    "id": 6, "number": "UM-2609-001", "voucher": "BKK-2609-001", "created_by": "Sri Wahyuni", "date": "2026-09-08",
+    "id": 6, "number": "UM-2609-001", "voucher": "BKK-2609-001", "created_by": "Sri Wahyuni", "created_at": "2026-08-04T08:30:00+07:00", "date": "2026-09-08",
     "department_id": 1, "department_code": "FIN", "department_name": "Finance",
     "recipient": "Budi Santoso", "description": "Uang muka perjalanan dinas Surabaya",
     "amount": 3000000, "used": 0, "remaining": 3000000,

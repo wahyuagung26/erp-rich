@@ -16,6 +16,7 @@ type CashAdvanceRequest = Omit<
 	| 'approved_by'
 	| 'approved_at'
 	| 'created_by'
+	| 'created_at'
 	| 'department_code'
 	| 'department_name'
 	| 'cash_account_code'
@@ -86,7 +87,7 @@ function validateRequest(body: CashAdvanceRequest, existingUsed = 0): string | n
 
 function buildRow(
 	body: CashAdvanceRequest,
-	base: Pick<CashAdvance, 'id' | 'number' | 'created_by' | 'used' | 'status' | 'rejection_reason' | 'approved_by' | 'approved_at'>
+	base: Pick<CashAdvance, 'id' | 'number' | 'created_by' | 'created_at' | 'used' | 'status' | 'rejection_reason' | 'approved_by' | 'approved_at'>
 ): CashAdvance {
 	const amount = Number(body.amount) || 0
 	return {
@@ -210,6 +211,7 @@ export function registerCashAdvance(mock: MockAdapter) {
 			id: nextId(db.cashAdvance),
 			number: advanceNumber(body.date, seq),
 			created_by: currentUserName(),
+			created_at: new Date().toISOString(),
 			used: 0,
 			status: 'submitted',
 			rejection_reason: null,
@@ -234,6 +236,7 @@ export function registerCashAdvance(mock: MockAdapter) {
 				id: row.id,
 				number: row.number,
 				created_by: row.created_by,
+				created_at: row.created_at,
 				used: row.used,
 				status: 'submitted',
 				rejection_reason: null,

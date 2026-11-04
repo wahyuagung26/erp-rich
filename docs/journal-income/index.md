@@ -3,7 +3,7 @@ type: OKF Module
 title: Journal Income
 description: Cash receipt journal (jurnal pemasukan) — income lines plus an auto-balanced cash/bank debit line, with the same approval workflow as Journal.
 tags: [journal, income, cash-receipt, double-entry]
-timestamp: 2026-11-05T20:00:00Z
+timestamp: 2026-11-05T21:00:00Z
 ---
 
 # Journal Income
@@ -29,6 +29,7 @@ entries; money actually received goes through this journal.
 | `date`                                    | string                | `YYYY-MM-DD`                                                                                         |
 | `voucher`                                 | string                | free-text voucher/reference; required                                                                |
 | `created_by` | string | name of the user who created it ("Diajukan" on the printout); server-assigned, read-only |
+| `created_at` | string | ISO 8601 datetime the record was created ("Waktu Dibuat"); server-assigned, read-only |
 | `description`                             | string                | required                                                                                             |
 | `attachments`                             | array                 | 1–5 PDF/JPG/PNG files, max 5 MB each; item `{ name, type, size, data_url }`; required on create      |
 | `cash_account_id`                         | number                | header cash/bank account (the debit side); must be a `cash_bank` [`Account`](../account/index.md)    |

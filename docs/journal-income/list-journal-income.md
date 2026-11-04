@@ -7,7 +7,7 @@ path: /journal-income
 status: mock
 tags: [journal, income, read, list]
 resource: /frontend/src/mocks/modules/journal-income.ts
-timestamp: 2026-11-05T20:00:00Z
+timestamp: 2026-11-05T21:00:00Z
 ---
 
 # List Journal Income
@@ -38,7 +38,7 @@ Backs `views/journal-income/pages/PageJournalIncomeTable.vue` (via `useTableList
       "number": "JM-2608-001",
       "date": "2026-08-03",
       "voucher": "BKM-2608-001",
-      "created_by": "Sri Wahyuni",
+      "created_by": "Sri Wahyuni", "created_at": "2026-08-04T08:30:00+07:00",
       "description": "Penerimaan pelunasan piutang customer",
       "cash_account_id": 2,
       "cash_account_code": "1-1100",

@@ -7,7 +7,7 @@ path: /journal-expense
 status: mock
 tags: [journal, expense, read, list]
 resource: /frontend/src/mocks/modules/journal-expense.ts
-timestamp: 2026-11-05T20:00:00Z
+timestamp: 2026-11-05T21:00:00Z
 ---
 
 # List Journal Expense
@@ -38,7 +38,7 @@ Backs `views/journal-expense/pages/PageJournalExpenseTable.vue` (via `useTableLi
       "number": "JK-2608-001",
       "date": "2026-08-02",
       "voucher": "BKK-2608-001",
-      "created_by": "Sri Wahyuni",
+      "created_by": "Sri Wahyuni", "created_at": "2026-08-04T08:30:00+07:00",
       "description": "Pembayaran listrik & internet kantor",
       "cash_account_id": 2,
       "cash_account_code": "1-1100",

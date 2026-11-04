@@ -193,19 +193,16 @@ function printDoc() {
 					<h3 class="subhead">Persetujuan</h3>
 					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
-							<dt class="text-s text-ink-muted">Dibuat oleh</dt>
-							<dd class="mt-1 text-m text-ink">{{ journal.created_by }}</dd>
+							<dt class="text-s text-ink-muted">Dibuat</dt>
+							<dd class="mt-1 text-m text-ink">{{ journal.created_by }} pada {{ date(journal.created_at, 'DD MMM YYYY HH:mm') }}</dd>
 						</div>
-						<template v-if="journal.status === 'approved'">
-							<div>
-								<dt class="text-s text-ink-muted">Disetujui oleh</dt>
-								<dd class="mt-1 text-m text-ink">{{ journal.approved_by ?? '–' }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Waktu Persetujuan</dt>
-								<dd class="mt-1 text-m text-ink">{{ journal.approved_at ? date(journal.approved_at, 'DD MMM YYYY HH:mm') : '–' }}</dd>
-							</div>
-						</template>
+						<div v-if="journal.status === 'approved'">
+							<dt class="text-s text-ink-muted">Disetujui</dt>
+							<dd class="mt-1 text-m text-ink">
+								{{ journal.approved_by ?? '–'
+								}}<template v-if="journal.approved_at"> pada {{ date(journal.approved_at, 'DD MMM YYYY HH:mm') }}</template>
+							</dd>
+						</div>
 						<div v-if="journal.rejection_reason" class="md:col-span-3">
 							<dt class="text-s text-ink-muted">Alasan Penolakan</dt>
 							<dd class="mt-1 text-m text-danger">{{ journal.rejection_reason }}</dd>

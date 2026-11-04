@@ -14,6 +14,7 @@ type JournalExpenseRequest = Omit<
 	| 'approved_by'
 	| 'approved_at'
 	| 'created_by'
+	| 'created_at'
 	| 'cash_account_code'
 	| 'cash_account_name'
 	| 'department_code'
@@ -94,7 +95,7 @@ function validateRequest(body: JournalExpenseRequest): string | null {
 
 function buildRow(
 	body: JournalExpenseRequest,
-	base: Pick<JournalExpense, 'id' | 'number' | 'created_by' | 'status' | 'rejection_reason' | 'approved_by' | 'approved_at'>
+	base: Pick<JournalExpense, 'id' | 'number' | 'created_by' | 'created_at' | 'status' | 'rejection_reason' | 'approved_by' | 'approved_at'>
 ): JournalExpense {
 	const lines = body.lines.map(lineOf)
 	const total = lines.reduce((sum, l) => sum + l.debit, 0)
@@ -148,6 +149,7 @@ export function registerJournalExpense(mock: MockAdapter) {
 			id: nextId(db.journalExpense),
 			number: String(body.number ?? '').trim() || journalNumber(body.date, seq),
 			created_by: currentUserName(),
+			created_at: new Date().toISOString(),
 			status: 'submitted',
 			rejection_reason: null,
 			approved_by: null,
@@ -171,6 +173,7 @@ export function registerJournalExpense(mock: MockAdapter) {
 				id: row.id,
 				number: String(body.number ?? '').trim() || row.number,
 				created_by: row.created_by,
+				created_at: row.created_at,
 				status: 'submitted',
 				rejection_reason: null,
 				approved_by: null,

@@ -7,7 +7,7 @@ path: /journal-income
 status: mock
 tags: [journal, income, write]
 resource: /frontend/src/mocks/modules/journal-income.ts
-timestamp: 2026-11-05T20:00:00Z
+timestamp: 2026-11-05T21:00:00Z
 ---
 
 # Create Journal Income
@@ -79,7 +79,7 @@ Server rejects unless each line has exactly one side > 0 and `Σ credit − Σ d
     "number": "JM-2609-001",
     "date": "2026-09-03",
     "voucher": "BKM-2609-001",
-    "created_by": "Sri Wahyuni",
+    "created_by": "Sri Wahyuni", "created_at": "2026-08-04T08:30:00+07:00",
     "description": "Penerimaan penjualan tunai & potong biaya transfer",
     "cash_account_id": 2,
     "cash_account_code": "1-1100",

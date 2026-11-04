@@ -232,19 +232,20 @@ function remove() {
 					</dl>
 				</section>
 
-				<section v-if="advance.status === 'approved' || advance.rejection_reason" class="space-y-3">
+				<section class="space-y-3">
 					<h3 class="subhead">Persetujuan</h3>
 					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-						<template v-if="advance.status === 'approved'">
-							<div>
-								<dt class="text-s text-ink-muted">Disetujui oleh</dt>
-								<dd class="mt-1 text-m text-ink">{{ advance.approved_by ?? '–' }}</dd>
-							</div>
-							<div>
-								<dt class="text-s text-ink-muted">Waktu Persetujuan</dt>
-								<dd class="mt-1 text-m text-ink">{{ advance.approved_at ? date(advance.approved_at, 'DD MMM YYYY HH:mm') : '–' }}</dd>
-							</div>
-						</template>
+						<div>
+							<dt class="text-s text-ink-muted">Dibuat</dt>
+							<dd class="mt-1 text-m text-ink">{{ advance.created_by }} pada {{ date(advance.created_at, 'DD MMM YYYY HH:mm') }}</dd>
+						</div>
+						<div v-if="advance.status === 'approved'">
+							<dt class="text-s text-ink-muted">Disetujui</dt>
+							<dd class="mt-1 text-m text-ink">
+								{{ advance.approved_by ?? '–'
+								}}<template v-if="advance.approved_at"> pada {{ date(advance.approved_at, 'DD MMM YYYY HH:mm') }}</template>
+							</dd>
+						</div>
 						<div v-if="advance.rejection_reason" class="md:col-span-3">
 							<dt class="text-s text-ink-muted">Alasan Penolakan</dt>
 							<dd class="mt-1 text-m text-danger">{{ advance.rejection_reason }}</dd>
