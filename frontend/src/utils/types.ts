@@ -100,6 +100,7 @@ export interface Company {
 	address: string
 	company_type: CompanyType
 	hr_enabled: boolean
+	brand_color: string
 	report_header_color: string
 	deleted_at: string | null
 }

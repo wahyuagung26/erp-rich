@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { useCompanyStore } from '@/stores/company'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
@@ -16,6 +17,7 @@ import type { CompanyForm } from '@/views/company/schema'
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const companyStore = useCompanyStore()
 
 const company = ref<Company>()
 const loading = ref(true)
@@ -38,6 +40,7 @@ async function save(payload: CompanyForm) {
 	saving.value = true
 	try {
 		await api.put(`/company/${route.params.id}`, payload)
+		await companyStore.load(true) // refresh so the active company's brand colour applies immediately
 		toast.success('Perusahaan diperbarui')
 		router.push('/company')
 	} catch (err) {

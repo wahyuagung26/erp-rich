@@ -7,7 +7,7 @@ path: /company
 status: mock
 tags: [company, read, list]
 resource: /frontend/src/mocks/modules/company.ts
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-11-05T00:00:00Z
 ---
 
 # List Company
@@ -36,7 +36,7 @@ Backs `views/company/pages/PageCompanyTable.vue` (via the `useTableList` composa
       "npwp": "31.234.567.8-421.000", "logo_url": "",
       "address": "Jalan Kaum Kaler, RT.023/RW.003, Manonjaya, Kab. Tasikmalaya, Jawa Barat",
       "company_type": "pt", "hr_enabled": true,
-      "report_header_color": "#B0F2B1", "deleted_at": null
+      "brand_color": "#0E7C6B", "report_header_color": "#B0F2B1", "deleted_at": null
     }
   ],
   "meta": { "page": 1, "per_page": 10, "total": 3, "last_page": 1 }

@@ -96,6 +96,11 @@ function remove() {
 						<dd class="text-ink">{{ companyTypeLabel(company.company_type) }}</dd>
 						<dt class="text-ink-muted">Pendataan Karyawan</dt>
 						<dd class="text-ink">{{ company.hr_enabled ? 'Ya, aktif untuk modul HR' : 'Tidak' }}</dd>
+						<dt class="text-ink-muted">Warna Brand</dt>
+						<dd class="flex items-center gap-2">
+							<span class="inline-block h-5 w-8 rounded" :style="{ backgroundColor: company.brand_color }" />
+							<span class="tnum text-ink">{{ company.brand_color }}</span>
+						</dd>
 						<dt class="text-ink-muted">Warna Header Laporan</dt>
 						<dd class="flex items-center gap-2">
 							<span class="inline-block h-5 w-8 rounded" :style="{ backgroundColor: company.report_header_color }" />

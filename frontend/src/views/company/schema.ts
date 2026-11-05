@@ -28,6 +28,7 @@ export const companySchema = v.object({
 		'Tipe perusahaan wajib dipilih'
 	),
 	hr_enabled: v.boolean(),
+	brand_color: v.pipe(v.string(), v.trim(), v.regex(/^#[0-9a-fA-F]{6}$/, 'Warna harus format #RRGGBB')),
 	report_header_color: v.pipe(v.string(), v.trim(), v.regex(/^#[0-9a-fA-F]{6}$/, 'Warna harus format #RRGGBB'))
 })
 

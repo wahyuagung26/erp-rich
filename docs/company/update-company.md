@@ -7,7 +7,7 @@ path: /company/:id
 status: mock
 tags: [company, write]
 resource: /frontend/src/mocks/modules/company.ts
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-11-05T00:00:00Z
 ---
 
 # Update Company

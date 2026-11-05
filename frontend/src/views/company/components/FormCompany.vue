@@ -9,6 +9,7 @@ import Textarea from '@/components/base/Textarea.vue'
 import Select from '@/components/base/Select.vue'
 import Checkbox from '@/components/base/Checkbox.vue'
 import Button from '@/components/base/Button.vue'
+import { DEFAULT_BRAND } from '@/utils/brand'
 import { useToast } from '@/composables/useToast'
 import type { CompanyType } from '@/utils/types'
 import { validateCompany, COMPANY_TYPES, type CompanyForm } from '@/views/company/schema'
@@ -28,6 +29,7 @@ const form = reactive<CompanyForm>({
 	address: props.initial?.address ?? '',
 	company_type: props.initial?.company_type ?? 'pt',
 	hr_enabled: props.initial?.hr_enabled ?? false,
+	brand_color: props.initial?.brand_color ?? DEFAULT_BRAND,
 	report_header_color: props.initial?.report_header_color ?? '#B0F2B1'
 })
 
@@ -119,6 +121,18 @@ defineExpose({ setServerErrors })
 					</FormField>
 					<FormField class="sm:col-span-2" label="Pendataan Karyawan?">
 						<Checkbox v-model="form.hr_enabled" label="Ya, aktifkan untuk modul HR" />
+					</FormField>
+					<FormField
+						class="sm:col-span-2"
+						label="Warna Brand"
+						required
+						:error="errors.brand_color"
+						hint="Warna utama aplikasi (tombol, tautan, status berhasil) saat perusahaan ini aktif. Warna yang terlalu terang disesuaikan otomatis agar teks tetap terbaca."
+					>
+						<div class="flex items-center gap-3">
+							<input type="color" v-model="form.brand_color" class="h-9 w-12 cursor-pointer rounded-md bg-fill" />
+							<Input v-model="form.brand_color" mono class="max-w-[140px]" :placeholder="DEFAULT_BRAND" />
+						</div>
 					</FormField>
 					<FormField
 						class="sm:col-span-2"

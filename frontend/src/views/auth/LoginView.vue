@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IconUser, IconEye, IconEyeOff, IconAlertCircle } from '@tabler/icons-vue'
 import Button from '@/components/base/Button.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
 import { useUserStore } from '@/stores/user'
+import { resetBrand } from '@/utils/brand'
 import BrandIllustration from './BrandIllustration.vue'
 
 // Login v2 — same split-screen layout as the legacy ERP login
@@ -16,6 +17,9 @@ import BrandIllustration from './BrandIllustration.vue'
 const user = useUserStore()
 const router = useRouter()
 const route = useRoute()
+
+// No active company before login (and after logout) → default palette.
+onMounted(resetBrand)
 
 const form = reactive({ username: '', password: '' })
 const showPassword = ref(false)

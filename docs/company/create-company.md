@@ -7,7 +7,7 @@ path: /company
 status: mock
 tags: [company, write]
 resource: /frontend/src/mocks/modules/company.ts
-timestamp: 2026-09-05T00:00:00Z
+timestamp: 2026-11-05T00:00:00Z
 ---
 
 # Create Company
@@ -29,6 +29,7 @@ Backs `views/company/pages/PageCompanyTambah.vue`. Client-side validation:
   "address": "Jalan Kaum Kaler, RT.023/RW.003, Manonjaya, Kab. Tasikmalaya, Jawa Barat",
   "company_type": "pt",
   "hr_enabled": true,
+  "brand_color": "#0E7C6B",
   "report_header_color": "#B0F2B1"
 }
 ```
@@ -38,6 +39,7 @@ Backs `views/company/pages/PageCompanyTambah.vue`. Client-side validation:
 | `code` | string | required; unique across non-deleted rows; trimmed |
 | `short_name` | string | required; min 2 |
 | `company_type` | string | required; one of `pt` `cv` `ud` `firma` `perorangan` `koperasi` `yayasan` |
+| `brand_color` | string | required; `#RRGGBB` hex |
 | `report_header_color` | string | required; `#RRGGBB` hex |
 | `hr_enabled` | boolean | default `false` |
 | `legal_name` `npwp` `logo_url` `address` | string | optional |

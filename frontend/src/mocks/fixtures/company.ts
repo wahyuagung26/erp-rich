@@ -11,6 +11,7 @@ export const companySeed: Company[] = [
 		address: 'Jalan Kaum Kaler, RT.023/RW.003, Manonjaya, Kec. Manonjaya, Kabupaten Tasikmalaya, Jawa Barat',
 		company_type: 'pt',
 		hr_enabled: true,
+		brand_color: '#0E7C6B',
 		report_header_color: '#B0F2B1',
 		deleted_at: null
 	},
@@ -24,6 +25,7 @@ export const companySeed: Company[] = [
 		address: 'Perum Griya Sakinah Al Kautsar Blok C No 30, Jiwan, Kab Madiun, Jawa Timur',
 		company_type: 'pt',
 		hr_enabled: false,
+		brand_color: '#3F6AD8',
 		report_header_color: '#CFE8FF',
 		deleted_at: null
 	},
@@ -37,6 +39,7 @@ export const companySeed: Company[] = [
 		address: 'Jl. Diponegoro No. 45, Sidoarjo, Jawa Timur',
 		company_type: 'cv',
 		hr_enabled: false,
+		brand_color: '#E08A00',
 		report_header_color: '#FFE1B0',
 		deleted_at: null
 	}
