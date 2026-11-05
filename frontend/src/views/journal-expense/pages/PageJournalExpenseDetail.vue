@@ -13,12 +13,11 @@ import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import Amount from '@/components/base/Amount.vue'
 import Modal from '@/components/base/Modal.vue'
 import FormField from '@/components/base/FormField.vue'
 import DatePicker from '@/components/base/DatePicker.vue'
-import { journalStatusLabel, journalStatusTone } from '@/views/journal-expense/schema'
 import type { JournalExpense, JournalStatus } from '@/utils/types'
 
 const route = useRoute()
@@ -122,7 +121,7 @@ function printDoc() {
 		<PageHeader title="Detail Jurnal Pengeluaran" subtitle="Jurnal Pengeluaran">
 			<template #actions>
 				<div class="flex flex-wrap items-center gap-2">
-					<Badge v-if="journal" :tone="journalStatusTone[journal.status]" class="mr-1">{{ journalStatusLabel[journal.status] }}</Badge>
+					<ApprovalBadge v-if="journal" :status="journal.status" class="mr-1" />
 					<Button size="sm" variant="subtle" @click="router.push('/journal-expense')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
 					<Button size="sm" variant="subtle" :disabled="!journal" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button>
 					<Button size="sm" variant="subtle" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button>

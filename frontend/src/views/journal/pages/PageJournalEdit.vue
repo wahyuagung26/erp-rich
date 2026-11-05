@@ -8,11 +8,11 @@ import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import FormJournalLines from '@/views/journal/components/FormJournalLines.vue'
 import type { Journal, JournalLine } from '@/utils/types'
-import { journalStatusLabel, journalStatusTone, type JournalForm } from '@/views/journal/schema'
+import { type JournalForm } from '@/views/journal/schema'
 
 const route = useRoute()
 const router = useRouter()
@@ -68,7 +68,7 @@ async function save(payload: JournalForm) {
 		<PageHeader title="Edit Jurnal" subtitle="Jurnal Umum">
 			<template v-if="journal" #actions>
 				<div class="flex items-center gap-2 self-start">
-					<Badge :tone="journalStatusTone[journal.status]">{{ journalStatusLabel[journal.status] }}</Badge>
+					<ApprovalBadge :status="journal.status" />
 				</div>
 			</template>
 		</PageHeader>

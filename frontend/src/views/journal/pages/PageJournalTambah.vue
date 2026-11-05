@@ -5,7 +5,7 @@ import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/base/PageHeader.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import FormJournalLines from '@/views/journal/components/FormJournalLines.vue'
 import type { JournalForm } from '@/views/journal/schema'
 
@@ -40,7 +40,7 @@ async function save(payload: JournalForm) {
 	<div class="space-y-4 p-4">
 		<PageHeader title="Buat Jurnal" subtitle="Jurnal Umum">
 			<template #actions>
-				<div class="flex items-center gap-2 self-start"><Badge tone="warning">Belum Disetujui</Badge></div>
+				<div class="flex items-center gap-2 self-start"><ApprovalBadge status="submitted" /></div>
 			</template>
 		</PageHeader>
 		<FormJournalLines ref="formRef" :loading="saving" @submit="save" />

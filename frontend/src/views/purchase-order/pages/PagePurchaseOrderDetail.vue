@@ -14,8 +14,9 @@ import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import Amount from '@/components/base/Amount.vue'
-import { approvalStatusLabel, approvalStatusTone, deliveryStatusLabel, deliveryStatusTone } from '@/views/purchase-order/schema'
+import { deliveryStatusLabel, deliveryStatusTone } from '@/views/purchase-order/schema'
 import type { PurchaseOrder, PurchaseOrderApprovalStatus } from '@/utils/types'
 
 const route = useRoute()
@@ -91,8 +92,11 @@ function remove() {
 		<PageHeader title="Detail Order Pembelian" subtitle="Pembelian"
 			><template #actions
 				><div class="flex flex-wrap items-center gap-2">
-					<Badge v-if="order" :tone="approvalStatusTone[order.approval_status]" class="mr-1">{{ approvalStatusLabel[order.approval_status] }}</Badge
-					><Button size="sm" variant="subtle" @click="router.push('/purchase-order')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button
+					<ApprovalBadge v-if="order" :status="order.approval_status" class="mr-1" /><Button
+						size="sm"
+						variant="subtle"
+						@click="router.push('/purchase-order')"
+						><IconArrowLeft class="h-4 w-4" /> Kembali</Button
 					><Button size="sm" variant="subtle" :disabled="!order" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button
 					><Button size="sm" variant="subtle" :disabled="!order" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button
 					><Button v-if="canEdit" size="sm" variant="secondary" @click="router.push(`/purchase-order/edit/${order!.id}`)"

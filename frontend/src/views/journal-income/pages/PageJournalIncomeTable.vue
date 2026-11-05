@@ -18,7 +18,7 @@ import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
 import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import Checkbox from '@/components/base/Checkbox.vue'
 import Modal from '@/components/base/Modal.vue'
 import Table from '@/components/base/Table.vue'
@@ -98,12 +98,6 @@ async function confirmBulkApprove() {
 	fetchList()
 }
 
-const statusTone: Record<JournalStatus, 'neutral' | 'primary' | 'success' | 'danger' | 'warning' | 'info'> = {
-	submitted: 'warning',
-	approved: 'success',
-	rejected: 'danger'
-}
-
 function remove(row: JournalIncome) {
 	ask({ title: 'Hapus jurnal', message: `Hapus jurnal "${row.number}"?`, type: 'danger', confirmText: 'Hapus' }, async () => {
 		await api.delete(`/journal-income/${row.id}`)
@@ -169,14 +163,7 @@ const rows: TableRow[] = [
 						<p class="text-ink">{{ column.department_name }}</p>
 						<p class="text-s text-ink-muted">{{ column.department_code }}</p>
 					</div>
-					<Badge
-						v-else-if="row.field === 'status'"
-						class="whitespace-nowrap"
-						:tone="statusTone[column.status as JournalStatus]"
-						:title="column.rejection_reason as string"
-					>
-						{{ journalStatusLabel[column.status as JournalStatus] ?? column.status }}
-					</Badge>
+					<ApprovalBadge v-else-if="row.field === 'status'" :status="column.status as JournalStatus" :title="column.rejection_reason as string" />
 					<Amount v-else-if="row.field === 'cash_in'" :value="column.cash_in as number" />
 					<RowActions
 						v-else-if="row.field === 'action'"

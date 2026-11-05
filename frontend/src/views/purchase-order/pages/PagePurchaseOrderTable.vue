@@ -18,20 +18,14 @@ import Select from '@/components/base/Select.vue'
 import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import Table from '@/components/base/Table.vue'
 import KpiFilter from '@/components/base/KpiFilter.vue'
 import { useKpiTiles } from '@/composables/useKpiTiles'
 import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
-import {
-	approvalOptions,
-	approvalStatusLabel,
-	approvalStatusTone,
-	deliveryOptions,
-	deliveryStatusLabel,
-	deliveryStatusTone
-} from '@/views/purchase-order/schema'
+import { approvalOptions, deliveryOptions, deliveryStatusLabel, deliveryStatusTone } from '@/views/purchase-order/schema'
 import type { PurchaseOrder, PurchaseOrderApprovalStatus, PurchaseOrderDeliveryStatus, TableRow } from '@/utils/types'
 
 const router = useRouter()
@@ -186,9 +180,7 @@ const rows: TableRow[] = [
 					</p>
 					<Amount v-else-if="row.field === 'total'" :value="column.total as number" />
 					<div v-else-if="row.field === 'approval_status'" class="flex flex-col items-start gap-1">
-						<Badge class="whitespace-nowrap" :tone="approvalStatusTone[column.approval_status as PurchaseOrderApprovalStatus]">{{
-							approvalStatusLabel[column.approval_status as PurchaseOrderApprovalStatus]
-						}}</Badge>
+						<ApprovalBadge :status="column.approval_status as PurchaseOrderApprovalStatus" />
 						<Badge class="whitespace-nowrap" :tone="deliveryStatusTone[column.delivery_status as PurchaseOrderDeliveryStatus]">{{
 							deliveryStatusLabel[column.delivery_status as PurchaseOrderDeliveryStatus]
 						}}</Badge>

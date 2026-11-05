@@ -5,7 +5,7 @@ import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/base/PageHeader.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import FormCashAdvance from '@/views/cash-advance/components/FormCashAdvance.vue'
 import type { CashAdvanceRequest } from '@/views/cash-advance/schema'
 
@@ -42,7 +42,7 @@ async function save(payload: CashAdvanceRequest) {
 	<div class="space-y-4 p-4">
 		<PageHeader title="Tambah Uang Muka Operasional" subtitle="Akuntansi">
 			<template #actions>
-				<div class="flex items-center gap-2 self-start"><Badge tone="warning">Belum Disetujui</Badge></div>
+				<div class="flex items-center gap-2 self-start"><ApprovalBadge status="submitted" /></div>
 			</template>
 		</PageHeader>
 		<FormCashAdvance ref="formRef" :loading="saving" @submit="save" />

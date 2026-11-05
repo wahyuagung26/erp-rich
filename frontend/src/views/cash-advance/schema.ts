@@ -1,7 +1,7 @@
 import * as v from 'valibot'
 
 // The approval-status maps are shared with Jurnal Umum.
-export { journalStatusLabel, journalStatusTone } from '@/views/journal/schema'
+export { journalStatusLabel } from '@/views/journal/schema'
 
 export type SettlementStatus = 'unused' | 'partial' | 'settled'
 

@@ -1,4 +1,5 @@
 import * as v from 'valibot'
+import { approvalSubset } from '@/utils/approval'
 import type { JournalStatus } from '@/utils/types'
 
 export const journalAttachmentSchema = v.object({
@@ -32,17 +33,7 @@ export const journalFormSchema = v.object({
 	lines: v.array(journalLineSchema)
 })
 
-export const journalStatusLabel: Record<JournalStatus, string> = {
-	submitted: 'Menunggu Persetujuan',
-	approved: 'Disetujui',
-	rejected: 'Ditolak'
-}
-
-export const journalStatusTone: Record<JournalStatus, 'success' | 'danger' | 'warning'> = {
-	submitted: 'warning',
-	approved: 'success',
-	rejected: 'danger'
-}
+export const { label: journalStatusLabel } = approvalSubset(['submitted', 'approved', 'rejected'] as JournalStatus[])
 
 export type JournalFormLine = v.InferOutput<typeof journalLineSchema>
 export type JournalForm = v.InferOutput<typeof journalFormSchema>

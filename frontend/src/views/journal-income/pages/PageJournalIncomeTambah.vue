@@ -5,7 +5,7 @@ import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/base/PageHeader.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import FormJournalIncome from '@/views/journal-income/components/FormJournalIncome.vue'
 import type { JournalIncomeForm } from '@/views/journal-income/schema'
 
@@ -40,7 +40,7 @@ async function save(payload: JournalIncomeForm) {
 	<div class="space-y-4 p-4">
 		<PageHeader title="Buat Jurnal Pemasukan" subtitle="Jurnal Pemasukan">
 			<template #actions>
-				<div class="flex items-center gap-2 self-start"><Badge tone="warning">Belum Disetujui</Badge></div>
+				<div class="flex items-center gap-2 self-start"><ApprovalBadge status="submitted" /></div>
 			</template>
 		</PageHeader>
 		<FormJournalIncome ref="formRef" :loading="saving" @submit="save" />

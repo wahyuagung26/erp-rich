@@ -14,9 +14,8 @@ import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import Amount from '@/components/base/Amount.vue'
-import { approvalStatusLabel, approvalStatusTone } from '@/views/purchase-invoice/schema'
 import type { PurchaseInvoice } from '@/utils/types'
 
 const route = useRoute()
@@ -102,10 +101,11 @@ function remove() {
 		<PageHeader title="Detail Invoice Pembelian" subtitle="Pembelian"
 			><template #actions
 				><div class="flex flex-wrap items-center gap-2">
-					<Badge v-if="invoice" :tone="approvalStatusTone[invoice.approval_status]" class="mr-1">{{
-						approvalStatusLabel[invoice.approval_status]
-					}}</Badge
-					><Button size="sm" variant="subtle" @click="router.push('/purchase-invoice')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button
+					<ApprovalBadge v-if="invoice" :status="invoice.approval_status" class="mr-1" /><Button
+						size="sm"
+						variant="subtle"
+						@click="router.push('/purchase-invoice')"
+						><IconArrowLeft class="h-4 w-4" /> Kembali</Button
 					><Button size="sm" variant="subtle" :disabled="!invoice" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button
 					><Button size="sm" variant="subtle" :disabled="!invoice" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button
 					><Button v-if="canWrite" size="sm" variant="secondary" @click="router.push(`/purchase-invoice/edit/${invoice!.id}`)"

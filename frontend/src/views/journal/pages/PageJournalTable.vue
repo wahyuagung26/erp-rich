@@ -18,7 +18,7 @@ import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
 import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import Checkbox from '@/components/base/Checkbox.vue'
 import Modal from '@/components/base/Modal.vue'
 import Table from '@/components/base/Table.vue'
@@ -100,17 +100,6 @@ async function confirmBulkApprove() {
 	fetchList()
 }
 
-const statusLabel: Record<JournalStatus, string> = {
-	submitted: 'Menunggu Persetujuan',
-	approved: 'Disetujui',
-	rejected: 'Ditolak'
-}
-const statusTone: Record<JournalStatus, 'neutral' | 'primary' | 'success' | 'danger' | 'warning' | 'info'> = {
-	submitted: 'warning',
-	approved: 'success',
-	rejected: 'danger'
-}
-
 function remove(row: Journal) {
 	ask({ title: 'Hapus jurnal', message: `Hapus jurnal "${row.number}"?`, type: 'danger', confirmText: 'Hapus' }, async () => {
 		await api.delete(`/journal/${row.id}`)
@@ -171,9 +160,7 @@ const rows: TableRow[] = [
 					<span v-else-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
 					<span v-else-if="row.field === 'number'" class="text-ink">{{ column.number }}</span>
 					<span v-else-if="row.field === 'voucher'" class="text-ink">{{ column.voucher }}</span>
-					<Badge v-else-if="row.field === 'status'" :tone="statusTone[column.status as JournalStatus]" :title="column.rejection_reason as string">
-						{{ statusLabel[column.status as JournalStatus] ?? column.status }}
-					</Badge>
+					<ApprovalBadge v-else-if="row.field === 'status'" :status="column.status as JournalStatus" :title="column.rejection_reason as string" />
 					<Amount v-else-if="row.field === 'total'" :value="column.total as number" />
 					<RowActions
 						v-else-if="row.field === 'action'"

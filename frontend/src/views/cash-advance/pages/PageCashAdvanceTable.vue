@@ -17,7 +17,7 @@ import FilterBar from '@/components/base/FilterBar.vue'
 import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
 import Button from '@/components/base/Button.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import Table from '@/components/base/Table.vue'
 import KpiFilter from '@/components/base/KpiFilter.vue'
 import RowActions from '@/components/base/RowActions.vue'
@@ -53,12 +53,6 @@ const kpi = useKpiTiles(
 // Opens the shared record-history modal for one row.
 function openHistory(row: CashAdvance) {
 	history.open({ kode: row.number, endpoint: `/cash-advance/${row.id}/history` })
-}
-
-const statusTone: Record<JournalStatus, 'neutral' | 'primary' | 'success' | 'danger' | 'warning' | 'info'> = {
-	submitted: 'warning',
-	approved: 'success',
-	rejected: 'danger'
 }
 
 function remove(row: CashAdvance) {
@@ -117,9 +111,7 @@ const rows: TableRow[] = [
 					<Amount v-else-if="row.field === 'amount'" :value="column.amount as number" />
 					<Amount v-else-if="row.field === 'used'" :value="column.used as number" />
 					<Amount v-else-if="row.field === 'remaining'" :value="column.remaining as number" />
-					<Badge v-else-if="row.field === 'status'" :tone="statusTone[column.status as JournalStatus]" :title="column.rejection_reason as string">
-						{{ journalStatusLabel[column.status as JournalStatus] ?? column.status }}
-					</Badge>
+					<ApprovalBadge v-else-if="row.field === 'status'" :status="column.status as JournalStatus" :title="column.rejection_reason as string" />
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"

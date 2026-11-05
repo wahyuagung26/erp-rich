@@ -1,24 +1,15 @@
 import * as v from 'valibot'
+import { approvalSubset } from '@/utils/approval'
 import type { PurchaseOrderApprovalStatus, PurchaseOrderDeliveryStatus } from '@/utils/types'
 
 export const VAT_RATE = 11
 
-export const approvalStatusLabel: Record<PurchaseOrderApprovalStatus, string> = {
-	pending: 'Menunggu Persetujuan',
-	approved: 'Disetujui',
-	rejected: 'Ditolak'
-}
+export const { label: approvalStatusLabel } = approvalSubset(['pending', 'approved', 'rejected'] as PurchaseOrderApprovalStatus[])
 
 export const deliveryStatusLabel: Record<PurchaseOrderDeliveryStatus, string> = {
 	not_received: 'Belum Diterima',
 	partial: 'Diterima Sebagian',
 	full: 'Terkirim Full'
-}
-
-export const approvalStatusTone: Record<PurchaseOrderApprovalStatus, 'warning' | 'success' | 'danger'> = {
-	pending: 'warning',
-	approved: 'success',
-	rejected: 'danger'
 }
 
 export const deliveryStatusTone: Record<PurchaseOrderDeliveryStatus, 'info' | 'warning' | 'success'> = {

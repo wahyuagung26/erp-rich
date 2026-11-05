@@ -8,11 +8,11 @@ import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import FormCashAdvance from '@/views/cash-advance/components/FormCashAdvance.vue'
 import HistoryPenyelesaian from '@/views/cash-advance/components/HistoryPenyelesaian.vue'
-import { journalStatusLabel, journalStatusTone, type CashAdvanceDraft, type CashAdvanceRequest } from '@/views/cash-advance/schema'
+import { type CashAdvanceDraft, type CashAdvanceRequest } from '@/views/cash-advance/schema'
 import type { CashAdvance } from '@/utils/types'
 
 const route = useRoute()
@@ -85,7 +85,7 @@ async function save(payload: CashAdvanceRequest) {
 		<PageHeader title="Edit Uang Muka Operasional" subtitle="Akuntansi">
 			<template v-if="advance" #actions>
 				<div class="flex items-center gap-2 self-start">
-					<Badge :tone="journalStatusTone[advance.status]">{{ journalStatusLabel[advance.status] }}</Badge>
+					<ApprovalBadge :status="advance.status" />
 				</div>
 			</template>
 		</PageHeader>

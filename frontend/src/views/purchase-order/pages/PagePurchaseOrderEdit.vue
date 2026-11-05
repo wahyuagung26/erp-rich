@@ -10,9 +10,8 @@ import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import FormPurchaseOrder from '@/views/purchase-order/components/FormPurchaseOrder.vue'
-import { approvalStatusLabel, approvalStatusTone } from '@/views/purchase-order/schema'
 import { toPurchaseOrderDraft } from '@/views/purchase-order/mappers'
 import type { PurchaseOrder, PurchaseOrderRequest } from '@/utils/types'
 
@@ -59,8 +58,10 @@ async function save(payload: PurchaseOrderRequest) {
 		<PageHeader title="Edit Order Pembelian" subtitle="Pembelian"
 			><template #actions
 				><div class="flex items-center gap-2">
-					<Badge v-if="order" :tone="approvalStatusTone[order.approval_status]">{{ approvalStatusLabel[order.approval_status] }}</Badge
-					><Button size="sm" variant="subtle" @click="router.push(order ? `/purchase-order/${order.id}` : '/purchase-order')"
+					<ApprovalBadge v-if="order" :status="order.approval_status" /><Button
+						size="sm"
+						variant="subtle"
+						@click="router.push(order ? `/purchase-order/${order.id}` : '/purchase-order')"
 						><IconArrowLeft class="h-4 w-4" /> Kembali</Button
 					>
 				</div></template

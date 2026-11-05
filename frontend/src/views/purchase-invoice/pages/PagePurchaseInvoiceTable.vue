@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { IconPlus, IconHistory, IconCircleCheck, IconClockHour4, IconFileAlert } from '@tabler/icons-vue'
 import api from '@/utils/api'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
 import { useConfirm } from '@/composables/useConfirm'
@@ -25,7 +25,7 @@ import { useKpiTiles } from '@/composables/useKpiTiles'
 import Amount from '@/components/base/Amount.vue'
 import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
-import { approvalOptions, approvalStatusLabel, approvalStatusTone, taxInvoiceOptions } from '@/views/purchase-invoice/schema'
+import { approvalOptions, taxInvoiceOptions } from '@/views/purchase-invoice/schema'
 import type { PurchaseInvoice, PurchaseInvoiceApprovalStatus, PurchaseInvoiceTaxInvoice, TableRow } from '@/utils/types'
 
 const router = useRouter()
@@ -177,12 +177,7 @@ const rows: TableRow[] = [
 						</Button>
 						<span v-else class="text-ink-subtle" title="Invoice non-PKP tidak memiliki faktur pajak">–</span>
 					</div>
-					<Badge
-						v-else-if="row.field === 'approval_status'"
-						class="whitespace-nowrap"
-						:tone="approvalStatusTone[column.approval_status as PurchaseInvoiceApprovalStatus]"
-						>{{ approvalStatusLabel[column.approval_status as PurchaseInvoiceApprovalStatus] }}</Badge
-					>
+					<ApprovalBadge v-else-if="row.field === 'approval_status'" :status="column.approval_status as PurchaseInvoiceApprovalStatus" />
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"

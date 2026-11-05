@@ -10,9 +10,8 @@ import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
-import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import FormPurchaseInvoice from '@/views/purchase-invoice/components/FormPurchaseInvoice.vue'
-import { approvalStatusLabel, approvalStatusTone } from '@/views/purchase-invoice/schema'
 import { toPurchaseInvoiceDraft } from '@/views/purchase-invoice/mappers'
 import type { PurchaseInvoice, PurchaseInvoiceRequest } from '@/utils/types'
 
@@ -65,8 +64,10 @@ async function save(payload: PurchaseInvoiceRequest) {
 		<PageHeader title="Edit Invoice Pembelian" subtitle="Pembelian"
 			><template #actions
 				><div class="flex flex-wrap items-center gap-2">
-					<Badge v-if="invoice" :tone="approvalStatusTone[invoice.approval_status]">{{ approvalStatusLabel[invoice.approval_status] }}</Badge
-					><Button size="sm" variant="subtle" @click="router.push(invoice ? `/purchase-invoice/${invoice.id}` : '/purchase-invoice')"
+					<ApprovalBadge v-if="invoice" :status="invoice.approval_status" /><Button
+						size="sm"
+						variant="subtle"
+						@click="router.push(invoice ? `/purchase-invoice/${invoice.id}` : '/purchase-invoice')"
 						><IconArrowLeft class="h-4 w-4" /> Kembali</Button
 					>
 				</div></template

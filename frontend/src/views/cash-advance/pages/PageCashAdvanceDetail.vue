@@ -14,12 +14,13 @@ import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import Badge from '@/components/base/Badge.vue'
+import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import Amount from '@/components/base/Amount.vue'
 import Modal from '@/components/base/Modal.vue'
 import FormField from '@/components/base/FormField.vue'
 import DatePicker from '@/components/base/DatePicker.vue'
 import HistoryPenyelesaian from '@/views/cash-advance/components/HistoryPenyelesaian.vue'
-import { journalStatusLabel, journalStatusTone, settlementLabel, settlementOf, settlementTone } from '@/views/cash-advance/schema'
+import { settlementLabel, settlementOf, settlementTone } from '@/views/cash-advance/schema'
 import type { CashAdvance } from '@/utils/types'
 
 const route = useRoute()
@@ -131,7 +132,7 @@ function remove() {
 		<PageHeader title="Detail Uang Muka Operasional" subtitle="Akuntansi">
 			<template #actions>
 				<div class="flex flex-wrap items-center gap-2">
-					<Badge v-if="advance" :tone="journalStatusTone[advance.status]" class="mr-1">{{ journalStatusLabel[advance.status] }}</Badge>
+					<ApprovalBadge v-if="advance" :status="advance.status" class="mr-1" />
 					<Button size="sm" variant="subtle" @click="router.push('/cash-advance')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
 					<Button size="sm" variant="subtle" :disabled="!advance" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button>
 					<Button size="sm" variant="subtle" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button>
