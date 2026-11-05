@@ -10,6 +10,11 @@ export const payableStatusOptions = [
 	{ label: 'Belum Lunas', value: 'open' },
 	{ label: 'Lunas', value: 'paid' }
 ]
+// What the date range filters on (docs/supplier-payable/list-supplier-payable.md `date_field`).
+export const dateFieldOptions = [
+	{ label: 'Tanggal Hutang', value: 'date' },
+	{ label: 'Jatuh Tempo', value: 'due_date' }
+]
 export const dueOptions = [
 	{ label: 'Semua jatuh tempo', value: '' },
 	{ label: 'Lewat jatuh tempo', value: 'overdue' }

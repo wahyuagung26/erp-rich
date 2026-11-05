@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconCircleCheck, IconClockHour4, IconAlertTriangle } from '@tabler/icons-vue'
+import { IconCash, IconCircleCheck, IconClockHour4, IconAlertTriangle } from '@tabler/icons-vue'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
 import { useKpiTiles } from '@/composables/useKpiTiles'
@@ -18,7 +18,7 @@ import KpiFilter from '@/components/base/KpiFilter.vue'
 import Amount from '@/components/base/Amount.vue'
 import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
-import { dueOptions, payableStatusLabel, payableStatusOptions, payableTone } from '@/views/supplier-payable/schema'
+import { dateFieldOptions, dueOptions, payableStatusLabel, payableStatusOptions, payableTone } from '@/views/supplier-payable/schema'
 import type { SupplierPayable, SupplierPayableStatus, TableRow } from '@/utils/types'
 
 const router = useRouter()
@@ -26,11 +26,12 @@ const { columns, pagination, loading, handleSort, pageTo, applyFilters } = useTa
 const q = ref('')
 const status = ref('')
 const due = ref('')
+const dateField = ref('date')
 const dateFrom = ref('')
 const dateTo = ref('')
 
 function applyAll() {
-	applyFilters({ q: q.value, status: status.value, due: due.value, date_from: dateFrom.value, date_to: dateTo.value })
+	applyFilters({ q: q.value, status: status.value, due: due.value, date_field: dateField.value, date_from: dateFrom.value, date_to: dateTo.value })
 }
 const runSearch = useDebounce(applyAll, 250)
 
@@ -81,9 +82,10 @@ const rows: TableRow[] = [
 		<Panel>
 			<KpiFilter class="mb-3" :items="kpi.items.value" :active="kpi.active.value" @select="kpi.select" />
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
-				<Input v-model="q" placeholder="Cari nomor / supplier / invoice…" class="!w-64" @update:model-value="runSearch" />
-				<Select v-model="status" :options="payableStatusOptions" class="!w-48" @update:model-value="applyAll" />
-				<Select v-model="due" :options="dueOptions" class="!w-52" @update:model-value="applyAll" />
+				<Input v-model="q" placeholder="Cari nomor / supplier / invoice…" class="!w-56" @update:model-value="runSearch" />
+				<Select v-model="status" :options="payableStatusOptions" class="!w-40" @update:model-value="applyAll" />
+				<Select v-model="due" :options="dueOptions" class="!w-48" @update:model-value="applyAll" />
+				<Select v-model="dateField" :options="dateFieldOptions" class="!w-40" @update:model-value="dateFrom || dateTo ? applyAll() : undefined" />
 				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" @change="applyAll" />
 			</FilterBar>
 			<Table
@@ -119,7 +121,21 @@ const rows: TableRow[] = [
 					<Badge v-else-if="row.field === 'status'" class="whitespace-nowrap" :tone="payableTone[column.status as SupplierPayableStatus]">{{
 						payableStatusLabel[column.status as SupplierPayableStatus]
 					}}</Badge>
-					<RowActions v-else-if="row.field === 'action'" :id="column.id as number" base="/supplier-payable" :can-modify="false" />
+					<RowActions
+						v-else-if="row.field === 'action'"
+						:id="column.id as number"
+						base="/supplier-payable"
+						:can-modify="false"
+						:hide-detail="column.status !== 'paid'"
+						:actions="[
+							{
+								label: 'Bayar',
+								icon: IconCash,
+								onClick: () => router.push(`/supplier-payable/${column.id}?tab=pembayaran`),
+								hidden: column.status === 'paid'
+							}
+						]"
+					/>
 					<span v-else>{{ column[row.field] }}</span>
 				</template>
 			</Table>

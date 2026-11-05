@@ -92,6 +92,7 @@ export function registerSupplierPayable(mock: MockAdapter) {
 			status?: string
 			due?: string
 			supplier_id?: string | number
+			date_field?: string
 			date_from?: string
 			date_to?: string
 		}
@@ -106,8 +107,10 @@ export function registerSupplierPayable(mock: MockAdapter) {
 			)
 		}
 		if (p.supplier_id) rows = rows.filter((row) => row.supplier_id === Number(p.supplier_id))
-		if (p.date_from) rows = rows.filter((row) => row.date >= String(p.date_from))
-		if (p.date_to) rows = rows.filter((row) => row.date <= String(p.date_to))
+		// The range applies to Tanggal Hutang by default, or to Jatuh Tempo when date_field=due_date.
+		const field = p.date_field === 'due_date' ? 'due_date' : 'date'
+		if (p.date_from) rows = rows.filter((row) => row[field] >= String(p.date_from))
+		if (p.date_to) rows = rows.filter((row) => row[field] <= String(p.date_to))
 		// KPI tiles: honour search + dates, ignore the status / due filters below (docs/conventions.md).
 		const summary = summarize(
 			rows,

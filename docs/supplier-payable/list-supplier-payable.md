@@ -7,7 +7,7 @@ path: /supplier-payable
 status: mock
 tags: [supplier-payable, read, list]
 resource: /frontend/src/mocks/modules/supplier-payable.ts
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-06T09:00:00Z
 ---
 
 # List Supplier Payable
@@ -25,7 +25,8 @@ Backs `views/supplier-payable/pages/PageSupplierPayableTable.vue` (via `useTable
 | `status` | string | no | `open` (unpaid + partial) \| `unpaid` \| `partial` \| `paid` |
 | `due` | string | no | `overdue` |
 | `supplier_id` | number | no | |
-| `date_from` `date_to` | string | no | `YYYY-MM-DD`, inclusive, on `date` |
+| `date_field` | string | no | which date `date_from` / `date_to` filter on: `date` (Tanggal Hutang, the default) \| `due_date` (Jatuh Tempo) |
+| `date_from` `date_to` | string | no | `YYYY-MM-DD`, inclusive, on the field chosen by `date_field` |
 
 ## Response
 

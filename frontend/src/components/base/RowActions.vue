@@ -9,6 +9,7 @@ import { IconDotsVertical, IconEye, IconPencil, IconTrash } from '@tabler/icons-
 // Routes follow the module convention: `${base}/${id}` (detail) and `${base}/edit/${id}`.
 // Extra items go between Edit and Hapus (shown even when `canModify` is false): `:actions="[{ label: 'Setujui', icon: IconCheck, onClick: () => approve(row) }]"`.
 // `hidden` drops an item per row (e.g. by status); `danger` tints it red like Hapus.
+// `hideDetail` drops the built-in Detail item when a row's main action replaces it (e.g. Hutang Supplier → Bayar).
 interface RowAction {
 	label: string
 	icon?: Component
@@ -16,8 +17,9 @@ interface RowAction {
 	danger?: boolean
 	hidden?: boolean
 }
-const props = withDefaults(defineProps<{ base: string; id: number | string; canModify?: boolean; actions?: RowAction[] }>(), {
+const props = withDefaults(defineProps<{ base: string; id: number | string; canModify?: boolean; hideDetail?: boolean; actions?: RowAction[] }>(), {
 	canModify: true,
+	hideDetail: false,
 	actions: () => []
 })
 const emit = defineEmits<{ remove: [] }>()
@@ -95,7 +97,7 @@ const item = 'flex w-full items-center gap-2.5 px-3 py-2 text-left text-m hover:
 				class="fixed z-50 min-w-[160px] rounded-md bg-panel py-1 shadow-overlay"
 				:style="{ top: pos.top + 'px', left: pos.left + 'px' }"
 			>
-				<button type="button" role="menuitem" :class="[item, 'text-ink']" @click="go(`${props.base}/${props.id}`)">
+				<button v-if="!hideDetail" type="button" role="menuitem" :class="[item, 'text-ink']" @click="go(`${props.base}/${props.id}`)">
 					<IconEye class="h-4 w-4 text-ink-muted" /> Detail
 				</button>
 				<button v-if="canModify" type="button" role="menuitem" :class="[item, 'text-ink']" @click="go(`${props.base}/edit/${props.id}`)">
