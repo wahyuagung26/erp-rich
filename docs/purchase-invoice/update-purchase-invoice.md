@@ -7,7 +7,7 @@ path: /purchase-invoice/:id
 status: mock
 tags: [purchase-invoice, write]
 resource: /frontend/src/mocks/modules/purchase-invoice.ts
-timestamp: 2026-11-05T23:30:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Update Purchase Invoice
@@ -38,3 +38,7 @@ is **locked** — the server ignores the sent value and keeps the stored receipt
 | `404` | id not found | `{ "message": "Invoice pembelian tidak ditemukan" }` |
 | `422` | validation failure | `{ "message": "Validasi gagal", "errors": { "<field>": ["..."] } }` |
 | `422` | invoice already approved | `{ "message": "Invoice yang sudah disetujui tidak boleh diubah" }` |
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, invoice pembelian tidak bisa diubah" }` when the record's `date` is in a closed period (`locked`) — see [conventions](../conventions.md#closing-period-lock-locked).
+
+Moving the `date` into a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }`.

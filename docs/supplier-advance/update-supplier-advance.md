@@ -7,7 +7,7 @@ path: /supplier-advance/:id
 status: mock
 tags: [supplier-advance, write]
 resource: /frontend/src/mocks/modules/supplier-advance.ts
-timestamp: 2026-09-08T10:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Update Supplier Advance
@@ -28,3 +28,7 @@ message below; the edit page shows the same warning and prevents saving.
 |---|---|---|
 | `422` | the advance has usage rows | `{ "message": "Uang muka yang sudah dipakai di Hutang Supplier tidak boleh diubah" }` |
 | `422` | normal validation error | `{ "message": "...", "errors": { "amount": ["..."] } }` |
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, uang muka supplier tidak bisa diubah" }` when the record's `date` is in a closed period (`locked`) — see [conventions](../conventions.md#closing-period-lock-locked).
+
+Moving the `date` into a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }`.

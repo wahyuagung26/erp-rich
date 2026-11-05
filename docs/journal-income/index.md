@@ -3,7 +3,7 @@ type: OKF Module
 title: Journal Income
 description: Cash receipt journal (jurnal pemasukan) — income lines plus an auto-balanced cash/bank debit line, with the same approval workflow as Journal.
 tags: [journal, income, cash-receipt, double-entry]
-timestamp: 2026-11-06T04:00:00Z
+timestamp: 2026-11-06T08:00:00Z
 ---
 
 # Journal Income
@@ -42,6 +42,7 @@ entries; money actually received goes through this journal.
 | `rejection_reason`                        | string \| null        | set when a submitted journal is rejected                                                             |
 | `approved_by`                             | string \| null        | approver's name; set on approve, cleared on re-submit                                                |
 | `approved_at`                             | string \| null        | ISO 8601 datetime of approval; set/cleared alongside `approved_by`                                   |
+| `locked` | boolean | response-only, server-computed: `date` falls in a closed period → Edit, Hapus, Setujui, Tolak, Batalkan Approval and Ajukan Ulang are refused |
 | `lines`                                   | `JournalIncomeLine[]` | ≥ 1 income line; the cash debit line is NOT stored here                                              |
 | `total`                                   | number                | server-computed = Σ line credit (gross income)                                                       |
 | `cash_in`                                 | number                | server-computed = Σ line credit − Σ line debit; amount debited to the cash/bank account; must be > 0 |

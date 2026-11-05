@@ -1,6 +1,6 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
+import { companyIdOf, nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
 import {
 	diffAccountLines,
 	diffFields,
@@ -13,6 +13,7 @@ import {
 	registerHistoryRoute,
 	type FieldSpec
 } from '../history'
+import { closedReply, isPeriodClosed, closedDateReply } from './posting'
 import type { JournalIncome, JournalIncomeLine, JournalStatus } from '@/utils/types'
 
 type JournalIncomeRequest = Omit<
@@ -63,8 +64,8 @@ function lineOf(line: JournalIncomeLine): JournalIncomeLine {
 	}
 }
 
-// Re-resolve every denormalized label from the current db state.
-function resolve(row: JournalIncome): JournalIncome {
+// Re-resolve every denormalized label from the current db state; `locked` = date falls in a closed period.
+function resolve(row: JournalIncome, companyId: number | null = null): JournalIncome {
 	const cashAccount = db.account.find((a) => a.id === Number(row.cash_account_id) && !a.deleted_at)
 	const department = db.department.find((d) => d.id === Number(row.department_id) && !d.deleted_at)
 	const cashFlow = db.cashFlow.find((f) => f.code === row.cash_flow)
@@ -75,7 +76,8 @@ function resolve(row: JournalIncome): JournalIncome {
 		department_code: department?.code,
 		department_name: department?.name,
 		cash_flow_name: cashFlow?.name,
-		lines: row.lines.map(lineOf)
+		lines: row.lines.map(lineOf),
+		locked: isPeriodClosed(companyId, row.date)
 	}
 }
 
@@ -163,17 +165,22 @@ export function registerJournalIncome(mock: MockAdapter) {
 		)
 		if (p.status) rows = rows.filter((j) => j.status === p.status)
 		rows = sortBy(rows, p.sort_by, p.sort_order)
-		const page = paginate(rows.map(resolve), p)
+		const page = paginate(
+			rows.map((item) => resolve(item, companyIdOf(config))),
+			p
+		)
 		return [200, { data: page.data, meta: { ...page.meta, summary } }]
 	})
 
 	mock.onGet(/\/journal-income\/\d+$/).reply((config) => {
 		const row = db.journalIncome.find((r) => r.id === idOf(config.url))
-		return row ? [200, { data: resolve(row) }] : [404, { message: 'Jurnal pemasukan tidak ditemukan' }]
+		return row ? [200, { data: resolve(row, companyIdOf(config)) }] : [404, { message: 'Jurnal pemasukan tidak ditemukan' }]
 	})
 
 	mock.onPost('/journal-income').reply((config) => {
 		const body = JSON.parse(config.data) as JournalIncomeRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const error = validateRequest(body)
 		if (error) return [422, { message: error, errors: { lines: [error] } }]
 
@@ -197,7 +204,11 @@ export function registerJournalIncome(mock: MockAdapter) {
 		const row = db.journalIncome.find((r) => r.id === idOf(config.url))
 		if (!row) return [404, { message: 'Jurnal pemasukan tidak ditemukan' }]
 		if (row.status !== 'submitted') return [422, { message: 'Hanya jurnal submitted yang dapat diedit' }]
+		const closed = closedReply(config, row.date, 'jurnal tidak bisa diedit')
+		if (closed) return closed
 		const body = JSON.parse(config.data) as JournalIncomeRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const error = validateRequest(body)
 		if (error) return [422, { message: error, errors: { lines: [error] } }]
 
@@ -224,6 +235,8 @@ export function registerJournalIncome(mock: MockAdapter) {
 		const index = db.journalIncome.findIndex((r) => r.id === idOf(config.url))
 		if (index === -1) return [404, { message: 'Jurnal pemasukan tidak ditemukan' }]
 		if (db.journalIncome[index].status !== 'submitted') return [422, { message: 'Hanya jurnal submitted yang dapat dihapus' }]
+		const closed = closedReply(config, db.journalIncome[index].date, 'jurnal tidak bisa dihapus')
+		if (closed) return closed
 		const [removed] = db.journalIncome.splice(index, 1)
 		purgeHistory('journal-income', removed.id)
 		return [200, { message: 'Jurnal pemasukan dihapus' }]
@@ -237,13 +250,18 @@ export function registerJournalIncome(mock: MockAdapter) {
 
 		const transitions: Record<JournalStatus, JournalStatus[]> = {
 			submitted: ['approved', 'rejected'],
-			approved: [],
+			approved: ['submitted'],
 			rejected: ['submitted']
 		}
 		if (!transitions[row.status].includes(body.status)) return [422, { message: 'Perubahan status jurnal tidak valid' }]
+		// A journal in a closed period is frozen: no approve / reject / cancel approval / resubmit.
+		const closed = closedReply(config, row.date, 'status jurnal tidak bisa diubah')
+		if (closed) return closed
 
 		if (body.status === 'approved') {
 			if (body.date !== undefined && !isDate(body.date)) return [422, { message: 'Tanggal jurnal tidak valid' }]
+			const closedDate = closedDateReply(config, body.date)
+			if (closedDate) return closedDate
 			if (body.date) row.date = body.date
 			row.approved_by = currentUserName()
 			row.approved_at = new Date().toISOString()
@@ -253,15 +271,18 @@ export function registerJournalIncome(mock: MockAdapter) {
 			row.approved_at = null
 		}
 
+		const wasApproved = row.status === 'approved'
 		row.status = body.status
 		row.rejection_reason = body.status === 'rejected' ? 'Jurnal ditolak, silakan periksa kembali detailnya.' : null
-		recordStatusChange('journal-income', row.id, body.status, row.rejection_reason)
+		if (wasApproved) recordHistory('journal-income', row.id, { title: 'Approval Dibatalkan', kind: 'info' })
+		else recordStatusChange('journal-income', row.id, body.status, row.rejection_reason)
 		return [
 			200,
 			{
-				data: resolve(row),
-				message:
-					body.status === 'approved'
+				data: resolve(row, companyIdOf(config)),
+				message: wasApproved
+					? 'Approval dibatalkan'
+					: body.status === 'approved'
 						? 'Jurnal pemasukan disetujui'
 						: body.status === 'rejected'
 							? 'Jurnal pemasukan ditolak'

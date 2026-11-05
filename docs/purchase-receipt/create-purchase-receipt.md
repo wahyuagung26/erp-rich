@@ -7,7 +7,7 @@ path: /purchase-receipt
 status: mock
 tags: [purchase-receipt, write]
 resource: /frontend/src/mocks/modules/purchase-receipt.ts
-timestamp: 2026-09-09T12:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Create Purchase Receipt
@@ -104,3 +104,5 @@ Field validation errors can use `purchase_order_id`, `delivery_note_number`, `de
 The response's `lines` always mirrors every line of the referenced PO, not only the products
 submitted with a positive quantity — untouched products come back with `quantity: 0`, same
 as [get-purchase-order-receivable-lines](./get-purchase-order-receivable-lines.md).
+
+**Periode closing:** a `date` in a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` ([conventions](../conventions.md#closing-period-lock-locked)).

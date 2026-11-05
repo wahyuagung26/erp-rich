@@ -7,7 +7,7 @@ path: /purchase-receipt/:id
 status: mock
 tags: [purchase-receipt, write]
 resource: /frontend/src/mocks/modules/purchase-receipt.ts
-timestamp: 2026-09-09T12:00:00Z
+timestamp: 2026-11-06T12:00:00Z
 ---
 
 # Delete Purchase Receipt
@@ -41,3 +41,5 @@ Backs the delete action in `views/purchase-receipt/pages/PagePurchaseReceiptTabl
 ## Notes
 
 The mock performs a hard delete; it does not set a soft-delete timestamp.
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, penerimaan pembelian tidak bisa dihapus" }` when the record's `date` is in a closed period (`locked`) — see [conventions](../conventions.md#closing-period-lock-locked).

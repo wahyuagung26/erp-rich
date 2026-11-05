@@ -151,6 +151,28 @@ export function isPeriodClosed(companyId: number | null, date: string): boolean 
 	return closedUntil !== null && date.slice(0, 7) <= closedUntil
 }
 
+// A write handler's 422 when `date` is in a closed period (null otherwise): `const closed = closedReply(config, row.date, 'jurnal tidak bisa diedit'); if (closed) return closed`.
+export function closedReply(config: { headers?: Record<string, unknown> }, date: string, rest: string): [number, { message: string }] | null {
+	return isPeriodClosed(companyIdOf(config), date) ? [422, { message: `Periode ${monthLabel(date.slice(0, 7))} sudah closing, ${rest}` }] : null
+}
+
+// 422 field error when a write would put a record's `date` into a closed period (null otherwise).
+export function closedDateReply(config: { headers?: Record<string, unknown> }, date: unknown): [number, unknown] | null {
+	if (typeof date !== 'string' || !isPeriodClosed(companyIdOf(config), date)) return null
+	return [
+		422,
+		{
+			message: 'Validasi gagal',
+			errors: { date: [`Periode ${monthLabel(date.slice(0, 7))} sudah closing, tanggal tidak boleh di periode yang sudah closing`] }
+		}
+	]
+}
+
+// Response-side `locked` flag for records dated in a closed period (clients hide edit / delete / approval actions on it).
+export function withLock<T extends { date: string }>(config: { headers?: Record<string, unknown> }, row: T): T & { locked: boolean } {
+	return { ...row, locked: isPeriodClosed(companyIdOf(config), row.date) }
+}
+
 export function registerPosting(mock: MockAdapter) {
 	mock.onGet('/posting').reply((config) => [200, { data: stateOf(companyIdOf(config)).runs }])
 

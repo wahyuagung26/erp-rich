@@ -2,7 +2,18 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconArrowLeft, IconCheck, IconCornerDownRight, IconPencil, IconPrinter, IconRefresh, IconTrash, IconX, IconHistory } from '@tabler/icons-vue'
+import {
+	IconArrowBackUp,
+	IconArrowLeft,
+	IconCheck,
+	IconCornerDownRight,
+	IconPencil,
+	IconPrinter,
+	IconRefresh,
+	IconTrash,
+	IconX,
+	IconHistory
+} from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
@@ -14,6 +25,7 @@ import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
+import ClosingBadge from '@/components/common/ClosingBadge.vue'
 import Amount from '@/components/base/Amount.vue'
 import Modal from '@/components/base/Modal.vue'
 import FormField from '@/components/base/FormField.vue'
@@ -90,6 +102,29 @@ function changeStatus(status: JournalStatus) {
 	)
 }
 
+// Cancel approval: approved → submitted. The server refuses it once the journal's period is closed.
+function cancelApproval() {
+	const value = journal.value
+	if (!value) return
+	ask(
+		{
+			title: 'Batalkan approval',
+			message: `Batalkan approval jurnal "${value.number}"? Jurnal kembali menjadi menunggu persetujuan.`,
+			type: 'danger',
+			confirmText: 'Batalkan Approval'
+		},
+		async () => {
+			try {
+				const res = await api.patch<{ data: JournalExpense }>(`/journal-expense/${value.id}/status`, { status: 'submitted' })
+				journal.value = res.data.data
+				toast.success('Approval dibatalkan')
+			} catch (err) {
+				if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Approval tidak dapat dibatalkan')
+			}
+		}
+	)
+}
+
 function remove() {
 	const value = journal.value
 	if (!value) return
@@ -125,7 +160,8 @@ function printDoc() {
 					<Button size="sm" variant="subtle" @click="router.push('/journal-expense')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
 					<Button size="sm" variant="subtle" :disabled="!journal" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button>
 					<Button size="sm" variant="subtle" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button>
-					<template v-if="journal?.status === 'submitted'">
+					<ClosingBadge v-if="journal?.locked" title="Periode sudah closing, jurnal tidak bisa diubah" />
+					<template v-else-if="journal?.status === 'submitted'">
 						<Button size="sm" variant="secondary" @click="router.push(`/journal-expense/edit/${journal.id}`)"
 							><IconPencil class="h-4 w-4" /> Edit</Button
 						>
@@ -136,6 +172,9 @@ function printDoc() {
 					<Button v-else-if="journal?.status === 'rejected'" size="sm" variant="secondary" @click="changeStatus('submitted')">
 						<IconRefresh class="h-4 w-4" /> Ajukan Ulang
 					</Button>
+					<Button v-else-if="journal?.status === 'approved'" size="sm" variant="secondary" @click="cancelApproval"
+						><IconArrowBackUp class="h-4 w-4" /> Batalkan Approval</Button
+					>
 				</div>
 			</template>
 		</PageHeader>

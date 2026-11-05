@@ -7,7 +7,7 @@ path: /journal-expense/:id
 status: mock
 tags: [journal, expense, read]
 resource: /frontend/src/mocks/modules/journal-expense.ts
-timestamp: 2026-09-07T16:00:00Z
+timestamp: 2026-11-06T06:00:00Z
 ---
 
 # Get Journal Expense

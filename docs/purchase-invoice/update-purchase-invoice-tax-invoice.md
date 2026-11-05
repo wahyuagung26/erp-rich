@@ -7,7 +7,7 @@ path: /purchase-invoice/:id/tax-invoice
 status: mock
 tags: [purchase-invoice, write]
 resource: /frontend/src/mocks/modules/purchase-invoice.ts
-timestamp: 2026-11-06T01:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Save Purchase Invoice Tax Invoice
@@ -51,3 +51,5 @@ Allowed on both `pending` and `approved` invoices (it does not touch prices).
 | `404` | id not found | `{ "message": "Invoice pembelian tidak ditemukan" }` |
 | `422` | validation failure (incl. duplicate number, bad file type/size) | `{ "message": "Validasi gagal", "errors": { "number": ["Nomor faktur pajak sudah dipakai invoice lain"] } }` — field errors use `number`, `date`, or `file` |
 | `422` | invoice is non-PKP | `{ "message": "Invoice non-PKP tidak memiliki faktur pajak" }` |
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, faktur pajak tidak bisa diubah" }` when the invoice's `date` is in a closed period (`locked`). The UI shows the saved faktur read-only plus the Closing badge ([conventions](../conventions.md#closing-period-lock-locked)).

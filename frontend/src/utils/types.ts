@@ -424,6 +424,7 @@ export interface Journal {
 	rejection_reason: string | null
 	approved_by: string | null
 	approved_at: string | null
+	locked?: boolean // response-only: date falls in a closed period → frozen (no edit / delete / approval changes)
 	lines: JournalLine[]
 	total: number
 }
@@ -463,6 +464,7 @@ export interface JournalExpense {
 	rejection_reason: string | null
 	approved_by: string | null
 	approved_at: string | null
+	locked?: boolean // response-only: date falls in a closed period → frozen (no edit / delete / approval changes)
 	lines: JournalExpenseLine[]
 	total: number
 	cash_out: number
@@ -494,6 +496,7 @@ export interface JournalIncome {
 	rejection_reason: string | null
 	approved_by: string | null
 	approved_at: string | null
+	locked?: boolean // response-only: date falls in a closed period → frozen (no edit / delete / approval changes)
 	lines: JournalIncomeLine[]
 	total: number
 	cash_in: number
@@ -555,6 +558,7 @@ export interface CashAdvanceSettlement {
 // from the sum of its SupplierAdvanceUsage rows, never user-editable. No approval
 // workflow — the record is usable the moment it is created.
 export interface SupplierAdvance {
+	locked?: boolean // response-only: date falls in a closed period → no edit / delete / approval changes
 	id: number
 	number: string
 	date: string
@@ -631,6 +635,7 @@ export interface PurchaseOrderLine {
 }
 
 export interface PurchaseOrder {
+	locked?: boolean // response-only: date falls in a closed period → no edit / delete / approval changes
 	id: number
 	number: string
 	date: string
@@ -705,6 +710,7 @@ export interface PurchaseReceiptLine {
 }
 
 export interface PurchaseReceipt {
+	locked?: boolean // response-only: date falls in a closed period → no edit / delete / approval changes
 	id: number
 	number: string
 	purchase_order_id: number
@@ -835,6 +841,7 @@ export interface PurchaseInvoiceTaxInvoice {
 }
 
 export interface PurchaseInvoice {
+	locked?: boolean // response-only: date falls in a closed period → no edit / delete / approval changes
 	id: number
 	number: string
 	date: string
@@ -949,6 +956,7 @@ export interface PurchaseReturnSettlement {
 }
 
 export interface PurchaseReturn {
+	locked?: boolean // response-only: date falls in a closed period → no edit / delete / approval changes
 	id: number
 	number: string
 	date: string

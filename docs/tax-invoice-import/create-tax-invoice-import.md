@@ -7,7 +7,7 @@ path: /tax-invoice-import
 status: mock
 tags: [tax-invoice-import, write]
 resource: /frontend/src/mocks/modules/tax-invoice-import.ts
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Create Tax Invoice Import
@@ -33,3 +33,5 @@ The server re-reads the previewed rows by `token` (it never trusts row data from
 | Status | When | Body |
 |---|---|---|
 | `422` | unknown or already-used `token` | `{ "message": "Preview sudah kedaluwarsa, upload ulang file" }` |
+
+Locked (closed-period) documents are skipped, so they count toward `skipped`.

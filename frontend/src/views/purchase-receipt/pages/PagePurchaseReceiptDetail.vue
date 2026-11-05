@@ -13,6 +13,7 @@ import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
+import ClosingBadge from '@/components/common/ClosingBadge.vue'
 import Badge from '@/components/base/Badge.vue'
 import { invoiceStatusLabel, invoiceStatusTone, receiptSummary } from '@/views/purchase-receipt/schema'
 import type { PurchaseReceipt } from '@/utils/types'
@@ -36,7 +37,7 @@ async function load() {
 		loading.value = false
 	}
 }
-const canWrite = computed(() => Boolean(receipt.value && receipt.value.invoice_status !== 'invoiced'))
+const canWrite = computed(() => Boolean(receipt.value && receipt.value.invoice_status !== 'invoiced' && !receipt.value.locked))
 const summary = computed(() => (receipt.value ? receiptSummary(receipt.value.lines) : { productCount: 0, totalQuantity: 0 }))
 // Opens the shared record-history modal for this document.
 function openHistory() {
@@ -76,7 +77,11 @@ function remove() {
 					><Button size="sm" variant="subtle" @click="router.push('/purchase-receipt')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button
 					><Button size="sm" variant="subtle" :disabled="!receipt" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button
 					><Button size="sm" variant="subtle" :disabled="!receipt" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button
-					><Button v-if="canWrite" size="sm" variant="secondary" @click="router.push(`/purchase-receipt/edit/${receipt!.id}`)"
+					><ClosingBadge v-if="receipt?.locked" title="Periode sudah closing, dokumen tidak bisa diubah" /><Button
+						v-if="canWrite"
+						size="sm"
+						variant="secondary"
+						@click="router.push(`/purchase-receipt/edit/${receipt!.id}`)"
 						><IconPencil class="h-4 w-4" /> Edit</Button
 					><Button v-if="canWrite" size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button>
 				</div></template

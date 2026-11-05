@@ -74,7 +74,9 @@ async function save(payload: PurchaseReturnRequest) {
 		>
 		<Panel v-if="loading"><Skeleton :lines="8" /></Panel>
 		<Panel v-else-if="notFound || !row"><EmptyState title="Retur pembelian tidak ditemukan" description="Data mungkin sudah dihapus." /></Panel>
-		<Panel v-else-if="blocked"
+		<Panel v-else-if="row?.locked"
+			><EmptyState title="Retur pembelian tidak dapat diubah" description="Periode retur sudah closing, retur tidak bisa diubah." /></Panel
+		><Panel v-else-if="blocked"
 			><EmptyState
 				title="Retur pembelian tidak dapat diubah"
 				description="Retur yang sudah disetujui tidak boleh diubah. Batalkan persetujuan lebih dulu."

@@ -7,7 +7,7 @@ path: /purchase-order/:id
 status: mock
 tags: [purchase-order, write]
 resource: /frontend/src/mocks/modules/purchase-order.ts
-timestamp: 2026-09-09T00:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Update Purchase Order
@@ -46,3 +46,7 @@ The existing `id` and `number` are retained, and the current approval status is 
 The mock rejects update when `approval_status` is `approved` or `delivery_status` is not
 `not_received`. A validation `422` may include field errors;
 a guard error contains only `message`.
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, order pembelian tidak bisa diubah" }` when the record's `date` is in a closed period (`locked`) — see [conventions](../conventions.md#closing-period-lock-locked).
+
+Moving the `date` into a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }`.

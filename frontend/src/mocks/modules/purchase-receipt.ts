@@ -2,6 +2,7 @@ import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
 import { diffFields, diffLines, fmtDate, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
+import { closedReply, withLock, closedDateReply } from './posting'
 import type { PurchaseOrder, PurchaseReceipt, PurchaseReceiptLine, PurchaseReceiptLineRequest, PurchaseReceiptRequest } from '@/utils/types'
 
 const idOf = (url?: string) => Number(url?.split('/').at(-1))
@@ -199,7 +200,7 @@ export function registerPurchaseReceipt(mock: MockAdapter) {
 
 	mock.onGet('/purchase-receipt').reply((config) => {
 		const p = (config.params ?? {}) as ListParams & { invoice_status?: string; date_from?: string; date_to?: string }
-		let rows = db.purchaseReceipt.map(resolve)
+		let rows = db.purchaseReceipt.map((item) => withLock(config, resolve(item)))
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((row) =>
@@ -223,11 +224,13 @@ export function registerPurchaseReceipt(mock: MockAdapter) {
 
 	mock.onGet(/\/purchase-receipt\/\d+$/).reply((config) => {
 		const row = db.purchaseReceipt.find((item) => item.id === idOf(config.url))
-		return row ? [200, { data: resolve(row) }] : [404, { message: 'Penerimaan pembelian tidak ditemukan' }]
+		return row ? [200, { data: withLock(config, resolve(row)) }] : [404, { message: 'Penerimaan pembelian tidak ditemukan' }]
 	})
 
 	mock.onPost('/purchase-receipt').reply((config) => {
 		const body = JSON.parse(config.data) as PurchaseReceiptRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const error = validate(body)
 		if (error) return [422, error]
 		const po = db.purchaseOrder.find((item) => item.id === Number(body.purchase_order_id)) as PurchaseOrder
@@ -242,9 +245,13 @@ export function registerPurchaseReceipt(mock: MockAdapter) {
 	mock.onPut(/\/purchase-receipt\/\d+$/).reply((config) => {
 		const row = db.purchaseReceipt.find((item) => item.id === idOf(config.url))
 		if (!row) return [404, { message: 'Penerimaan pembelian tidak ditemukan' }]
+		const closed = closedReply(config, row.date, 'penerimaan pembelian tidak bisa diubah')
+		if (closed) return closed
 		const guard = writeGuard(row)
 		if (guard) return [422, { message: guard }]
 		const body = JSON.parse(config.data) as PurchaseReceiptRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		body.purchase_order_id = row.purchase_order_id // locked — see docs/purchase-receipt/update-purchase-receipt.md
 		const error = validate(body, row.id)
 		if (error) return [422, error]
@@ -266,6 +273,8 @@ export function registerPurchaseReceipt(mock: MockAdapter) {
 	mock.onDelete(/\/purchase-receipt\/\d+$/).reply((config) => {
 		const index = db.purchaseReceipt.findIndex((item) => item.id === idOf(config.url))
 		if (index < 0) return [404, { message: 'Penerimaan pembelian tidak ditemukan' }]
+		const closed = closedReply(config, db.purchaseReceipt[index].date, 'penerimaan pembelian tidak bisa dihapus')
+		if (closed) return closed
 		const guard = writeGuard(db.purchaseReceipt[index])
 		if (guard) return [422, { message: guard.replace('diubah', 'dihapus') }]
 		const [removed] = db.purchaseReceipt.splice(index, 1)

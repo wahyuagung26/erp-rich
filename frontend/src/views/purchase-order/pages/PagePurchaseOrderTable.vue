@@ -101,7 +101,7 @@ function openHistory(row: PurchaseOrder) {
 	history.open({ kode: row.number, endpoint: `/purchase-order/${row.id}/history` })
 }
 function canWrite(row: PurchaseOrder) {
-	return row.approval_status !== 'approved' && row.delivery_status === 'not_received'
+	return row.approval_status !== 'approved' && row.delivery_status === 'not_received' && !row.locked
 }
 function remove(row: PurchaseOrder) {
 	ask({ title: 'Hapus order pembelian', message: `Hapus order pembelian “${row.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {

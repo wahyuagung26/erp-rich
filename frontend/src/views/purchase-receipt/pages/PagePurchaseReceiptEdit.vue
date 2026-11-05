@@ -74,6 +74,10 @@ async function save(payload: PurchaseReceiptRequest) {
 		><Panel v-if="loading"><Skeleton :lines="8" /></Panel
 		><Panel v-else-if="notFound || !receipt"
 			><EmptyState title="Penerimaan pembelian tidak ditemukan" description="Data mungkin sudah dihapus." /></Panel
+		><Panel v-else-if="receipt?.locked"
+			><EmptyState
+				title="Penerimaan pembelian tidak dapat diubah"
+				description="Periode penerimaan sudah closing, penerimaan tidak bisa diubah." /></Panel
 		><Panel v-else-if="blocked"
 			><EmptyState title="Penerimaan pembelian tidak dapat diubah" description="Penerimaan yang sudah dibuat invoice tidak boleh diubah." /></Panel
 		><FormPurchaseReceipt

@@ -7,7 +7,7 @@ path: /journal-expense
 status: mock
 tags: [journal, expense, write]
 resource: /frontend/src/mocks/modules/journal-expense.ts
-timestamp: 2026-11-05T21:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Create Journal Expense
@@ -132,3 +132,5 @@ server-assigned. The balancing cash credit line is implied by `cash_account_id` 
 | Status | When                                                                        | Body                                                   |
 | ------ | --------------------------------------------------------------------------- | ------------------------------------------------------ |
 | `422`  | net cash out ≤ 0 / bad line / non-cash_bank `cash_account_id` / unknown ref | `{ "message": "...", "errors": { "lines": ["..."] } }` |
+
+**Periode closing:** a `date` in a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` ([conventions](../conventions.md#closing-period-lock-locked)).

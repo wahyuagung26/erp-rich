@@ -7,7 +7,7 @@ path: /tax-invoice-import/preview
 status: mock
 tags: [tax-invoice-import, write]
 resource: /frontend/src/mocks/modules/tax-invoice-import.ts
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Preview Tax Invoice Import
@@ -32,3 +32,5 @@ Backs "Upload & Preview" in `PageTaxInvoiceImport.vue`.
 | Status | When | Body |
 |---|---|---|
 | `422` | bad `source`, missing / wrong-type / oversize `file`, or the file is not the expected Laporan Pajak export | `{ "message": "Validasi gagal", "errors": { "file": ["..."] } }` |
+
+Rows whose invoice / retur `date` is in a closed period come back `status: "skipped"`, `message: "Periode sudah closing"` and are never imported.

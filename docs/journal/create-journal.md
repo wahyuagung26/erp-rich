@@ -7,7 +7,7 @@ path: /journal
 status: mock
 tags: [journal, write]
 resource: /frontend/src/mocks/modules/journal.ts
-timestamp: 2026-11-05T21:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Create Journal
@@ -122,3 +122,5 @@ Server rejects unless `sum(debit) === sum(credit)` and `> 0`.
 
 - Both mock and backend resolve `account_code` / `account_name` from `account_id`; the
   client only sends `account_id`.
+
+**Periode closing:** a `date` in a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` ([conventions](../conventions.md#closing-period-lock-locked)).

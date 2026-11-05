@@ -77,6 +77,10 @@ async function save(payload: JournalForm) {
 			<EmptyState title="Jurnal tidak ditemukan" description="Data mungkin sudah dihapus." />
 			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push('/journal')">Kembali</Button></div>
 		</Panel>
+		<Panel v-else-if="journal.locked">
+			<EmptyState title="Jurnal tidak dapat diedit" description="Periode jurnal sudah closing, jurnal tidak bisa diedit." />
+			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push(`/journal/${journal.id}`)">Detail</Button></div>
+		</Panel>
 		<Panel v-else-if="journal.status !== 'submitted'">
 			<EmptyState title="Jurnal tidak dapat diedit" description="Hanya jurnal dengan status Menunggu Persetujuan yang dapat diedit." />
 			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push(`/journal/${journal.id}`)">Detail</Button></div>

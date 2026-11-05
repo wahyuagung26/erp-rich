@@ -14,7 +14,7 @@ import {
 	type FieldSpec
 } from '../history'
 import { resolve as resolveInvoice } from './purchase-invoice'
-import { isPeriodClosed } from './posting'
+import { closedReply, isPeriodClosed, closedDateReply } from './posting'
 import type {
 	JournalAttachment,
 	PurchaseInvoice,
@@ -133,6 +133,7 @@ export function resolve(row: Stored, companyId: number | null = null): PurchaseR
 		refunded_total,
 		remaining_total,
 		settlement_status: row.approval_status === 'approved' && remaining_total === 0 ? 'settled' : 'open',
+		locked: isPeriodClosed(companyId, row.date),
 		settlements
 	}
 }
@@ -258,6 +259,8 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 
 	mock.onPost('/purchase-return').reply((config) => {
 		const body = JSON.parse(config.data) as PurchaseReturnRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const source = db.purchaseInvoice.find((item) => item.id === Number(body.purchase_invoice_id))
 		if (!source) return [422, invalid('Invoice pembelian wajib dipilih', 'purchase_invoice_id')]
 		if (source.approval_status !== 'approved') return [422, invalid('Hanya invoice yang sudah disetujui yang bisa diretur', 'purchase_invoice_id')]
@@ -291,8 +294,12 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 	mock.onPut(/\/purchase-return\/\d+$/).reply((config) => {
 		const row = db.purchaseReturn.find((item) => item.id === idOf(config.url))
 		if (!row) return [404, { message: 'Retur pembelian tidak ditemukan' }]
+		const closed = closedReply(config, row.date, 'retur pembelian tidak bisa diubah')
+		if (closed) return closed
 		if (row.approval_status === 'approved') return [422, { message: 'Retur yang sudah disetujui tidak boleh diubah' }]
 		const body = JSON.parse(config.data) as PurchaseReturnRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const invoice = resolveInvoice(db.purchaseInvoice.find((item) => item.id === row.purchase_invoice_id) as PurchaseInvoice) // locked
 		const error = validate(body, invoice, row.id)
 		if (error) return [422, error]
@@ -314,6 +321,8 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 		const index = db.purchaseReturn.findIndex((item) => item.id === idOf(config.url))
 		if (index < 0) return [404, { message: 'Retur pembelian tidak ditemukan' }]
 		const row = db.purchaseReturn[index]
+		const closed = closedReply(config, row.date, 'retur pembelian tidak bisa dihapus')
+		if (closed) return closed
 		if (row.approval_status === 'approved') return [422, { message: 'Retur yang sudah disetujui tidak boleh dihapus' }]
 		db.purchaseReturn.splice(index, 1)
 		purgeHistory('purchase-return', row.id)
@@ -323,6 +332,8 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 	mock.onPatch(/\/purchase-return\/\d+\/approval$/).reply((config) => {
 		const row = db.purchaseReturn.find((item) => item.id === parentIdOf(config.url))
 		if (!row) return [404, { message: 'Retur pembelian tidak ditemukan' }]
+		const closed = closedReply(config, row.date, 'persetujuan retur tidak bisa diubah')
+		if (closed) return closed
 		const { status } = JSON.parse(config.data) as { status?: string }
 		if (status === 'approved') {
 			if (row.approval_status === 'approved') return [422, { message: 'Retur sudah disetujui' }]
@@ -434,6 +445,8 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 	mock.onPut(/\/purchase-return\/\d+\/tax-invoice$/).reply((config) => {
 		const row = db.purchaseReturn.find((item) => item.id === parentIdOf(config.url))
 		if (!row) return [404, { message: 'Retur pembelian tidak ditemukan' }]
+		const closed = closedReply(config, row.date, 'faktur pajak tidak bisa diubah')
+		if (closed) return closed
 		if (!row.pkp_active) return [422, { message: 'Retur non-PKP tidak memiliki faktur pajak' }]
 		if (row.approval_status !== 'approved') return [422, { message: 'Faktur pajak hanya bisa diisi untuk retur yang sudah disetujui' }]
 		const body = JSON.parse(config.data) as { number?: string; date?: string; file?: JournalAttachment | null }

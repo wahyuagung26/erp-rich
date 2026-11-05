@@ -68,6 +68,8 @@ async function save(payload: PurchaseOrderRequest) {
 			></PageHeader
 		><Panel v-if="loading"><Skeleton :lines="8" /></Panel
 		><Panel v-else-if="notFound || !order"><EmptyState title="Order pembelian tidak ditemukan" description="Data mungkin sudah dihapus." /></Panel
+		><Panel v-else-if="order?.locked"
+			><EmptyState title="Order pembelian tidak dapat diubah" description="Periode order pembelian sudah closing, order tidak bisa diubah." /></Panel
 		><Panel v-else-if="blocked"
 			><EmptyState
 				title="Order pembelian tidak dapat diubah"

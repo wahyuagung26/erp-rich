@@ -7,7 +7,7 @@ path: /purchase-order/:id/approval
 status: mock
 tags: [purchase-order, write]
 resource: /frontend/src/mocks/modules/purchase-order.ts
-timestamp: 2026-09-09T00:00:00Z
+timestamp: 2026-11-06T12:00:00Z
 ---
 
 # Update Purchase Order Approval Status
@@ -50,3 +50,5 @@ When approved, the mock sets `approved_by` and `approved_at`. When rejected, it 
 
 `pending` is used by the UI to resubmit a rejected PO. An approved PO cannot be changed to
 another approval status.
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, status persetujuan order pembelian tidak bisa diubah" }` when the record's `date` is in a closed period (`locked`) — see [conventions](../conventions.md#closing-period-lock-locked).

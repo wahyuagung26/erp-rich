@@ -3,7 +3,7 @@ type: OKF Module
 title: Invoice Pembelian (Purchase Invoice)
 description: Tagihan supplier atas satu penerimaan pembelian — harga per baris, DPP/PPN, approval satu arah yang membentuk hutang (kontrabon), dan faktur pajak.
 tags: [purchase-invoice, procurement, payables]
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-06T12:00:00Z
 ---
 
 # Invoice Pembelian
@@ -27,6 +27,7 @@ faktur pajak bisa diisi massal lewat [tax-invoice-import](../tax-invoice-import/
 | `id` | number | auto-increment, server-assigned |
 | `number` | string | nomor invoice otomatis ("BL #"), read-only |
 | `date` | string | Tanggal; required, `YYYY-MM-DD`, tidak boleh melebihi hari ini |
+| `locked` | boolean | response-only, server-computed: `date` falls in a closed period → edit, delete and approval changes are refused ([conventions](../conventions.md#closing-period-lock-locked)) |
 | `purchase_receipt_id` | number | required; penerimaan sumber, terkunci setelah create |
 | `purchase_receipt_number` `purchase_order_id` `purchase_order_number` | — | resolved reference fields, read-only |
 | `supplier_id` `supplier_code` `supplier_name` | — | resolved dari PO sumber, read-only |

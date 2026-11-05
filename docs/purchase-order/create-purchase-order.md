@@ -7,7 +7,7 @@ path: /purchase-order
 status: mock
 tags: [purchase-order, write]
 resource: /frontend/src/mocks/modules/purchase-order.ts
-timestamp: 2026-09-09T00:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Create Purchase Order
@@ -113,3 +113,5 @@ and `discount` (`>= 0`, not greater than `quantity × price`). Client does not s
 Field validation errors can use `date`, `supplier_id`, `pkp_active`, `department_id`,
 `warehouse_id`, `address`, `description`, or `lines`. The response amount fields are
 computed from the request lines; PPN is 11% of DPP when `pkp_active` is true and 0 otherwise.
+
+**Periode closing:** a `date` in a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` ([conventions](../conventions.md#closing-period-lock-locked)).

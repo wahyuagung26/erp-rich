@@ -2,6 +2,7 @@ import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { nextId, paginate, sortBy, type ListParams } from '../lib'
 import { diffFields, fmtDate, fmtMoney, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
+import { closedReply, withLock, closedDateReply } from './posting'
 import type { SupplierAdvance, SupplierAdvanceUsage } from '@/utils/types'
 
 type SupplierAdvanceRequest = Omit<
@@ -121,7 +122,7 @@ export function registerSupplierAdvance(mock: MockAdapter) {
 			supplier_id?: string | number
 			has_balance?: string | number
 		}
-		let rows = db.supplierAdvance.map(resolve)
+		let rows = db.supplierAdvance.map((item) => withLock(config, resolve(item)))
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((a) => [a.number, a.supplier_code, a.supplier_name, a.date, a.description].join(' ').toLowerCase().includes(q))
@@ -142,11 +143,13 @@ export function registerSupplierAdvance(mock: MockAdapter) {
 
 	mock.onGet(/\/supplier-advance\/\d+$/).reply((config) => {
 		const row = db.supplierAdvance.find((r) => r.id === idOf(config.url))
-		return row ? [200, { data: resolve(row) }] : [404, { message: 'Uang muka supplier tidak ditemukan' }]
+		return row ? [200, { data: withLock(config, resolve(row)) }] : [404, { message: 'Uang muka supplier tidak ditemukan' }]
 	})
 
 	mock.onPost('/supplier-advance').reply((config) => {
 		const body = JSON.parse(config.data) as SupplierAdvanceRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const error = validateRequest(body)
 		if (error) return [422, { message: error, errors: { amount: [error] } }]
 
@@ -160,9 +163,13 @@ export function registerSupplierAdvance(mock: MockAdapter) {
 	mock.onPut(/\/supplier-advance\/\d+$/).reply((config) => {
 		const row = db.supplierAdvance.find((r) => r.id === idOf(config.url))
 		if (!row) return [404, { message: 'Uang muka supplier tidak ditemukan' }]
+		const closed = closedReply(config, row.date, 'uang muka supplier tidak bisa diubah')
+		if (closed) return closed
 		if (usagesOf(row.id).length > 0) return [422, { message: 'Uang muka yang sudah dipakai di Hutang Supplier tidak boleh diubah' }]
 
 		const body = JSON.parse(config.data) as SupplierAdvanceRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const error = validateRequest(body)
 		if (error) return [422, { message: error, errors: { amount: [error] } }]
 
@@ -175,6 +182,8 @@ export function registerSupplierAdvance(mock: MockAdapter) {
 	mock.onDelete(/\/supplier-advance\/\d+$/).reply((config) => {
 		const index = db.supplierAdvance.findIndex((r) => r.id === idOf(config.url))
 		if (index === -1) return [404, { message: 'Uang muka supplier tidak ditemukan' }]
+		const closed = closedReply(config, db.supplierAdvance[index].date, 'uang muka supplier tidak bisa dihapus')
+		if (closed) return closed
 		if (usagesOf(db.supplierAdvance[index].id).length > 0)
 			return [422, { message: 'Uang muka yang sudah dipakai di Hutang Supplier tidak boleh dihapus' }]
 		const [removed] = db.supplierAdvance.splice(index, 1)

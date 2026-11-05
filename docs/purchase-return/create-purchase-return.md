@@ -7,7 +7,7 @@ path: /purchase-return
 status: mock
 tags: [purchase-return, write]
 resource: /frontend/src/mocks/modules/purchase-return.ts
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Create Purchase Return
@@ -49,3 +49,5 @@ Backs `PagePurchaseReturnTambah.vue`. Client validation: `views/purchase-return/
 |---|---|---|
 | `404` | id not found | `{ "message": "Retur pembelian tidak ditemukan" }` |
 | `422` | validation (`purchase_invoice_id`, `date`, `warehouse_id`, `reason`, `lines`) | `{ "message": "Validasi gagal", "errors": { "<field>": ["..."] } }` |
+
+**Periode closing:** a `date` in a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` ([conventions](../conventions.md#closing-period-lock-locked)).

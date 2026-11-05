@@ -7,7 +7,7 @@ path: /journal-income
 status: mock
 tags: [journal, income, write]
 resource: /frontend/src/mocks/modules/journal-income.ts
-timestamp: 2026-11-05T21:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Create Journal Income
@@ -118,3 +118,5 @@ implied by `cash_account_id` + `cash_in` and is not returned inside `lines`.
 | Status | When                                                                                                           | Body                                                   |
 | ------ | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | `422`  | a line has both or neither side > 0 / `Σ credit − Σ debit` ≤ 0 / non-cash_bank `cash_account_id` / unknown ref | `{ "message": "...", "errors": { "lines": ["..."] } }` |
+
+**Periode closing:** a `date` in a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` ([conventions](../conventions.md#closing-period-lock-locked)).

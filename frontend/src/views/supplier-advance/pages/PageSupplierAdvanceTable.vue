@@ -123,7 +123,7 @@ const rows: TableRow[] = [
 						:id="column.id as number"
 						base="/supplier-advance"
 						:actions="[{ label: 'Riwayat', icon: IconHistory, onClick: () => openHistory(column as unknown as SupplierAdvance) }]"
-						:can-modify="(column.used as number) === 0"
+						:can-modify="(column.used as number) === 0 && !column.locked"
 						@remove="remove(column as unknown as SupplierAdvance)"
 					/>
 					<span v-else>{{ column[row.field] }}</span>

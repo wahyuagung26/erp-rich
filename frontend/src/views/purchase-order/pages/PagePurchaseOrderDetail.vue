@@ -13,6 +13,7 @@ import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
+import ClosingBadge from '@/components/common/ClosingBadge.vue'
 import Badge from '@/components/base/Badge.vue'
 import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import Amount from '@/components/base/Amount.vue'
@@ -38,8 +39,10 @@ async function load() {
 		loading.value = false
 	}
 }
-const canEdit = computed(() => Boolean(order.value && order.value.approval_status !== 'approved' && order.value.delivery_status === 'not_received'))
-const canApprove = computed(() => order.value?.approval_status === 'pending')
+const canEdit = computed(() =>
+	Boolean(order.value && !order.value.locked && order.value.approval_status !== 'approved' && order.value.delivery_status === 'not_received')
+)
+const canApprove = computed(() => order.value?.approval_status === 'pending' && !order.value.locked)
 function updateApproval(status: PurchaseOrderApprovalStatus) {
 	const value = order.value
 	if (!value) return
@@ -99,12 +102,16 @@ function remove() {
 						><IconArrowLeft class="h-4 w-4" /> Kembali</Button
 					><Button size="sm" variant="subtle" :disabled="!order" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button
 					><Button size="sm" variant="subtle" :disabled="!order" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button
-					><Button v-if="canEdit" size="sm" variant="secondary" @click="router.push(`/purchase-order/edit/${order!.id}`)"
+					><ClosingBadge v-if="order?.locked" title="Periode sudah closing, dokumen tidak bisa diubah" /><Button
+						v-if="canEdit"
+						size="sm"
+						variant="secondary"
+						@click="router.push(`/purchase-order/edit/${order!.id}`)"
 						><IconPencil class="h-4 w-4" /> Edit</Button
 					><Button v-if="canEdit" size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button
 					><Button v-if="canApprove" size="sm" @click="updateApproval('approved')"><IconCheck class="h-4 w-4" /> Setujui</Button
 					><Button v-if="canApprove" size="sm" variant="danger" @click="updateApproval('rejected')"><IconX class="h-4 w-4" /> Tolak</Button
-					><Button v-if="order?.approval_status === 'rejected'" size="sm" variant="secondary" @click="updateApproval('pending')"
+					><Button v-if="order?.approval_status === 'rejected' && !order.locked" size="sm" variant="secondary" @click="updateApproval('pending')"
 						><IconRefresh class="h-4 w-4" /> Ajukan Ulang</Button
 					>
 				</div></template

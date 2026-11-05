@@ -3,7 +3,7 @@ type: API Convention
 title: Shared API Conventions
 description: Response envelope, pagination, sorting, auth, and error shape inherited by every endpoint in this bundle.
 tags: [api, convention]
-timestamp: 2026-11-06T03:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Shared API Conventions
@@ -118,6 +118,18 @@ serves `GET /<resource>/:id/history` with this shape can use it.
 
 Events are returned **newest first**. Every successful write that changes a document appends one event;
 deleting the document deletes its history. Unknown id → `404` with the module's own "tidak ditemukan" message.
+
+## Closing-period lock (`locked`)
+
+A document whose `date` falls in a closed period ([Posting & Closing](./posting/index.md), `period <= closed_until`) is **frozen**.
+
+- Responses carry a read-only, server-computed `locked: boolean` on the record (omitted on create/update responses).
+- While `locked`, the server refuses with `422 { "message": "Periode <bulan tahun> sudah closing, <alasan>" }` (no `errors` object): **edit**, **delete**, and every **approval change** (approve, reject, resubmit, cancel approval). Reading, printing and history stay allowed.
+- The UI hides those actions and shows the shared `ClosingBadge` (lock icon + "Closing") instead.
+- Applies to: [Jurnal Umum](./journal/index.md), [Jurnal Pemasukan](./journal-income/index.md), [Jurnal Pengeluaran](./journal-expense/index.md), [Order Pembelian](./purchase-order/index.md), [Penerimaan](./purchase-receipt/index.md), [Invoice](./purchase-invoice/index.md), [Uang Muka Supplier](./supplier-advance/index.md), [Retur Pembelian](./purchase-return/index.md). Retur settlements and Hutang Supplier payments are locked by their **own** `date` (see their modules).
+- **Date into a closed period:** create and update (and, for journals, approve with a new `date`) with a `date` in a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` — the form shows it on the date field.
+- Invoice / retur **faktur pajak** (`PUT .../tax-invoice`) is locked with the record; [tax-invoice-import](./tax-invoice-import/index.md) marks locked rows `skipped` ("Periode sudah closing").
+- Not covered: creating a receipt / invoice from a source document dated in a closed period (only the new document's own `date` is checked).
 
 ## Status field
 

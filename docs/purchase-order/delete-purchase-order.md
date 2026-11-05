@@ -7,7 +7,7 @@ path: /purchase-order/:id
 status: mock
 tags: [purchase-order, write]
 resource: /frontend/src/mocks/modules/purchase-order.ts
-timestamp: 2026-09-09T00:00:00Z
+timestamp: 2026-11-06T12:00:00Z
 ---
 
 # Delete Purchase Order
@@ -42,3 +42,5 @@ Backs the delete action in `views/purchase-order/pages/PagePurchaseOrderTable.vu
 
 The mock performs a hard delete; it does not set a soft-delete timestamp. Deletion is
 rejected when `approval_status` is `approved` or `delivery_status` is not `not_received`.
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, order pembelian tidak bisa dihapus" }` when the record's `date` is in a closed period (`locked`) — see [conventions](../conventions.md#closing-period-lock-locked).

@@ -32,6 +32,7 @@ import Input from '@/components/base/Input.vue'
 import MoneyInput from '@/components/base/MoneyInput.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
+import ClosingBadge from '@/components/common/ClosingBadge.vue'
 import Amount from '@/components/base/Amount.vue'
 import Tabs from '@/components/base/Tabs.vue'
 import { settlementStatusLabel, settlementTone, validateSettlement } from '@/views/purchase-return/schema'
@@ -70,7 +71,7 @@ async function load() {
 	}
 }
 const message = (error: unknown, fallback: string) => (axios.isAxiosError(error) ? (error.response?.data?.message ?? fallback) : fallback)
-const canWrite = computed(() => row.value?.approval_status === 'pending')
+const canWrite = computed(() => row.value?.approval_status === 'pending' && !row.value.locked)
 const canUnapprove = computed(() => row.value?.approval_status === 'approved' && !row.value.settlements.length)
 const canSettle = computed(() => row.value?.approval_status === 'approved' && row.value.remaining_total > 0)
 const approved = computed(() => row.value?.approval_status === 'approved')
@@ -212,12 +213,16 @@ function removeRefund(settlementId: number) {
 						><IconArrowLeft class="h-4 w-4" /> Kembali</Button
 					><Button size="sm" variant="subtle" :disabled="!row" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button
 					><Button size="sm" variant="subtle" :disabled="!row" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button
-					><Button v-if="canWrite" size="sm" variant="secondary" @click="router.push(`/purchase-return/edit/${row!.id}`)"
+					><ClosingBadge v-if="row?.locked" title="Periode sudah closing, dokumen tidak bisa diubah" /><Button
+						v-if="canWrite"
+						size="sm"
+						variant="secondary"
+						@click="router.push(`/purchase-return/edit/${row!.id}`)"
 						><IconPencil class="h-4 w-4" /> Edit</Button
 					><Button v-if="canWrite" size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button
 					><Button v-if="canWrite" size="sm" @click="setApproval('approved')"><IconCheck class="h-4 w-4" /> Setujui</Button
 					><Button
-						v-if="row?.approval_status === 'approved'"
+						v-if="row?.approval_status === 'approved' && !row.locked"
 						size="sm"
 						variant="secondary"
 						:disabled="!canUnapprove"
@@ -346,7 +351,8 @@ function removeRefund(settlementId: number) {
 					<section v-if="row.pkp_active && row.approval_status === 'approved'" class="space-y-3">
 						<div class="flex items-center justify-between gap-3">
 							<h3 class="subhead">Faktur Pajak</h3>
-							<Button size="sm" variant="secondary" @click="openTaxInvoice">
+							<ClosingBadge v-if="row.locked" title="Periode sudah closing, faktur pajak tidak bisa diubah" />
+							<Button v-else size="sm" variant="secondary" @click="openTaxInvoice">
 								<component :is="row.tax_invoice ? IconPencil : IconPlus" class="h-4 w-4" />
 								{{ row.tax_invoice ? 'Lihat / Edit Faktur' : 'Tambah Faktur Pajak' }}
 							</Button>
@@ -499,9 +505,7 @@ function removeRefund(settlementId: number) {
 										<td class="px-3 py-3 text-right"><Amount :value="item.amount" /></td>
 										<td class="px-3 py-3 text-right">
 											<!-- Closed period: no edit / delete, just the reason. Potong hutang rows are managed from Hutang Supplier. -->
-											<span v-if="item.locked" class="inline-flex items-center gap-1 whitespace-nowrap text-s text-ink-muted" :title="LOCKED_HINT">
-												<IconLock class="h-4 w-4" /> Closing
-											</span>
+											<ClosingBadge v-if="item.locked" :title="LOCKED_HINT" />
 											<div v-else-if="item.type === 'cash_bank'" class="flex justify-end gap-1">
 												<button
 													type="button"

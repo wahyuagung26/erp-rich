@@ -1,6 +1,8 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { recordHistory } from '../history'
+import { companyIdOf } from '../lib'
+import { isPeriodClosed } from './posting'
 import { resolve as resolveInvoice } from './purchase-invoice'
 import { resolve as resolveReturn } from './purchase-return'
 import type { TaxInvoiceImportPreview, TaxInvoiceImportRow, TaxInvoiceImportSource } from '@/utils/types'
@@ -15,7 +17,7 @@ const previews = new Map<string, TaxInvoiceImportPreview>()
 
 const invalid = (message: string, field: string) => ({ message: 'Validasi gagal', errors: { [field]: [message] } })
 
-function buildRows(source: TaxInvoiceImportSource): TaxInvoiceImportRow[] {
+function buildRows(source: TaxInvoiceImportSource, companyId: number | null): TaxInvoiceImportRow[] {
 	const isInvoice = source === 'purchase_invoice'
 	const documents = (isInvoice ? db.purchaseInvoice.map(resolveInvoice) : db.purchaseReturn.map(resolveReturn))
 		.filter((item) => item.approval_status === 'approved' && item.pkp_active)
@@ -24,6 +26,7 @@ function buildRows(source: TaxInvoiceImportSource): TaxInvoiceImportRow[] {
 			reference: item.number,
 			name: item.supplier_name ?? '–',
 			existing: item.tax_invoice,
+			locked: isPeriodClosed(companyId, item.date),
 			date: (item.approved_at ?? item.date).slice(0, 10),
 			prefix: isInvoice ? '010.000-26.' : '011.000-26.'
 		}))
@@ -33,7 +36,8 @@ function buildRows(source: TaxInvoiceImportSource): TaxInvoiceImportRow[] {
 		name: doc.name,
 		number: `${doc.prefix}${String(9000 + doc.id).padStart(8, '0')}`,
 		date: doc.date,
-		status: doc.existing ? 'to_be_replaced' : 'matched'
+		status: doc.locked ? 'skipped' : doc.existing ? 'to_be_replaced' : 'matched',
+		...(doc.locked && { message: 'Periode sudah closing' })
 	}))
 	rows.push(
 		{
@@ -77,7 +81,7 @@ export function registerTaxInvoiceImport(mock: MockAdapter) {
 		if (!EXTENSIONS.includes(file.name.split('.').at(-1)?.toLowerCase() ?? ''))
 			return [422, invalid('File harus berformat XLSX, XLS, atau CSV', 'file')]
 		if (file.size > MAX_SIZE) return [422, invalid('Ukuran file maksimal 10 MB', 'file')]
-		const rows = buildRows(source)
+		const rows = buildRows(source, companyIdOf(config))
 		const count = (status: TaxInvoiceImportRow['status']) => rows.filter((row) => row.status === status).length
 		const preview: TaxInvoiceImportPreview = {
 			token: crypto.randomUUID(),

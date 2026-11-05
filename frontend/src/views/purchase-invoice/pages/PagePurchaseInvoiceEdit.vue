@@ -74,6 +74,8 @@ async function save(payload: PurchaseInvoiceRequest) {
 			></PageHeader
 		><Panel v-if="loading"><Skeleton :lines="8" /></Panel
 		><Panel v-else-if="notFound || !invoice"><EmptyState title="Invoice pembelian tidak ditemukan" description="Data mungkin sudah dihapus." /></Panel
+		><Panel v-else-if="invoice?.locked"
+			><EmptyState title="Invoice pembelian tidak dapat diubah" description="Periode invoice sudah closing, invoice tidak bisa diubah." /></Panel
 		><Panel v-else-if="blocked"
 			><EmptyState title="Invoice pembelian tidak dapat diubah" description="Invoice yang sudah disetujui tidak boleh diubah." /></Panel
 		><FormPurchaseInvoice

@@ -14,7 +14,7 @@ export interface KpiItem {
 	count?: number
 	hint?: string
 	icon?: Component
-	tone?: 'success' | 'danger' | 'warning' | 'info'
+	tone?: 'success' | 'danger' | 'warning' | 'info' | 'muted' // muted = neutral bucket (grey icon even when the count is > 0)
 	attention?: boolean
 	emptyText?: string
 }

@@ -7,7 +7,7 @@ path: /purchase-invoice/:id/approval
 status: mock
 tags: [purchase-invoice, write]
 resource: /frontend/src/mocks/modules/purchase-invoice.ts
-timestamp: 2026-11-05T23:30:00Z
+timestamp: 2026-11-06T12:00:00Z
 ---
 
 # Approve Purchase Invoice
@@ -46,3 +46,5 @@ Backs the **Setujui** action in `PagePurchaseInvoiceDetail.vue`; the UI confirms
 
 Approval is one-way: there is no reject or unapprove. A repeated approve does not create a
 second kontrabon (it is rejected with `422`).
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, invoice pembelian tidak bisa disetujui" }` when the record's `date` is in a closed period (`locked`) — see [conventions](../conventions.md#closing-period-lock-locked).

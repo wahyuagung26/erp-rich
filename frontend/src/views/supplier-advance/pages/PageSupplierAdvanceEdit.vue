@@ -100,6 +100,12 @@ async function save(payload: SupplierAdvanceRequest) {
 			<EmptyState title="Uang muka supplier tidak ditemukan" description="Data mungkin sudah dihapus." />
 			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push('/supplier-advance')">Kembali ke Daftar</Button></div>
 		</Panel>
+		<Panel v-else-if="advance.locked">
+			<EmptyState title="Uang muka tidak dapat diubah" description="Periode uang muka sudah closing, uang muka tidak bisa diubah." />
+			<div class="mt-3 flex justify-center">
+				<Button variant="secondary" @click="router.push(`/supplier-advance/${advance.id}`)">Detail</Button>
+			</div>
+		</Panel>
 		<template v-else-if="locked">
 			<Panel>
 				<EmptyState title="Uang muka tidak dapat diubah" description="Uang muka yang sudah dipakai di Hutang Supplier tidak boleh diubah." />

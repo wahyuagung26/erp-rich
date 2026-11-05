@@ -3,7 +3,7 @@ type: OKF Module
 title: Journal
 description: Manual double-entry journal entries with approval workflow and balanced debit/credit lines.
 tags: [journal, double-entry]
-timestamp: 2026-11-06T04:00:00Z
+timestamp: 2026-11-06T08:00:00Z
 ---
 
 # Journal
@@ -27,6 +27,7 @@ Consumed by `frontend/src/views/journal/`. Lines reference [account](../account/
 | `rejection_reason` | string \| null  | set when a submitted journal is rejected                                    |
 | `approved_by`      | string \| null  | approver's name; set on approve, cleared on re-submit                       |
 | `approved_at`      | string \| null  | ISO 8601 datetime of approval; set/cleared alongside `approved_by`          |
+| `locked` | boolean | response-only, server-computed: `date` falls in a closed period → Edit, Hapus, Setujui, Tolak, Batalkan Approval and Ajukan Ulang are refused |
 | `lines`            | `JournalLine[]` | ≥ 1; sum(debit) must equal sum(credit) and be > 0                           |
 | `total`            | number          | server-computed = sum(debit)                                                |
 

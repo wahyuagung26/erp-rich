@@ -7,7 +7,7 @@ path: /journal-income/:id
 status: mock
 tags: [journal, income, read]
 resource: /frontend/src/mocks/modules/journal-income.ts
-timestamp: 2026-09-07T18:00:00Z
+timestamp: 2026-11-06T06:00:00Z
 ---
 
 # Get Journal Income

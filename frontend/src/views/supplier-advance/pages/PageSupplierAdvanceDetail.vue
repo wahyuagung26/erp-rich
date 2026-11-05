@@ -13,6 +13,7 @@ import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
+import ClosingBadge from '@/components/common/ClosingBadge.vue'
 import Amount from '@/components/base/Amount.vue'
 import Badge from '@/components/base/Badge.vue'
 import RiwayatPemakaian from '@/views/supplier-advance/components/RiwayatPemakaian.vue'
@@ -83,7 +84,8 @@ function remove() {
 					<Button size="sm" variant="subtle" @click="router.push('/supplier-advance')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
 					<Button size="sm" variant="subtle" :disabled="!advance" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button>
 					<Button size="sm" variant="subtle" :disabled="!advance" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button>
-					<template v-if="advance && !locked">
+					<ClosingBadge v-if="advance?.locked" title="Periode sudah closing, dokumen tidak bisa diubah" />
+					<template v-else-if="advance && !locked">
 						<Button size="sm" variant="secondary" @click="router.push(`/supplier-advance/edit/${advance.id}`)">
 							<IconPencil class="h-4 w-4" /> Edit
 						</Button>

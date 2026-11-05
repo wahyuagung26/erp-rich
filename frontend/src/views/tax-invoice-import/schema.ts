@@ -8,14 +8,22 @@ export const FILE_EXTENSIONS = ['xlsx', 'xls', 'csv']
 
 // Tabs = the two sources; `report` names the Laporan Pajak the user exports first (docs/tax-invoice-import/index.md).
 // `reportTab` is the Laporan Pajak tab to open. The Laporan Pajak page does NOT exist in v2 yet, so the link is intentionally broken.
-export const IMPORT_SOURCES: { value: TaxInvoiceImportSource; label: string; report: string; reportTab: string; target: string }[] = [
-	{ value: 'purchase_invoice', label: 'Pajak Masukan', report: 'Pajak Masukan', reportTab: 'pajak-masukan', target: 'Invoice Pembelian' },
+export const IMPORT_SOURCES: { value: TaxInvoiceImportSource; label: string; report: string; reportTab: string; target: string; route: string }[] = [
+	{
+		value: 'purchase_invoice',
+		label: 'Pajak Masukan',
+		report: 'Pajak Masukan',
+		reportTab: 'pajak-masukan',
+		target: 'Invoice Pembelian',
+		route: '/purchase-invoice'
+	},
 	{
 		value: 'purchase_return',
 		label: 'Retur Pajak Keluaran',
 		report: 'Retur Pajak Keluaran',
 		reportTab: 'retur-pajak-keluaran',
-		target: 'Retur Pembelian'
+		target: 'Retur Pembelian',
+		route: '/purchase-return'
 	}
 ]
 

@@ -24,6 +24,7 @@ import KpiFilter from '@/components/base/KpiFilter.vue'
 import { useKpiTiles } from '@/composables/useKpiTiles'
 import Amount from '@/components/base/Amount.vue'
 import RowActions from '@/components/base/RowActions.vue'
+import ClosingBadge from '@/components/common/ClosingBadge.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import { approvalOptions, taxInvoiceOptions } from '@/views/purchase-invoice/schema'
 import type { PurchaseInvoice, PurchaseInvoiceApprovalStatus, PurchaseInvoiceTaxInvoice, TableRow } from '@/utils/types'
@@ -90,7 +91,7 @@ function openHistory(row: PurchaseInvoice) {
 	history.open({ kode: row.number, endpoint: `/purchase-invoice/${row.id}/history` })
 }
 function canWrite(row: PurchaseInvoice) {
-	return row.approval_status === 'pending'
+	return row.approval_status === 'pending' && !row.locked
 }
 function remove(row: PurchaseInvoice) {
 	ask({ title: 'Hapus invoice pembelian', message: `Hapus invoice pembelian “${row.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
@@ -162,7 +163,7 @@ const rows: TableRow[] = [
 					<Amount v-else-if="row.field === 'total'" :value="column.total as number" />
 					<div v-else-if="row.field === 'tax_invoice'">
 						<button
-							v-if="column.tax_invoice"
+							v-if="column.tax_invoice && !column.locked"
 							class="text-left leading-snug"
 							title="Lihat faktur pajak"
 							@click="openTaxInvoice(column as unknown as PurchaseInvoice)"
@@ -172,9 +173,19 @@ const rows: TableRow[] = [
 							}}</span>
 							<span class="block whitespace-nowrap text-s text-ink-muted">{{ date((column.tax_invoice as PurchaseInvoiceTaxInvoice).date) }}</span>
 						</button>
-						<Button v-else-if="column.pkp_active" size="sm" variant="outline" @click="openTaxInvoice(column as unknown as PurchaseInvoice)">
+						<div v-else-if="column.tax_invoice" class="leading-snug" title="Periode sudah closing, faktur pajak tidak bisa diubah">
+							<span class="block whitespace-nowrap text-ink">{{ (column.tax_invoice as PurchaseInvoiceTaxInvoice).number }}</span>
+							<span class="block whitespace-nowrap text-s text-ink-muted">{{ date((column.tax_invoice as PurchaseInvoiceTaxInvoice).date) }}</span>
+						</div>
+						<Button
+							v-else-if="column.pkp_active && !column.locked"
+							size="sm"
+							variant="outline"
+							@click="openTaxInvoice(column as unknown as PurchaseInvoice)"
+						>
 							<IconPlus class="h-4 w-4" /> Tambah
 						</Button>
+						<ClosingBadge v-else-if="column.pkp_active" title="Periode sudah closing, faktur pajak tidak bisa diubah" />
 						<span v-else class="text-ink-subtle" title="Invoice non-PKP tidak memiliki faktur pajak">–</span>
 					</div>
 					<ApprovalBadge v-else-if="row.field === 'approval_status'" :status="column.approval_status as PurchaseInvoiceApprovalStatus" />

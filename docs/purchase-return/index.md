@@ -3,7 +3,7 @@ type: OKF Module
 title: Retur Pembelian (Purchase Return)
 description: Retur barang ke supplier atas satu invoice pembelian yang sudah disetujui — jumlah per produk, DPP/PPN, approval dua arah, faktur pajak, dan penyelesaian retur (potong hutang atau dana kembali).
 tags: [purchase-return, procurement, payables]
-timestamp: 2026-11-06T11:00:00Z
+timestamp: 2026-11-06T12:00:00Z
 ---
 
 # Retur Pembelian
@@ -21,6 +21,7 @@ Kapan retur muncul di mutasi hutang supplier masih **unresolved** (lihat notulen
 | `id` | number | server-assigned |
 | `number` | string | nomor otomatis ("No Retur"), read-only |
 | `date` | string | required, `YYYY-MM-DD`; tidak melebihi hari ini dan tidak sebelum tanggal invoice |
+| `locked` | boolean | response-only, server-computed: `date` falls in a closed period → edit, delete and approval changes are refused ([conventions](../conventions.md#closing-period-lock-locked)) |
 | `purchase_invoice_id` | number | required; invoice sumber (harus `approved`), terkunci setelah create |
 | `purchase_invoice_number` `supplier_invoice_number` | string | resolved, read-only |
 | `supplier_id` `supplier_code` `supplier_name` | — | resolved dari invoice, read-only |

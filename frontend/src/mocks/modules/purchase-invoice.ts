@@ -1,6 +1,7 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
+import { closedReply, withLock, closedDateReply } from './posting'
 import { diffFields, diffLines, fmtDate, fmtMoney, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
 import type {
 	JournalAttachment,
@@ -163,7 +164,7 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 
 	mock.onGet('/purchase-invoice').reply((config) => {
 		const p = (config.params ?? {}) as ListParams & { approval_status?: string; tax_invoice?: string; date_from?: string; date_to?: string }
-		let rows = db.purchaseInvoice.map(resolve)
+		let rows = db.purchaseInvoice.map((item) => withLock(config, resolve(item)))
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((row) =>
@@ -203,11 +204,13 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 
 	mock.onGet(/\/purchase-invoice\/\d+$/).reply((config) => {
 		const row = db.purchaseInvoice.find((item) => item.id === idOf(config.url))
-		return row ? [200, { data: resolve(row) }] : [404, { message: 'Invoice pembelian tidak ditemukan' }]
+		return row ? [200, { data: withLock(config, resolve(row)) }] : [404, { message: 'Invoice pembelian tidak ditemukan' }]
 	})
 
 	mock.onPost('/purchase-invoice').reply((config) => {
 		const body = JSON.parse(config.data) as PurchaseInvoiceRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const receipt = db.purchaseReceipt.find((item) => item.id === Number(body.purchase_receipt_id))
 		if (!receipt) return [422, invalid('Penerimaan pembelian tidak valid', 'purchase_receipt_id')]
 		if (receipt.invoice_status === 'invoiced') return [422, { message: 'Penerimaan sudah dibuat invoice' }]
@@ -244,8 +247,12 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 	mock.onPut(/\/purchase-invoice\/\d+$/).reply((config) => {
 		const row = db.purchaseInvoice.find((item) => item.id === idOf(config.url))
 		if (!row) return [404, { message: 'Invoice pembelian tidak ditemukan' }]
+		const closed = closedReply(config, row.date, 'invoice pembelian tidak bisa diubah')
+		if (closed) return closed
 		if (row.approval_status === 'approved') return [422, { message: 'Invoice yang sudah disetujui tidak boleh diubah' }]
 		const body = JSON.parse(config.data) as PurchaseInvoiceRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const receipt = db.purchaseReceipt.find((item) => item.id === row.purchase_receipt_id) as PurchaseReceipt // locked
 		const error = validate(body, receipt)
 		if (error) return [422, error]
@@ -272,6 +279,8 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 		const index = db.purchaseInvoice.findIndex((item) => item.id === idOf(config.url))
 		if (index < 0) return [404, { message: 'Invoice pembelian tidak ditemukan' }]
 		const row = db.purchaseInvoice[index]
+		const closed = closedReply(config, row.date, 'invoice pembelian tidak bisa dihapus')
+		if (closed) return closed
 		if (row.approval_status === 'approved') return [422, { message: 'Invoice yang sudah disetujui tidak boleh dihapus' }]
 		db.purchaseInvoice.splice(index, 1)
 		const receipt = db.purchaseReceipt.find((item) => item.id === row.purchase_receipt_id)
@@ -287,6 +296,8 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 		const row = db.purchaseInvoice.find((item) => item.id === parentIdOf(config.url))
 		if (!row) return [404, { message: 'Invoice pembelian tidak ditemukan' }]
 		const { status } = JSON.parse(config.data) as { status?: string }
+		const closed = closedReply(config, row.date, 'invoice pembelian tidak bisa disetujui')
+		if (closed) return closed
 		if (status !== 'approved') return [422, { message: 'Status persetujuan tidak valid' }]
 		if (row.approval_status === 'approved') return [422, { message: 'Invoice sudah disetujui' }]
 		const now = new Date()
@@ -296,7 +307,7 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 		row.approved_at = now.toISOString()
 		row.kontrabon_number = `KB-RICH/${seq}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`
 		recordHistory('purchase-invoice', row.id, { title: 'Disetujui', kind: 'approved', summary: `Kontrabon ${row.kontrabon_number}` })
-		return [200, { data: resolve(row), message: 'Invoice disetujui' }]
+		return [200, { data: withLock(config, resolve(row)), message: 'Invoice disetujui' }]
 	})
 
 	mock.onGet(/\/purchase-invoice\/\d+\/tax-invoice$/).reply((config) => {
@@ -309,6 +320,8 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 	mock.onPut(/\/purchase-invoice\/\d+\/tax-invoice$/).reply((config) => {
 		const row = db.purchaseInvoice.find((item) => item.id === parentIdOf(config.url))
 		if (!row) return [404, { message: 'Invoice pembelian tidak ditemukan' }]
+		const closed = closedReply(config, row.date, 'faktur pajak tidak bisa diubah')
+		if (closed) return closed
 		if (!row.pkp_active) return [422, { message: 'Invoice non-PKP tidak memiliki faktur pajak' }]
 		const body = JSON.parse(config.data) as { number?: string; date?: string; file?: JournalAttachment | null }
 		const number = String(body.number || '').trim()

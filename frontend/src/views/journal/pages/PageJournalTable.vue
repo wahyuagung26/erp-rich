@@ -65,7 +65,7 @@ const selected = ref<Set<number>>(new Set())
 const bulkOpen = ref(false)
 const bulkApproving = ref(false)
 
-const submittableIds = computed(() => columns.value.filter((j) => j.status === 'submitted').map((j) => j.id))
+const submittableIds = computed(() => columns.value.filter((j) => j.status === 'submitted' && !j.locked).map((j) => j.id))
 const allSelected = computed(() => submittableIds.value.length > 0 && submittableIds.value.every((id) => selected.value.has(id)))
 
 // Any list reload (page / sort / filter) drops a now-stale selection.
@@ -154,7 +154,7 @@ const rows: TableRow[] = [
 					<Checkbox
 						v-if="row.field === 'select'"
 						:model-value="selected.has(column.id as number)"
-						:disabled="(column.status as JournalStatus) !== 'submitted'"
+						:disabled="(column.status as JournalStatus) !== 'submitted' || !!column.locked"
 						@update:model-value="(v) => toggleRow(column.id as number, v)"
 					/>
 					<span v-else-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
@@ -167,7 +167,7 @@ const rows: TableRow[] = [
 						:id="column.id as number"
 						base="/journal"
 						:actions="[{ label: 'Riwayat', icon: IconHistory, onClick: () => openHistory(column as unknown as Journal) }]"
-						:can-modify="(column.status as JournalStatus) === 'submitted'"
+						:can-modify="(column.status as JournalStatus) === 'submitted' && !column.locked"
 						@remove="remove(column as unknown as Journal)"
 					/>
 					<span v-else>{{ column[row.field] }}</span>

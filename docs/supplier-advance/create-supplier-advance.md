@@ -7,7 +7,7 @@ path: /supplier-advance
 status: mock
 tags: [supplier-advance, write]
 resource: /frontend/src/mocks/modules/supplier-advance.ts
-timestamp: 2026-09-08T10:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Create Supplier Advance
@@ -73,3 +73,5 @@ no approval status — the advance is usable as soon as it is created.
 | Status | When | Body |
 |---|---|---|
 | `422` | invalid amount / bad refs / missing attachment / empty `advance_type` | `{ "message": "...", "errors": { "amount": ["..."] } }` |
+
+**Periode closing:** a `date` in a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` ([conventions](../conventions.md#closing-period-lock-locked)).

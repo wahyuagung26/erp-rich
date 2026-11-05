@@ -73,7 +73,7 @@ function openHistory(row: PurchaseReceipt) {
 	history.open({ kode: row.number, endpoint: `/purchase-receipt/${row.id}/history` })
 }
 function canWrite(row: PurchaseReceipt) {
-	return row.invoice_status !== 'invoiced'
+	return row.invoice_status !== 'invoiced' && !row.locked
 }
 function remove(row: PurchaseReceipt) {
 	ask(

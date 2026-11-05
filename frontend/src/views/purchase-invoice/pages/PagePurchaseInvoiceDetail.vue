@@ -14,6 +14,7 @@ import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
+import ClosingBadge from '@/components/common/ClosingBadge.vue'
 import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import Amount from '@/components/base/Amount.vue'
 import type { PurchaseInvoice } from '@/utils/types'
@@ -39,7 +40,7 @@ async function load() {
 		loading.value = false
 	}
 }
-const canWrite = computed(() => invoice.value?.approval_status === 'pending')
+const canWrite = computed(() => invoice.value?.approval_status === 'pending' && !invoice.value.locked)
 
 function approve() {
 	const value = invoice.value
@@ -108,7 +109,11 @@ function remove() {
 						><IconArrowLeft class="h-4 w-4" /> Kembali</Button
 					><Button size="sm" variant="subtle" :disabled="!invoice" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button
 					><Button size="sm" variant="subtle" :disabled="!invoice" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button
-					><Button v-if="canWrite" size="sm" variant="secondary" @click="router.push(`/purchase-invoice/edit/${invoice!.id}`)"
+					><ClosingBadge v-if="invoice?.locked" title="Periode sudah closing, dokumen tidak bisa diubah" /><Button
+						v-if="canWrite"
+						size="sm"
+						variant="secondary"
+						@click="router.push(`/purchase-invoice/edit/${invoice!.id}`)"
 						><IconPencil class="h-4 w-4" /> Edit</Button
 					><Button v-if="canWrite" size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button
 					><Button v-if="canWrite" size="sm" @click="approve"><IconCheck class="h-4 w-4" /> Setujui</Button>
@@ -200,7 +205,8 @@ function remove() {
 				<section v-if="invoice.pkp_active" class="space-y-3">
 					<div class="flex items-center justify-between gap-3">
 						<h3 class="subhead">Faktur Pajak</h3>
-						<Button size="sm" variant="secondary" @click="openTaxInvoice">
+						<ClosingBadge v-if="invoice.locked" title="Periode sudah closing, faktur pajak tidak bisa diubah" />
+						<Button v-else size="sm" variant="secondary" @click="openTaxInvoice">
 							<component :is="invoice.tax_invoice ? IconPencil : IconPlus" class="h-4 w-4" />
 							{{ invoice.tax_invoice ? 'Lihat / Edit Faktur' : 'Tambah Faktur Pajak' }}
 						</Button>

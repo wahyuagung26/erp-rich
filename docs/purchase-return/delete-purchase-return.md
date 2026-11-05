@@ -7,7 +7,7 @@ path: /purchase-return/:id
 status: mock
 tags: [purchase-return, write]
 resource: /frontend/src/mocks/modules/purchase-return.ts
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-06T12:00:00Z
 ---
 
 # Delete Purchase Return
@@ -24,3 +24,5 @@ Backs the row menu in `PagePurchaseReturnTable.vue` and the detail header.
 |---|---|---|
 | `404` | id not found | `{ "message": "Retur pembelian tidak ditemukan" }` |
 | `422` | return is `approved` | `{ "message": "Retur yang sudah disetujui tidak boleh dihapus" }` |
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, retur pembelian tidak bisa dihapus" }` when the record's `date` is in a closed period (`locked`) — see [conventions](../conventions.md#closing-period-lock-locked).

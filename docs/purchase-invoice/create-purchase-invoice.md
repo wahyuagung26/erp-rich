@@ -7,7 +7,7 @@ path: /purchase-invoice
 status: mock
 tags: [purchase-invoice, write]
 resource: /frontend/src/mocks/modules/purchase-invoice.ts
-timestamp: 2026-11-05T23:30:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Create Purchase Invoice
@@ -94,3 +94,5 @@ Side effect: the source receipt becomes `invoice_status: "invoiced"`.
 | `422` | receipt already invoiced, or lines do not match the receipt | `{ "message": "..." }` (no `errors`) |
 
 Field errors can use `purchase_receipt_id`, `date`, `supplier_invoice_number`, `description`, or `lines`.
+
+**Periode closing:** a `date` in a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` ([conventions](../conventions.md#closing-period-lock-locked)).

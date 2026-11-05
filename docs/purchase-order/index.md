@@ -3,7 +3,7 @@ type: OKF Module
 title: Purchase Order (Order Pembelian)
 description: Purchase order dengan supplier, gudang, departemen, detail produk, kalkulasi pajak, approval, dan delivery status.
 tags: [purchase-order, procurement]
-timestamp: 2026-11-06T02:00:00Z
+timestamp: 2026-11-06T12:00:00Z
 ---
 
 # Purchase Order
@@ -23,6 +23,7 @@ client. `pkp_active` dipilih pada level transaksi dan menentukan apakah PPN meng
 | `id` | number | auto-increment, server-assigned |
 | `number` | string | nomor transaksi otomatis, read-only |
 | `date` | string | required; format `YYYY-MM-DD` |
+| `locked` | boolean | response-only, server-computed: `date` falls in a closed period → edit, delete and approval changes are refused ([conventions](../conventions.md#closing-period-lock-locked)) |
 | `supplier_id` | number | required; supplier master |
 | `supplier_code` `supplier_name` `supplier_phone` `supplier_contact_person` | string \| undefined | resolved display fields (phone & contact person feed the print view) |
 | `pkp_active` | boolean | required; `true` applies 11% PPN, `false` applies 0 PPN |

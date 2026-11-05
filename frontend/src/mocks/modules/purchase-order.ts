@@ -13,6 +13,7 @@ import {
 	registerHistoryRoute,
 	type FieldSpec
 } from '../history'
+import { closedReply, withLock, closedDateReply } from './posting'
 import type { PurchaseOrder, PurchaseOrderApprovalStatus, PurchaseOrderLine, PurchaseOrderLineRequest, PurchaseOrderRequest } from '@/utils/types'
 
 const idOf = (url?: string) => Number(url?.split('/').at(-1))
@@ -160,7 +161,7 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 			date_from?: string
 			date_to?: string
 		}
-		let rows = db.purchaseOrder.map(resolve)
+		let rows = db.purchaseOrder.map((item) => withLock(config, resolve(item)))
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((row) =>
@@ -191,11 +192,13 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 
 	mock.onGet(/\/purchase-order\/\d+$/).reply((config) => {
 		const row = db.purchaseOrder.find((item) => item.id === idOf(config.url))
-		return row ? [200, { data: resolve(row) }] : [404, { message: 'Purchase order tidak ditemukan' }]
+		return row ? [200, { data: withLock(config, resolve(row)) }] : [404, { message: 'Purchase order tidak ditemukan' }]
 	})
 
 	mock.onPost('/purchase-order').reply((config) => {
 		const body = JSON.parse(config.data) as PurchaseOrderRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const error = validate(body)
 		if (error) return [422, error]
 		const id = nextId(db.purchaseOrder)
@@ -209,9 +212,13 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 	mock.onPut(/\/purchase-order\/\d+$/).reply((config) => {
 		const row = db.purchaseOrder.find((item) => item.id === idOf(config.url))
 		if (!row) return [404, { message: 'Purchase order tidak ditemukan' }]
+		const closed = closedReply(config, row.date, 'order pembelian tidak bisa diubah')
+		if (closed) return closed
 		const guard = writeGuard(row)
 		if (guard) return [422, { message: guard }]
 		const body = JSON.parse(config.data) as PurchaseOrderRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const error = validate(body)
 		if (error) return [422, error]
 		const before = resolve(row)
@@ -231,6 +238,8 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 	mock.onDelete(/\/purchase-order\/\d+$/).reply((config) => {
 		const index = db.purchaseOrder.findIndex((item) => item.id === idOf(config.url))
 		if (index < 0) return [404, { message: 'Purchase order tidak ditemukan' }]
+		const closed = closedReply(config, db.purchaseOrder[index].date, 'order pembelian tidak bisa dihapus')
+		if (closed) return closed
 		const guard = writeGuard(db.purchaseOrder[index])
 		if (guard) return [422, { message: guard.replace('diubah', 'dihapus') }]
 		const [removed] = db.purchaseOrder.splice(index, 1)
@@ -242,6 +251,8 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 		const row = db.purchaseOrder.find((item) => item.id === parentIdOf(config.url))
 		const body = JSON.parse(config.data) as { status?: PurchaseOrderApprovalStatus }
 		if (!row) return [404, { message: 'Purchase order tidak ditemukan' }]
+		const closed = closedReply(config, row.date, 'status persetujuan order pembelian tidak bisa diubah')
+		if (closed) return closed
 		if (!['pending', 'approved', 'rejected'].includes(String(body.status))) return [422, { message: 'Status persetujuan tidak valid' }]
 		if (row.approval_status === 'approved' && body.status !== 'approved')
 			return [422, { message: 'Persetujuan PO yang sudah disetujui tidak dapat dibatalkan' }]
@@ -256,6 +267,6 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 				recordHistory('purchase-order', row.id, { title: 'Ditolak', kind: 'rejected', summary: row.rejection_reason })
 			else recordHistory('purchase-order', row.id, { title: 'Diajukan Ulang', kind: 'info' })
 		}
-		return [200, { data: resolve(row), message: 'Status persetujuan diperbarui' }]
+		return [200, { data: withLock(config, resolve(row)), message: 'Status persetujuan diperbarui' }]
 	})
 }

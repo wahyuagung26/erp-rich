@@ -7,7 +7,7 @@ path: /purchase-return/:id/tax-invoice
 status: mock
 tags: [purchase-return, write]
 resource: /frontend/src/mocks/modules/purchase-return.ts
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-06T13:00:00Z
 ---
 
 # Update Purchase Return Tax Invoice
@@ -22,3 +22,5 @@ Same body, rules and errors as [update-purchase-invoice-tax-invoice](../purchase
 ## Response
 
 `200`: `{ "data": { ...PurchaseReturn }, "message": "Faktur pajak disimpan" }`
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, faktur pajak tidak bisa diubah" }` when the retur's `date` is in a closed period (`locked`). The UI shows the saved faktur read-only plus the Closing badge ([conventions](../conventions.md#closing-period-lock-locked)).

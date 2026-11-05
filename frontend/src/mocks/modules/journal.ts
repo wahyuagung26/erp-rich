@@ -1,6 +1,6 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
+import { companyIdOf, nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
 import {
 	diffAccountLines,
 	diffFields,
@@ -13,6 +13,7 @@ import {
 	registerHistoryRoute,
 	type FieldSpec
 } from '../history'
+import { closedReply, isPeriodClosed, closedDateReply } from './posting'
 import type { Journal, JournalLine, JournalStatus } from '@/utils/types'
 
 type JournalRequest = Omit<
@@ -75,6 +76,13 @@ function validateRequest(body: JournalRequest): string | null {
 	return debit > 0 && debit === credit ? null : 'Total debit dan kredit harus sama dan lebih dari nol'
 }
 
+// `locked` = date falls in a closed period (record is frozen).
+const withLock = (row: Journal, companyId: number | null): Journal => ({
+	...row,
+	lines: row.lines.map(lineOf),
+	locked: isPeriodClosed(companyId, row.date)
+})
+
 const FIELDS: FieldSpec<Journal>[] = [
 	{ key: 'date', label: 'Tanggal', format: fmtDate },
 	{ key: 'voucher', label: 'Voucher' },
@@ -101,8 +109,9 @@ export function registerJournal(mock: MockAdapter) {
 		)
 		if (p.status) rows = rows.filter((j) => j.status === p.status)
 		rows = sortBy(rows, p.sort_by, p.sort_order)
+		const companyId = companyIdOf(config)
 		const page = paginate(
-			rows.map((row) => ({ ...row, lines: row.lines.map(lineOf) })),
+			rows.map((row) => withLock(row, companyId)),
 			p
 		)
 		return [200, { data: page.data, meta: { ...page.meta, summary } }]
@@ -110,11 +119,13 @@ export function registerJournal(mock: MockAdapter) {
 
 	mock.onGet(/\/journal\/\d+$/).reply((config) => {
 		const journal = db.journal.find((row) => row.id === idOf(config.url))
-		return journal ? [200, { data: { ...journal, lines: journal.lines.map(lineOf) } }] : [404, { message: 'Jurnal tidak ditemukan' }]
+		return journal ? [200, { data: withLock(journal, companyIdOf(config)) }] : [404, { message: 'Jurnal tidak ditemukan' }]
 	})
 
 	mock.onPost('/journal').reply((config) => {
 		const body = JSON.parse(config.data) as JournalRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const validationError = validateRequest(body)
 		if (validationError) return [422, { message: validationError, errors: { lines: [validationError] } }]
 
@@ -145,7 +156,11 @@ export function registerJournal(mock: MockAdapter) {
 		const journal = db.journal.find((row) => row.id === idOf(config.url))
 		if (!journal) return [404, { message: 'Jurnal tidak ditemukan' }]
 		if (journal.status !== 'submitted') return [422, { message: 'Hanya jurnal submitted yang dapat diedit' }]
+		const closed = closedReply(config, journal.date, 'jurnal tidak bisa diedit')
+		if (closed) return closed
 		const body = JSON.parse(config.data) as JournalRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const validationError = validateRequest(body)
 		if (validationError) return [422, { message: validationError, errors: { lines: [validationError] } }]
 
@@ -166,6 +181,8 @@ export function registerJournal(mock: MockAdapter) {
 		const index = db.journal.findIndex((row) => row.id === idOf(config.url))
 		if (index === -1) return [404, { message: 'Jurnal tidak ditemukan' }]
 		if (db.journal[index].status !== 'submitted') return [422, { message: 'Hanya jurnal submitted yang dapat dihapus' }]
+		const closed = closedReply(config, db.journal[index].date, 'jurnal tidak bisa dihapus')
+		if (closed) return closed
 		const [removed] = db.journal.splice(index, 1)
 		purgeHistory('journal', removed.id)
 		return [200, { message: 'Jurnal dihapus' }]
@@ -179,13 +196,18 @@ export function registerJournal(mock: MockAdapter) {
 
 		const transitions: Record<JournalStatus, JournalStatus[]> = {
 			submitted: ['approved', 'rejected'],
-			approved: [],
+			approved: ['submitted'],
 			rejected: ['submitted']
 		}
 		if (!transitions[journal.status].includes(body.status)) return [422, { message: 'Perubahan status jurnal tidak valid' }]
+		// A journal in a closed period is frozen: no approve / reject / cancel approval / resubmit.
+		const closed = closedReply(config, journal.date, 'status jurnal tidak bisa diubah')
+		if (closed) return closed
 
 		if (body.status === 'approved') {
 			if (body.date !== undefined && !isDate(body.date)) return [422, { message: 'Tanggal jurnal tidak valid' }]
+			const closedDate = closedDateReply(config, body.date)
+			if (closedDate) return closedDate
 			if (body.date) journal.date = body.date
 			journal.approved_by = currentUserName()
 			journal.approved_at = new Date().toISOString()
@@ -195,14 +217,22 @@ export function registerJournal(mock: MockAdapter) {
 			journal.approved_at = null
 		}
 
+		const wasApproved = journal.status === 'approved'
 		journal.status = body.status
 		journal.rejection_reason = body.status === 'rejected' ? 'Jurnal ditolak, silakan periksa kembali detailnya.' : null
-		recordStatusChange('journal', journal.id, body.status, journal.rejection_reason)
+		if (wasApproved) recordHistory('journal', journal.id, { title: 'Approval Dibatalkan', kind: 'info' })
+		else recordStatusChange('journal', journal.id, body.status, journal.rejection_reason)
 		return [
 			200,
 			{
-				data: { ...journal, lines: journal.lines.map(lineOf) },
-				message: body.status === 'approved' ? 'Jurnal disetujui' : body.status === 'rejected' ? 'Jurnal ditolak' : 'Jurnal diajukan'
+				data: withLock(journal, companyIdOf(config)),
+				message: wasApproved
+					? 'Approval dibatalkan'
+					: body.status === 'approved'
+						? 'Jurnal disetujui'
+						: body.status === 'rejected'
+							? 'Jurnal ditolak'
+							: 'Jurnal diajukan'
 			}
 		]
 	})

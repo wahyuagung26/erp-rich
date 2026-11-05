@@ -7,7 +7,7 @@ path: /purchase-return/:id/approval
 status: mock
 tags: [purchase-return, write]
 resource: /frontend/src/mocks/modules/purchase-return.ts
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-06T12:00:00Z
 ---
 
 # Approve / Unapprove Purchase Return
@@ -34,3 +34,5 @@ Backs **Setujui** and **Batal Approve** in `PagePurchaseReturnDetail.vue`; the U
 |---|---|---|
 | `404` | id not found | `{ "message": "Retur pembelian tidak ditemukan" }` |
 | `422` | invalid `status`, already in that state, or unapprove while `settlements` exist | `{ "message": "..." }` |
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, persetujuan retur tidak bisa diubah" }` when the record's `date` is in a closed period (`locked`) — see [conventions](../conventions.md#closing-period-lock-locked).

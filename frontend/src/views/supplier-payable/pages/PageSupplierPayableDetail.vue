@@ -8,6 +8,7 @@ import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
 import { date, money } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
+import ClosingBadge from '@/components/common/ClosingBadge.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
@@ -409,9 +410,7 @@ function removePayment(paymentId: number, number: string) {
 										<td class="px-3 py-3 text-right"><Amount :value="item.amount" /></td>
 										<td class="px-3 py-3 text-right">
 											<!-- Closed period: no edit / delete, just the reason. -->
-											<span v-if="item.locked" class="inline-flex items-center gap-1 whitespace-nowrap text-s text-ink-muted" :title="LOCKED_HINT"
-												><IconLock class="h-4 w-4" /> Closing</span
-											>
+											<ClosingBadge v-if="item.locked" :title="LOCKED_HINT" />
 											<div v-else class="flex justify-end gap-1">
 												<button
 													type="button"

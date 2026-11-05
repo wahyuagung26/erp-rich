@@ -7,7 +7,7 @@ path: /supplier-advance/:id
 status: mock
 tags: [supplier-advance, write]
 resource: /frontend/src/mocks/modules/supplier-advance.ts
-timestamp: 2026-09-08T10:00:00Z
+timestamp: 2026-11-06T12:00:00Z
 ---
 
 # Delete Supplier Advance
@@ -21,3 +21,5 @@ The prototype removes the row from its in-memory store.
 | Status | When | Body |
 |---|---|---|
 | `422` | the advance has usage rows | `{ "message": "Uang muka yang sudah dipakai di Hutang Supplier tidak boleh dihapus" }` |
+
+**Periode closing:** refused with `422 { "message": "Periode <bulan tahun> sudah closing, uang muka supplier tidak bisa dihapus" }` when the record's `date` is in a closed period (`locked`) — see [conventions](../conventions.md#closing-period-lock-locked).

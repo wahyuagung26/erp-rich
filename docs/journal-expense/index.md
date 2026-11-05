@@ -3,7 +3,7 @@ type: OKF Module
 title: Journal Expense
 description: Cash disbursement journal (jurnal pengeluaran) — expense lines plus an auto-balanced cash/bank credit line, with the same approval workflow as Journal.
 tags: [journal, expense, cash-disbursement, double-entry]
-timestamp: 2026-11-06T04:00:00Z
+timestamp: 2026-11-06T08:00:00Z
 ---
 
 # Journal Expense
@@ -43,6 +43,7 @@ entries; money actually leaving the company goes through this journal.
 | `rejection_reason`                        | string \| null         | set when a submitted journal is rejected                                                               |
 | `approved_by`                             | string \| null         | approver's name; set on approve, cleared on re-submit                                                  |
 | `approved_at`                             | string \| null         | ISO 8601 datetime of approval; set/cleared alongside `approved_by`                                     |
+| `locked` | boolean | response-only, server-computed: `date` falls in a closed period → Edit, Hapus, Setujui, Tolak, Batalkan Approval and Ajukan Ulang are refused |
 | `lines`                                   | `JournalExpenseLine[]` | ≥ 1 expense/potongan line; the cash credit line is NOT stored here                                     |
 | `total`                                   | number                 | server-computed = Σ line debit (gross expense)                                                         |
 | `cash_out`                                | number                 | server-computed = Σ line debit − Σ line credit (amount credited to the cash/bank account); must be > 0 |

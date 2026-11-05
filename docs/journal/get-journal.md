@@ -7,7 +7,7 @@ path: /journal/:id
 status: mock
 tags: [journal, read]
 resource: /frontend/src/mocks/modules/journal.ts
-timestamp: 2026-09-07T10:00:00Z
+timestamp: 2026-11-06T06:00:00Z
 ---
 
 # Get Journal
