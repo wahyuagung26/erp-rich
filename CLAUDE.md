@@ -151,6 +151,13 @@ Shared document overlays follow the same pattern and take only an `endpoint` tha
 `useFakturPajak().open({ kode, endpoint, onSaved })` → `<FakturPajakModal>`. In the mock, every write handler
 calls `recordHistory()` (`mocks/history.ts`) so the timeline fills as you use the app.
 
+**Closing-period lock.** A document whose `date` is in a closed period (`closed_until`, `docs/posting/`) is frozen: no
+edit, delete, approval change (approve / reject / resubmit / cancel approval) and no `date` written into a closed period.
+Faktur Pajak stays editable (no jurnal/stok effect). Contract: `docs/conventions.md#closing-period-lock-locked`. Mock:
+`withLock` / `closedReply` / `closedDateReply` / `isPeriodClosed` in `mocks/modules/posting.ts` (response field `locked`).
+UI: gate actions on `!record.locked` and show `<ClosingBadge>` (`components/common/`) instead — never a disabled button.
+A new dated document module must adopt this; list every action of the record and decide lock/keep before building.
+
 **Chrome state** (`stores/ui.ts`, persisted to localStorage): sidebar rail collapsed,
 and `density` (`comfortable` | `compact`) which `<Table>` and forms read.
 

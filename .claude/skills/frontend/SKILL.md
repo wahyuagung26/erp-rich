@@ -211,8 +211,11 @@ list → `PageCashAdvanceTable.vue` / `PageJournalExpenseTable.vue`; line-item f
 
 **Field labels & hints** — the users are finance staff, not developers. A label must say *what it is for*, not the column name: "Gudang Penerima" (+ hint "Gudang tempat barang dari PO ini diterima"), "Alamat Supplier" (+ hint "Terisi otomatis dari data supplier, bisa diubah untuk PO ini"). Use `FormField hint` for any field whose purpose or auto-fill behaviour isn't obvious; check the legacy app's wording when unsure.
 
+**Closing-period lock (every dated document module)** — a record whose `date` is in a closed period is frozen; contract in `docs/conventions.md#closing-period-lock-locked`. For a NEW module or action: mock reads `withLock(config, row)` (response `locked`) and guards writes with `closedReply` / `closedDateReply` (all in `mocks/modules/posting.ts`); UI gates edit / delete / approve / reject / resubmit / unapprove on `!record.locked` and shows `<ClosingBadge>` (`components/common/`) in place of the buttons — never a disabled button, never a per-page copy of the lock markup. Faktur Pajak stays editable (no jurnal/stok effect). Before building a rule that spans modules, list every action of the record and decide lock/keep for each in the first reply.
+
 **Working notes (avoid known time-wasters)**
 - macOS: `sed -i ''` (BSD sed). Parallel Bash calls get blocked by the auto-mode classifier — send screenshot/server commands one at a time.
 - Edit routes are `/<module>/edit/:id` (not `/<module>/:id/edit`); check `src/routes/<module>.ts` before screenshotting.
 - The dev server is usually already running on 5173/5174 — read the port, don't start a second.
 - Changing a list/form's fields still means docs/ ⇄ mock ⇄ UI in the same pass, and bumping the doc's `timestamp:`.
+- Verifying against the mock from the browser: `EVAL` in `scripts/screenshot.mjs` must be an async IIFE; get the app's axios instance via `performance.getEntriesByType('resource')` URL of `/src/utils/api.ts?t=…` (a plain `import('/src/utils/api.ts')` is a mock-less second instance). Pass route lists as a zsh array. Fixture `closed_until` lives in `src/mocks/fixtures/posting.ts` — bump it temporarily to see locked UI, then restore.
