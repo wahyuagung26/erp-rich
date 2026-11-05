@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { IconChevronDown, IconBuilding, IconCheck } from '@tabler/icons-vue'
 import { onClickOutside } from '@/composables/onClickOutside'
 import { useCompanyStore } from '@/stores/company'
@@ -10,8 +10,6 @@ const company = useCompanyStore()
 const open = ref(false)
 const root = ref<HTMLElement>()
 onClickOutside(root, () => (open.value = false))
-
-onMounted(() => company.load())
 
 function pick(id: number) {
 	company.setActive(id)

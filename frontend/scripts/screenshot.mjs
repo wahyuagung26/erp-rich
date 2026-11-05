@@ -73,7 +73,7 @@ await send('Runtime.evaluate', {
 for (const route of routes) {
 	const before = errors.length
 	await send('Page.navigate', { url: BASE_URL + route })
-	await wait(2500)
+	await wait(Number(process.env.WAIT || 2500))
 	if (process.env.EVAL) {
 		const r = await send('Runtime.evaluate', { expression: process.env.EVAL, awaitPromise: true, returnByValue: true })
 		console.log(JSON.stringify(r.result?.value ?? r.exceptionDetails?.exception?.description, null, 1))
