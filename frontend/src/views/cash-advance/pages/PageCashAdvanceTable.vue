@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconPlus } from '@tabler/icons-vue'
+import { IconPlus, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { useHistory } from '@/composables/useHistory'
+import { useKpiTiles } from '@/composables/useKpiTiles'
+import { journalKpiDefs } from '@/views/journal/kpi'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
@@ -16,6 +19,7 @@ import Select from '@/components/base/Select.vue'
 import Button from '@/components/base/Button.vue'
 import Badge from '@/components/base/Badge.vue'
 import Table from '@/components/base/Table.vue'
+import KpiFilter from '@/components/base/KpiFilter.vue'
 import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
@@ -26,19 +30,30 @@ const router = useRouter()
 const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<CashAdvance>({ endpoint: '/cash-advance' })
 const { ask } = useConfirm()
 const toast = useToast()
+const history = useHistory()
 
 const q = ref('')
-const approved = ref('')
+const status = ref('')
 
-const approvalOptions = [
-	{ value: 'true', label: 'Sudah Disetujui' },
-	{ value: 'false', label: 'Belum Disetujui' }
-]
+const statusOptions = (Object.keys(journalStatusLabel) as JournalStatus[]).map((value) => ({ value, label: journalStatusLabel[value] }))
 
 function applyAll() {
-	applyFilters({ q: q.value, approved: approved.value })
+	applyFilters({ q: q.value, status: status.value })
 }
 const runSearch = useDebounce(applyAll, 250)
+
+// KPI tiles = presets of the status dropdown (docs/cash-advance/list-cash-advance.md).
+const kpi = useKpiTiles(
+	journalKpiDefs,
+	{ status },
+	computed(() => pagination.value?.summary),
+	applyAll
+)
+
+// Opens the shared record-history modal for one row.
+function openHistory(row: CashAdvance) {
+	history.open({ kode: row.number, endpoint: `/cash-advance/${row.id}/history` })
+}
 
 const statusTone: Record<JournalStatus, 'neutral' | 'primary' | 'success' | 'danger' | 'warning' | 'info'> = {
 	submitted: 'warning',
@@ -77,9 +92,10 @@ const rows: TableRow[] = [
 		</PageHeader>
 
 		<Panel>
+			<KpiFilter class="mb-3" :items="kpi.items.value" :active="kpi.active.value" @select="kpi.select" />
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
 				<Input v-model="q" placeholder="Cari nomor / voucher / penerima / keterangan…" class="!w-72" @update:model-value="runSearch" />
-				<Select v-model="approved" class="!w-52" placeholder="Semua" :options="approvalOptions" @update:model-value="applyAll" />
+				<Select v-model="status" class="!w-52" placeholder="Semua status" :options="statusOptions" @update:model-value="applyAll" />
 			</FilterBar>
 
 			<Table
@@ -108,6 +124,7 @@ const rows: TableRow[] = [
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"
 						base="/cash-advance"
+						:actions="[{ label: 'Riwayat', icon: IconHistory, onClick: () => openHistory(column as unknown as CashAdvance) }]"
 						:can-modify="(column.status as JournalStatus) === 'submitted'"
 						@remove="remove(column as unknown as CashAdvance)"
 					/>

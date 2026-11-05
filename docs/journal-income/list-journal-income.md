@@ -7,7 +7,7 @@ path: /journal-income
 status: mock
 tags: [journal, income, read, list]
 resource: /frontend/src/mocks/modules/journal-income.ts
-timestamp: 2026-11-05T21:00:00Z
+timestamp: 2026-11-06T04:00:00Z
 ---
 
 # List Journal Income
@@ -25,6 +25,16 @@ Backs `views/journal-income/pages/PageJournalIncomeTable.vue` (via `useTableList
 | `status`                                    | enum   | no       | `submitted` / `approved` / `rejected`         |
 | `date_from`                                 | string | no       | `YYYY-MM-DD`, inclusive lower bound on `date` |
 | `date_to`                                   | string | no       | `YYYY-MM-DD`, inclusive upper bound on `date` |
+
+## KPI tiles (`meta.summary`)
+
+| Key | Tile | Filter it sets | Counts rows where | Carries |
+|---|---|---|---|---|
+| `pending` | Menunggu Persetujuan | `status=submitted` | `status = submitted` | `count`, `amount` (sum of `cash_in`) |
+| `approved` | Disetujui | `status=approved` | `status = approved` | `count`, `amount` |
+| `rejected` | Ditolak | `status=rejected` | `status = rejected` | `count` |
+
+See [conventions](../conventions.md#list-kpi-summary-optional-metasummary).
 
 ## Response
 

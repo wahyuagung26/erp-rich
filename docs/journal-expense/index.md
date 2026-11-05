@@ -3,7 +3,7 @@ type: OKF Module
 title: Journal Expense
 description: Cash disbursement journal (jurnal pengeluaran) — expense lines plus an auto-balanced cash/bank credit line, with the same approval workflow as Journal.
 tags: [journal, expense, cash-disbursement, double-entry]
-timestamp: 2026-11-05T21:00:00Z
+timestamp: 2026-11-06T04:00:00Z
 ---
 
 # Journal Expense
@@ -71,3 +71,4 @@ Per line exactly one of `debit` / `credit` is > 0.
 | PUT    | `/journal-expense/:id`        | [update-journal-expense](./update-journal-expense.md)               |
 | DELETE | `/journal-expense/:id`        | [delete-journal-expense](./delete-journal-expense.md)               |
 | PATCH  | `/journal-expense/:id/status` | [update-journal-expense-status](./update-journal-expense-status.md) |
+| GET | `/journal-expense/:id/history` | [get-journal-expense-history](./get-journal-expense-history.md) |

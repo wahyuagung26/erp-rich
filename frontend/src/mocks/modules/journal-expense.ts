@@ -1,6 +1,18 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { nextId, paginate, sortBy, type ListParams } from '../lib'
+import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
+import {
+	diffAccountLines,
+	diffFields,
+	fmtCount,
+	fmtDate,
+	purgeHistory,
+	recordHistory,
+	recordStatusChange,
+	recordUpdate,
+	registerHistoryRoute,
+	type FieldSpec
+} from '../history'
 import type { JournalExpense, JournalExpenseLine, JournalStatus } from '@/utils/types'
 
 type JournalExpenseRequest = Omit<
@@ -121,17 +133,37 @@ function journalNumber(date: string, seq: number): string {
 	return `JK-${ym}-${String(seq).padStart(3, '0')}`
 }
 
+const FIELDS: FieldSpec<JournalExpense>[] = [
+	{ key: 'date', label: 'Tanggal', format: fmtDate },
+	{ key: 'voucher', label: 'Voucher' },
+	{ key: 'description', label: 'Keterangan' },
+	{ key: 'cash_account_name', label: 'Akun Kas / Bank' },
+	{ key: 'department_name', label: 'Departemen' },
+	{ key: 'cash_flow_name', label: 'Arus Kas' },
+	{ key: 'attachments', label: 'Lampiran', format: fmtCount('file') }
+]
+
 // Contract: docs/journal-expense/
 export function registerJournalExpense(mock: MockAdapter) {
+	registerHistoryRoute(mock, 'journal-expense', (id) => db.journalExpense.some((r) => r.id === id), 'Jurnal pengeluaran tidak ditemukan')
+
 	mock.onGet('/journal-expense').reply((config) => {
 		const p = (config.params ?? {}) as ListParams
 		let rows = db.journalExpense
 		if (p.q) rows = rows.filter((j) => `${j.number} ${j.voucher} ${j.description}`.toLowerCase().includes(String(p.q).toLowerCase()))
-		if (p.status) rows = rows.filter((j) => j.status === p.status)
 		if (p.date_from) rows = rows.filter((j) => j.date >= String(p.date_from))
 		if (p.date_to) rows = rows.filter((j) => j.date <= String(p.date_to))
+		// KPI tiles: honour search + dates, ignore the status filter below (docs/conventions.md).
+		const summary = summarize(
+			rows,
+			{ pending: (j) => j.status === 'submitted', approved: (j) => j.status === 'approved', rejected: (j) => j.status === 'rejected' },
+			(j) => j.cash_out,
+			['pending', 'approved']
+		)
+		if (p.status) rows = rows.filter((j) => j.status === p.status)
 		rows = sortBy(rows, p.sort_by, p.sort_order)
-		return [200, paginate(rows.map(resolve), p)]
+		const page = paginate(rows.map(resolve), p)
+		return [200, { data: page.data, meta: { ...page.meta, summary } }]
 	})
 
 	mock.onGet(/\/journal-expense\/\d+$/).reply((config) => {
@@ -156,6 +188,7 @@ export function registerJournalExpense(mock: MockAdapter) {
 			approved_at: null
 		})
 		db.journalExpense.unshift(row)
+		recordHistory('journal-expense', row.id, { title: 'Dibuat', kind: 'created' })
 		return [201, { data: resolve(row), message: 'Jurnal pengeluaran diajukan' }]
 	})
 
@@ -167,6 +200,7 @@ export function registerJournalExpense(mock: MockAdapter) {
 		const error = validateRequest(body)
 		if (error) return [422, { message: error, errors: { lines: [error] } }]
 
+		const before = resolve(row)
 		Object.assign(
 			row,
 			buildRow(body, {
@@ -180,14 +214,17 @@ export function registerJournalExpense(mock: MockAdapter) {
 				approved_at: null
 			})
 		)
-		return [200, { data: resolve(row), message: 'Jurnal pengeluaran diperbarui' }]
+		const after = resolve(row)
+		recordUpdate('journal-expense', row.id, [...diffFields(before, after, FIELDS), ...diffAccountLines(before.lines, after.lines)])
+		return [200, { data: after, message: 'Jurnal pengeluaran diperbarui' }]
 	})
 
 	mock.onDelete(/\/journal-expense\/\d+$/).reply((config) => {
 		const index = db.journalExpense.findIndex((r) => r.id === idOf(config.url))
 		if (index === -1) return [404, { message: 'Jurnal pengeluaran tidak ditemukan' }]
 		if (db.journalExpense[index].status !== 'submitted') return [422, { message: 'Hanya jurnal submitted yang dapat dihapus' }]
-		db.journalExpense.splice(index, 1)
+		const [removed] = db.journalExpense.splice(index, 1)
+		purgeHistory('journal-expense', removed.id)
 		return [200, { message: 'Jurnal pengeluaran dihapus' }]
 	})
 
@@ -217,6 +254,7 @@ export function registerJournalExpense(mock: MockAdapter) {
 
 		row.status = body.status
 		row.rejection_reason = body.status === 'rejected' ? 'Jurnal ditolak, silakan periksa kembali detailnya.' : null
+		recordStatusChange('journal-expense', row.id, body.status, row.rejection_reason)
 		return [
 			200,
 			{

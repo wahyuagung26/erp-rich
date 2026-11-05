@@ -3,7 +3,7 @@ type: OKF Module
 title: Journal Income
 description: Cash receipt journal (jurnal pemasukan) — income lines plus an auto-balanced cash/bank debit line, with the same approval workflow as Journal.
 tags: [journal, income, cash-receipt, double-entry]
-timestamp: 2026-11-05T21:00:00Z
+timestamp: 2026-11-06T04:00:00Z
 ---
 
 # Journal Income
@@ -63,3 +63,4 @@ either an income (`credit` > 0, `debit` = 0) or a potongan (`debit` > 0, `credit
 | PUT    | `/journal-income/:id`        | [update-journal-income](./update-journal-income.md)               |
 | DELETE | `/journal-income/:id`        | [delete-journal-income](./delete-journal-income.md)               |
 | PATCH  | `/journal-income/:id/status` | [update-journal-income-status](./update-journal-income-status.md) |
+| GET | `/journal-income/:id/history` | [get-journal-income-history](./get-journal-income-history.md) |

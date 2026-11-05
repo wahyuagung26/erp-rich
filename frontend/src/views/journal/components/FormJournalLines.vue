@@ -199,11 +199,11 @@ function lineValidation(line: JournalFormLine, prefix: string) {
 const draftHasInput = computed(() =>
 	Boolean(
 		lineDraft.account_id ||
-		lineDraft.department_id ||
-		lineDraft.cash_flow ||
-		lineDraft.detail_description?.trim() ||
-		lineDraft.debit ||
-		lineDraft.credit
+			lineDraft.department_id ||
+			lineDraft.cash_flow ||
+			lineDraft.detail_description?.trim() ||
+			lineDraft.debit ||
+			lineDraft.credit
 	)
 )
 

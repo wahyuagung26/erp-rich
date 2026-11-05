@@ -7,7 +7,7 @@ path: /cash-advance
 status: mock
 tags: [cash-advance, read, list]
 resource: /frontend/src/mocks/modules/cash-advance.ts
-timestamp: 2026-11-05T21:00:00Z
+timestamp: 2026-11-06T04:00:00Z
 ---
 
 # List Cash Advance
@@ -22,7 +22,17 @@ Backs `views/cash-advance/pages/PageCashAdvanceTable.vue` (via `useTableList`).
 |---|---|---|---|
 | `page`, `per_page`, `sort_by`, `sort_order` | — | no | `sort_by` accepts `date`, `number`, `recipient`, `remaining` |
 | `q` | string | no | matches `number` + `voucher` + `recipient` + `date` + `description` |
-| `approved` | `true` \| `false` | no | `true` = `status = approved`; `false` = everything else |
+| `status` | enum | no | `submitted` / `approved` / `rejected` |
+
+## KPI tiles (`meta.summary`)
+
+| Key | Tile | Filter it sets | Counts rows where | Carries |
+|---|---|---|---|---|
+| `pending` | Menunggu Persetujuan | `status=submitted` | `status = submitted` | `count`, `amount` (sum of `amount`) |
+| `approved` | Disetujui | `status=approved` | `status = approved` | `count`, `amount` |
+| `rejected` | Ditolak | `status=rejected` | `status = rejected` | `count` |
+
+See [conventions](../conventions.md#list-kpi-summary-optional-metasummary).
 
 ## Response
 

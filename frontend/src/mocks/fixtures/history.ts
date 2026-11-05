@@ -3,6 +3,10 @@ import { purchaseOrderSeed } from './purchase-order'
 import { purchaseReceiptSeed } from './purchase-receipt'
 import { purchaseInvoiceSeed } from './purchase-invoice'
 import { supplierAdvanceSeed, supplierAdvanceUsageSeed } from './supplier-advance'
+import { journalSeed } from './journal'
+import { journalExpenseSeed } from './journal-expense'
+import { journalIncomeSeed } from './journal-income'
+import { cashAdvanceSeed, cashAdvanceSettlementSeed } from './cash-advance'
 import type { HistoryEvent, HistoryKind } from '@/utils/types'
 
 // Baseline timeline for the seeded documents, derived from their own fields so history is never empty on
@@ -63,4 +67,45 @@ for (const advance of supplierAdvanceSeed) {
 			summary: `${usage.payable_number} · Rp ${money(usage.amount)}`
 		})
 	historySeed[`supplier-advance:${advance.id}`] = timeline(drafts)
+}
+
+// Journals and cash advances share one approval flow (submitted → approved / rejected), so one derivation covers them.
+interface ApprovalDoc {
+	id: number
+	created_by: string
+	created_at: string
+	status: string
+	approved_by: string | null
+	approved_at: string | null
+	rejection_reason: string | null
+}
+function approvalTimeline(doc: ApprovalDoc): HistoryEvent[] {
+	const drafts: Draft[] = [{ at: doc.created_at, actor: doc.created_by, title: 'Dibuat', kind: 'created' }]
+	if (doc.approved_at) drafts.push({ at: doc.approved_at, actor: doc.approved_by ?? 'FAT', title: 'Disetujui', kind: 'approved' })
+	if (doc.status === 'rejected')
+		drafts.push({
+			at: new Date(Date.parse(doc.created_at) + 3_600_000).toISOString(),
+			actor: 'FAT',
+			title: 'Ditolak',
+			kind: 'rejected',
+			summary: doc.rejection_reason
+		})
+	return timeline(drafts)
+}
+
+for (const doc of journalSeed) historySeed[`journal:${doc.id}`] = approvalTimeline(doc)
+for (const doc of journalExpenseSeed) historySeed[`journal-expense:${doc.id}`] = approvalTimeline(doc)
+for (const doc of journalIncomeSeed) historySeed[`journal-income:${doc.id}`] = approvalTimeline(doc)
+for (const advance of cashAdvanceSeed) {
+	const events = approvalTimeline(advance)
+	const drafts: Draft[] = events.map(({ at, actor, title, kind, summary }) => ({ at, actor, title, kind, summary }))
+	for (const settlement of cashAdvanceSettlementSeed.filter((item) => item.cash_advance_id === advance.id))
+		drafts.push({
+			at: `${settlement.date}T10:00:00.000Z`,
+			actor: settlement.created_by,
+			title: 'Penyelesaian Ditambahkan',
+			kind: 'info',
+			summary: `${settlement.number} · Rp ${money(settlement.amount)}`
+		})
+	historySeed[`cash-advance:${advance.id}`] = timeline(drafts)
 }

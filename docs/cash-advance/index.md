@@ -3,7 +3,7 @@ type: OKF Module
 title: Cash Advance
 description: Operational cash advance (uang muka operasional) — an amount handed to a recipient against a department, tracked to settlement, with the same approval workflow as Journal.
 tags: [cash-advance, advance, approval, settlement]
-timestamp: 2026-11-05T22:00:00Z
+timestamp: 2026-11-06T04:00:00Z
 ---
 
 # Cash Advance
@@ -77,3 +77,4 @@ advance's `status` is `approved`.
 | POST | `/cash-advance/:id/settlement` | [create-cash-advance-settlement](./create-cash-advance-settlement.md) |
 | PUT | `/cash-advance/:id/settlement/:settlementId` | [update-cash-advance-settlement](./update-cash-advance-settlement.md) |
 | DELETE | `/cash-advance/:id/settlement/:settlementId` | [delete-cash-advance-settlement](./delete-cash-advance-settlement.md) |
+| GET | `/cash-advance/:id/history` | [get-cash-advance-history](./get-cash-advance-history.md) |

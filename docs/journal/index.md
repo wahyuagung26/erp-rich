@@ -3,7 +3,7 @@ type: OKF Module
 title: Journal
 description: Manual double-entry journal entries with approval workflow and balanced debit/credit lines.
 tags: [journal, double-entry]
-timestamp: 2026-11-05T21:00:00Z
+timestamp: 2026-11-06T04:00:00Z
 ---
 
 # Journal
@@ -56,3 +56,4 @@ Consumed by `frontend/src/views/journal/`. Lines reference [account](../account/
 | PUT    | `/journal/:id`        | [update-journal](./update-journal.md)               |
 | DELETE | `/journal/:id`        | [delete-journal](./delete-journal.md)               |
 | PATCH  | `/journal/:id/status` | [update-journal-status](./update-journal-status.md) |
+| GET | `/journal/:id/history` | [get-journal-history](./get-journal-history.md) |

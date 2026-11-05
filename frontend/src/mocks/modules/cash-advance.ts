@@ -1,6 +1,18 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { nextId, paginate, sortBy, type ListParams } from '../lib'
+import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
+import {
+	diffFields,
+	fmtCount,
+	fmtDate,
+	fmtMoney,
+	purgeHistory,
+	recordHistory,
+	recordStatusChange,
+	recordUpdate,
+	registerHistoryRoute,
+	type FieldSpec
+} from '../history'
 import type { CashAdvance, CashAdvanceSettlement, JournalStatus } from '@/utils/types'
 
 type CashAdvanceSettlementRequest = Pick<CashAdvanceSettlement, 'date' | 'description' | 'attachments' | 'lines'>
@@ -181,8 +193,28 @@ function validateSettlementRequest(body: CashAdvanceSettlementRequest, advance: 
 	return null
 }
 
+const FIELDS: FieldSpec<CashAdvance>[] = [
+	{ key: 'date', label: 'Tanggal', format: fmtDate },
+	{ key: 'voucher', label: 'Voucher' },
+	{ key: 'department_name', label: 'Departemen' },
+	{ key: 'recipient', label: 'Penerima' },
+	{ key: 'amount', label: 'Nominal', format: fmtMoney },
+	{ key: 'cash_account_name', label: 'Sumber Dana (Kas / Bank)' },
+	{ key: 'advance_account_name', label: 'Akun Uang Muka' },
+	{ key: 'cash_flow_name', label: 'Arus Kas' },
+	{ key: 'description', label: 'Keterangan' },
+	{ key: 'attachments', label: 'Lampiran', format: fmtCount('file') }
+]
+const SETTLEMENT_FIELDS: FieldSpec<Pick<CashAdvanceSettlement, 'date' | 'amount' | 'description'>>[] = [
+	{ key: 'date', label: 'Tanggal Penyelesaian', format: fmtDate },
+	{ key: 'amount', label: 'Nominal Penyelesaian', format: fmtMoney },
+	{ key: 'description', label: 'Keterangan' }
+]
+
 // Contract: docs/cash-advance/
 export function registerCashAdvance(mock: MockAdapter) {
+	registerHistoryRoute(mock, 'cash-advance', (id) => db.cashAdvance.some((r) => r.id === id), 'Uang muka operasional tidak ditemukan')
+
 	mock.onGet('/cash-advance').reply((config) => {
 		const p = (config.params ?? {}) as ListParams
 		let rows = db.cashAdvance
@@ -190,10 +222,17 @@ export function registerCashAdvance(mock: MockAdapter) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((a) => `${a.number} ${a.voucher} ${a.recipient} ${a.date} ${a.description}`.toLowerCase().includes(q))
 		}
-		if (p.approved === 'true') rows = rows.filter((a) => a.status === 'approved')
-		else if (p.approved === 'false') rows = rows.filter((a) => a.status !== 'approved')
+		// KPI tiles: honour search, ignore the status filter below (docs/conventions.md).
+		const summary = summarize(
+			rows,
+			{ pending: (a) => a.status === 'submitted', approved: (a) => a.status === 'approved', rejected: (a) => a.status === 'rejected' },
+			(a) => a.amount,
+			['pending', 'approved']
+		)
+		if (p.status) rows = rows.filter((a) => a.status === p.status)
 		rows = sortBy(rows, p.sort_by, p.sort_order)
-		return [200, paginate(rows.map(resolve), p)]
+		const page = paginate(rows.map(resolve), p)
+		return [200, { data: page.data, meta: { ...page.meta, summary } }]
 	})
 
 	mock.onGet(/\/cash-advance\/\d+$/).reply((config) => {
@@ -219,6 +258,7 @@ export function registerCashAdvance(mock: MockAdapter) {
 			approved_at: null
 		})
 		db.cashAdvance.unshift(row)
+		recordHistory('cash-advance', row.id, { title: 'Dibuat', kind: 'created' })
 		return [201, { data: resolve(row), message: 'Uang muka operasional diajukan' }]
 	})
 
@@ -230,6 +270,7 @@ export function registerCashAdvance(mock: MockAdapter) {
 		const error = validateRequest(body, row.used)
 		if (error) return [422, { message: error, errors: { amount: [error] } }]
 
+		const before = resolve(row)
 		Object.assign(
 			row,
 			buildRow(body, {
@@ -244,14 +285,17 @@ export function registerCashAdvance(mock: MockAdapter) {
 				approved_at: null
 			})
 		)
-		return [200, { data: resolve(row), message: 'Uang muka operasional diperbarui' }]
+		const after = resolve(row)
+		recordUpdate('cash-advance', row.id, diffFields(before, after, FIELDS))
+		return [200, { data: after, message: 'Uang muka operasional diperbarui' }]
 	})
 
 	mock.onDelete(/\/cash-advance\/\d+$/).reply((config) => {
 		const index = db.cashAdvance.findIndex((r) => r.id === idOf(config.url))
 		if (index === -1) return [404, { message: 'Uang muka operasional tidak ditemukan' }]
 		if (db.cashAdvance[index].status !== 'submitted') return [422, { message: 'Hanya uang muka submitted yang dapat dihapus' }]
-		db.cashAdvance.splice(index, 1)
+		const [removed] = db.cashAdvance.splice(index, 1)
+		purgeHistory('cash-advance', removed.id)
 		return [200, { message: 'Uang muka operasional dihapus' }]
 	})
 
@@ -281,6 +325,7 @@ export function registerCashAdvance(mock: MockAdapter) {
 
 		row.status = body.status
 		row.rejection_reason = body.status === 'rejected' ? 'Uang muka ditolak, silakan periksa kembali detailnya.' : null
+		recordStatusChange('cash-advance', row.id, body.status, row.rejection_reason)
 		return [
 			200,
 			{
@@ -325,6 +370,11 @@ export function registerCashAdvance(mock: MockAdapter) {
 		}
 		db.cashAdvanceSettlement.push(row)
 		recalcAdvance(advance)
+		recordHistory('cash-advance', advance.id, {
+			title: 'Penyelesaian Ditambahkan',
+			kind: 'info',
+			summary: `${row.number} · Rp ${fmtMoney(row.amount)}`
+		})
 		const saved = withRemainingAfter(settlementsOf(advance.id), advance.amount).find((s) => s.id === row.id)
 		return [201, { data: saved, message: 'Penyelesaian uang muka ditambahkan' }]
 	})
@@ -340,12 +390,19 @@ export function registerCashAdvance(mock: MockAdapter) {
 		const error = validateSettlementRequest(body, advance, row.id)
 		if (error) return [422, { message: error, errors: { lines: [error] } }]
 
+		const beforeSettlement = { date: row.date, amount: row.amount, description: row.description }
 		row.date = body.date
 		row.description = String(body.description ?? '').trim()
 		row.attachments = body.attachments
 		row.lines = body.lines
 		row.amount = lineTotal(body.lines)
 		recalcAdvance(advance)
+		recordHistory('cash-advance', advance.id, {
+			title: 'Penyelesaian Diubah',
+			kind: 'info',
+			summary: row.number,
+			changes: diffFields(beforeSettlement, row, SETTLEMENT_FIELDS)
+		})
 		const saved = withRemainingAfter(settlementsOf(advance.id), advance.amount).find((s) => s.id === row.id)
 		return [200, { data: saved, message: 'Penyelesaian uang muka diperbarui' }]
 	})
@@ -357,8 +414,13 @@ export function registerCashAdvance(mock: MockAdapter) {
 		if (index === -1) return [404, { message: 'Penyelesaian tidak ditemukan' }]
 		if (advance.status !== 'approved') return [422, { message: 'Penyelesaian hanya dapat dihapus untuk uang muka yang sudah disetujui' }]
 
-		db.cashAdvanceSettlement.splice(index, 1)
+		const [removedSettlement] = db.cashAdvanceSettlement.splice(index, 1)
 		recalcAdvance(advance)
+		recordHistory('cash-advance', advance.id, {
+			title: 'Penyelesaian Dihapus',
+			kind: 'info',
+			summary: `${removedSettlement.number} · Rp ${fmtMoney(removedSettlement.amount)}`
+		})
 		return [200, { message: 'Penyelesaian uang muka dihapus' }]
 	})
 }

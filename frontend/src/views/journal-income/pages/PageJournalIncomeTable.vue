@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconCheck, IconPlus } from '@tabler/icons-vue'
+import { IconCheck, IconPlus, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { useHistory } from '@/composables/useHistory'
+import { useKpiTiles } from '@/composables/useKpiTiles'
+import { journalKpiDefs } from '@/views/journal/kpi'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
@@ -19,6 +22,7 @@ import Badge from '@/components/base/Badge.vue'
 import Checkbox from '@/components/base/Checkbox.vue'
 import Modal from '@/components/base/Modal.vue'
 import Table from '@/components/base/Table.vue'
+import KpiFilter from '@/components/base/KpiFilter.vue'
 import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
@@ -29,6 +33,7 @@ const router = useRouter()
 const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<JournalIncome>({ endpoint: '/journal-income' })
 const { ask } = useConfirm()
 const toast = useToast()
+const history = useHistory()
 
 const q = ref('')
 const status = ref('')
@@ -41,6 +46,19 @@ function applyAll() {
 	applyFilters({ q: q.value, status: status.value, date_from: dateFrom.value, date_to: dateTo.value })
 }
 const runSearch = useDebounce(applyAll, 250)
+
+// KPI tiles = presets of the status dropdown (docs/journal-income/list-journal-income.md).
+const kpi = useKpiTiles(
+	journalKpiDefs,
+	{ status },
+	computed(() => pagination.value?.summary),
+	applyAll
+)
+
+// Opens the shared record-history modal for one row.
+function openHistory(row: JournalIncome) {
+	history.open({ kode: row.number, endpoint: `/journal-income/${row.id}/history` })
+}
 
 // Bulk approve — checkbox column, applies to submitted journals only.
 const selected = ref<Set<number>>(new Set())
@@ -102,7 +120,7 @@ const rows: TableRow[] = [
 	{ label: 'Departemen', field: 'department_name', align: 'left' },
 	{ label: 'Keterangan', field: 'description', align: 'left' },
 	{ label: 'Status', field: 'status', align: 'left' },
-	{ label: 'Nilai (Rp)', field: 'cash_in', align: 'right', isSort: { activeSort: 'asc' } },
+	{ label: 'Nominal', field: 'cash_in', align: 'right', isSort: { activeSort: 'asc' } },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -116,6 +134,7 @@ const rows: TableRow[] = [
 		</PageHeader>
 
 		<Panel>
+			<KpiFilter class="mb-3" :items="kpi.items.value" :active="kpi.active.value" @select="kpi.select" />
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
 				<Input v-model="q" placeholder="Cari nomor / keterangan…" class="!w-64" @update:model-value="runSearch" />
 				<Select v-model="status" class="!w-52" placeholder="Semua status" :options="statusOptions" @update:model-value="applyAll" />
@@ -163,6 +182,7 @@ const rows: TableRow[] = [
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"
 						base="/journal-income"
+						:actions="[{ label: 'Riwayat', icon: IconHistory, onClick: () => openHistory(column as unknown as JournalIncome) }]"
 						:can-modify="(column.status as JournalStatus) === 'submitted'"
 						@remove="remove(column as unknown as JournalIncome)"
 					/>

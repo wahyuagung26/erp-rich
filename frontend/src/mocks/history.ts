@@ -1,7 +1,7 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from './db'
 import { date, money } from '@/utils/format'
-import type { HistoryChange, HistoryEvent, HistoryKind } from '@/utils/types'
+import type { HistoryChange, HistoryEvent, HistoryKind, JournalStatus } from '@/utils/types'
 
 // Record-history engine for the mock: every write handler calls recordHistory(); the GET route is
 // registered per resource by registerHistoryRoute(). Contract: docs/conventions.md#record-history-resourceidhistory.
@@ -70,20 +70,66 @@ export function diffFields<T extends object>(before: T, after: T, specs: FieldSp
 export function diffLines<L extends object>(
 	before: L[],
 	after: L[],
-	opts: { id: (line: L) => number; name: (line: L) => string; specs: FieldSpec<L>[] }
+	opts: { id: (line: L) => number; name: (line: L) => string; specs: FieldSpec<L>[]; itemLabel?: string }
 ): HistoryChange[] {
 	const changes: HistoryChange[] = []
 	for (const line of after) {
 		const old = before.find((item) => opts.id(item) === opts.id(line))
 		if (!old) {
-			changes.push({ label: 'Produk', from: '–', to: opts.name(line) })
+			changes.push({ label: opts.itemLabel ?? 'Produk', from: '–', to: opts.name(line) })
 			continue
 		}
 		for (const change of diffFields(old, line, opts.specs)) changes.push({ ...change, label: `${change.label} · ${opts.name(line)}` })
 	}
 	for (const old of before)
-		if (!after.some((item) => opts.id(item) === opts.id(old))) changes.push({ label: 'Produk', from: opts.name(old), to: '–' })
+		if (!after.some((item) => opts.id(item) === opts.id(old))) changes.push({ label: opts.itemLabel ?? 'Produk', from: opts.name(old), to: '–' })
 	return changes
+}
+
+export const fmtCount = (unit: string) => (value: unknown) => `${(value as unknown[] | null | undefined)?.length ?? 0} ${unit}`
+
+// Journal-style documents have no stable line id, so lines are matched by account (the nth line of the same account
+// pairs with the nth line of that account on the other side) and diffed field by field.
+interface AccountLine {
+	account_id: number
+	account_code?: string
+	account_name?: string
+	department_name?: string
+	cash_flow_name?: string
+	detail_description?: string
+	debit: number
+	credit: number
+}
+type Keyed<L> = L & { key: number }
+function keyByAccount<L extends AccountLine>(lines: L[]): Keyed<L>[] {
+	const seen = new Map<number, number>()
+	return lines.map((line) => {
+		const nth = (seen.get(line.account_id) ?? 0) + 1
+		seen.set(line.account_id, nth)
+		return { ...line, key: line.account_id * 100 + nth }
+	})
+}
+const ACCOUNT_LINE_FIELDS: FieldSpec<Keyed<AccountLine>>[] = [
+	{ key: 'debit', label: 'Debit', format: fmtMoney },
+	{ key: 'credit', label: 'Kredit', format: fmtMoney },
+	{ key: 'department_name', label: 'Departemen' },
+	{ key: 'cash_flow_name', label: 'Arus Kas' },
+	{ key: 'detail_description', label: 'Keterangan Baris' }
+]
+export function diffAccountLines(before: AccountLine[], after: AccountLine[]): HistoryChange[] {
+	return diffLines(keyByAccount(before), keyByAccount(after), {
+		id: (line) => line.key,
+		name: (line) => `${line.account_code ?? ''} ${line.account_name ?? `Akun #${line.account_id}`}`.trim(),
+		specs: ACCOUNT_LINE_FIELDS,
+		itemLabel: 'Akun'
+	})
+}
+
+// Approval-flow events for submitted → approved / rejected → submitted documents (journals, cash advance).
+export function recordStatusChange(resource: string, id: number, to: JournalStatus, reason?: string | null) {
+	if (to === 'approved') recordHistory(resource, id, { title: 'Disetujui', kind: 'approved' })
+	else if (to === 'rejected') recordHistory(resource, id, { title: 'Ditolak', kind: 'rejected', summary: reason ?? null })
+	else recordHistory(resource, id, { title: 'Diajukan Ulang', kind: 'info' })
 }
 
 // GET /<resource>/:id/history — newest first. `exists` keeps the 404 identical to the module's own get.

@@ -1,6 +1,18 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { nextId, paginate, sortBy, type ListParams } from '../lib'
+import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
+import {
+	diffAccountLines,
+	diffFields,
+	fmtCount,
+	fmtDate,
+	purgeHistory,
+	recordHistory,
+	recordStatusChange,
+	recordUpdate,
+	registerHistoryRoute,
+	type FieldSpec
+} from '../history'
 import type { Journal, JournalLine, JournalStatus } from '@/utils/types'
 
 type JournalRequest = Omit<
@@ -63,23 +75,37 @@ function validateRequest(body: JournalRequest): string | null {
 	return debit > 0 && debit === credit ? null : 'Total debit dan kredit harus sama dan lebih dari nol'
 }
 
+const FIELDS: FieldSpec<Journal>[] = [
+	{ key: 'date', label: 'Tanggal', format: fmtDate },
+	{ key: 'voucher', label: 'Voucher' },
+	{ key: 'description', label: 'Keterangan' },
+	{ key: 'attachments', label: 'Lampiran', format: fmtCount('file') }
+]
+
 // Contract: docs/journal/
 export function registerJournal(mock: MockAdapter) {
+	registerHistoryRoute(mock, 'journal', (id) => db.journal.some((row) => row.id === id), 'Jurnal tidak ditemukan')
+
 	mock.onGet('/journal').reply((config) => {
 		const p = (config.params ?? {}) as ListParams
 		let rows = db.journal
 		if (p.q) rows = rows.filter((j) => `${j.number} ${j.voucher} ${j.description}`.toLowerCase().includes(String(p.q).toLowerCase()))
-		if (p.status) rows = rows.filter((j) => j.status === p.status)
 		if (p.date_from) rows = rows.filter((j) => j.date >= String(p.date_from))
 		if (p.date_to) rows = rows.filter((j) => j.date <= String(p.date_to))
+		// KPI tiles: honour search + dates, ignore the status filter below (docs/conventions.md).
+		const summary = summarize(
+			rows,
+			{ pending: (j) => j.status === 'submitted', approved: (j) => j.status === 'approved', rejected: (j) => j.status === 'rejected' },
+			(j) => j.total,
+			['pending', 'approved']
+		)
+		if (p.status) rows = rows.filter((j) => j.status === p.status)
 		rows = sortBy(rows, p.sort_by, p.sort_order)
-		return [
-			200,
-			paginate(
-				rows.map((row) => ({ ...row, lines: row.lines.map(lineOf) })),
-				p
-			)
-		]
+		const page = paginate(
+			rows.map((row) => ({ ...row, lines: row.lines.map(lineOf) })),
+			p
+		)
+		return [200, { data: page.data, meta: { ...page.meta, summary } }]
 	})
 
 	mock.onGet(/\/journal\/\d+$/).reply((config) => {
@@ -111,6 +137,7 @@ export function registerJournal(mock: MockAdapter) {
 			total
 		}
 		db.journal.unshift(row)
+		recordHistory('journal', row.id, { title: 'Dibuat', kind: 'created' })
 		return [201, { data: row, message: 'Jurnal diajukan' }]
 	})
 
@@ -122,6 +149,7 @@ export function registerJournal(mock: MockAdapter) {
 		const validationError = validateRequest(body)
 		if (validationError) return [422, { message: validationError, errors: { lines: [validationError] } }]
 
+		const before = { ...journal, lines: journal.lines.map(lineOf) }
 		journal.number = String(body.number ?? '').trim() || journal.number
 		journal.date = body.date
 		journal.voucher = body.voucher.trim()
@@ -130,6 +158,7 @@ export function registerJournal(mock: MockAdapter) {
 		journal.lines = body.lines.map(lineOf)
 		journal.total = journal.lines.reduce((sum, line) => sum + line.debit, 0)
 		journal.rejection_reason = null
+		recordUpdate('journal', journal.id, [...diffFields(before, journal, FIELDS), ...diffAccountLines(before.lines, journal.lines)])
 		return [200, { data: { ...journal, lines: journal.lines.map(lineOf) }, message: 'Jurnal diperbarui' }]
 	})
 
@@ -137,7 +166,8 @@ export function registerJournal(mock: MockAdapter) {
 		const index = db.journal.findIndex((row) => row.id === idOf(config.url))
 		if (index === -1) return [404, { message: 'Jurnal tidak ditemukan' }]
 		if (db.journal[index].status !== 'submitted') return [422, { message: 'Hanya jurnal submitted yang dapat dihapus' }]
-		db.journal.splice(index, 1)
+		const [removed] = db.journal.splice(index, 1)
+		purgeHistory('journal', removed.id)
 		return [200, { message: 'Jurnal dihapus' }]
 	})
 
@@ -167,6 +197,7 @@ export function registerJournal(mock: MockAdapter) {
 
 		journal.status = body.status
 		journal.rejection_reason = body.status === 'rejected' ? 'Jurnal ditolak, silakan periksa kembali detailnya.' : null
+		recordStatusChange('journal', journal.id, body.status, journal.rejection_reason)
 		return [
 			200,
 			{
