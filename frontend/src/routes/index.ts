@@ -91,6 +91,12 @@ const routes: RouteRecordRaw[] = [
 		meta: { auth: true }
 	},
 	{
+		path: '/supplier-advance/:id/cetak',
+		name: 'SupplierAdvancePrint',
+		component: () => import('@/views/supplier-advance/pages/PageSupplierAdvancePrint.vue'),
+		meta: { auth: true }
+	},
+	{
 		path: '/purchase-receipt/:id/cetak',
 		name: 'PurchaseReceiptPrint',
 		component: () => import('@/views/purchase-receipt/pages/PagePurchaseReceiptPrint.vue'),

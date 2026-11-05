@@ -7,7 +7,7 @@ path: /supplier-advance/:id
 status: mock
 tags: [supplier-advance, read]
 resource: /frontend/src/mocks/modules/supplier-advance.ts
-timestamp: 2026-09-08T10:00:00Z
+timestamp: 2026-11-05T16:00:00Z
 ---
 
 # Get Supplier Advance
@@ -20,3 +20,5 @@ Includes resolved department / supplier / cash account / cash-flow labels and th
 computed `used` / `remaining` / `last_payable_number` for display and edit forms.
 
 `404`: `{ "message": "Uang muka supplier tidak ditemukan" }`
+
+Also backs `PageSupplierAdvancePrint.vue` (print view, A4 portrait).

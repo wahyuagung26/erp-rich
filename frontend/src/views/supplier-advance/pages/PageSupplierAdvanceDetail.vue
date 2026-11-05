@@ -6,14 +6,16 @@ import { IconArrowLeft, IconPaperclip, IconPencil, IconPrinter, IconTrash } from
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
-import { date, money } from '@/utils/format'
+import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import Amount from '@/components/base/Amount.vue'
+import Badge from '@/components/base/Badge.vue'
 import RiwayatPemakaian from '@/views/supplier-advance/components/RiwayatPemakaian.vue'
+import { advanceUsage } from '@/views/supplier-advance/schema'
 import type { SupplierAdvance } from '@/utils/types'
 
 const route = useRoute()
@@ -37,38 +39,13 @@ async function load() {
 	}
 }
 
+// An advance already used against a payable (hutang) is immutable.
 const locked = computed(() => (advance.value?.used ?? 0) > 0)
 
-function cetak() {
-	const value = advance.value
-	if (!value) return
-	const win = window.open('', '_blank', 'width=900,height=700')
-	if (!win) {
-		toast.info('Cetak tersedia di aplikasi prototype')
-		return
-	}
-	win.document.open()
-	win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Uang Muka Supplier ${value.number}</title>
-<style>body{font-family:ui-sans-serif,system-ui,sans-serif;padding:32px;color:#111}table{border-collapse:collapse;width:100%}td,th{padding:6px 8px;border-bottom:1px solid #ddd;text-align:left}th{text-align:right}</style>
-</head><body><h2>Uang Muka Supplier</h2>
-<p><strong>${value.number}</strong> &middot; ${date(value.date)} &middot; ${value.department_name ?? ''}</p>
-<table>${[
-		['Supplier', `${value.supplier_code ?? ''} — ${value.supplier_name ?? ''}`],
-		['Nominal', `Rp ${money(value.amount)}`],
-		['Terpakai', `Rp ${money(value.used)}`],
-		['Saldo Tersedia', `Rp ${money(value.remaining)}`],
-		['Akun Kas / Bank', `${value.cash_account_code ?? ''} — ${value.cash_account_name ?? ''}`],
-		['Jenis Uang Muka', value.advance_type],
-		['Arus Kas', value.cash_flow_name ?? value.cash_flow ?? ''],
-		['Keterangan', value.description || ''],
-		['No Hutang Terakhir', value.last_payable_number ?? '-']
-	]
-		.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`)
-		.join('')}
-</table></body></html>`)
-	win.document.close()
-	win.focus()
-	win.print()
+// Opens the print view in a new tab; `?auto=1` makes it call window.print() once rendered.
+function printDoc() {
+	if (advance.value)
+		window.open(router.resolve({ name: 'SupplierAdvancePrint', params: { id: advance.value.id }, query: { auto: '1' } }).href, '_blank')
 }
 
 function remove() {
@@ -91,23 +68,18 @@ function remove() {
 
 <template>
 	<div class="space-y-4 p-4">
-		<PageHeader title="Uang Muka Supplier" subtitle="Pembelian">
+		<PageHeader title="Detail Uang Muka Supplier" subtitle="Pembelian">
 			<template #actions>
 				<div class="flex flex-wrap items-center gap-2">
+					<Badge v-if="advance" :tone="advanceUsage(advance).tone" class="mr-1">{{ advanceUsage(advance).label }}</Badge>
 					<Button size="sm" variant="subtle" @click="router.push('/supplier-advance')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
-					<Button size="sm" variant="secondary" @click="cetak"><IconPrinter class="h-4 w-4" /> Cetak</Button>
-					<Button size="sm" variant="secondary" @click="router.push(`/supplier-advance/edit/${advance!.id}`)">
-						<IconPencil class="h-4 w-4" /> Edit
-					</Button>
-					<Button
-						size="sm"
-						variant="subtle"
-						:disabled="locked"
-						:title="locked ? 'Uang muka yang sudah dipakai tidak boleh dihapus' : undefined"
-						@click="remove"
-					>
-						<IconTrash class="h-4 w-4" /> Hapus
-					</Button>
+					<Button size="sm" variant="subtle" :disabled="!advance" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button>
+					<template v-if="advance && !locked">
+						<Button size="sm" variant="secondary" @click="router.push(`/supplier-advance/edit/${advance.id}`)">
+							<IconPencil class="h-4 w-4" /> Edit
+						</Button>
+						<Button size="sm" variant="subtle" @click="remove"><IconTrash class="h-4 w-4" /> Hapus</Button>
+					</template>
 				</div>
 			</template>
 		</PageHeader>
@@ -131,11 +103,15 @@ function remove() {
 						</div>
 						<div>
 							<dt class="text-s text-ink-muted">Departemen</dt>
-							<dd class="mt-1 text-m text-ink">{{ advance.department_name }}</dd>
+							<dd class="mt-1 text-m text-ink">{{ advance.department_code }} — {{ advance.department_name }}</dd>
 						</div>
-						<div class="md:col-span-3">
+						<div class="md:col-span-2">
 							<dt class="text-s text-ink-muted">Supplier</dt>
 							<dd class="mt-1 text-m text-ink">{{ advance.supplier_code }} — {{ advance.supplier_name }}</dd>
+						</div>
+						<div>
+							<dt class="text-s text-ink-muted">Jenis Uang Muka</dt>
+							<dd class="mt-1 text-m text-ink">{{ advance.advance_type }}</dd>
 						</div>
 						<div class="md:col-span-3">
 							<dt class="text-s text-ink-muted">Keterangan</dt>
@@ -157,21 +133,17 @@ function remove() {
 						</div>
 						<div>
 							<dt class="text-s text-ink-muted">Saldo Tersedia</dt>
-							<dd class="mt-1 text-m text-ink"><Amount :value="advance.remaining" /></dd>
+							<dd class="mt-1 text-m font-semibold text-ink"><Amount :value="advance.remaining" /></dd>
 						</div>
 						<div>
 							<dt class="text-s text-ink-muted">Akun Kas / Bank</dt>
 							<dd class="mt-1 text-m text-ink">{{ advance.cash_account_code }} — {{ advance.cash_account_name }}</dd>
 						</div>
 						<div>
-							<dt class="text-s text-ink-muted">Jenis Uang Muka</dt>
-							<dd class="mt-1 text-m text-ink">{{ advance.advance_type }}</dd>
-						</div>
-						<div>
 							<dt class="text-s text-ink-muted">Arus Kas</dt>
 							<dd class="mt-1 text-m text-ink">{{ advance.cash_flow_name ?? advance.cash_flow ?? '–' }}</dd>
 						</div>
-						<div class="md:col-span-3">
+						<div>
 							<dt class="text-s text-ink-muted">Lampiran</dt>
 							<dd class="mt-1 text-m">
 								<a
@@ -181,7 +153,7 @@ function remove() {
 									target="_blank"
 									class="inline-flex items-center gap-1 text-primary-dark hover:underline"
 								>
-									<IconPaperclip class="h-4 w-4" /> {{ advance.attachment.name }}
+									<IconPaperclip class="h-4 w-4 shrink-0" /> <span class="truncate">{{ advance.attachment.name }}</span>
 								</a>
 								<span v-else class="text-ink-muted">–</span>
 							</dd>

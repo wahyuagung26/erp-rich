@@ -149,8 +149,8 @@ A change that passes `vue-tsc` but was never rendered is **not done**.
 ## 6. Design rules (full list: DESIGN_SYSTEM.md)
 
 - **Borderless**: white panels on grey canvas, shadow only on overlays, no nested cards.
-- **Sections grouped by whitespace + a light heading**: each group is a `<section
-  class="space-y-3">` with an `<h3 class="subhead">` (now a plain uppercase `text-ink-subtle`
+- **Sections grouped by whitespace + a clear heading**: each group is a `<section
+  class="space-y-3">` with an `<h3 class="subhead">` (now a plain uppercase `text-m font-semibold text-ink`
   label — the old full-bleed grey bar was removed, it read as box-in-box next to filled
   inputs), `space-y-8` between sections on the `<form>`. **No subtitle that just restates the
   heading** — a `<p class="text-s text-ink-subtle">` under the `<h3>` is only for micro-copy

@@ -3,15 +3,17 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
+import { IconArrowLeft } from '@tabler/icons-vue'
 import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
+import Badge from '@/components/base/Badge.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import FormSupplierAdvance from '@/views/supplier-advance/components/FormSupplierAdvance.vue'
 import RiwayatPemakaian from '@/views/supplier-advance/components/RiwayatPemakaian.vue'
-import type { SupplierAdvanceDraft, SupplierAdvanceRequest } from '@/views/supplier-advance/schema'
+import { advanceUsage, type SupplierAdvanceDraft, type SupplierAdvanceRequest } from '@/views/supplier-advance/schema'
 import type { SupplierAdvance } from '@/utils/types'
 
 const route = useRoute()
@@ -83,11 +85,20 @@ async function save(payload: SupplierAdvanceRequest) {
 
 <template>
 	<div class="space-y-4 p-4">
-		<PageHeader title="Uang Muka Supplier" subtitle="Pembelian" />
+		<PageHeader title="Edit Uang Muka Supplier" subtitle="Pembelian">
+			<template #actions>
+				<div class="flex flex-wrap items-center gap-2">
+					<Badge v-if="advance" :tone="advanceUsage(advance).tone">{{ advanceUsage(advance).label }}</Badge>
+					<Button size="sm" variant="subtle" @click="router.push(advance ? `/supplier-advance/${advance.id}` : '/supplier-advance')">
+						<IconArrowLeft class="h-4 w-4" /> Kembali
+					</Button>
+				</div>
+			</template>
+		</PageHeader>
 		<Panel v-if="loading"><Skeleton :lines="6" /></Panel>
 		<Panel v-else-if="notFound || !advance">
 			<EmptyState title="Uang muka supplier tidak ditemukan" description="Data mungkin sudah dihapus." />
-			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push('/supplier-advance')">Kembali</Button></div>
+			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push('/supplier-advance')">Kembali ke Daftar</Button></div>
 		</Panel>
 		<template v-else-if="locked">
 			<Panel>
@@ -99,14 +110,7 @@ async function save(payload: SupplierAdvanceRequest) {
 			<RiwayatPemakaian :advance-id="advance.id" />
 		</template>
 		<template v-else>
-			<FormSupplierAdvance
-				ref="formRef"
-				:initial-value="toForm(advance)"
-				:loading="saving"
-				:advance-id="advance.id"
-				submit-label="Simpan Perubahan"
-				@submit="save"
-			/>
+			<FormSupplierAdvance ref="formRef" :initial-value="toForm(advance)" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
 		</template>
 	</div>
 </template>

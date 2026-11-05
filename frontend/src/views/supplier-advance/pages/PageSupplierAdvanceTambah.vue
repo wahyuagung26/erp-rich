@@ -39,7 +39,7 @@ async function save(payload: SupplierAdvanceRequest) {
 
 <template>
 	<div class="space-y-4 p-4">
-		<PageHeader title="Uang Muka Supplier" subtitle="Pembelian" />
+		<PageHeader title="Tambah Uang Muka Supplier" subtitle="Pembelian" />
 		<FormSupplierAdvance ref="formRef" :loading="saving" @submit="save" />
 	</div>
 </template>

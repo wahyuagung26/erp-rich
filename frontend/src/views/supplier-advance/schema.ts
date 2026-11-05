@@ -82,3 +82,9 @@ export function parseSupplierAdvance(data: SupplierAdvanceDraft): { data: Suppli
 }
 
 export const advanceTypeOptions = [{ label: 'TITIPAN-PO', value: 'TITIPAN-PO' }]
+
+// Usage state of an advance (badge on detail/edit): used > 0 locks the record.
+export function advanceUsage(advance: { used: number; remaining: number }): { label: string; tone: 'info' | 'warning' | 'success' } {
+	if (advance.used <= 0) return { label: 'Belum Dipakai', tone: 'info' }
+	return advance.remaining > 0 ? { label: 'Sebagian Terpakai', tone: 'warning' } : { label: 'Terpakai Penuh', tone: 'success' }
+}

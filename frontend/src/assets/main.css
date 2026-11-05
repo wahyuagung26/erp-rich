@@ -39,7 +39,7 @@
 	/* section heading inside a form/panel — organises by weight + whitespace, no bar.
 	   spacing is owned by the parent (`<section class="space-y-3">` + `space-y-8` between). */
 	.subhead {
-		@apply text-s font-semibold uppercase tracking-wide text-ink-subtle;
+		@apply text-m font-semibold uppercase tracking-wide text-ink;
 	}
 	.hairline {
 		@apply border-hairline;

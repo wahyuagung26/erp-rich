@@ -56,7 +56,7 @@ Fetches on mount, refetches on page/limit/sort/filter change. Wire it to `<Table
 below the table) and a debounced `applyFilters` (wrap with `useDebounce`). `<Table>` is API-compatible
 with the RICH table: `rows` = column defs `{ label, field, isSort?, align? }`, `columns` = row data,
 slots `#table-header` / `#table-content`, emit `handleSort`. No outer border, no vertical rules,
-hairline between rows, sticky header with hairline underline, hover tint.
+hairline between rows, sticky grey (`bg-fill`) rounded header band, hover tint.
 
 **Feature module layout** — a module touches five places:
 
@@ -111,8 +111,8 @@ Full rules in `DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
 - **Proximity over dividers**: group with spacing, not boxes/bars. Form sections =
   `<section class="space-y-3">` + `<h3 class="subhead">` (plain uppercase label, **no background**
   — a grey bar reads as box-in-box next to `bg-fill` inputs), `space-y-8` between sections in
-  `<form>`. A hairline (`border-hairline`) is a last resort: table row dividers, sticky header
-  underline, stat-tile separators.
+  `<form>`. A hairline (`border-hairline`) is a last resort: table row dividers,
+  stat-tile separators.
 - **Outlined inputs** (`border border-ink-subtle/30 bg-panel` — white field with a light border, like dashboard-kpi-it; disabled → `bg-fill`); focus uses the global ring.
 - **High density**: base font 13px (`text-m`). Table/form `comfortable`/`compact` modes toggle via
   topbar, persisted in `stores/ui`.
