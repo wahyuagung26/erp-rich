@@ -944,6 +944,8 @@ export interface PurchaseReturnSettlement {
 	bank_account_name?: string
 	description: string
 	amount: number
+	// true when the date falls in a closed period: it can no longer be edited or cancelled
+	locked: boolean
 }
 
 export interface PurchaseReturn {

@@ -1,6 +1,6 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
+import { companyIdOf, nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
 import {
 	diffFields,
 	diffLines,
@@ -14,6 +14,7 @@ import {
 	type FieldSpec
 } from '../history'
 import { resolve as resolveInvoice } from './purchase-invoice'
+import { isPeriodClosed } from './posting'
 import type {
 	JournalAttachment,
 	PurchaseInvoice,
@@ -79,7 +80,11 @@ function resolveLine(
 	}
 }
 
-function settlementsOf(returnId: number): PurchaseReturnSettlement[] {
+const monthLabel = (date: string) =>
+	new Date(`${date.slice(0, 7)}-01T00:00:00Z`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+const closedMessage = (date: string) => `Periode ${monthLabel(date)} sudah closing`
+
+function settlementsOf(returnId: number, companyId: number | null): PurchaseReturnSettlement[] {
 	return db.purchaseReturnSettlement
 		.filter((item) => item.purchase_return_id === returnId)
 		.map((item) => ({
@@ -91,11 +96,12 @@ function settlementsOf(returnId: number): PurchaseReturnSettlement[] {
 			bank_account_id: item.bank_account_id,
 			bank_account_name: db.bankAccount.find((bank) => bank.id === item.bank_account_id)?.bank_name,
 			description: item.description,
-			amount: item.amount
+			amount: item.amount,
+			locked: isPeriodClosed(companyId, item.date)
 		}))
 }
 
-export function resolve(row: Stored): PurchaseReturn {
+export function resolve(row: Stored, companyId: number | null = null): PurchaseReturn {
 	const source = db.purchaseInvoice.find((item) => item.id === row.purchase_invoice_id)
 	const invoice = source && resolveInvoice(source)
 	const warehouse = db.warehouse.find((item) => item.id === row.warehouse_id && !item.deleted_at)
@@ -103,7 +109,7 @@ export function resolve(row: Stored): PurchaseReturn {
 	const dpp = lines.reduce((sum, line) => sum + line.dpp, 0)
 	const ppn = lines.reduce((sum, line) => sum + line.ppn, 0)
 	const total = dpp + ppn
-	const settlements = settlementsOf(row.id)
+	const settlements = settlementsOf(row.id, companyId)
 	const used_total = settlements.filter((item) => item.type === 'payable_deduction').reduce((sum, item) => sum + item.amount, 0)
 	const refunded_total = settlements.filter((item) => item.type === 'cash_bank').reduce((sum, item) => sum + item.amount, 0)
 	const remaining_total = Math.max(total - used_total - refunded_total, 0)
@@ -214,7 +220,8 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 			date_from?: string
 			date_to?: string
 		}
-		let rows = db.purchaseReturn.map(resolve)
+		const companyId = companyIdOf(config)
+		let rows = db.purchaseReturn.map((item) => resolve(item, companyId))
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((row) =>
@@ -246,7 +253,7 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 
 	mock.onGet(/\/purchase-return\/\d+$/).reply((config) => {
 		const row = db.purchaseReturn.find((item) => item.id === idOf(config.url))
-		return row ? [200, { data: resolve(row) }] : [404, { message: 'Retur pembelian tidak ditemukan' }]
+		return row ? [200, { data: resolve(row, companyIdOf(config)) }] : [404, { message: 'Retur pembelian tidak ditemukan' }]
 	})
 
 	mock.onPost('/purchase-return').reply((config) => {
@@ -278,7 +285,7 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 		}
 		db.purchaseReturn.unshift(row)
 		recordHistory('purchase-return', id, { title: 'Dibuat', kind: 'created', summary: `Dari invoice ${invoice.number}` })
-		return [201, { data: resolve(row), message: 'Retur pembelian ditambahkan' }]
+		return [201, { data: resolve(row, companyIdOf(config)), message: 'Retur pembelian ditambahkan' }]
 	})
 
 	mock.onPut(/\/purchase-return\/\d+$/).reply((config) => {
@@ -289,9 +296,9 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 		const invoice = resolveInvoice(db.purchaseInvoice.find((item) => item.id === row.purchase_invoice_id) as PurchaseInvoice) // locked
 		const error = validate(body, invoice, row.id)
 		if (error) return [422, error]
-		const before = resolve(row)
+		const before = resolve(row, companyIdOf(config))
 		Object.assign(row, { date: body.date, warehouse_id: Number(body.warehouse_id), reason: String(body.reason).trim(), lines: storedLines(body) })
-		const after = resolve(row)
+		const after = resolve(row, companyIdOf(config))
 		recordUpdate('purchase-return', row.id, [
 			...diffFields(before, after, FIELDS),
 			...diffLines(before.lines, after.lines, {
@@ -323,16 +330,17 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 			row.approved_by = userName()
 			row.approved_at = new Date().toISOString()
 			recordHistory('purchase-return', row.id, { title: 'Disetujui', kind: 'approved' })
-			return [200, { data: resolve(row), message: 'Retur disetujui' }]
+			return [200, { data: resolve(row, companyIdOf(config)), message: 'Retur disetujui' }]
 		}
 		if (status === 'pending') {
 			if (row.approval_status !== 'approved') return [422, { message: 'Retur belum disetujui' }]
-			if (settlementsOf(row.id).length) return [422, { message: 'Persetujuan tidak bisa dibatalkan karena retur sudah dipakai atau dikembalikan' }]
+			if (settlementsOf(row.id, null).length)
+				return [422, { message: 'Persetujuan tidak bisa dibatalkan karena retur sudah dipakai atau dikembalikan' }]
 			row.approval_status = 'pending'
 			row.approved_by = null
 			row.approved_at = null
 			recordHistory('purchase-return', row.id, { title: 'Persetujuan Dibatalkan', kind: 'info' })
-			return [200, { data: resolve(row), message: 'Persetujuan dibatalkan' }]
+			return [200, { data: resolve(row, companyIdOf(config)), message: 'Persetujuan dibatalkan' }]
 		}
 		return [422, { message: 'Status persetujuan tidak valid' }]
 	})
@@ -342,9 +350,12 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 		if (!row) return [404, { message: 'Retur pembelian tidak ditemukan' }]
 		if (row.approval_status !== 'approved') return [422, { message: 'Retur harus disetujui sebelum dikembalikan' }]
 		const body = JSON.parse(config.data) as PurchaseReturnSettlementRequest
-		const current = resolve(row)
+		const companyId = companyIdOf(config)
+		const current = resolve(row, companyId)
 		if (!isDate(body.date)) return [422, invalid('Tanggal wajib diisi', 'date')]
 		if (body.date > today()) return [422, invalid('Tanggal tidak boleh melebihi hari ini', 'date')]
+		if (body.date < row.date) return [422, invalid('Tanggal tidak boleh sebelum tanggal retur', 'date')]
+		if (isPeriodClosed(companyId, body.date)) return [422, invalid(closedMessage(body.date), 'date')]
 		if (!db.bankAccount.some((item) => item.id === Number(body.bank_account_id) && !item.deleted_at))
 			return [422, invalid('Rekening cash / bank wajib dipilih', 'bank_account_id')]
 		const amount = Math.round(Number(body.amount))
@@ -363,7 +374,39 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 			amount
 		})
 		recordHistory('purchase-return', row.id, { title: 'Pengembalian Dana Dicatat', kind: 'info', summary: fmtMoney(amount) })
-		return [201, { data: resolve(row), message: 'Pengembalian dana dicatat' }]
+		return [201, { data: resolve(row, companyId), message: 'Pengembalian dana dicatat' }]
+	})
+
+	// Edit a cash / bank refund (date, bank account, amount, description). Locked once its period is closed.
+	mock.onPut(/\/purchase-return\/\d+\/settlements\/\d+$/).reply((config) => {
+		const row = db.purchaseReturn.find((item) => item.id === grandParentIdOf(config.url))
+		if (!row) return [404, { message: 'Retur pembelian tidak ditemukan' }]
+		const settlement = db.purchaseReturnSettlement.find((item) => item.id === idOf(config.url) && item.purchase_return_id === row.id)
+		if (!settlement) return [404, { message: 'Penyelesaian retur tidak ditemukan' }]
+		if (settlement.type !== 'cash_bank') return [422, { message: 'Pemakaian untuk potong hutang diubah lewat menu Hutang Supplier' }]
+		const companyId = companyIdOf(config)
+		if (isPeriodClosed(companyId, settlement.date))
+			return [422, { message: `${closedMessage(settlement.date)}, pengembalian dana tidak bisa diubah` }]
+		const body = JSON.parse(config.data) as PurchaseReturnSettlementRequest
+		if (!isDate(body.date)) return [422, invalid('Tanggal wajib diisi', 'date')]
+		if (body.date > today()) return [422, invalid('Tanggal tidak boleh melebihi hari ini', 'date')]
+		if (body.date < row.date) return [422, invalid('Tanggal tidak boleh sebelum tanggal retur', 'date')]
+		if (isPeriodClosed(companyId, body.date)) return [422, invalid(closedMessage(body.date), 'date')]
+		if (!db.bankAccount.some((item) => item.id === Number(body.bank_account_id) && !item.deleted_at))
+			return [422, invalid('Rekening cash / bank wajib dipilih', 'bank_account_id')]
+		const amount = Math.round(Number(body.amount))
+		if (!(amount > 0)) return [422, invalid('Nominal harus lebih dari nol', 'amount')]
+		// What this refund may grow to: the return's balance plus what it already holds.
+		const capacity = resolve(row, companyId).remaining_total + settlement.amount
+		if (amount > capacity) return [422, invalid(`Nominal melebihi sisa retur (${capacity})`, 'amount')]
+		Object.assign(settlement, {
+			date: body.date,
+			bank_account_id: Number(body.bank_account_id),
+			description: String(body.description || '').trim(),
+			amount
+		})
+		recordHistory('purchase-return', row.id, { title: 'Pengembalian Dana Diubah', kind: 'updated', summary: fmtMoney(amount) })
+		return [200, { data: resolve(row, companyId), message: 'Pengembalian dana diperbarui' }]
 	})
 
 	mock.onDelete(/\/purchase-return\/\d+\/settlements\/\d+$/).reply((config) => {
@@ -373,9 +416,12 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 		if (index < 0) return [404, { message: 'Penyelesaian retur tidak ditemukan' }]
 		const settlement = db.purchaseReturnSettlement[index]
 		if (settlement.type !== 'cash_bank') return [422, { message: 'Pemakaian untuk potong hutang dibatalkan lewat menu Hutang Supplier' }]
+		const companyId = companyIdOf(config)
+		if (isPeriodClosed(companyId, settlement.date))
+			return [422, { message: `${closedMessage(settlement.date)}, pengembalian dana tidak bisa dibatalkan` }]
 		db.purchaseReturnSettlement.splice(index, 1)
 		recordHistory('purchase-return', row.id, { title: 'Pengembalian Dana Dibatalkan', kind: 'info', summary: fmtMoney(settlement.amount) })
-		return [200, { data: resolve(row), message: 'Pengembalian dana dibatalkan' }]
+		return [200, { data: resolve(row, companyId), message: 'Pengembalian dana dibatalkan' }]
 	})
 
 	mock.onGet(/\/purchase-return\/\d+\/tax-invoice$/).reply((config) => {
@@ -411,6 +457,6 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 			summary: number,
 			changes: previous ? diffFields(previous, row.tax_invoice, TAX_FIELDS) : []
 		})
-		return [200, { data: resolve(row), message: 'Faktur pajak disimpan' }]
+		return [200, { data: resolve(row, companyIdOf(config)), message: 'Faktur pajak disimpan' }]
 	})
 }

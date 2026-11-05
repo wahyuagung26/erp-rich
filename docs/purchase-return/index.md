@@ -3,7 +3,7 @@ type: OKF Module
 title: Retur Pembelian (Purchase Return)
 description: Retur barang ke supplier atas satu invoice pembelian yang sudah disetujui — jumlah per produk, DPP/PPN, approval dua arah, faktur pajak, dan penyelesaian retur (potong hutang atau dana kembali).
 tags: [purchase-return, procurement, payables]
-timestamp: 2026-11-05T14:00:00Z
+timestamp: 2026-11-06T11:00:00Z
 ---
 
 # Retur Pembelian
@@ -64,6 +64,7 @@ Kapan retur muncul di mutasi hutang supplier masih **unresolved** (lihat notulen
 | `bank_account_id` `bank_account_name` | — | terisi untuk `cash_bank` |
 | `description` | string | |
 | `amount` | number | |
+| `locked` | boolean | server-computed: `date` falls in a closed period ([Posting & Closing](../posting/index.md)); can be neither edited nor cancelled |
 
 ## Guardrails
 
@@ -73,6 +74,7 @@ Kapan retur muncul di mutasi hutang supplier masih **unresolved** (lihat notulen
 - Penyelesaian hanya untuk retur `approved`; `amount` tidak boleh melebihi `remaining_total`.
 - `cash_bank` dibuat/dibatalkan dari retur; `payable_deduction` dibuat/dibatalkan dari Hutang Supplier dan tidak bisa dibatalkan dari retur.
 - Nomor faktur pajak unik antar invoice dan retur.
+- **Periode closing:** penyelesaian dengan `date` pada periode yang sudah closing bersifat `locked` — tidak bisa diubah ataupun dibatalkan; dana kembali baru tidak boleh bertanggal di periode closing, dan tanggal tidak boleh sebelum tanggal retur. UI mengganti ikon edit/hapus dengan keterangan "Closing".
 
 ## Endpoints
 
@@ -85,6 +87,7 @@ Kapan retur muncul di mutasi hutang supplier masih **unresolved** (lihat notulen
 | DELETE | `/purchase-return/:id` | [delete-purchase-return](./delete-purchase-return.md) |
 | PATCH | `/purchase-return/:id/approval` | [update-purchase-return-approval](./update-purchase-return-approval.md) |
 | POST | `/purchase-return/:id/settlements` | [create-purchase-return-settlement](./create-purchase-return-settlement.md) |
+| PUT | `/purchase-return/:id/settlements/:settlementId` | [update-purchase-return-settlement](./update-purchase-return-settlement.md) |
 | DELETE | `/purchase-return/:id/settlements/:settlementId` | [delete-purchase-return-settlement](./delete-purchase-return-settlement.md) |
 | GET | `/purchase-return/:id/tax-invoice` | [get-purchase-return-tax-invoice](./get-purchase-return-tax-invoice.md) |
 | PUT | `/purchase-return/:id/tax-invoice` | [update-purchase-return-tax-invoice](./update-purchase-return-tax-invoice.md) |

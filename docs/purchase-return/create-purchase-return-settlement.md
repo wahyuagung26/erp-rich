@@ -7,7 +7,7 @@ path: /purchase-return/:id/settlements
 status: mock
 tags: [purchase-return, write]
 resource: /frontend/src/mocks/modules/purchase-return.ts
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-06T11:00:00Z
 ---
 
 # Create Purchase Return Settlement (Dana Kembali)
@@ -24,7 +24,7 @@ Backs the "Pengembalian Dana" form in `PagePurchaseReturnDetail.vue`. Creates a 
 
 | Field | Type | Rules |
 |---|---|---|
-| `date` | string | required; not after today |
+| `date` | string | required; not after today, not before the return `date`, **and not in a closed period** |
 | `bank_account_id` | number | required; existing bank account ("Akun Cash / Bank") |
 | `description` | string | optional |
 | `amount` | number | `> 0` and `≤ remaining_total` |
