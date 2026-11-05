@@ -132,7 +132,7 @@ function remove() {
 							<dd class="mt-1 text-m text-ink"><Amount :value="advance.used" /></dd>
 						</div>
 						<div>
-							<dt class="text-s text-ink-muted">Saldo Tersedia</dt>
+							<dt class="text-s text-ink-muted">Sisa</dt>
 							<dd class="mt-1 text-m font-semibold text-ink"><Amount :value="advance.remaining" /></dd>
 						</div>
 						<div>

@@ -158,7 +158,7 @@ defineExpose({ setServerErrors })
 					<FormField label="Penerima" required :error="errors.recipient">
 						<Input v-model="form.recipient" placeholder="Nama penerima uang muka" />
 					</FormField>
-					<FormField label="Nilai" required :error="errors.amount">
+					<FormField label="Nominal" required :error="errors.amount">
 						<MoneyInput v-model="form.amount" />
 					</FormField>
 					<FormField class="md:col-span-2" label="Keterangan" hint="Opsional.">
@@ -220,7 +220,7 @@ defineExpose({ setServerErrors })
 					<FormField label="Terpakai" hint="Terisi otomatis dari realisasi.">
 						<MoneyInput :model-value="form.used" disabled />
 					</FormField>
-					<FormField label="Sisa" hint="Nilai dikurangi terpakai.">
+					<FormField label="Sisa" hint="Nominal dikurangi terpakai.">
 						<MoneyInput :model-value="remaining" disabled />
 					</FormField>
 				</div>

@@ -171,7 +171,7 @@ function remove() {
 							<dd class="mt-1 text-m text-ink">{{ advance.recipient }}</dd>
 						</div>
 						<div>
-							<dt class="text-s text-ink-muted">Nilai</dt>
+							<dt class="text-s text-ink-muted">Nominal</dt>
 							<dd class="mt-1 text-m text-ink"><Amount :value="advance.amount" /></dd>
 						</div>
 						<div class="md:col-span-3">

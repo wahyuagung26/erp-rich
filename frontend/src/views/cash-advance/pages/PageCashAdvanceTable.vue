@@ -60,7 +60,7 @@ const rows: TableRow[] = [
 	{ label: 'Voucher', field: 'voucher', align: 'left' },
 	{ label: 'Departemen', field: 'department_name', align: 'left' },
 	{ label: 'Penerima', field: 'recipient', align: 'left', isSort: { activeSort: 'asc' } },
-	{ label: 'Nilai', field: 'amount', align: 'right' },
+	{ label: 'Nominal', field: 'amount', align: 'right' },
 	{ label: 'Penyelesaian', field: 'used', align: 'right' },
 	{ label: 'Sisa', field: 'remaining', align: 'right', isSort: { activeSort: 'asc' } },
 	{ label: 'Status', field: 'status', align: 'left' },

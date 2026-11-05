@@ -82,7 +82,7 @@ onMounted(async () => {
 				}}</span>
 			</div>
 			<div class="flex items-center">
-				<span class="w-40 shrink-0 font-bold">Nilai Penyelesaian</span>:&nbsp;
+				<span class="w-40 shrink-0 font-bold">Nominal Penyelesaian</span>:&nbsp;
 				<span class="ml-1 flex-1 border-2 border-black px-3 py-1 font-serif text-[22px] italic">{{ rp(settlement.amount) }}</span>
 			</div>
 			<div class="flex items-end">

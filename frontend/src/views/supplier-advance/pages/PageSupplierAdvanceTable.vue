@@ -55,7 +55,7 @@ const rows: TableRow[] = [
 	{ label: 'Supplier', field: 'supplier_name', align: 'left' },
 	{ label: 'Nominal', field: 'amount', align: 'right' },
 	{ label: 'Terpakai', field: 'used', align: 'right' },
-	{ label: 'Saldo Tersedia', field: 'remaining', align: 'right', isSort: { activeSort: 'asc' } },
+	{ label: 'Sisa', field: 'remaining', align: 'right', isSort: { activeSort: 'asc' } },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -89,7 +89,10 @@ const rows: TableRow[] = [
 						<p class="max-w-[180px] truncate text-s text-ink-muted" :title="column.description as string">{{ column.description || '–' }}</p>
 					</div>
 					<span v-else-if="row.field === 'date'" class="tnum whitespace-nowrap text-ink-muted">{{ date(column.date as string) }}</span>
-					<span v-else-if="row.field === 'department_name'" class="text-ink">{{ column.department_name }}</span>
+					<div v-else-if="row.field === 'department_name'" class="leading-snug">
+						<p class="text-ink">{{ column.department_name }}</p>
+						<p class="text-s text-ink-muted">{{ column.department_code }}</p>
+					</div>
 					<div
 						v-else-if="row.field === 'supplier_name'"
 						class="min-w-[150px] max-w-[200px] leading-snug"

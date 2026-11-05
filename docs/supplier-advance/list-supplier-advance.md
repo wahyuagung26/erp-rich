@@ -7,7 +7,7 @@ path: /supplier-advance
 status: mock
 tags: [supplier-advance, read, list]
 resource: /frontend/src/mocks/modules/supplier-advance.ts
-timestamp: 2026-11-05T00:00:00Z
+timestamp: 2026-11-05T23:00:00Z
 ---
 
 # List Supplier Advance
@@ -20,7 +20,7 @@ Backs `views/supplier-advance/pages/PageSupplierAdvanceTable.vue` (via `useTable
 
 | Name | Type | Required | Notes |
 |---|---|---|---|
-| `page`, `per_page`, `sort_by`, `sort_order` | — | no | `sort_by` accepts `date`, `number`, `remaining` — set via the sortable `Tanggal` / `Nomor` / `Saldo Tersedia` table headers |
+| `page`, `per_page`, `sort_by`, `sort_order` | — | no | `sort_by` accepts `date`, `number`, `remaining` — set via the sortable `Tanggal` / `Nomor` / `Sisa` table headers |
 | `q` | string | no | matches number, supplier code/name, date, or description; case-insensitive |
 | `date_from` | string | no | `YYYY-MM-DD`, inclusive lower bound on `date` |
 | `date_to` | string | no | `YYYY-MM-DD`, inclusive upper bound on `date` |
@@ -37,7 +37,7 @@ advance's usage rows, so they are always current without being stored twice.
   "data": [
     {
       "id": 1, "number": "UMS-RICH/0001/09/2026", "date": "2026-09-05",
-      "department_id": 10, "department_code": "Produksi", "department_name": "Produksi",
+      "department_id": 10, "department_code": "PRD", "department_name": "Produksi",
       "supplier_id": 12, "supplier_code": "RC00007", "supplier_name": "PT Rahadhyan International Capital Haven",
       "amount": 250000000, "used": 150000000, "remaining": 100000000,
       "last_payable_number": "AP-RICH.CEM/0002/09/2026",

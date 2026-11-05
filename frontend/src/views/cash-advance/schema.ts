@@ -64,8 +64,8 @@ export const cashAdvanceRequestSchema = v.object({
 	recipient: v.pipe(v.string(), v.trim(), v.nonEmpty('Penerima wajib diisi')),
 	description: v.string(),
 	amount: v.pipe(
-		v.number('Nilai wajib diisi'),
-		v.check((n) => n > 0, 'Nilai wajib diisi')
+		v.number('Nominal wajib diisi'),
+		v.check((n) => n > 0, 'Nominal wajib diisi')
 	),
 	cash_account_id: v.pipe(
 		v.number('Akun kas/bank wajib dipilih'),
@@ -102,7 +102,7 @@ export function parseCashAdvance(data: CashAdvanceDraft): { data: CashAdvanceReq
 					(messages as string[])[0]
 				])
 			)
-	if (data.amount < data.used) errors.amount = 'Nilai tidak boleh kurang dari nilai yang sudah terpakai'
+	if (data.amount < data.used) errors.amount = 'Nominal tidak boleh kurang dari nominal yang sudah terpakai'
 	return Object.keys(errors).length ? { data: null, errors } : { data: result.success ? result.output : null, errors: null }
 }
 

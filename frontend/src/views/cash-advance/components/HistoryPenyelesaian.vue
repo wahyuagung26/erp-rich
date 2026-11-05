@@ -44,7 +44,7 @@ const columns: TableRow[] = [
 	{ label: 'No', field: 'no', align: 'left' },
 	{ label: 'Tanggal', field: 'date', align: 'left' },
 	{ label: 'Nomor Penyelesaian', field: 'number', align: 'left' },
-	{ label: 'Nilai', field: 'amount', align: 'right' },
+	{ label: 'Nominal', field: 'amount', align: 'right' },
 	{ label: 'Sisa Setelah', field: 'remaining_after', align: 'right' },
 	{ label: 'Lampiran', field: 'attachments', align: 'left' },
 	{ label: 'Aksi', field: 'action', align: 'right' }

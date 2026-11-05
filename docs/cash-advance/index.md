@@ -3,7 +3,7 @@ type: OKF Module
 title: Cash Advance
 description: Operational cash advance (uang muka operasional) — an amount handed to a recipient against a department, tracked to settlement, with the same approval workflow as Journal.
 tags: [cash-advance, advance, approval, settlement]
-timestamp: 2026-11-05T21:00:00Z
+timestamp: 2026-11-05T22:00:00Z
 ---
 
 # Cash Advance
@@ -33,7 +33,7 @@ advance's `status` is `approved`.
 | `department_code` / `department_name` | string | denormalized, response only |
 | `recipient` | string | "Penerima" — free-text name; required |
 | `description` | string | "Keterangan"; optional |
-| `amount` | number | "Nilai"; required, > 0 |
+| `amount` | number | "Nominal"; required, > 0 |
 | `used` | number | "Terpakai" — server-computed, read-only; `0` until a settlement flow exists |
 | `remaining` | number | "Sisa" — server-computed = `amount - used` |
 | `cash_account_id` | number | "Sumber Dana (Kas / Bank)" — the cash/bank account reduced when the advance is paid out; must be a `cash_bank` [`Account`](../account/index.md) |
@@ -60,7 +60,7 @@ advance's `status` is `approved`.
 | `description` | string | "Keterangan"; optional |
 | `attachments` | object[] | 1–10 PDF/JPG/JPEG/PNG files, max 5 MB each; at least one required |
 | `lines` | object[] | expense lines ("Detail Biaya"): `account_id`, `department_id`, `cash_flow?`, `detail_description?`, `debit`, `credit` (+ denormalized `account_*` / `department_*` / `cash_flow_name`, response only). At least one |
-| `amount` | number | "Nilai" — server-computed = Σ`debit` − Σ`credit` of `lines`; must be `> 0` and `<=` the advance's remaining at the time |
+| `amount` | number | "Nominal" — server-computed = Σ`debit` − Σ`credit` of `lines`; must be `> 0` and `<=` the advance's remaining at the time |
 | `remaining_after` | number | "Sisa Setelah" — response-only, computed = advance `amount` minus the running sum of settlements up to and including this one, ordered by `date` then `id` |
 
 ## Endpoints

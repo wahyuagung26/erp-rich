@@ -68,8 +68,8 @@ function validateRequest(body: CashAdvanceRequest, existingUsed = 0): string | n
 	if (!db.department.find((d) => d.id === Number(body.department_id) && !d.deleted_at)) return 'Departemen tidak valid'
 	if (!String(body.recipient ?? '').trim()) return 'Penerima wajib diisi'
 	const amount = Number(body.amount) || 0
-	if (amount <= 0) return 'Nilai wajib diisi'
-	if (amount < existingUsed) return `Nilai tidak boleh kurang dari nilai yang sudah terpakai (${existingUsed})`
+	if (amount <= 0) return 'Nominal wajib diisi'
+	if (amount < existingUsed) return `Nominal tidak boleh kurang dari nominal yang sudah terpakai (${existingUsed})`
 
 	const cashAccount = db.account.find((a) => a.id === Number(body.cash_account_id) && !a.deleted_at)
 	if (!cashAccount) return 'Akun kas/bank tidak valid'

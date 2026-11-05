@@ -83,7 +83,7 @@ onMounted(async () => {
 							<td :class="[td, 'text-right']">{{ amount(advance.used) }}</td>
 						</tr>
 						<tr>
-							<td :class="[td, 'bg-[#0b6b5a] font-bold text-white']">SALDO TERSEDIA</td>
+							<td :class="[td, 'bg-[#0b6b5a] font-bold text-white']">SISA</td>
 							<td :class="[td, 'bg-[#0b6b5a] text-right font-bold text-white']">{{ amount(advance.remaining) }}</td>
 						</tr>
 					</tbody>

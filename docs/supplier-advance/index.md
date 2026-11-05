@@ -3,7 +3,7 @@ type: OKF Module
 title: Uang Muka Supplier
 description: Supplier advance (uang muka supplier) — a deposit / titipan given to a supplier, applied against supplier payables (hutang). Read-only usage history computed from the usage rows below.
 tags: [supplier-advance, advance, titipan]
-timestamp: 2026-09-08T10:00:00Z
+timestamp: 2026-11-05T17:00:00Z
 ---
 
 # Uang Muka Supplier
@@ -32,7 +32,7 @@ Legacy and are **read-only** in this prototype.
 | `supplier_code` / `supplier_name` | string | denormalized, response only |
 | `amount` | number | "Nominal"; required, `> 0` |
 | `used` | number | "Terpakai" — server-computed from usage rows, read-only |
-| `remaining` | number | "Saldo Tersedia" — server-computed = `amount - used` |
+| `remaining` | number | "Sisa" — server-computed = `amount - used` |
 | `last_payable_number` | string \| null | "No Hutang Terakhir" — `payable_number` of the latest usage row, read-only |
 | `description` | string | "Keterangan"; optional |
 | `cash_account_id` | number | "Akun Kas / Bank"; must be a `cash_bank` [`Account`](../account/index.md) |
