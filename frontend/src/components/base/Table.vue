@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, getCurrentInstance } from 'vue'
+import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { IconArrowNarrowUp, IconArrowNarrowDown } from '@tabler/icons-vue'
 import Spinner from './Spinner.vue'
 import EmptyState from './EmptyState.vue'
@@ -27,18 +27,47 @@ function onRowDblclick(e: MouseEvent, column: Record<string, unknown>) {
 	emit('rowDblclick', column)
 }
 
+// The action column (`field: 'action'`) is pinned to the right edge, so a wide table never needs a sideways scroll just to
+// reach Detail / Edit / Hapus. `edge` = some content is still cut off on the right → draw a divider next to the pinned column.
+const pinned = (field: string) => field === 'action'
+const wrap = ref<HTMLElement>()
+const edge = ref(false)
+const edgeStyle = { boxShadow: 'inset 1px 0 0 rgb(var(--c-hairline))' }
+function measure() {
+	const el = wrap.value
+	if (el) edge.value = el.scrollWidth > el.clientWidth + 1 && el.scrollLeft + el.clientWidth < el.scrollWidth - 1
+}
+let observer: ResizeObserver | undefined
+onMounted(() => {
+	measure()
+	observer = new ResizeObserver(measure)
+	if (wrap.value) observer.observe(wrap.value)
+	const table = wrap.value?.querySelector('table')
+	if (table) observer.observe(table)
+})
+onBeforeUnmount(() => observer?.disconnect())
+watch(
+	() => props.columns,
+	() => nextTick(measure)
+)
+
 const pad = computed(() => (props.density === 'compact' ? 'px-3 py-1.5' : 'px-4 py-2.5'))
 const alignClass = (a?: string) => (a === 'right' ? 'text-right' : a === 'center' ? 'text-center' : 'text-left')
 </script>
 
 <template>
-	<div class="overflow-x-auto rounded-md bg-panel">
+	<div ref="wrap" class="overflow-x-auto rounded-md bg-panel" @scroll.passive="measure">
 		<!-- phone: columns keep a readable width and the table scrolls sideways instead of wrapping text -->
 		<table class="w-full border-collapse text-m max-sm:min-w-[var(--table-min)]" :style="{ '--table-min': rows.length * 110 + 'px' }">
 			<thead class="sticky top-0 z-[1]">
 				<!-- grey header band, rounded at both ends — same look as the line-item tables -->
 				<tr class="bg-fill [&>th:first-child]:rounded-l-md [&>th:last-child]:rounded-r-md">
-					<th v-for="(row, i) in rows" :key="row.field" :class="['font-semibold text-ink-muted', pad, alignClass(row.align)]">
+					<th
+						v-for="(row, i) in rows"
+						:key="row.field"
+						:class="['font-semibold text-ink-muted', pad, alignClass(row.align), pinned(row.field) && 'sticky right-0 z-[2] bg-fill']"
+						:style="pinned(row.field) && edge ? edgeStyle : undefined"
+					>
 						<slot name="table-header" :row="row" :index="i">
 							<button
 								v-if="row.isSort"
@@ -71,11 +100,16 @@ const alignClass = (a?: string) => (a === 'right' ? 'text-right' : a === 'center
 					v-for="(column, rowIndex) in columns"
 					v-else
 					:key="rowIndex"
-					class="transition-colors hover:bg-fill"
+					class="group transition-colors hover:bg-fill"
 					:class="{ 'cursor-pointer': clickable }"
 					@dblclick="onRowDblclick($event, column)"
 				>
-					<td v-for="row in rows" :key="row.field" :class="[pad, alignClass(row.align)]">
+					<td
+						v-for="row in rows"
+						:key="row.field"
+						:class="[pad, alignClass(row.align), pinned(row.field) && 'sticky right-0 z-[1] bg-panel group-hover:bg-fill']"
+						:style="pinned(row.field) && edge ? edgeStyle : undefined"
+					>
 						<slot name="table-content" :row="row" :column="column" :index="rowIndex" :row-index="rowIndex">
 							<span :class="{ tnum: row.align === 'right' }">{{ column[row.field] ?? '-' }}</span>
 						</slot>

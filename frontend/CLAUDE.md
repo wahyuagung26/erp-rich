@@ -56,7 +56,7 @@ Fetches on mount, refetches on page/limit/sort/filter change. Wire it to `<Table
 below the table) and a debounced `applyFilters` (wrap with `useDebounce`). `<Table>` is API-compatible
 with the RICH table: `rows` = column defs `{ label, field, isSort?, align? }`, `columns` = row data,
 slots `#table-header` / `#table-content`, emit `handleSort`. No outer border, no vertical rules,
-hairline between rows, sticky grey (`bg-fill`) rounded header band, hover tint.
+hairline between rows, sticky grey (`bg-fill`) rounded header band, hover tint, and the `field: 'action'` column pinned to the right edge (sticky, with a divider while content is cut off) so a wide table never needs a sideways scroll to reach row actions.
 
 **Feature module layout** — a module touches five places:
 
