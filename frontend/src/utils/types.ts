@@ -885,3 +885,22 @@ export interface PurchaseReceiptInvoiceableLines {
 	}
 	lines: PurchaseInvoiceLine[]
 }
+
+// Audit timeline entry shared by every document that serves `/<resource>/:id/history` — see docs/conventions.md.
+export type HistoryKind = 'created' | 'updated' | 'approved' | 'rejected' | 'info'
+
+export interface HistoryChange {
+	label: string
+	from: string
+	to: string
+}
+
+export interface HistoryEvent {
+	id: number
+	at: string
+	actor: string
+	title: string
+	kind: HistoryKind
+	summary: string | null
+	changes: HistoryChange[]
+}

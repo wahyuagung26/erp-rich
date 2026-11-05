@@ -1,6 +1,7 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { nextId, paginate, sortBy, type ListParams } from '../lib'
+import { diffFields, fmtDate, fmtMoney, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
 import type { SupplierAdvance, SupplierAdvanceUsage } from '@/utils/types'
 
 type SupplierAdvanceRequest = Omit<
@@ -97,8 +98,22 @@ function advanceNumber(date: string, seq: number): string {
 	return `UMS-RICH/${String(seq).padStart(4, '0')}/${mm}/${yyyy}`
 }
 
+const FIELDS: FieldSpec<SupplierAdvance>[] = [
+	{ key: 'date', label: 'Tanggal', format: fmtDate },
+	{ key: 'department_name', label: 'Departemen' },
+	{ key: 'supplier_name', label: 'Supplier' },
+	{ key: 'amount', label: 'Nominal', format: fmtMoney },
+	{ key: 'cash_account_name', label: 'Akun Kas / Bank' },
+	{ key: 'advance_type', label: 'Jenis Uang Muka' },
+	{ key: 'cash_flow_name', label: 'Arus Kas' },
+	{ key: 'description', label: 'Keterangan' },
+	{ key: 'attachment', label: 'Lampiran', format: (file) => (file as SupplierAdvance['attachment'])?.name ?? '–' }
+]
+
 // Contract: docs/supplier-advance/
 export function registerSupplierAdvance(mock: MockAdapter) {
+	registerHistoryRoute(mock, 'supplier-advance', (id) => db.supplierAdvance.some((item) => item.id === id), 'Uang muka supplier tidak ditemukan')
+
 	mock.onGet('/supplier-advance').reply((config) => {
 		const p = (config.params ?? {}) as ListParams & { date_from?: string; date_to?: string }
 		let rows = db.supplierAdvance.map(resolve)
@@ -131,6 +146,7 @@ export function registerSupplierAdvance(mock: MockAdapter) {
 		const seq = db.supplierAdvance.length + 1
 		const row = buildRow(body, { id: nextId(db.supplierAdvance), number: advanceNumber(body.date, seq) })
 		db.supplierAdvance.unshift(row)
+		recordHistory('supplier-advance', row.id, { title: 'Dibuat', kind: 'created' })
 		return [201, { data: resolve(row), message: 'Uang muka supplier ditambahkan' }]
 	})
 
@@ -143,7 +159,9 @@ export function registerSupplierAdvance(mock: MockAdapter) {
 		const error = validateRequest(body)
 		if (error) return [422, { message: error, errors: { amount: [error] } }]
 
+		const before = resolve(row)
 		Object.assign(row, buildRow(body, { id: row.id, number: row.number }))
+		recordUpdate('supplier-advance', row.id, diffFields(before, resolve(row), FIELDS))
 		return [200, { data: resolve(row), message: 'Uang muka supplier diperbarui' }]
 	})
 
@@ -152,7 +170,8 @@ export function registerSupplierAdvance(mock: MockAdapter) {
 		if (index === -1) return [404, { message: 'Uang muka supplier tidak ditemukan' }]
 		if (usagesOf(db.supplierAdvance[index].id).length > 0)
 			return [422, { message: 'Uang muka yang sudah dipakai di Hutang Supplier tidak boleh dihapus' }]
-		db.supplierAdvance.splice(index, 1)
+		const [removed] = db.supplierAdvance.splice(index, 1)
+		purgeHistory('supplier-advance', removed.id)
 		return [200, { message: 'Uang muka supplier dihapus' }]
 	})
 }

@@ -2,10 +2,11 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconArrowLeft, IconPencil, IconPrinter, IconTrash } from '@tabler/icons-vue'
+import { IconArrowLeft, IconPencil, IconPrinter, IconTrash, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { useHistory } from '@/composables/useHistory'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
@@ -20,6 +21,7 @@ const route = useRoute()
 const router = useRouter()
 const { ask } = useConfirm()
 const toast = useToast()
+const history = useHistory()
 const receipt = ref<PurchaseReceipt>()
 const loading = ref(true)
 const notFound = ref(false)
@@ -36,6 +38,12 @@ async function load() {
 }
 const canWrite = computed(() => Boolean(receipt.value && receipt.value.invoice_status !== 'invoiced'))
 const summary = computed(() => (receipt.value ? receiptSummary(receipt.value.lines) : { productCount: 0, totalQuantity: 0 }))
+// Opens the shared record-history modal for this document.
+function openHistory() {
+	const value = receipt.value
+	if (value) history.open({ kode: value.number, endpoint: `/purchase-receipt/${value.id}/history` })
+}
+
 // Opens the print view in a new tab; `?auto=1` makes it call window.print() once rendered.
 function printDoc() {
 	if (receipt.value)
@@ -66,6 +74,7 @@ function remove() {
 				><div class="flex flex-wrap items-center gap-2">
 					<Badge v-if="receipt" :tone="invoiceStatusTone[receipt.invoice_status]">{{ invoiceStatusLabel[receipt.invoice_status] }}</Badge
 					><Button size="sm" variant="subtle" @click="router.push('/purchase-receipt')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button
+					><Button size="sm" variant="subtle" :disabled="!receipt" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button
 					><Button size="sm" variant="subtle" :disabled="!receipt" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button
 					><Button v-if="canWrite" size="sm" variant="secondary" @click="router.push(`/purchase-receipt/edit/${receipt!.id}`)"
 						><IconPencil class="h-4 w-4" /> Edit</Button

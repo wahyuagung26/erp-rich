@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconPlus } from '@tabler/icons-vue'
+import { IconHistory, IconPlus } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { useHistory } from '@/composables/useHistory'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
@@ -26,6 +27,7 @@ const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilter
 })
 const { ask } = useConfirm()
 const toast = useToast()
+const history = useHistory()
 
 const q = ref('')
 const dateFrom = ref('')
@@ -35,6 +37,11 @@ function applyAll() {
 	applyFilters({ q: q.value, date_from: dateFrom.value, date_to: dateTo.value })
 }
 const runSearch = useDebounce(applyAll, 250)
+
+// Opens the shared record-history modal for one row.
+function openHistory(row: SupplierAdvance) {
+	history.open({ kode: row.number, endpoint: `/supplier-advance/${row.id}/history` })
+}
 
 function remove(row: SupplierAdvance) {
 	ask({ title: 'Hapus uang muka supplier', message: `Hapus uang muka supplier "${row.number}"?`, type: 'danger', confirmText: 'Hapus' }, async () => {
@@ -115,6 +122,7 @@ const rows: TableRow[] = [
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"
 						base="/supplier-advance"
+						:actions="[{ label: 'Riwayat', icon: IconHistory, onClick: () => openHistory(column as unknown as SupplierAdvance) }]"
 						:can-modify="(column.used as number) === 0"
 						@remove="remove(column as unknown as SupplierAdvance)"
 					/>

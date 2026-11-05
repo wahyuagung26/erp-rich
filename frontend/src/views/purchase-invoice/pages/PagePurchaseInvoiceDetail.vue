@@ -2,10 +2,11 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconArrowLeft, IconCheck, IconPaperclip, IconPencil, IconPlus, IconPrinter, IconTrash } from '@tabler/icons-vue'
+import { IconArrowLeft, IconCheck, IconPaperclip, IconPencil, IconPlus, IconPrinter, IconTrash, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { useHistory } from '@/composables/useHistory'
 import { useFakturPajak } from '@/composables/useFakturPajak'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
@@ -22,6 +23,7 @@ const route = useRoute()
 const router = useRouter()
 const { ask } = useConfirm()
 const toast = useToast()
+const history = useHistory()
 const invoice = ref<PurchaseInvoice>()
 const loading = ref(true)
 const notFound = ref(false)
@@ -68,6 +70,12 @@ function openTaxInvoice() {
 	if (value) fakturPajak.open({ kode: value.number, endpoint: `/purchase-invoice/${value.id}/tax-invoice`, onSaved: load })
 }
 
+// Opens the shared record-history modal for this document.
+function openHistory() {
+	const value = invoice.value
+	if (value) history.open({ kode: value.number, endpoint: `/purchase-invoice/${value.id}/history` })
+}
+
 // Opens the print view in a new tab; `?auto=1` makes it call window.print() once rendered.
 function printDoc() {
 	if (invoice.value)
@@ -98,6 +106,7 @@ function remove() {
 						approvalStatusLabel[invoice.approval_status]
 					}}</Badge
 					><Button size="sm" variant="subtle" @click="router.push('/purchase-invoice')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button
+					><Button size="sm" variant="subtle" :disabled="!invoice" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button
 					><Button size="sm" variant="subtle" :disabled="!invoice" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button
 					><Button v-if="canWrite" size="sm" variant="secondary" @click="router.push(`/purchase-invoice/edit/${invoice!.id}`)"
 						><IconPencil class="h-4 w-4" /> Edit</Button

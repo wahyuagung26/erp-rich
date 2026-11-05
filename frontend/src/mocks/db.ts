@@ -27,6 +27,7 @@ import { purchaseOrderSeed } from './fixtures/purchase-order'
 import { purchaseReceiptSeed } from './fixtures/purchase-receipt'
 import { purchaseInvoiceSeed } from './fixtures/purchase-invoice'
 import { cashFlowSeed } from './fixtures/cash-flow'
+import { historySeed } from './fixtures/history'
 import type { PostingState } from './fixtures/posting'
 import type {
 	Journal,
@@ -59,7 +60,8 @@ import type {
 	PurchaseOrder,
 	PurchaseReceipt,
 	PurchaseInvoice,
-	CashFlow
+	CashFlow,
+	HistoryEvent
 } from '@/utils/types'
 
 // Single in-memory store shared by every mock module. Mutations persist for
@@ -96,6 +98,7 @@ export const db: {
 	purchaseReceipt: PurchaseReceipt[]
 	purchaseInvoice: PurchaseInvoice[]
 	cashFlow: CashFlow[]
+	history: Record<string, HistoryEvent[]> // `<resource>:<id>` → timeline, see mocks/history.ts
 	posting: Record<number, PostingState> // lazily seeded per company, see mocks/modules/posting.ts
 } = {
 	journal: structuredClone(journalSeed),
@@ -129,5 +132,6 @@ export const db: {
 	purchaseReceipt: structuredClone(purchaseReceiptSeed),
 	purchaseInvoice: structuredClone(purchaseInvoiceSeed),
 	cashFlow: structuredClone(cashFlowSeed),
+	history: structuredClone(historySeed),
 	posting: {}
 }

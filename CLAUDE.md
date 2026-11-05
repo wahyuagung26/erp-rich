@@ -145,6 +145,12 @@ from `src/constant/roles.ts`) checked after auth. `meta.breadcrumb` feeds `<Brea
 `useConfirm().ask(opts, onConfirm)` → `stores/modal.ts` → `<ConfirmDialog>`;
 `useToast().success(msg)` → `stores/toast.ts` → `<ToastHost>`.
 
+Shared document overlays follow the same pattern and take only an `endpoint` that follows a shared contract
+(`docs/conventions.md` / `docs/purchase-invoice/index.md`), so any module can reuse them:
+`useHistory().open({ kode, endpoint })` → `<HistoryModal>` (`GET /<resource>/:id/history`) and
+`useFakturPajak().open({ kode, endpoint, onSaved })` → `<FakturPajakModal>`. In the mock, every write handler
+calls `recordHistory()` (`mocks/history.ts`) so the timeline fills as you use the app.
+
 **Chrome state** (`stores/ui.ts`, persisted to localStorage): sidebar rail collapsed,
 and `density` (`comfortable` | `compact`) which `<Table>` and forms read.
 

@@ -2,10 +2,11 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconArrowLeft, IconPaperclip, IconPencil, IconPrinter, IconTrash } from '@tabler/icons-vue'
+import { IconArrowLeft, IconPaperclip, IconPencil, IconPrinter, IconTrash, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { useHistory } from '@/composables/useHistory'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
@@ -22,6 +23,7 @@ const route = useRoute()
 const router = useRouter()
 const { ask } = useConfirm()
 const toast = useToast()
+const history = useHistory()
 const advance = ref<SupplierAdvance>()
 const loading = ref(true)
 const notFound = ref(false)
@@ -41,6 +43,12 @@ async function load() {
 
 // An advance already used against a payable (hutang) is immutable.
 const locked = computed(() => (advance.value?.used ?? 0) > 0)
+
+// Opens the shared record-history modal for this document.
+function openHistory() {
+	const value = advance.value
+	if (value) history.open({ kode: value.number, endpoint: `/supplier-advance/${value.id}/history` })
+}
 
 // Opens the print view in a new tab; `?auto=1` makes it call window.print() once rendered.
 function printDoc() {
@@ -73,6 +81,7 @@ function remove() {
 				<div class="flex flex-wrap items-center gap-2">
 					<Badge v-if="advance" :tone="advanceUsage(advance).tone" class="mr-1">{{ advanceUsage(advance).label }}</Badge>
 					<Button size="sm" variant="subtle" @click="router.push('/supplier-advance')"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
+					<Button size="sm" variant="subtle" :disabled="!advance" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button>
 					<Button size="sm" variant="subtle" :disabled="!advance" @click="printDoc"><IconPrinter class="h-4 w-4" /> Cetak</Button>
 					<template v-if="advance && !locked">
 						<Button size="sm" variant="secondary" @click="router.push(`/supplier-advance/edit/${advance.id}`)">

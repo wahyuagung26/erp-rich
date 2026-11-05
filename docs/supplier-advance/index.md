@@ -3,7 +3,7 @@ type: OKF Module
 title: Uang Muka Supplier
 description: Supplier advance (uang muka supplier) — a deposit / titipan given to a supplier, applied against supplier payables (hutang). Read-only usage history computed from the usage rows below.
 tags: [supplier-advance, advance, titipan]
-timestamp: 2026-11-05T17:00:00Z
+timestamp: 2026-11-06T02:00:00Z
 ---
 
 # Uang Muka Supplier
@@ -64,3 +64,4 @@ Legacy and are **read-only** in this prototype.
 | PUT | `/supplier-advance/:id` | [update-supplier-advance](./update-supplier-advance.md) |
 | DELETE | `/supplier-advance/:id` | [delete-supplier-advance](./delete-supplier-advance.md) |
 | GET | `/supplier-advance/:id/usage` | [list-supplier-advance-usage](./list-supplier-advance-usage.md) |
+| GET | `/supplier-advance/:id/history` | [get-supplier-advance-history](./get-supplier-advance-history.md) |

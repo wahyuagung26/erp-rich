@@ -3,7 +3,7 @@ type: API Convention
 title: Shared API Conventions
 description: Response envelope, pagination, sorting, auth, and error shape inherited by every endpoint in this bundle.
 tags: [api, convention]
-timestamp: 2026-09-04T10:00:00Z
+timestamp: 2026-11-06T02:00:00Z
 ---
 
 # Shared API Conventions
@@ -64,6 +64,43 @@ never exposes it as a form field or filter control.
 - **Get / update / delete** on a row belonging to a different company than the
   active one returns the same `404` "tidak ditemukan" as a genuinely missing or
   soft-deleted row — existence in another company is never revealed.
+
+## Record history (`/<resource>/:id/history`)
+
+Documents of the Pembelian module expose an audit timeline through one shared shape, read by the
+global `HistoryModal` (`components/common/HistoryModal.vue`, opened with
+`useHistory().open({ kode, endpoint })`). The modal does not know the module — any resource that
+serves `GET /<resource>/:id/history` with this shape can use it.
+
+`200`:
+
+```json
+{
+  "data": [
+    {
+      "id": 3,
+      "at": "2026-11-05T14:40:00.000Z",
+      "actor": "Sri Wahyuni",
+      "title": "Diubah",
+      "kind": "updated",
+      "summary": null,
+      "changes": [{ "label": "Harga Satuan · Kulkas 2 Pintu", "from": "375.000", "to": "400.000" }]
+    }
+  ]
+}
+```
+
+| Field | Type | Notes |
+|---|---|---|
+| `at` | string | ISO timestamp of the event |
+| `actor` | string | who did it (user name, or `Sistem` for automatic events) |
+| `title` | string | display label of the event, e.g. `Dibuat`, `Diubah`, `Disetujui` |
+| `kind` | enum | `created`, `updated`, `approved`, `rejected`, `info` — only drives the timeline dot colour |
+| `summary` | string \| null | one-line context (reference number, reason…) |
+| `changes` | array | field-level diff of an update: `label`, `from`, `to` — all **display-ready strings**, `–` for empty; `[]` when the event has none |
+
+Events are returned **newest first**. Every successful write that changes a document appends one event;
+deleting the document deletes its history. Unknown id → `404` with the module's own "tidak ditemukan" message.
 
 ## Status field
 

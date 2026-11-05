@@ -1,10 +1,12 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { nextId, paginate, sortBy, type ListParams } from '../lib'
+import { diffFields, diffLines, fmtDate, fmtMoney, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
 import type {
 	JournalAttachment,
 	PurchaseInvoice,
 	PurchaseInvoiceLine,
+	PurchaseInvoiceTaxInvoice,
 	PurchaseInvoiceRequest,
 	PurchaseOrder,
 	PurchaseOrderLine,
@@ -117,7 +119,21 @@ function buildLines(body: PurchaseInvoiceRequest): PurchaseInvoiceLine[] {
 	}))
 }
 
+const FIELDS: FieldSpec<PurchaseInvoice>[] = [
+	{ key: 'date', label: 'Tanggal', format: fmtDate },
+	{ key: 'supplier_invoice_number', label: 'Nomor Invoice Supplier' },
+	{ key: 'description', label: 'Keterangan' }
+]
+const LINE_FIELDS: FieldSpec<PurchaseInvoiceLine>[] = [{ key: 'price', label: 'Harga Satuan', format: fmtMoney }]
+const TAX_FIELDS: FieldSpec<PurchaseInvoiceTaxInvoice>[] = [
+	{ key: 'number', label: 'Nomor Faktur Pajak' },
+	{ key: 'date', label: 'Tanggal Faktur Pajak', format: fmtDate },
+	{ key: 'file', label: 'File Faktur Pajak', format: (file) => (file as JournalAttachment | null)?.name ?? '–' }
+]
+
 export function registerPurchaseInvoice(mock: MockAdapter) {
+	registerHistoryRoute(mock, 'purchase-invoice', (id) => db.purchaseInvoice.some((item) => item.id === id), 'Invoice pembelian tidak ditemukan')
+
 	mock.onGet(/\/purchase-receipt\/\d+\/invoiceable-lines$/).reply((config) => {
 		const receipt = db.purchaseReceipt.find((item) => item.id === parentIdOf(config.url))
 		if (!receipt) return [404, { message: 'Penerimaan pembelian tidak ditemukan' }]
@@ -206,6 +222,8 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 		}
 		db.purchaseInvoice.unshift(row)
 		receipt.invoice_status = 'invoiced'
+		recordHistory('purchase-invoice', id, { title: 'Dibuat', kind: 'created', summary: `Dari penerimaan ${receipt.number}` })
+		recordHistory('purchase-receipt', receipt.id, { title: 'Invoice Dibuat', kind: 'info', summary: row.number })
 		return [201, { data: resolve(row), message: 'Invoice pembelian ditambahkan' }]
 	})
 
@@ -217,13 +235,23 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 		const receipt = db.purchaseReceipt.find((item) => item.id === row.purchase_receipt_id) as PurchaseReceipt // locked
 		const error = validate(body, receipt)
 		if (error) return [422, error]
+		const before = resolve(row)
 		Object.assign(row, {
 			date: body.date,
 			supplier_invoice_number: String(body.supplier_invoice_number).trim(),
 			description: String(body.description || '').trim(),
 			lines: buildLines(body)
 		})
-		return [200, { data: resolve(row), message: 'Invoice pembelian diperbarui' }]
+		const after = resolve(row)
+		recordUpdate('purchase-invoice', row.id, [
+			...diffFields(before, after, FIELDS),
+			...diffLines(before.lines, after.lines, {
+				id: (line) => line.product_id,
+				name: (line) => line.product_name ?? `Produk #${line.product_id}`,
+				specs: LINE_FIELDS
+			})
+		])
+		return [200, { data: after, message: 'Invoice pembelian diperbarui' }]
 	})
 
 	mock.onDelete(/\/purchase-invoice\/\d+$/).reply((config) => {
@@ -233,7 +261,11 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 		if (row.approval_status === 'approved') return [422, { message: 'Invoice yang sudah disetujui tidak boleh dihapus' }]
 		db.purchaseInvoice.splice(index, 1)
 		const receipt = db.purchaseReceipt.find((item) => item.id === row.purchase_receipt_id)
-		if (receipt) receipt.invoice_status = 'not_invoiced'
+		if (receipt) {
+			receipt.invoice_status = 'not_invoiced'
+			recordHistory('purchase-receipt', receipt.id, { title: 'Invoice Dihapus', kind: 'info', summary: row.number })
+		}
+		purgeHistory('purchase-invoice', row.id)
 		return [200, { message: 'Invoice pembelian dihapus' }]
 	})
 
@@ -249,6 +281,7 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 		row.approved_by = userName()
 		row.approved_at = now.toISOString()
 		row.kontrabon_number = `KB-RICH/${seq}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`
+		recordHistory('purchase-invoice', row.id, { title: 'Disetujui', kind: 'approved', summary: `Kontrabon ${row.kontrabon_number}` })
 		return [200, { data: resolve(row), message: 'Invoice disetujui' }]
 	})
 
@@ -273,7 +306,14 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 		if (file && file.size > 5 * 1024 * 1024) return [422, invalid('Ukuran lampiran maksimal 5 MB', 'file')]
 		const duplicate = db.purchaseInvoice.some((item) => item.id !== row.id && item.tax_invoice?.number.toLowerCase() === number.toLowerCase())
 		if (duplicate) return [422, invalid('Nomor faktur pajak sudah dipakai invoice lain', 'number')]
+		const previous = row.tax_invoice
 		row.tax_invoice = { number, date: String(body.date), file }
+		recordHistory('purchase-invoice', row.id, {
+			title: previous ? 'Faktur Pajak Diubah' : 'Faktur Pajak Disimpan',
+			kind: 'info',
+			summary: number,
+			changes: previous ? diffFields(previous, row.tax_invoice, TAX_FIELDS) : []
+		})
 		return [200, { data: resolve(row), message: 'Faktur pajak disimpan' }]
 	})
 }

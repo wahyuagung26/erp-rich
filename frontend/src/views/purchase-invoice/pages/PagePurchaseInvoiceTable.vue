@@ -2,13 +2,14 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconPlus } from '@tabler/icons-vue'
+import { IconPlus, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import Badge from '@/components/base/Badge.vue'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { useHistory } from '@/composables/useHistory'
 import { useFakturPajak } from '@/composables/useFakturPajak'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
@@ -31,6 +32,7 @@ const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilter
 })
 const { ask } = useConfirm()
 const toast = useToast()
+const history = useHistory()
 const fakturPajak = useFakturPajak()
 const q = ref('')
 const approvalStatus = ref('')
@@ -44,6 +46,10 @@ const runSearch = useDebounce(applyAll, 250)
 // Opens the shared faktur pajak modal for one row; the list refetches after a save.
 function openTaxInvoice(row: PurchaseInvoice) {
 	fakturPajak.open({ kode: row.number, endpoint: `/purchase-invoice/${row.id}/tax-invoice`, onSaved: fetchList })
+}
+// Opens the shared record-history modal for one row.
+function openHistory(row: PurchaseInvoice) {
+	history.open({ kode: row.number, endpoint: `/purchase-invoice/${row.id}/history` })
 }
 function canWrite(row: PurchaseInvoice) {
 	return row.approval_status === 'pending'
@@ -141,6 +147,7 @@ const rows: TableRow[] = [
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"
 						base="/purchase-invoice"
+						:actions="[{ label: 'Riwayat', icon: IconHistory, onClick: () => openHistory(column as unknown as PurchaseInvoice) }]"
 						:can-modify="canWrite(column as unknown as PurchaseInvoice)"
 						@remove="remove(column as unknown as PurchaseInvoice)"
 					/>

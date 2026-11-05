@@ -3,7 +3,7 @@ type: OKF Module
 title: Purchase Order (Order Pembelian)
 description: Purchase order dengan supplier, gudang, departemen, detail produk, kalkulasi pajak, approval, dan delivery status.
 tags: [purchase-order, procurement]
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-06T02:00:00Z
 ---
 
 # Purchase Order
@@ -74,3 +74,4 @@ client. `pkp_active` dipilih pada level transaksi dan menentukan apakah PPN meng
 | PUT | `/purchase-order/:id` | [update-purchase-order](./update-purchase-order.md) |
 | DELETE | `/purchase-order/:id` | [delete-purchase-order](./delete-purchase-order.md) |
 | PATCH | `/purchase-order/:id/approval` | [update-purchase-order-status](./update-purchase-order-status.md) |
+| GET | `/purchase-order/:id/history` | [get-purchase-order-history](./get-purchase-order-history.md) |

@@ -1,6 +1,7 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { nextId, paginate, sortBy, type ListParams } from '../lib'
+import { diffFields, diffLines, fmtDate, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
 import type { PurchaseOrder, PurchaseReceipt, PurchaseReceiptLine, PurchaseReceiptLineRequest, PurchaseReceiptRequest } from '@/utils/types'
 
 const idOf = (url?: string) => Number(url?.split('/').at(-1))
@@ -149,7 +150,20 @@ function writeGuard(row: PurchaseReceipt): string | null {
 	return null
 }
 
+const FIELDS: FieldSpec<PurchaseReceipt>[] = [
+	{ key: 'date', label: 'Tanggal Penerimaan', format: fmtDate },
+	{ key: 'delivery_note_number', label: 'Surat Jalan Supplier' },
+	{ key: 'department_name', label: 'Departemen' },
+	{ key: 'description', label: 'Keterangan' }
+]
+const LINE_FIELDS: FieldSpec<PurchaseReceiptLine>[] = [
+	{ key: 'quantity', label: 'Jumlah Diterima' },
+	{ key: 'warehouse_name', label: 'Gudang' }
+]
+
 export function registerPurchaseReceipt(mock: MockAdapter) {
+	registerHistoryRoute(mock, 'purchase-receipt', (id) => db.purchaseReceipt.some((item) => item.id === id), 'Penerimaan pembelian tidak ditemukan')
+
 	mock.onGet(/\/purchase-order\/\d+\/receivable-lines$/).reply((config) => {
 		const poId = poIdOfLookup(config.url)
 		const po = db.purchaseOrder.find((item) => item.id === poId)
@@ -215,6 +229,7 @@ export function registerPurchaseReceipt(mock: MockAdapter) {
 		const seq = String(id).padStart(4, '0')
 		const row = buildRow(body, id, `BM-RICH/${seq}/${body.date.slice(5, 7)}/${body.date.slice(0, 4)}`, po)
 		db.purchaseReceipt.unshift(row)
+		recordHistory('purchase-receipt', id, { title: 'Dibuat', kind: 'created' })
 		return [201, { data: resolve(row), message: 'Penerimaan pembelian ditambahkan' }]
 	})
 
@@ -228,7 +243,17 @@ export function registerPurchaseReceipt(mock: MockAdapter) {
 		const error = validate(body, row.id)
 		if (error) return [422, error]
 		const po = db.purchaseOrder.find((item) => item.id === row.purchase_order_id) as PurchaseOrder
+		const before = resolve(row)
 		Object.assign(row, buildRow(body, row.id, row.number, po, row.created_by))
+		const after = resolve(row)
+		recordUpdate('purchase-receipt', row.id, [
+			...diffFields(before, after, FIELDS),
+			...diffLines(before.lines, after.lines, {
+				id: (line) => line.product_id,
+				name: (line) => line.product_name ?? `Produk #${line.product_id}`,
+				specs: LINE_FIELDS
+			})
+		])
 		return [200, { data: resolve(row), message: 'Penerimaan pembelian diperbarui' }]
 	})
 
@@ -237,7 +262,8 @@ export function registerPurchaseReceipt(mock: MockAdapter) {
 		if (index < 0) return [404, { message: 'Penerimaan pembelian tidak ditemukan' }]
 		const guard = writeGuard(db.purchaseReceipt[index])
 		if (guard) return [422, { message: guard.replace('diubah', 'dihapus') }]
-		db.purchaseReceipt.splice(index, 1)
+		const [removed] = db.purchaseReceipt.splice(index, 1)
+		purgeHistory('purchase-receipt', removed.id)
 		return [200, { message: 'Penerimaan pembelian dihapus' }]
 	})
 }

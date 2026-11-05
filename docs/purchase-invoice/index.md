@@ -3,7 +3,7 @@ type: OKF Module
 title: Invoice Pembelian (Purchase Invoice)
 description: Tagihan supplier atas satu penerimaan pembelian — harga per baris, DPP/PPN, approval satu arah yang membentuk hutang (kontrabon), dan faktur pajak.
 tags: [purchase-invoice, procurement, payables]
-timestamp: 2026-11-06T01:00:00Z
+timestamp: 2026-11-06T02:00:00Z
 ---
 
 # Invoice Pembelian
@@ -91,4 +91,5 @@ ada, atau langsung mode **Edit** bila belum.
 | PATCH | `/purchase-invoice/:id/approval` | [update-purchase-invoice-approval](./update-purchase-invoice-approval.md) |
 | GET | `/purchase-invoice/:id/tax-invoice` | [get-purchase-invoice-tax-invoice](./get-purchase-invoice-tax-invoice.md) |
 | PUT | `/purchase-invoice/:id/tax-invoice` | [update-purchase-invoice-tax-invoice](./update-purchase-invoice-tax-invoice.md) |
+| GET | `/purchase-invoice/:id/history` | [get-purchase-invoice-history](./get-purchase-invoice-history.md) |
 | GET | `/purchase-receipt/:id/invoiceable-lines` | [get-purchase-receipt-invoiceable-lines](./get-purchase-receipt-invoiceable-lines.md) |

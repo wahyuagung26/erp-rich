@@ -2,12 +2,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconPlus } from '@tabler/icons-vue'
+import { IconPlus, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { useHistory } from '@/composables/useHistory'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
@@ -37,6 +38,7 @@ const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilter
 })
 const { ask } = useConfirm()
 const toast = useToast()
+const history = useHistory()
 const q = ref('')
 const approvalStatus = ref('')
 const deliveryStatus = ref('')
@@ -53,6 +55,10 @@ function applyAll() {
 	})
 }
 const runSearch = useDebounce(applyAll, 250)
+// Opens the shared record-history modal for one row.
+function openHistory(row: PurchaseOrder) {
+	history.open({ kode: row.number, endpoint: `/purchase-order/${row.id}/history` })
+}
 function canWrite(row: PurchaseOrder) {
 	return row.approval_status !== 'approved' && row.delivery_status === 'not_received'
 }
@@ -143,6 +149,7 @@ const rows: TableRow[] = [
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"
 						base="/purchase-order"
+						:actions="[{ label: 'Riwayat', icon: IconHistory, onClick: () => openHistory(column as unknown as PurchaseOrder) }]"
 						:can-modify="canWrite(column as unknown as PurchaseOrder)"
 						@remove="remove(column as unknown as PurchaseOrder)"
 					/>

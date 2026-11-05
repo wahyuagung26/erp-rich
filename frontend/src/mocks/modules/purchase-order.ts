@@ -1,6 +1,18 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { nextId, paginate, sortBy, type ListParams } from '../lib'
+import {
+	diffFields,
+	diffLines,
+	fmtDate,
+	fmtMoney,
+	fmtPkp,
+	purgeHistory,
+	recordHistory,
+	recordUpdate,
+	registerHistoryRoute,
+	type FieldSpec
+} from '../history'
 import type { PurchaseOrder, PurchaseOrderApprovalStatus, PurchaseOrderLine, PurchaseOrderLineRequest, PurchaseOrderRequest } from '@/utils/types'
 
 const idOf = (url?: string) => Number(url?.split('/').at(-1))
@@ -122,7 +134,25 @@ function writeGuard(row: PurchaseOrder): string | null {
 	return null
 }
 
+const FIELDS: FieldSpec<PurchaseOrder>[] = [
+	{ key: 'date', label: 'Tanggal', format: fmtDate },
+	{ key: 'supplier_name', label: 'Supplier' },
+	{ key: 'pkp_active', label: 'Status PKP', format: fmtPkp },
+	{ key: 'department_name', label: 'Departemen' },
+	{ key: 'warehouse_name', label: 'Gudang Penerima' },
+	{ key: 'purchase_type', label: 'Jenis Pembelian' },
+	{ key: 'address', label: 'Alamat Supplier' },
+	{ key: 'description', label: 'Keterangan' }
+]
+const LINE_FIELDS: FieldSpec<PurchaseOrderLine>[] = [
+	{ key: 'quantity', label: 'Jumlah' },
+	{ key: 'price', label: 'Harga Satuan', format: fmtMoney },
+	{ key: 'discount', label: 'Diskon', format: fmtMoney }
+]
+
 export function registerPurchaseOrder(mock: MockAdapter) {
+	registerHistoryRoute(mock, 'purchase-order', (id) => db.purchaseOrder.some((item) => item.id === id), 'Purchase order tidak ditemukan')
+
 	mock.onGet('/purchase-order').reply((config) => {
 		const p = (config.params ?? {}) as ListParams & {
 			approval_status?: string
@@ -160,6 +190,7 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 		const seq = String(id).padStart(4, '0')
 		const row = buildRow(body, id, `PO-RICH/${seq}/${body.date.slice(5, 7)}/${body.date.slice(0, 4)}`)
 		db.purchaseOrder.unshift(row)
+		recordHistory('purchase-order', id, { title: 'Dibuat', kind: 'created' })
 		return [201, { data: resolve(row), message: 'Order pembelian ditambahkan' }]
 	})
 
@@ -171,7 +202,17 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 		const body = JSON.parse(config.data) as PurchaseOrderRequest
 		const error = validate(body)
 		if (error) return [422, error]
+		const before = resolve(row)
 		Object.assign(row, buildRow(body, row.id, row.number, row.approval_status))
+		const after = resolve(row)
+		recordUpdate('purchase-order', row.id, [
+			...diffFields(before, after, FIELDS),
+			...diffLines(before.lines, after.lines, {
+				id: (line) => line.product_id,
+				name: (line) => line.product_name ?? `Produk #${line.product_id}`,
+				specs: LINE_FIELDS
+			})
+		])
 		return [200, { data: resolve(row), message: 'Order pembelian diperbarui' }]
 	})
 
@@ -180,7 +221,8 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 		if (index < 0) return [404, { message: 'Purchase order tidak ditemukan' }]
 		const guard = writeGuard(db.purchaseOrder[index])
 		if (guard) return [422, { message: guard.replace('diubah', 'dihapus') }]
-		db.purchaseOrder.splice(index, 1)
+		const [removed] = db.purchaseOrder.splice(index, 1)
+		purgeHistory('purchase-order', removed.id)
 		return [200, { message: 'Order pembelian dihapus' }]
 	})
 
@@ -191,10 +233,17 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 		if (!['pending', 'approved', 'rejected'].includes(String(body.status))) return [422, { message: 'Status persetujuan tidak valid' }]
 		if (row.approval_status === 'approved' && body.status !== 'approved')
 			return [422, { message: 'Persetujuan PO yang sudah disetujui tidak dapat dibatalkan' }]
+		const previous = row.approval_status
 		row.approval_status = body.status as PurchaseOrderApprovalStatus
 		row.rejection_reason = body.status === 'rejected' ? 'PO ditolak, silakan periksa kembali detailnya.' : null
 		row.approved_by = body.status === 'approved' ? userName() : null
 		row.approved_at = body.status === 'approved' ? new Date().toISOString() : null
+		if (body.status !== previous) {
+			if (body.status === 'approved') recordHistory('purchase-order', row.id, { title: 'Disetujui', kind: 'approved' })
+			else if (body.status === 'rejected')
+				recordHistory('purchase-order', row.id, { title: 'Ditolak', kind: 'rejected', summary: row.rejection_reason })
+			else recordHistory('purchase-order', row.id, { title: 'Diajukan Ulang', kind: 'info' })
+		}
 		return [200, { data: resolve(row), message: 'Status persetujuan diperbarui' }]
 	})
 }

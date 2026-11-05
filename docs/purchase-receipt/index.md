@@ -3,7 +3,7 @@ type: OKF Module
 title: Penerimaan Pembelian (Purchase Receipt)
 description: Penerimaan barang terhadap order pembelian yang sudah disetujui, per produk, dengan sisa kuantitas dan gudang per baris.
 tags: [purchase-receipt, procurement]
-timestamp: 2026-11-05T23:30:00Z
+timestamp: 2026-11-06T02:00:00Z
 ---
 
 # Penerimaan Pembelian
@@ -80,3 +80,4 @@ always computed **excluding the receipt being read/edited itself** (see
 | PUT | `/purchase-receipt/:id` | [update-purchase-receipt](./update-purchase-receipt.md) |
 | DELETE | `/purchase-receipt/:id` | [delete-purchase-receipt](./delete-purchase-receipt.md) |
 | GET | `/purchase-order/:id/receivable-lines` | [get-purchase-order-receivable-lines](./get-purchase-order-receivable-lines.md) |
+| GET | `/purchase-receipt/:id/history` | [get-purchase-receipt-history](./get-purchase-receipt-history.md) |

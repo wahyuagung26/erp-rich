@@ -4,6 +4,7 @@ import AppTopbar from '@/components/common/AppTopbar.vue'
 import ConfirmDialog from '@/components/base/ConfirmDialog.vue'
 import ToastHost from '@/components/common/ToastHost.vue'
 import FakturPajakModal from '@/components/common/FakturPajakModal.vue'
+import HistoryModal from '@/components/common/HistoryModal.vue'
 import { useUiStore } from '@/stores/ui'
 
 const ui = useUiStore()
@@ -27,6 +28,7 @@ const ui = useUiStore()
 
 		<ConfirmDialog />
 		<FakturPajakModal />
+		<HistoryModal />
 		<ToastHost />
 	</div>
 </template>
