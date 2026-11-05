@@ -19,6 +19,7 @@ import Input from '@/components/base/Input.vue'
 import MoneyInput from '@/components/base/MoneyInput.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Amount from '@/components/base/Amount.vue'
+import Tabs from '@/components/base/Tabs.vue'
 import { payableStatusLabel, payableTone, validatePayment } from '@/views/supplier-payable/schema'
 import type { SupplierPayable } from '@/utils/types'
 
@@ -30,10 +31,20 @@ const row = ref<SupplierPayable>()
 const loading = ref(true)
 const notFound = ref(false)
 
+// Two tabs: static info vs the payment work area. Opens on Pembayaran while there is still something to pay
+// (the usual reason to be here); `?tab=` overrides it.
+const tab = ref('informasi')
+const tabs = computed(() => [
+	{ label: 'Informasi', value: 'informasi' },
+	{ label: `Pembayaran (${row.value?.payments.length ?? 0})`, value: 'pembayaran' }
+])
+
 onMounted(async () => {
 	try {
 		const res = await api.get<{ data: SupplierPayable }>(`/supplier-payable/${route.params.id}`)
 		row.value = res.data.data
+		const wanted = String(route.query.tab ?? '')
+		tab.value = ['informasi', 'pembayaran'].includes(wanted) ? wanted : res.data.data.remaining_total > 0 ? 'pembayaran' : 'informasi'
 	} catch {
 		notFound.value = true
 	} finally {
@@ -63,10 +74,10 @@ const errors = ref<Record<string, string>>({})
 const saving = ref(false)
 const canPay = computed(() => (row.value?.remaining_total ?? 0) > 0)
 
-const paymentTypeLabel = (item: Record<string, unknown>) => `${String(item.code)} — ${String(item.name)}`
+const paymentTypeLabel = (item: Record<string, unknown>) => String(item.name)
 const bankLabel = (item: Record<string, unknown>) => String(item.bank_name)
-const advanceLabel = (item: Record<string, unknown>) => `${String(item.number)} — sisa Rp ${money(Number(item.remaining))}`
-const returnLabel = (item: Record<string, unknown>) => `${String(item.number)} — sisa Rp ${money(Number(item.remaining_total))}`
+const advanceLabel = (item: Record<string, unknown>) => `${String(item.number)} (sisa ${money(Number(item.remaining))})`
+const returnLabel = (item: Record<string, unknown>) => `${String(item.number)} (sisa ${money(Number(item.remaining_total))})`
 
 function pickType(item: Record<string, unknown> | null) {
 	method.value = item ? String(item.method) : undefined
@@ -148,8 +159,26 @@ function removePayment(paymentId: number, number: string) {
 			><EmptyState title="Hutang supplier tidak ditemukan" description="Hutang terbentuk setelah invoice pembelian disetujui."
 		/></Panel>
 		<Panel v-else>
-			<div class="space-y-8">
-				<section class="space-y-3">
+			<div class="space-y-6">
+				<!-- Always visible, above the tabs: Sisa must never hide behind a tab, and it updates right after a payment. -->
+				<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
+					<div>
+						<dt class="text-s text-ink-muted">Total Hutang</dt>
+						<dd class="mt-1 text-l"><Amount :value="row.total" /></dd>
+					</div>
+					<div>
+						<dt class="text-s text-ink-muted">Terbayar</dt>
+						<dd class="mt-1 text-l"><Amount :value="row.paid_total" /></dd>
+					</div>
+					<div>
+						<dt class="text-s text-ink-muted">Sisa Hutang</dt>
+						<dd class="mt-1 text-l font-semibold"><Amount :value="row.remaining_total" /></dd>
+					</div>
+				</dl>
+
+				<Tabs v-model="tab" :tabs="tabs" />
+
+				<section v-if="tab === 'informasi'" class="space-y-3">
 					<h3 class="subhead">Informasi Hutang</h3>
 					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
@@ -190,142 +219,148 @@ function removePayment(paymentId: number, number: string) {
 					</dl>
 				</section>
 
-				<section class="space-y-3">
-					<h3 class="subhead">Ringkasan</h3>
-					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
-						<div>
-							<dt class="text-s text-ink-muted">Total Hutang</dt>
-							<dd class="mt-1 text-m"><Amount :value="row.total" /></dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Terbayar</dt>
-							<dd class="mt-1 text-m"><Amount :value="row.paid_total" /></dd>
-						</div>
-						<div>
-							<dt class="text-s text-ink-muted">Sisa Hutang</dt>
-							<dd class="mt-1 text-m font-semibold"><Amount :value="row.remaining_total" /></dd>
-						</div>
-					</dl>
-				</section>
+				<div v-else class="space-y-8">
+					<section class="space-y-3">
+						<h3 class="subhead">Catat Pembayaran</h3>
+						<form v-if="canPay" class="space-y-4" @submit.prevent="savePayment">
+							<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
+								<FormField label="Tanggal" required :error="errors.date">
+									<DatePicker v-model="payment.date" :min="row.date" :max="today" />
+								</FormField>
+								<FormField label="Tipe Pembayaran" required :error="errors.payment_type_id">
+									<AsyncSelect
+										:model-value="payment.payment_type_id || null"
+										endpoint="/payment-type"
+										:params="{ transaction_type: 'purchase', method: 'cash_bank,return_deduction,down_payment' }"
+										:option-label="paymentTypeLabel"
+										placeholder="Pilih tipe pembayaran…"
+										@update:model-value="(value) => (payment.payment_type_id = value ? Number(value) : 0)"
+										@select="pickType"
+									/>
+								</FormField>
+								<!-- Always one field in this slot so the grid never reflows when the type changes. -->
+								<FormField
+									v-if="method === 'cash_bank'"
+									label="Akun Cash / Bank"
+									required
+									:error="errors.bank_account_id"
+									hint="Rekening tempat dana keluar"
+								>
+									<AsyncSelect
+										:model-value="payment.bank_account_id"
+										endpoint="/bank-account"
+										:option-label="bankLabel"
+										placeholder="Cari rekening…"
+										@update:model-value="(value) => (payment.bank_account_id = value ? Number(value) : null)"
+									/>
+								</FormField>
+								<FormField
+									v-else-if="method === 'return_deduction'"
+									label="Retur Pembelian"
+									required
+									:error="errors.purchase_return_id"
+									hint="Retur yang sudah disetujui dari supplier ini"
+								>
+									<AsyncSelect
+										:model-value="payment.purchase_return_id"
+										endpoint="/purchase-return"
+										:params="{ supplier_id: row.supplier_id ?? 0, approval_status: 'approved', settlement_status: 'open' }"
+										:option-label="returnLabel"
+										placeholder="Cari retur…"
+										@update:model-value="(value) => (payment.purchase_return_id = value ? Number(value) : null)"
+										@select="pickReturn"
+									/>
+								</FormField>
+								<FormField
+									v-else-if="method === 'down_payment'"
+									label="Uang Muka Supplier"
+									required
+									:error="errors.supplier_advance_id"
+									hint="Uang muka dari supplier ini yang masih punya sisa"
+								>
+									<AsyncSelect
+										:model-value="payment.supplier_advance_id"
+										endpoint="/supplier-advance"
+										:params="{ supplier_id: row.supplier_id ?? 0, has_balance: 1 }"
+										:option-label="advanceLabel"
+										placeholder="Cari uang muka…"
+										@update:model-value="(value) => (payment.supplier_advance_id = value ? Number(value) : null)"
+										@select="pickAdvance"
+									/>
+								</FormField>
+								<FormField v-else label="Referensi" hint="Terisi setelah tipe pembayaran dipilih">
+									<Input disabled placeholder="–" />
+								</FormField>
+								<FormField label="Nominal" required :error="errors.amount" :hint="`Maksimal sisa hutang Rp ${money(row.remaining_total)}`">
+									<MoneyInput v-model="payment.amount" blank-zero placeholder="0" />
+								</FormField>
+								<FormField class="md:col-span-2" label="Keterangan" :error="errors.description">
+									<Input v-model="payment.description" maxlength="250" placeholder="Keterangan pembayaran (opsional)" />
+								</FormField>
+							</div>
+							<div class="flex flex-wrap justify-end gap-2 pt-2">
+								<Button type="submit" :loading="saving"><IconPlus v-if="!saving" class="h-4 w-4" /> Catat Pembayaran</Button>
+							</div>
+						</form>
+						<p v-else class="text-s text-ink-muted">Hutang sudah lunas — tidak ada sisa yang perlu dibayar.</p>
+					</section>
 
-				<section class="space-y-3">
-					<h3 class="subhead">Riwayat Pembayaran</h3>
-					<div class="overflow-x-auto">
-						<table class="w-full min-w-[820px] text-m">
-							<thead>
-								<tr class="bg-fill text-left text-s font-medium text-ink-muted [&>th:first-child]:rounded-l-md [&>th:last-child]:rounded-r-md">
-									<th class="px-3 py-2">Tanggal</th>
-									<th class="px-3 py-2">Nomor</th>
-									<th class="px-3 py-2">Tipe</th>
-									<th class="px-3 py-2">Referensi</th>
-									<th class="px-3 py-2">Keterangan</th>
-									<th class="px-3 py-2 text-right">Nominal</th>
-									<th class="w-12 px-3 py-2" />
-								</tr>
-							</thead>
-							<tbody>
-								<tr v-if="!row.payments.length">
-									<td colspan="7" class="px-3 py-6 text-center text-s text-ink-muted">Belum ada pembayaran.</td>
-								</tr>
-								<tr v-for="item in row.payments" :key="item.id" class="border-b border-hairline last:border-0">
-									<td class="tnum whitespace-nowrap px-3 py-3 text-ink-muted">{{ date(item.date) }}</td>
-									<td class="whitespace-nowrap px-3 py-3 text-ink">{{ item.number }}</td>
-									<td class="whitespace-nowrap px-3 py-3 text-ink">{{ item.payment_type_name }}</td>
-									<td class="px-3 py-3 text-ink">
-										<RouterLink
-											v-if="item.purchase_return_id"
-											:to="`/purchase-return/${item.purchase_return_id}`"
-											class="whitespace-nowrap text-primary-dark hover:underline"
-											>{{ item.purchase_return_number }}</RouterLink
-										>
-										<RouterLink
-											v-else-if="item.supplier_advance_id"
-											:to="`/supplier-advance/${item.supplier_advance_id}`"
-											class="whitespace-nowrap text-primary-dark hover:underline"
-											>{{ item.supplier_advance_number }}</RouterLink
-										>
-										<template v-else>{{ item.bank_account_name ?? '–' }}</template>
-									</td>
-									<td class="px-3 py-3 text-ink-muted">{{ item.description || '–' }}</td>
-									<td class="px-3 py-3 text-right"><Amount :value="item.amount" /></td>
-									<td class="px-3 py-3 text-right">
-										<button class="text-ink-subtle hover:text-danger" title="Batalkan pembayaran" @click="removePayment(item.id, item.number)">
-											<IconTrash class="h-4 w-4" />
-										</button>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-
-					<form v-if="canPay" class="space-y-3 pt-2" @submit.prevent="savePayment">
-						<h4 class="text-m font-medium text-ink">Catat Pembayaran</h4>
-						<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-4">
-							<FormField label="Tanggal" required :error="errors.date"><DatePicker v-model="payment.date" :min="row.date" :max="today" /></FormField>
-							<FormField label="Tipe Pembayaran" required :error="errors.payment_type_id" hint="Transfer, potong retur, atau uang muka supplier">
-								<AsyncSelect
-									:model-value="payment.payment_type_id || null"
-									endpoint="/payment-type"
-									:params="{ transaction_type: 'purchase', method: 'cash_bank,return_deduction,down_payment' }"
-									:option-label="paymentTypeLabel"
-									placeholder="Pilih tipe pembayaran…"
-									@update:model-value="(value) => (payment.payment_type_id = value ? Number(value) : 0)"
-									@select="pickType"
-								/>
-							</FormField>
-							<FormField v-if="method === 'cash_bank'" label="Akun Cash / Bank" required :error="errors.bank_account_id">
-								<AsyncSelect
-									:model-value="payment.bank_account_id"
-									endpoint="/bank-account"
-									:option-label="bankLabel"
-									placeholder="Cari rekening…"
-									@update:model-value="(value) => (payment.bank_account_id = value ? Number(value) : null)"
-								/>
-							</FormField>
-							<FormField
-								v-else-if="method === 'return_deduction'"
-								label="Retur Pembelian"
-								required
-								:error="errors.purchase_return_id"
-								hint="Retur yang sudah disetujui dari supplier ini"
-							>
-								<AsyncSelect
-									:model-value="payment.purchase_return_id"
-									endpoint="/purchase-return"
-									:params="{ supplier_id: row.supplier_id ?? 0, approval_status: 'approved', settlement_status: 'open' }"
-									:option-label="returnLabel"
-									placeholder="Cari retur…"
-									@update:model-value="(value) => (payment.purchase_return_id = value ? Number(value) : null)"
-									@select="pickReturn"
-								/>
-							</FormField>
-							<FormField
-								v-else-if="method === 'down_payment'"
-								label="Uang Muka Supplier"
-								required
-								:error="errors.supplier_advance_id"
-								hint="Uang muka dari supplier ini yang masih punya sisa"
-							>
-								<AsyncSelect
-									:model-value="payment.supplier_advance_id"
-									endpoint="/supplier-advance"
-									:params="{ supplier_id: row.supplier_id ?? 0, has_balance: 1 }"
-									:option-label="advanceLabel"
-									placeholder="Cari uang muka…"
-									@update:model-value="(value) => (payment.supplier_advance_id = value ? Number(value) : null)"
-									@select="pickAdvance"
-								/>
-							</FormField>
-							<FormField label="Nominal" required :error="errors.amount" :hint="`Maksimal sisa hutang Rp ${money(row.remaining_total)}`">
-								<MoneyInput v-model="payment.amount" blank-zero placeholder="0" />
-							</FormField>
-							<FormField label="Keterangan" :error="errors.description"><Input v-model="payment.description" maxlength="250" /></FormField>
+					<section class="space-y-3">
+						<h3 class="subhead">Riwayat Pembayaran</h3>
+						<div class="overflow-x-auto">
+							<table class="w-full min-w-[820px] text-m">
+								<thead>
+									<tr class="bg-fill text-left text-s font-medium text-ink-muted [&>th:first-child]:rounded-l-md [&>th:last-child]:rounded-r-md">
+										<th class="px-3 py-2">Tanggal</th>
+										<th class="px-3 py-2">Nomor</th>
+										<th class="px-3 py-2">Tipe</th>
+										<th class="px-3 py-2">Referensi</th>
+										<th class="px-3 py-2">Keterangan</th>
+										<th class="px-3 py-2 text-right">Nominal</th>
+										<th class="w-12 px-3 py-2" />
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-if="!row.payments.length">
+										<td colspan="7" class="px-3 py-6 text-center text-s text-ink-muted">Belum ada pembayaran.</td>
+									</tr>
+									<tr v-for="item in row.payments" :key="item.id" class="border-b border-hairline last:border-0">
+										<td class="tnum whitespace-nowrap px-3 py-3 text-ink-muted">{{ date(item.date) }}</td>
+										<td class="whitespace-nowrap px-3 py-3 text-ink">{{ item.number }}</td>
+										<td class="whitespace-nowrap px-3 py-3 text-ink">{{ item.payment_type_name }}</td>
+										<td class="px-3 py-3 text-ink">
+											<RouterLink
+												v-if="item.purchase_return_id"
+												:to="`/purchase-return/${item.purchase_return_id}`"
+												class="whitespace-nowrap text-primary-dark hover:underline"
+												>{{ item.purchase_return_number }}</RouterLink
+											>
+											<RouterLink
+												v-else-if="item.supplier_advance_id"
+												:to="`/supplier-advance/${item.supplier_advance_id}`"
+												class="whitespace-nowrap text-primary-dark hover:underline"
+												>{{ item.supplier_advance_number }}</RouterLink
+											>
+											<template v-else>{{ item.bank_account_name ?? '–' }}</template>
+										</td>
+										<td class="px-3 py-3 text-ink-muted">{{ item.description || '–' }}</td>
+										<td class="px-3 py-3 text-right"><Amount :value="item.amount" /></td>
+										<td class="px-3 py-3 text-right">
+											<button
+												type="button"
+												class="grid h-7 w-7 place-items-center rounded-md text-ink-muted hover:bg-danger-soft hover:text-danger"
+												title="Batalkan pembayaran"
+												@click="removePayment(item.id, item.number)"
+											>
+												<IconTrash class="h-4 w-4" />
+											</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
-						<div class="flex justify-end">
-							<Button type="submit" size="sm" :loading="saving"><IconPlus v-if="!saving" class="h-4 w-4" /> Catat</Button>
-						</div>
-					</form>
-				</section>
+					</section>
+				</div>
 			</div>
 		</Panel>
 	</div>
