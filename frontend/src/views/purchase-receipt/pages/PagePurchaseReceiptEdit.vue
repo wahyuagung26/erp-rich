@@ -91,7 +91,6 @@ async function save(payload: PurchaseReceiptRequest) {
 			}"
 			po-locked
 			:transaction-number="receipt.number"
-			:invoice-status="receipt.invoice_status"
 			:loading="saving"
 			submit-label="Simpan Perubahan"
 			@submit="save"

@@ -628,6 +628,8 @@ export interface PurchaseOrder {
 	supplier_id: number
 	supplier_code?: string
 	supplier_name?: string
+	supplier_phone?: string
+	supplier_contact_person?: string
 	pkp_active: boolean
 	department_id: number
 	department_code?: string

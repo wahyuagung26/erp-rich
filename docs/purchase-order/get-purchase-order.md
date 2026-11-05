@@ -7,13 +7,14 @@ path: /purchase-order/:id
 status: mock
 tags: [purchase-order, read]
 resource: /frontend/src/mocks/modules/purchase-order.ts
-timestamp: 2026-09-09T00:00:00Z
+timestamp: 2026-11-05T12:00:00Z
 ---
 
 # Get Purchase Order
 
 Backs `views/purchase-order/pages/PagePurchaseOrderDetail.vue` (read-only view) and
-`PagePurchaseOrderEdit.vue` (loads the record into the form).
+`PagePurchaseOrderEdit.vue` (loads the record into the form) and
+`PagePurchaseOrderPrint.vue` (print view, A4 portrait; shows a "DRAFT" watermark while `approval_status` is `pending`).
 
 ## Request
 

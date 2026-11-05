@@ -90,6 +90,18 @@ const routes: RouteRecordRaw[] = [
 		component: () => import('@/views/cash-advance/pages/PageCashAdvanceSettlementPrint.vue'),
 		meta: { auth: true }
 	},
+	{
+		path: '/purchase-receipt/:id/cetak',
+		name: 'PurchaseReceiptPrint',
+		component: () => import('@/views/purchase-receipt/pages/PagePurchaseReceiptPrint.vue'),
+		meta: { auth: true }
+	},
+	{
+		path: '/purchase-order/:id/cetak',
+		name: 'PurchaseOrderPrint',
+		component: () => import('@/views/purchase-order/pages/PagePurchaseOrderPrint.vue'),
+		meta: { auth: true }
+	},
 	{ path: '/journal/:id/cetak', name: 'JournalPrint', component: () => import('@/views/journal/pages/PageJournalPrint.vue'), meta: { auth: true } },
 	{
 		path: '/journal-expense/:id/cetak',

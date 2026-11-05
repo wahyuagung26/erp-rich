@@ -7,13 +7,14 @@ path: /purchase-receipt/:id
 status: mock
 tags: [purchase-receipt, read]
 resource: /frontend/src/mocks/modules/purchase-receipt.ts
-timestamp: 2026-09-09T12:00:00Z
+timestamp: 2026-11-05T14:00:00Z
 ---
 
 # Get Purchase Receipt
 
 Backs `views/purchase-receipt/pages/PagePurchaseReceiptDetail.vue` (read-only view) and
-`PagePurchaseReceiptEdit.vue` (loads the record into the form).
+`PagePurchaseReceiptEdit.vue` (loads the record into the form) and
+`PagePurchaseReceiptPrint.vue` (print view, A4 portrait; prints only lines with `quantity` > 0).
 
 ## Request
 

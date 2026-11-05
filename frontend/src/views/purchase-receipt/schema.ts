@@ -124,7 +124,10 @@ export function validatePurchaseReceipt(data: unknown): Record<string, string> |
 	return parsePurchaseReceipt(data).errors
 }
 
-export const invoiceOptions = [{ label: '- Semua -', value: '' }, ...Object.entries(invoiceStatusLabel).map(([value, label]) => ({ value, label }))]
+export const invoiceOptions = [
+	{ label: 'Semua Status Invoice', value: '' },
+	...Object.entries(invoiceStatusLabel).map(([value, label]) => ({ value, label }))
+]
 
 export function receiptSummary(lines: PurchaseReceiptLineDraft[]) {
 	const received = lines.filter((line) => line.quantity > 0)

@@ -3,7 +3,7 @@ type: OKF Module
 title: Purchase Order (Order Pembelian)
 description: Purchase order dengan supplier, gudang, departemen, detail produk, kalkulasi pajak, approval, dan delivery status.
 tags: [purchase-order, procurement]
-timestamp: 2026-09-09T12:00:00Z
+timestamp: 2026-11-05T12:00:00Z
 ---
 
 # Purchase Order
@@ -24,14 +24,14 @@ client. `pkp_active` dipilih pada level transaksi dan menentukan apakah PPN meng
 | `number` | string | nomor transaksi otomatis, read-only |
 | `date` | string | required; format `YYYY-MM-DD` |
 | `supplier_id` | number | required; supplier master |
-| `supplier_code` `supplier_name` | string \| undefined | resolved display fields |
+| `supplier_code` `supplier_name` `supplier_phone` `supplier_contact_person` | string \| undefined | resolved display fields (phone & contact person feed the print view) |
 | `pkp_active` | boolean | required; `true` applies 11% PPN, `false` applies 0 PPN |
 | `department_id` | number | required; default UI department is `FAT` |
 | `department_code` `department_name` | string \| undefined | resolved display fields |
-| `warehouse_id` | number | required; warehouse master |
+| `warehouse_id` | number | required; warehouse master — UI label "Gudang Penerima" (warehouse where the ordered goods are received) |
 | `warehouse_code` `warehouse_name` | string \| undefined | resolved display fields |
 | `purchase_type` | string \| null | UI options: `E-Money`, `Other`, `PVC`; mock accepts string or null |
-| `address` | string | required |
+| `address` | string | required — UI label "Alamat Supplier"; defaulted from the supplier on pick, editable per PO |
 | `description` | string | required |
 | `approval_status` | enum | `pending`, `approved`, `rejected` |
 | `delivery_status` | enum | `not_received`, `partial`, `full` |

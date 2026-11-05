@@ -9,7 +9,14 @@ import EmptyState from '@/components/base/EmptyState.vue'
 import Spinner from '@/components/base/Spinner.vue'
 import type { JournalAttachment } from '@/utils/types'
 
-const props = defineProps<{ loading: boolean; notFound: boolean; notFoundTitle: string; docNumber?: string; attachments?: JournalAttachment[] }>()
+const props = defineProps<{
+	loading: boolean
+	notFound: boolean
+	notFoundTitle: string
+	docNumber?: string
+	attachments?: JournalAttachment[]
+	portrait?: boolean
+}>()
 
 const route = useRoute()
 const router = useRouter()
@@ -32,6 +39,7 @@ watch(
 
 <template>
 	<div class="min-h-screen bg-canvas print:min-h-0 print:bg-white">
+		<component :is="'style'" v-if="portrait">@page { size: A4 portrait; margin: 0 }</component>
 		<div class="sticky top-0 z-10 flex items-center gap-2 bg-panel px-4 py-2 print:hidden">
 			<Button size="sm" variant="subtle" @click="router.back()"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
 			<Button size="sm" :disabled="!ready" @click="print"><IconPrinter class="h-4 w-4" /> Cetak</Button>
@@ -61,5 +69,11 @@ watch(
 @page {
 	size: A4 landscape;
 	margin: 8mm;
+}
+/* body is bg-canvas (grey) app-wide; keep it off the paper */
+@media print {
+	body {
+		background: #fff;
+	}
 }
 </style>

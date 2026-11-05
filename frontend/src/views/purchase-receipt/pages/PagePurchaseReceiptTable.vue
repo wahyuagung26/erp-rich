@@ -60,11 +60,11 @@ function remove(row: PurchaseReceipt) {
 const rows: TableRow[] = [
 	{ label: 'Tanggal', field: 'date', isSort: { activeSort: 'desc' } },
 	{ label: 'Nomor', field: 'number', isSort: { activeSort: 'asc' } },
-	{ label: 'Gudang', field: 'warehouse_label', isSort: { activeSort: 'asc' } },
-	{ label: 'SJ Supplier', field: 'delivery_note_number', isSort: { activeSort: 'asc' } },
-	{ label: 'Supplier', field: 'supplier_name', isSort: { activeSort: 'asc' } },
-	{ label: 'Status Invoice', field: 'invoice_status' },
+	{ label: 'Departemen', field: 'department_name' },
+	{ label: 'Supplier', field: 'supplier_name' },
+	{ label: 'Gudang', field: 'warehouse_label' },
 	{ label: 'Keterangan', field: 'description' },
+	{ label: 'Status', field: 'invoice_status' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -78,7 +78,7 @@ const rows: TableRow[] = [
 		>
 		<Panel>
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
-				<Input v-model="q" placeholder="Cari nomor / gudang / supplier / SJ…" class="!w-64" @update:model-value="runSearch" />
+				<Input v-model="q" placeholder="Cari nomor / supplier / SJ…" class="!w-64" @update:model-value="runSearch" />
 				<Select v-model="invoiceStatus" :options="invoiceOptions" class="!w-52" @update:model-value="applyAll" />
 				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" @change="applyAll" />
 			</FilterBar>
@@ -91,15 +91,16 @@ const rows: TableRow[] = [
 			>
 				<template #table-content="{ row, column }">
 					<span v-if="row.field === 'date'" class="tnum whitespace-nowrap text-ink-muted">{{ date(column.date as string) }}</span>
-					<button
-						v-else-if="row.field === 'number'"
-						class="whitespace-nowrap text-left text-primary-dark hover:underline"
-						@click="router.push(`/purchase-receipt/${column.id}`)"
-					>
-						{{ column.number }}
-					</button>
-					<span v-else-if="row.field === 'warehouse_label'" class="text-ink">{{ column.warehouse_label || '–' }}</span>
-					<span v-else-if="row.field === 'delivery_note_number'" class="whitespace-nowrap text-ink">{{ column.delivery_note_number || '–' }}</span>
+					<div v-else-if="row.field === 'number'" class="leading-snug">
+						<button class="whitespace-nowrap text-left text-primary-dark hover:underline" @click="router.push(`/purchase-receipt/${column.id}`)">
+							{{ column.number }}
+						</button>
+						<p v-if="column.delivery_note_number" class="whitespace-nowrap text-s text-ink-muted">Surat jalan {{ column.delivery_note_number }}</p>
+					</div>
+					<div v-else-if="row.field === 'department_name'" class="leading-snug">
+						<p class="text-ink">{{ column.department_name }}</p>
+						<p class="text-s text-ink-muted">{{ column.department_code }}</p>
+					</div>
 					<div
 						v-else-if="row.field === 'supplier_name'"
 						class="min-w-[150px] max-w-[200px] leading-snug"
@@ -108,6 +109,14 @@ const rows: TableRow[] = [
 						<p class="line-clamp-2 text-ink">{{ column.supplier_name }}</p>
 						<p class="text-s text-ink-muted">{{ column.supplier_code }}</p>
 					</div>
+					<span v-else-if="row.field === 'warehouse_label'" class="text-ink">{{ column.warehouse_label || '–' }}</span>
+					<p
+						v-else-if="row.field === 'description'"
+						class="line-clamp-2 min-w-[130px] max-w-[200px] text-ink-muted"
+						:title="column.description as string"
+					>
+						{{ column.description || '–' }}
+					</p>
 					<Badge
 						v-else-if="row.field === 'invoice_status'"
 						class="whitespace-nowrap"
@@ -115,9 +124,6 @@ const rows: TableRow[] = [
 					>
 						{{ invoiceStatusLabel[column.invoice_status as keyof typeof invoiceStatusLabel] ?? column.invoice_status }}
 					</Badge>
-					<p v-else-if="row.field === 'description'" class="line-clamp-2 max-w-[220px] text-ink-muted" :title="column.description as string">
-						{{ column.description || '–' }}
-					</p>
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"

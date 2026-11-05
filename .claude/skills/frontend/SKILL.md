@@ -159,13 +159,11 @@ A change that passes `vue-tsc` but was never rendered is **not done**.
   subtitles; drop them on port.
 - **Outlined inputs** (white `bg-panel` + `border border-ink-subtle/30`, disabled = `bg-fill`); **`.tnum` (Inter tabular digits — never `font-mono`) only for money (`<Amount>`) and dates** — NOT codes,
   transaction numbers, phone, or formatted phrases ("30 hari").
-- **Form width**: `DefaultLayout` centres every page in `mx-auto max-w-[1200px]`. Inside that,
-  a form `<Panel class="max-w-5xl">` **left-aligned** (edge lines up with breadcrumb / page
-  title / the list page's full-width Panel); never `mx-auto` on the Panel, never a full-width
-  Panel with the width cap on an inner `<form>`. **Two exceptions → Panel goes full-width** (no
-  cap, same as the list): a form with a wide line-item `<table>`, or a form with too few /
-  too short fields to fill 5xl (small master data). See the DESIGN_SYSTEM.md "small forms"
-  addendum.
+- **Page width**: `DefaultLayout` already wraps every page in `mx-auto max-w-[1200px]`. EVERY page
+  (list, tambah/edit, detail) uses a full-width `<Panel>`, identical to the list — **no `max-w-*` on
+  the page root, the Panel, or a wrapper** (owner decision 2026-11-04; the old `max-w-5xl` rule is
+  superseded). Cap width only on short fields (code `max-w-[200px]`, city `max-w-xs`, days `w-24`,
+  NPWP `w-72`); free text (name, address, notes) stretches.
 - **Density** prop (`comfortable`/`compact`).
 - **Responsive: render ONE variant, never both.** If desktop and phone need different markup
   (a table → per-row cards), switch with `const isMobile = useIsMobile()`
@@ -173,12 +171,12 @@ A change that passes `vue-tsc` but was never rendered is **not done**.
   and hide one with `hidden sm:block` / `sm:hidden` — the hidden copy still mounts and bloats the
   DOM. CSS classes are fine only for sizing one element (`max-sm:w-full`, `sm:grid-cols-3`).
   Reference: `PageCashPosition.vue`.
-- **Action buttons**: forms → primary at the END of the flow; detail/read pages → all actions
-  (`[← Kembali] [✎ Edit] [🗑 Hapus]`, all icon+label) in `PageHeader #actions`, wrapped in one
-  `<div class="flex flex-wrap items-center gap-2">` (see §2 — an unwrapped slot sprays the
-  buttons across the header), with the whole column (`PageHeader` + `Panel`) wrapped in
-  `max-w-5xl` so they align with the Panel edge. A status `<Badge>` for the record goes first
-  inside that same flex div.
+- **Action buttons**: forms → primary at the END of the flow, **right-aligned**
+  (`<div class="flex flex-wrap justify-end gap-2 pt-2">`, Batal `variant="secondary"` then Simpan);
+  detail/read pages → all actions (`[← Kembali] [✎ Edit] [🗑 Hapus]`, all icon+label) in
+  `PageHeader #actions`, wrapped in one `<div class="flex flex-wrap items-center gap-2">` (see §2 —
+  an unwrapped slot sprays the buttons across the header). A status `<Badge>` for the record goes
+  first inside that same flex div.
 - **Minimalism here = borderless surfaces + whitespace grouping, NOT fewer controls.** Do not
   trim conventional affordances for aesthetics — this project's reviewer has repeatedly asked
   for them back: keep the explicit **Back** button (a breadcrumb is not a substitute), keep
@@ -186,3 +184,32 @@ A change that passes `vue-tsc` but was never rendered is **not done**.
   don't shrink form width so far it looks unfinished. When unsure, keep the standard control.
 - `views/auth/LoginView.vue` deliberately keeps the legacy split-screen layout + navy brand
   panel — that exception is intentional.
+
+## 7. Owner conventions asked for repeatedly — apply BEFORE the first screenshot
+
+Each of these cost a correction round in the Pembelian (PO / receipt / uang muka supplier) polish.
+The owner's standing instinct is **"make it seamless with the pages that already exist"** — so
+before designing any list/form/detail, open the closest finished sibling and copy it:
+list → `PageCashAdvanceTable.vue` / `PageJournalExpenseTable.vue`; line-item form →
+`FormJournalLines.vue` (Jurnal Umum "Detail Jurnal"); detail → `PageJournalDetail.vue`.
+
+**List pages (`PageXTable.vue`)**
+- Column order: **Tanggal is always the leftmost column**, then Nomor, then Departemen/Supplier…, money last, action column last.
+- The identifier column header is **"Nomor"** — never "No. Transaksi", "Nomor Transaksi", "BM #". Same label on detail pages and docs.
+- **No "No" (row-index) column.** Keep `show-limit` default and `TablePagination` like the other lists.
+- Departemen / Supplier / Pembuat = **stacked cell**: `<div class="leading-snug"><p class="text-ink">{{ name }}</p><p class="text-s text-ink-muted">{{ code }}</p></div>`. Secondary info (keterangan — never "oleh {pembuat}", the owner removed it) goes as a muted second line under Nomor, not as extra columns.
+- Anything that must not break mid-token — nomor, voucher, tanggal, status `Badge` — gets `whitespace-nowrap`. Adding a column makes the table squeeze these first; after adding/reordering columns, screenshot at the default viewport and look for "JM-2608-/001"-style wraps and mid-word ellipses.
+- Several statuses (approval + delivery) = stacked badges in one cell, not two columns.
+
+**Line-item forms (PO, receipt, anything with lines)**
+- Copy the Jurnal Umum "Detail Jurnal" shape: one table, `bg-fill` header with required `*`, an always-visible inline entry row (Enter saves, + / ✓ / ✕ icon buttons), muted empty-state row, saved rows with edit/delete icons, and the **totals in a `<tfoot>` bar under the table**.
+- Totals/Ringkasan never sit in a separate block beside or below the table's section; never invent a new summary widget.
+- Don't show disabled/derived fields that only restate other fields.
+
+**Field labels & hints** — the users are finance staff, not developers. A label must say *what it is for*, not the column name: "Gudang Penerima" (+ hint "Gudang tempat barang dari PO ini diterima"), "Alamat Supplier" (+ hint "Terisi otomatis dari data supplier, bisa diubah untuk PO ini"). Use `FormField hint` for any field whose purpose or auto-fill behaviour isn't obvious; check the legacy app's wording when unsure.
+
+**Working notes (avoid known time-wasters)**
+- macOS: `sed -i ''` (BSD sed). Parallel Bash calls get blocked by the auto-mode classifier — send screenshot/server commands one at a time.
+- Edit routes are `/<module>/edit/:id` (not `/<module>/:id/edit`); check `src/routes/<module>.ts` before screenshotting.
+- The dev server is usually already running on 5173/5174 — read the port, don't start a second.
+- Changing a list/form's fields still means docs/ ⇄ mock ⇄ UI in the same pass, and bumping the doc's `timestamp:`.

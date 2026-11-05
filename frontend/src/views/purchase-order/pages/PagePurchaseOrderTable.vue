@@ -103,14 +103,18 @@ const rows: TableRow[] = [
 				@handle-sort="handleSort"
 			>
 				<template #table-content="{ row, column }">
-					<div v-if="row.field === 'number'" class="leading-snug">
-						<button class="whitespace-nowrap text-left text-primary-dark hover:underline" @click="router.push(`/purchase-order/${column.id}`)">
-							{{ column.number }}
-						</button>
-						<p class="text-s text-ink-muted">oleh {{ column.created_by }}</p>
-					</div>
+					<button
+						v-if="row.field === 'number'"
+						class="whitespace-nowrap text-left text-primary-dark hover:underline"
+						@click="router.push(`/purchase-order/${column.id}`)"
+					>
+						{{ column.number }}
+					</button>
 					<span v-else-if="row.field === 'date'" class="tnum whitespace-nowrap text-ink-muted">{{ date(column.date as string) }}</span>
-					<span v-else-if="row.field === 'department_name'" class="text-ink">{{ column.department_name }}</span>
+					<div v-else-if="row.field === 'department_name'" class="leading-snug">
+						<p class="text-ink">{{ column.department_name }}</p>
+						<p class="text-s text-ink-muted">{{ column.department_code }}</p>
+					</div>
 					<div
 						v-else-if="row.field === 'supplier_name'"
 						class="min-w-[150px] max-w-[200px] leading-snug"

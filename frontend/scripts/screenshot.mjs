@@ -38,8 +38,16 @@ const chrome = spawn(CHROME, [
 ])
 process.on('exit', () => chrome.kill())
 
-await wait(1500)
-const targets = await (await fetch(`http://localhost:${PORT}/json/list`)).json()
+// Poll until Chrome's DevTools port is up (cold start can exceed a fixed delay).
+let targets
+for (let i = 0; i < 40 && !targets; i++) {
+	await wait(500)
+	targets = await fetch(`http://127.0.0.1:${PORT}/json/list`).then(
+		(r) => r.json(),
+		() => undefined
+	)
+}
+if (!targets) throw new Error(`Chrome DevTools not reachable on :${PORT}`)
 const ws = new WebSocket(targets.find((t) => t.type === 'page').webSocketDebuggerUrl)
 
 let id = 0
@@ -48,8 +56,7 @@ const errors = []
 ws.addEventListener('message', (e) => {
 	const m = JSON.parse(e.data)
 	if (m.id && pending.has(m.id)) pending.get(m.id)(m.result)
-	if (m.method === 'Runtime.consoleAPICalled' && m.params.type === 'error')
-		errors.push(m.params.args.map((a) => a.value ?? a.description).join(' '))
+	if (m.method === 'Runtime.consoleAPICalled' && m.params.type === 'error') errors.push(m.params.args.map((a) => a.value ?? a.description).join(' '))
 	if (m.method === 'Runtime.exceptionThrown') errors.push(m.params.exceptionDetails.exception?.description ?? m.params.exceptionDetails.text)
 })
 await new Promise((r) => (ws.onopen = r))

@@ -99,6 +99,7 @@ const rows: TableRow[] = [
 	{ label: 'Tanggal', field: 'date', align: 'left', isSort: { activeSort: 'desc' } },
 	{ label: 'Nomor', field: 'number', align: 'left' },
 	{ label: 'Voucher', field: 'voucher', align: 'left' },
+	{ label: 'Departemen', field: 'department_name', align: 'left' },
 	{ label: 'Keterangan', field: 'description', align: 'left' },
 	{ label: 'Status', field: 'status', align: 'left' },
 	{ label: 'Nilai (Rp)', field: 'cash_in', align: 'right', isSort: { activeSort: 'asc' } },
@@ -142,10 +143,19 @@ const rows: TableRow[] = [
 						:disabled="(column.status as JournalStatus) !== 'submitted'"
 						@update:model-value="(v) => toggleRow(column.id as number, v)"
 					/>
-					<span v-else-if="row.field === 'date'" class="tnum text-ink-muted">{{ date(column.date as string) }}</span>
-					<span v-else-if="row.field === 'number'" class="text-ink">{{ column.number }}</span>
-					<span v-else-if="row.field === 'voucher'" class="text-ink">{{ column.voucher }}</span>
-					<Badge v-else-if="row.field === 'status'" :tone="statusTone[column.status as JournalStatus]" :title="column.rejection_reason as string">
+					<span v-else-if="row.field === 'date'" class="tnum whitespace-nowrap text-ink-muted">{{ date(column.date as string) }}</span>
+					<span v-else-if="row.field === 'number'" class="whitespace-nowrap text-ink">{{ column.number }}</span>
+					<span v-else-if="row.field === 'voucher'" class="whitespace-nowrap text-ink">{{ column.voucher }}</span>
+					<div v-else-if="row.field === 'department_name'" class="leading-snug">
+						<p class="text-ink">{{ column.department_name }}</p>
+						<p class="text-s text-ink-muted">{{ column.department_code }}</p>
+					</div>
+					<Badge
+						v-else-if="row.field === 'status'"
+						class="whitespace-nowrap"
+						:tone="statusTone[column.status as JournalStatus]"
+						:title="column.rejection_reason as string"
+					>
 						{{ journalStatusLabel[column.status as JournalStatus] ?? column.status }}
 					</Badge>
 					<Amount v-else-if="row.field === 'cash_in'" :value="column.cash_in as number" />

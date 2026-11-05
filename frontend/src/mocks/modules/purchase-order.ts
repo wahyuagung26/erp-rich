@@ -49,6 +49,8 @@ function resolve(row: PurchaseOrder): PurchaseOrder {
 		...row,
 		supplier_code: supplier?.code,
 		supplier_name: supplier?.name,
+		supplier_phone: supplier?.phone,
+		supplier_contact_person: supplier?.contact_person,
 
 		department_code: department?.code,
 		department_name: department?.name,

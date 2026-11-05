@@ -77,9 +77,9 @@ export const purchaseOrderSchema = v.object({
 	supplier_id: requiredId('Supplier wajib dipilih'),
 	pkp_active: v.boolean(),
 	department_id: requiredId('Departemen wajib dipilih'),
-	warehouse_id: requiredId('Gudang wajib dipilih'),
+	warehouse_id: requiredId('Gudang penerima wajib dipilih'),
 	purchase_type: v.nullable(v.string()),
-	address: v.pipe(v.string(), v.trim(), v.nonEmpty('Alamat wajib diisi')),
+	address: v.pipe(v.string(), v.trim(), v.nonEmpty('Alamat supplier wajib diisi')),
 	description: v.pipe(v.string(), v.trim(), v.nonEmpty('Keterangan wajib diisi')),
 	lines: v.pipe(v.array(purchaseOrderLineSchema), v.minLength(1, 'Minimal satu produk harus ditambahkan'))
 })
