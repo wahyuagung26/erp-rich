@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconPlus, IconHistory } from '@tabler/icons-vue'
+import { IconPlus, IconHistory, IconCircleX, IconClockHour4, IconPackage, IconTruckDelivery } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
@@ -61,10 +61,42 @@ const runSearch = useDebounce(applyAll, 250)
 // KPI tiles = presets of the status dropdowns, so tiles and dropdowns always agree (docs/purchase-order/list-purchase-order.md).
 const kpi = useKpiTiles(
 	[
-		{ key: 'pending', label: 'Menunggu Persetujuan', filters: { approval_status: 'pending' } },
-		{ key: 'awaiting_receipt', label: 'Belum Diterima', filters: { approval_status: 'approved', delivery_status: 'not_received' } },
-		{ key: 'partial', label: 'Diterima Sebagian', filters: { approval_status: 'approved', delivery_status: 'partial' } },
-		{ key: 'rejected', label: 'Ditolak', filters: { approval_status: 'rejected' } }
+		{
+			key: 'pending',
+			label: 'Menunggu Persetujuan',
+			filters: { approval_status: 'pending' },
+			icon: IconClockHour4,
+			tone: 'warning',
+			attention: true,
+			emptyText: 'Tidak ada yang menunggu'
+		},
+		{
+			key: 'awaiting_receipt',
+			label: 'Belum Diterima',
+			filters: { approval_status: 'approved', delivery_status: 'not_received' },
+			icon: IconTruckDelivery,
+			tone: 'info',
+			attention: true,
+			emptyText: 'Semua sudah diterima'
+		},
+		{
+			key: 'partial',
+			label: 'Diterima Sebagian',
+			filters: { approval_status: 'approved', delivery_status: 'partial' },
+			icon: IconPackage,
+			tone: 'warning',
+			attention: true,
+			emptyText: 'Tidak ada penerimaan sebagian'
+		},
+		{
+			key: 'rejected',
+			label: 'Ditolak',
+			filters: { approval_status: 'rejected' },
+			icon: IconCircleX,
+			tone: 'danger',
+			attention: true,
+			emptyText: 'Tidak ada yang ditolak'
+		}
 	],
 	{ approval_status: approvalStatus, delivery_status: deliveryStatus },
 	computed(() => pagination.value?.summary),

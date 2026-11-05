@@ -4,7 +4,7 @@ import type { KpiItem } from '@/components/base/KpiFilter.vue'
 import type { KpiSummaryItem } from '@/utils/types'
 
 // A tile is a named preset of the page's own filter refs, e.g. { approval_status: 'approved', delivery_status: 'not_received' }.
-export interface KpiDef {
+export interface KpiDef extends Pick<KpiItem, 'icon' | 'tone' | 'attention' | 'emptyText'> {
 	key: string
 	label: string
 	filters: Record<string, string>
@@ -23,7 +23,16 @@ export function useKpiTiles(
 	const items = computed<KpiItem[]>(() =>
 		defs.map((def) => {
 			const entry = summary.value?.[def.key]
-			return { key: def.key, label: def.label, count: entry?.count, hint: entry?.amount !== undefined ? `Rp ${money(entry.amount)}` : undefined }
+			return {
+				key: def.key,
+				label: def.label,
+				count: entry?.count,
+				hint: entry?.amount !== undefined ? `Rp ${money(entry.amount)}` : undefined,
+				icon: def.icon,
+				tone: def.tone,
+				attention: def.attention,
+				emptyText: def.emptyText
+			}
 		})
 	)
 

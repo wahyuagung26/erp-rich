@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconPlus, IconHistory } from '@tabler/icons-vue'
+import { IconPlus, IconHistory, IconCircleCheck, IconFileInvoice } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import Badge from '@/components/base/Badge.vue'
 import { useTableList } from '@/composables/useTableList'
@@ -46,8 +46,23 @@ const runSearch = useDebounce(applyAll, 250)
 // KPI tiles = presets of the invoice-status dropdown (docs/purchase-receipt/list-purchase-receipt.md).
 const kpi = useKpiTiles(
 	[
-		{ key: 'not_invoiced', label: 'Belum Dibuat Invoice', filters: { invoice_status: 'not_invoiced' } },
-		{ key: 'invoiced', label: 'Sudah Dibuat Invoice', filters: { invoice_status: 'invoiced' } }
+		{
+			key: 'not_invoiced',
+			label: 'Belum Dibuat Invoice',
+			filters: { invoice_status: 'not_invoiced' },
+			icon: IconFileInvoice,
+			tone: 'warning',
+			attention: true,
+			emptyText: 'Semua sudah dibuat invoice'
+		},
+		{
+			key: 'invoiced',
+			label: 'Sudah Dibuat Invoice',
+			filters: { invoice_status: 'invoiced' },
+			icon: IconCircleCheck,
+			tone: 'success',
+			emptyText: 'Belum ada'
+		}
 	],
 	{ invoice_status: invoiceStatus },
 	computed(() => pagination.value?.summary),

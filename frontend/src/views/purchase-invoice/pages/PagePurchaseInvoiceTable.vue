@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { IconPlus, IconHistory } from '@tabler/icons-vue'
+import { IconPlus, IconHistory, IconCircleCheck, IconClockHour4, IconFileAlert } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import Badge from '@/components/base/Badge.vue'
 import { useTableList } from '@/composables/useTableList'
@@ -50,9 +50,32 @@ const runSearch = useDebounce(applyAll, 250)
 // KPI tiles = presets of the status + faktur pajak dropdowns (docs/purchase-invoice/list-purchase-invoice.md).
 const kpi = useKpiTiles(
 	[
-		{ key: 'pending', label: 'Menunggu Persetujuan', filters: { approval_status: 'pending' } },
-		{ key: 'tax_missing', label: 'Belum Ada Faktur Pajak', filters: { tax_invoice: 'missing' } },
-		{ key: 'approved', label: 'Disetujui', filters: { approval_status: 'approved' } }
+		{
+			key: 'pending',
+			label: 'Menunggu Persetujuan',
+			filters: { approval_status: 'pending' },
+			icon: IconClockHour4,
+			tone: 'warning',
+			attention: true,
+			emptyText: 'Semua sudah diproses'
+		},
+		{
+			key: 'tax_missing',
+			label: 'Belum Ada Faktur Pajak',
+			filters: { tax_invoice: 'missing' },
+			icon: IconFileAlert,
+			tone: 'warning',
+			attention: true,
+			emptyText: 'Semua faktur pajak sudah lengkap'
+		},
+		{
+			key: 'approved',
+			label: 'Disetujui',
+			filters: { approval_status: 'approved' },
+			icon: IconCircleCheck,
+			tone: 'success',
+			emptyText: 'Belum ada'
+		}
 	],
 	{ approval_status: approvalStatus, tax_invoice: taxInvoice },
 	computed(() => pagination.value?.summary),
