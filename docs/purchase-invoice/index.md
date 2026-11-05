@@ -3,7 +3,7 @@ type: OKF Module
 title: Invoice Pembelian (Purchase Invoice)
 description: Tagihan supplier atas satu penerimaan pembelian — harga per baris, DPP/PPN, approval satu arah yang membentuk hutang (kontrabon), dan faktur pajak.
 tags: [purchase-invoice, procurement, payables]
-timestamp: 2026-11-06T02:00:00Z
+timestamp: 2026-11-05T12:00:00Z
 ---
 
 # Invoice Pembelian
@@ -16,8 +16,9 @@ Ported from Legacy `/blrefbm`. **Perbedaan dari Legacy:** Legacy membuat invoice
 BM disimpan dan tidak punya create manual; V2 membuatnya lewat form *Tambah* dari penerimaan
 yang belum diinvoice (PRD draft `04-pembelian-invoice.md` juga menggambarkan create manual).
 Keputusan produk final **unresolved** — saat berubah, hanya `create-purchase-invoice` yang bergeser.
-Kontrabon/hutang supplier dan jurnal Posting **di luar scope**: V2 hanya menyimpan
-`kontrabon_number` hasil approval sebagai penanda.
+Jurnal Posting **di luar scope**. Approval membentuk hutang: lihat [supplier-payable](../supplier-payable/index.md)
+(`kontrabon_number` = nomor hutang). Retur atas invoice ini: [purchase-return](../purchase-return/index.md);
+faktur pajak bisa diisi massal lewat [tax-invoice-import](../tax-invoice-import/index.md).
 
 ## Entity: `PurchaseInvoice`
 

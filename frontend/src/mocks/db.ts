@@ -26,6 +26,8 @@ import { productSeed } from './fixtures/product'
 import { purchaseOrderSeed } from './fixtures/purchase-order'
 import { purchaseReceiptSeed } from './fixtures/purchase-receipt'
 import { purchaseInvoiceSeed } from './fixtures/purchase-invoice'
+import { purchaseReturnSeed, purchaseReturnSettlementSeed, type PurchaseReturnSettlementRow } from './fixtures/purchase-return'
+import { supplierPayablePaymentSeed, type SupplierPayablePaymentRow } from './fixtures/supplier-payable'
 import { cashFlowSeed } from './fixtures/cash-flow'
 import { historySeed } from './fixtures/history'
 import type { PostingState } from './fixtures/posting'
@@ -60,6 +62,7 @@ import type {
 	PurchaseOrder,
 	PurchaseReceipt,
 	PurchaseInvoice,
+	PurchaseReturn,
 	CashFlow,
 	HistoryEvent
 } from '@/utils/types'
@@ -97,6 +100,9 @@ export const db: {
 	purchaseOrder: PurchaseOrder[]
 	purchaseReceipt: PurchaseReceipt[]
 	purchaseInvoice: PurchaseInvoice[]
+	purchaseReturn: Omit<PurchaseReturn, 'used_total' | 'refunded_total' | 'remaining_total' | 'settlement_status' | 'settlements'>[]
+	purchaseReturnSettlement: PurchaseReturnSettlementRow[]
+	supplierPayablePayment: SupplierPayablePaymentRow[]
 	cashFlow: CashFlow[]
 	history: Record<string, HistoryEvent[]> // `<resource>:<id>` → timeline, see mocks/history.ts
 	posting: Record<number, PostingState> // lazily seeded per company, see mocks/modules/posting.ts
@@ -131,6 +137,9 @@ export const db: {
 	purchaseOrder: structuredClone(purchaseOrderSeed),
 	purchaseReceipt: structuredClone(purchaseReceiptSeed),
 	purchaseInvoice: structuredClone(purchaseInvoiceSeed),
+	purchaseReturn: structuredClone(purchaseReturnSeed),
+	purchaseReturnSettlement: structuredClone(purchaseReturnSettlementSeed),
+	supplierPayablePayment: structuredClone(supplierPayablePaymentSeed),
 	cashFlow: structuredClone(cashFlowSeed),
 	history: structuredClone(historySeed),
 	posting: {}

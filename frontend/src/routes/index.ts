@@ -32,6 +32,9 @@ import posting from './posting'
 import purchaseOrder from './purchase-order'
 import purchaseReceipt from './purchase-receipt'
 import purchaseInvoice from './purchase-invoice'
+import purchaseReturn from './purchase-return'
+import supplierPayable from './supplier-payable'
+import taxInvoiceImport from './tax-invoice-import'
 
 const routes: RouteRecordRaw[] = [
 	{ path: '/', redirect: '/dashboard' },
@@ -71,6 +74,9 @@ const routes: RouteRecordRaw[] = [
 			...purchaseOrder,
 			...purchaseReceipt,
 			...purchaseInvoice,
+			...purchaseReturn,
+			...supplierPayable,
+			...taxInvoiceImport,
 			{
 				path: '/design-system',
 				name: 'DesignSystem',
@@ -96,6 +102,18 @@ const routes: RouteRecordRaw[] = [
 		path: '/supplier-advance/:id/cetak',
 		name: 'SupplierAdvancePrint',
 		component: () => import('@/views/supplier-advance/pages/PageSupplierAdvancePrint.vue'),
+		meta: { auth: true }
+	},
+	{
+		path: '/purchase-return/:id/cetak',
+		name: 'PurchaseReturnPrint',
+		component: () => import('@/views/purchase-return/pages/PagePurchaseReturnPrint.vue'),
+		meta: { auth: true }
+	},
+	{
+		path: '/supplier-payable/:id/cetak',
+		name: 'SupplierPayablePrint',
+		component: () => import('@/views/supplier-payable/pages/PageSupplierPayablePrint.vue'),
 		meta: { auth: true }
 	},
 	{

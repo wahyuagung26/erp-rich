@@ -59,7 +59,7 @@ function resolveLine(productId: number, quantity: number, price: number, isPkp: 
 	}
 }
 
-function resolve(row: PurchaseInvoice): PurchaseInvoice {
+export function resolve(row: PurchaseInvoice): PurchaseInvoice {
 	const receipt = db.purchaseReceipt.find((item) => item.id === row.purchase_receipt_id)
 	const po = receipt && db.purchaseOrder.find((item) => item.id === receipt.purchase_order_id)
 	const supplier = po && db.supplier.find((item) => item.id === po.supplier_id && !item.deleted_at)

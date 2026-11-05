@@ -579,8 +579,9 @@ export interface SupplierAdvance {
 }
 
 // Usage / realization of a SupplierAdvance against a supplier payable (hutang) —
-// see docs/supplier-advance/. Read-only in the prototype (created by the AP module
-// in Legacy); `used`/`remaining` on the parent are the sum of these amounts.
+// see docs/supplier-advance/. Read-only on the advance side (created by the AP module
+// in Legacy); `used`/`remaining` on the parent are the sum of these amounts. Created from Hutang Supplier payments
+// (method `down_payment`) — see docs/supplier-payable/.
 export interface SupplierAdvanceUsage {
 	id: number
 	supplier_advance_id: number
@@ -911,4 +912,178 @@ export interface HistoryEvent {
 	kind: HistoryKind
 	summary: string | null
 	changes: HistoryChange[]
+}
+
+// Purchase return ("RB"): goods sent back against one approved purchase invoice — see docs/purchase-return/.
+// Same one-field approval vocabulary as the invoice, but approval is two-way (unapprove allowed until settled).
+export type PurchaseReturnSettlementStatus = 'open' | 'settled'
+export type PurchaseReturnSettlementType = 'cash_bank' | 'payable_deduction'
+
+export interface PurchaseReturnLine {
+	product_id: number
+	product_code?: string
+	product_name?: string
+	brand_name?: string
+	unit_name?: string
+	quantity_purchased: number
+	quantity_returned_before: number
+	quantity: number
+	price: number
+	dpp: number
+	ppn: number
+	total: number
+}
+
+export interface PurchaseReturnSettlement {
+	id: number
+	date: string
+	type: PurchaseReturnSettlementType
+	payable_number: string | null
+	payment_number: string | null
+	bank_account_id: number | null
+	bank_account_name?: string
+	description: string
+	amount: number
+}
+
+export interface PurchaseReturn {
+	id: number
+	number: string
+	date: string
+	purchase_invoice_id: number
+	purchase_invoice_number?: string
+	supplier_invoice_number?: string
+	supplier_id?: number
+	supplier_code?: string
+	supplier_name?: string
+	department_id?: number
+	department_code?: string
+	department_name?: string
+	warehouse_id: number
+	warehouse_code?: string
+	warehouse_name?: string
+	reason: string
+	pkp_active: boolean
+	approval_status: PurchaseInvoiceApprovalStatus
+	approved_by: string | null
+	approved_at: string | null
+	tax_invoice: PurchaseInvoiceTaxInvoice | null
+	created_by: string
+	lines: PurchaseReturnLine[]
+	dpp: number
+	ppn: number
+	total: number
+	used_total: number
+	refunded_total: number
+	remaining_total: number
+	settlement_status: PurchaseReturnSettlementStatus
+	settlements: PurchaseReturnSettlement[]
+}
+
+// API input only — price/amounts come from the invoice and the server.
+export interface PurchaseReturnRequest {
+	purchase_invoice_id: number
+	date: string
+	warehouse_id: number
+	reason: string
+	lines: { product_id: number; quantity: number }[]
+}
+
+export interface PurchaseReturnSettlementRequest {
+	date: string
+	bank_account_id: number
+	description: string
+	amount: number
+}
+
+// Lookup for the return form — see docs/purchase-return/get-purchase-invoice-returnable-lines.md.
+export interface PurchaseInvoiceReturnableLines {
+	purchase_invoice: {
+		id: number
+		number: string
+		date: string
+		supplier_invoice_number: string
+		supplier_code?: string
+		supplier_name?: string
+		department_code?: string
+		department_name?: string
+		pkp_active: boolean
+	}
+	lines: PurchaseReturnLine[]
+}
+
+// Supplier payable ("Hutang Supplier", legacy kontrabon): one per approved purchase invoice — see docs/supplier-payable/.
+export type SupplierPayableStatus = 'unpaid' | 'partial' | 'paid'
+
+export interface SupplierPayablePayment {
+	id: number
+	number: string
+	date: string
+	payment_type_id: number
+	payment_type_name?: string
+	method?: PaymentType['method']
+	bank_account_id: number | null
+	bank_account_name?: string
+	purchase_return_id: number | null
+	purchase_return_number?: string
+	supplier_advance_id: number | null
+	supplier_advance_number?: string
+	description: string
+	amount: number
+}
+
+export interface SupplierPayable {
+	id: number
+	number: string
+	date: string
+	due_date: string
+	top_days: number
+	purchase_invoice_id: number
+	purchase_invoice_number: string
+	supplier_invoice_number: string
+	supplier_id?: number
+	supplier_code?: string
+	supplier_name?: string
+	department_id?: number
+	department_code?: string
+	department_name?: string
+	description: string
+	total: number
+	paid_total: number
+	remaining_total: number
+	status: SupplierPayableStatus
+	overdue: boolean
+	payments: SupplierPayablePayment[]
+}
+
+export interface SupplierPayablePaymentRequest {
+	date: string
+	payment_type_id: number
+	bank_account_id: number | null
+	purchase_return_id: number | null
+	supplier_advance_id: number | null
+	amount: number
+	description: string
+}
+
+// Import Faktur Pajak (pembelian side) — see docs/tax-invoice-import/.
+export type TaxInvoiceImportSource = 'purchase_invoice' | 'purchase_return'
+export type TaxInvoiceImportRowStatus = 'matched' | 'to_be_replaced' | 'unmatched' | 'skipped' | 'error'
+
+export interface TaxInvoiceImportRow {
+	row: number
+	reference: string
+	name: string
+	number: string
+	date: string
+	status: TaxInvoiceImportRowStatus
+	message?: string
+}
+
+export interface TaxInvoiceImportPreview {
+	token: string
+	source: TaxInvoiceImportSource
+	file_name: string
+	summary: Record<TaxInvoiceImportRowStatus | 'total', number>
+	rows: TaxInvoiceImportRow[]
 }

@@ -33,7 +33,7 @@ function usagesOf(supplierAdvanceId: number): SupplierAdvanceUsage[] {
 
 // Re-resolve every denormalized label AND recompute used/remaining/last_payable_number
 // from the usage rows (single source of truth — totals are never stored).
-function resolve(row: SupplierAdvance): SupplierAdvance {
+export function resolve(row: SupplierAdvance): SupplierAdvance {
 	const department = db.department.find((d) => d.id === Number(row.department_id) && !d.deleted_at)
 	const supplier = db.supplier.find((s) => s.id === Number(row.supplier_id) && !s.deleted_at)
 	const cashAccount = db.account.find((a) => a.id === Number(row.cash_account_id) && !a.deleted_at)
@@ -115,12 +115,19 @@ export function registerSupplierAdvance(mock: MockAdapter) {
 	registerHistoryRoute(mock, 'supplier-advance', (id) => db.supplierAdvance.some((item) => item.id === id), 'Uang muka supplier tidak ditemukan')
 
 	mock.onGet('/supplier-advance').reply((config) => {
-		const p = (config.params ?? {}) as ListParams & { date_from?: string; date_to?: string }
+		const p = (config.params ?? {}) as ListParams & {
+			date_from?: string
+			date_to?: string
+			supplier_id?: string | number
+			has_balance?: string | number
+		}
 		let rows = db.supplierAdvance.map(resolve)
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((a) => [a.number, a.supplier_code, a.supplier_name, a.date, a.description].join(' ').toLowerCase().includes(q))
 		}
+		if (p.supplier_id) rows = rows.filter((a) => a.supplier_id === Number(p.supplier_id))
+		if (p.has_balance) rows = rows.filter((a) => a.remaining > 0)
 		if (p.date_from) rows = rows.filter((a) => a.date >= String(p.date_from))
 		if (p.date_to) rows = rows.filter((a) => a.date <= String(p.date_to))
 		rows = sortBy(rows, p.sort_by, p.sort_order)

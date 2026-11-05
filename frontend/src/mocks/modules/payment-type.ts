@@ -36,6 +36,10 @@ export function registerPaymentType(mock: MockAdapter) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((t) => `${t.code} ${t.name}`.toLowerCase().includes(q))
 		}
+		// Reference pickers (e.g. Hutang Supplier payment) narrow by side and by method (comma list).
+		const { transaction_type, method } = p as ListParams & { transaction_type?: string; method?: string }
+		if (transaction_type) rows = rows.filter((t) => t.transaction_type === transaction_type)
+		if (method) rows = rows.filter((t) => String(method).split(',').includes(t.method))
 		rows = sortBy(rows, p.sort_by, p.sort_order)
 		return [200, paginate(rows, p)]
 	})

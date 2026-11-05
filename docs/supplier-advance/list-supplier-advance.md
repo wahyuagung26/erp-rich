@@ -7,7 +7,7 @@ path: /supplier-advance
 status: mock
 tags: [supplier-advance, read, list]
 resource: /frontend/src/mocks/modules/supplier-advance.ts
-timestamp: 2026-11-05T23:00:00Z
+timestamp: 2026-11-05T14:00:00Z
 ---
 
 # List Supplier Advance
@@ -22,6 +22,8 @@ Backs `views/supplier-advance/pages/PageSupplierAdvanceTable.vue` (via `useTable
 |---|---|---|---|
 | `page`, `per_page`, `sort_by`, `sort_order` | — | no | `sort_by` accepts `date`, `number`, `remaining` — set via the sortable `Tanggal` / `Nomor` / `Sisa` table headers |
 | `q` | string | no | matches number, supplier code/name, date, or description; case-insensitive |
+| `supplier_id` | number | no | only this supplier's advances — used by the [Hutang Supplier](../supplier-payable/index.md) payment picker |
+| `has_balance` | number | no | `1` = only advances with `remaining > 0` |
 | `date_from` | string | no | `YYYY-MM-DD`, inclusive lower bound on `date` |
 | `date_to` | string | no | `YYYY-MM-DD`, inclusive upper bound on `date` |
 

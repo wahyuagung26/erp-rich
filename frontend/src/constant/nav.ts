@@ -22,6 +22,9 @@ import {
 	IconListTree,
 	IconListNumbers,
 	IconReceipt2,
+	IconReceiptRefund,
+	IconCreditCardPay,
+	IconFileImport,
 	IconFileInvoice,
 	IconShoppingCart,
 	IconCreditCard,
@@ -91,7 +94,10 @@ export const NAV: NavItem[] = [
 			{ label: 'Order Pembelian', to: '/purchase-order', icon: IconShoppingCart },
 			{ label: 'Penerimaan Pembelian', to: '/purchase-receipt', icon: IconPackageImport },
 			{ label: 'Invoice Pembelian', to: '/purchase-invoice', icon: IconFileInvoice },
-			{ label: 'Uang Muka Supplier', to: '/supplier-advance', icon: IconCoins }
+			{ label: 'Uang Muka Supplier', to: '/supplier-advance', icon: IconCoins },
+			{ label: 'Retur Pembelian', to: '/purchase-return', icon: IconReceiptRefund },
+			{ label: 'Hutang Supplier', to: '/supplier-payable', icon: IconCreditCardPay },
+			{ label: 'Import Faktur Pajak', to: '/tax-invoice-import', icon: IconFileImport }
 		]
 	},
 	{ label: 'Design System', to: '/design-system', icon: IconPalette }

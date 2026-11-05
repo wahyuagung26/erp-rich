@@ -52,6 +52,9 @@ cell; only per-row controls (a row checkbox) go through `#table-content`.
   or `toRaw`, **never `structuredClone(props.initialValue)`**. `structuredClone` is only safe on
   plain (non-reactive) objects. This one typechecks clean and crashes on first render —
   exactly the trap the "render the page" step exists for.
+- **Uploading a `FormData` through `api` needs `headers: { 'Content-Type': 'multipart/form-data' }`.** The shared
+  instance defaults to JSON, so axios serialises the FormData to `{}` and the file is silently dropped (the mock/backend
+  then sees no file). See `views/tax-invoice-import/pages/PageTaxInvoiceImport.vue`.
 - **`#actions` slot content must be wrapped in one flex container.** `PageHeader` and `Panel`
   render the slot's children as *direct flex items* of a `justify-between` row, so two or more
   buttons spray edge-to-edge across the whole width. Always

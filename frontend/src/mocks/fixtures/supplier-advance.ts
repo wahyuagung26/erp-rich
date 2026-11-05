@@ -60,6 +60,23 @@ export const supplierAdvanceSeed: SupplierAdvance[] = [
 		advance_type: 'TITIPAN-PO',
 		cash_flow: 'OPERASI_OUT',
 		attachment: sampleAttachment
+	},
+	// Same supplier as the seeded Hutang Supplier (invoice 1 → SUP-0004), so "bayar pakai uang muka" can be tried out.
+	{
+		id: 4,
+		number: 'UMS-RICH/0004/09/2026',
+		date: '2026-09-10',
+		department_id: 10,
+		supplier_id: 4,
+		amount: 5000000,
+		used: 0,
+		remaining: 5000000,
+		last_payable_number: null,
+		description: 'UANG MUKA PEMBELIAN KOMPRESOR — DATA DEMO PROTOTIPE',
+		cash_account_id: 17,
+		advance_type: 'TITIPAN-PO',
+		cash_flow: 'OPERASI_OUT_STOK',
+		attachment: sampleAttachment
 	}
 ]
 

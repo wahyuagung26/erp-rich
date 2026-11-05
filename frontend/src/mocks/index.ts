@@ -30,6 +30,9 @@ import { registerCashPosition } from './modules/cash-position'
 import { registerPurchaseOrder } from './modules/purchase-order'
 import { registerPurchaseReceipt } from './modules/purchase-receipt'
 import { registerPurchaseInvoice } from './modules/purchase-invoice'
+import { registerPurchaseReturn } from './modules/purchase-return'
+import { registerSupplierPayable } from './modules/supplier-payable'
+import { registerTaxInvoiceImport } from './modules/tax-invoice-import'
 import { registerDashboard } from './modules/dashboard'
 import { registerCashFlow } from './modules/cash-flow'
 import { registerPosting } from './modules/posting'
@@ -67,6 +70,9 @@ const modules = [
 	registerPurchaseOrder,
 	registerPurchaseReceipt,
 	registerPurchaseInvoice,
+	registerPurchaseReturn,
+	registerSupplierPayable,
+	registerTaxInvoiceImport,
 	registerDashboard,
 	registerCashFlow,
 	registerPosting

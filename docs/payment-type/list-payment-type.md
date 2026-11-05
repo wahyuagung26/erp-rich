@@ -7,7 +7,7 @@ path: /payment-type
 status: mock
 tags: [payment-type, read, list]
 resource: /frontend/src/mocks/modules/payment-type.ts
-timestamp: 2026-11-04T12:00:00Z
+timestamp: 2026-11-05T12:00:00Z
 ---
 
 # List Payment Type
@@ -28,6 +28,8 @@ Backs `views/payment-type/pages/PagePaymentTypeTable.vue` (via the `useTableList
 |---|---|---|---|
 | `page`, `per_page`, `sort_by`, `sort_order` | — | no | see [conventions](../conventions.md#pagination-list-endpoints); `sort_by` accepts `code`, `name` |
 | `q` | string | no | matches `code` + `name`, case-insensitive |
+| `transaction_type` | string | no | `purchase` \| `sale` — used by reference pickers (e.g. [Hutang Supplier](../supplier-payable/index.md) payments) |
+| `method` | string | no | comma list of `method` values, e.g. `cash_bank,return_deduction` |
 
 ## Response
 

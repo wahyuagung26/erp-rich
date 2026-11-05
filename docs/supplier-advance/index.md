@@ -3,7 +3,7 @@ type: OKF Module
 title: Uang Muka Supplier
 description: Supplier advance (uang muka supplier) — a deposit / titipan given to a supplier, applied against supplier payables (hutang). Read-only usage history computed from the usage rows below.
 tags: [supplier-advance, advance, titipan]
-timestamp: 2026-11-06T02:00:00Z
+timestamp: 2026-11-05T14:00:00Z
 ---
 
 # Uang Muka Supplier
@@ -17,7 +17,8 @@ it is created.
 `used` / `remaining` / `last_payable_number` are server-computed from the sum of
 the advance's [`SupplierAdvanceUsage`](#entity-supplieradvanceusage) rows — see
 the list/usage endpoints below. Usage rows are created by the AP module in
-Legacy and are **read-only** in this prototype.
+Legacy — here by [Hutang Supplier](../supplier-payable/index.md) payments with method `down_payment` — and are
+**read-only** on the advance itself.
 
 ## Entity: `SupplierAdvance`
 
