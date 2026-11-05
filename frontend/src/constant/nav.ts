@@ -22,6 +22,7 @@ import {
 	IconListTree,
 	IconListNumbers,
 	IconReceipt2,
+	IconFileInvoice,
 	IconShoppingCart,
 	IconCreditCard,
 	IconBox,
@@ -89,6 +90,7 @@ export const NAV: NavItem[] = [
 		children: [
 			{ label: 'Order Pembelian', to: '/purchase-order', icon: IconShoppingCart },
 			{ label: 'Penerimaan Pembelian', to: '/purchase-receipt', icon: IconPackageImport },
+			{ label: 'Invoice Pembelian', to: '/purchase-invoice', icon: IconFileInvoice },
 			{ label: 'Uang Muka Supplier', to: '/supplier-advance', icon: IconCoins }
 		]
 	},

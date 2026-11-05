@@ -802,3 +802,86 @@ export interface PostingRun {
 	posted_by: string
 	posted_at: string
 }
+
+// Purchase invoice ("BL"): supplier bill for one purchase receipt — see docs/purchase-invoice/.
+export type PurchaseInvoiceApprovalStatus = 'pending' | 'approved'
+
+export interface PurchaseInvoiceLine {
+	product_id: number
+	product_code?: string
+	product_name?: string
+	brand_name?: string
+	unit_name?: string
+	quantity: number
+	price: number
+	dpp: number
+	ppn: number
+	total: number
+}
+
+export interface PurchaseInvoiceTaxInvoice {
+	number: string
+	date: string
+	file: JournalAttachment | null
+}
+
+export interface PurchaseInvoice {
+	id: number
+	number: string
+	date: string
+	purchase_receipt_id: number
+	purchase_receipt_number?: string
+	purchase_order_id?: number
+	purchase_order_number?: string
+	supplier_id?: number
+	supplier_code?: string
+	supplier_name?: string
+	department_id?: number
+	department_code?: string
+	department_name?: string
+	supplier_invoice_number: string
+	description: string
+	pkp_active: boolean
+	approval_status: PurchaseInvoiceApprovalStatus
+	approved_by: string | null
+	approved_at: string | null
+	kontrabon_number: string | null
+	tax_invoice: PurchaseInvoiceTaxInvoice | null
+	created_by: string
+	lines: PurchaseInvoiceLine[]
+	dpp: number
+	ppn: number
+	total: number
+}
+
+// API input only — quantity/amounts always come from the receipt and the server.
+export interface PurchaseInvoiceLineRequest {
+	product_id: number
+	price: number
+}
+
+export interface PurchaseInvoiceRequest {
+	purchase_receipt_id: number
+	date: string
+	supplier_invoice_number: string
+	description: string
+	lines: PurchaseInvoiceLineRequest[]
+}
+
+// Lookup for the invoice form — see docs/purchase-invoice/get-purchase-receipt-invoiceable-lines.md.
+export interface PurchaseReceiptInvoiceableLines {
+	purchase_receipt: {
+		id: number
+		number: string
+		date: string
+		delivery_note_number: string
+		department_id: number
+		department_code?: string
+		department_name?: string
+		purchase_order_number?: string
+		supplier_code?: string
+		supplier_name?: string
+		pkp_active: boolean
+	}
+	lines: PurchaseInvoiceLine[]
+}

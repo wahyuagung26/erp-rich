@@ -3,7 +3,7 @@ type: OKF Module
 title: Penerimaan Pembelian (Purchase Receipt)
 description: Penerimaan barang terhadap order pembelian yang sudah disetujui, per produk, dengan sisa kuantitas dan gudang per baris.
 tags: [purchase-receipt, procurement]
-timestamp: 2026-09-09T12:00:00Z
+timestamp: 2026-11-05T23:30:00Z
 ---
 
 # Penerimaan Pembelian
@@ -13,8 +13,8 @@ yang berstatus `approved`. Consumed by `frontend/src/views/purchase-receipt/` (l
 detail, tambah, edit).
 
 Ported from Legacy `/bmrefpo`. The Legacy-only extra product attribute column and the
-`Tautan` tab (link to a purchase-invoice/settlement flow) are **out of scope** — V2 has no
-invoice/settlement module yet, so this contract does not include them. Legacy's `Aksi` column
+`Tautan` tab (link to a purchase-invoice/settlement flow) are **out of scope** — the invoice
+flow now lives in [purchase-invoice](../purchase-invoice/index.md); the settlement flow is still out of scope here. Legacy's `Aksi` column
 per product row could not be observed rendering (E2E blocked by a missing `user_department`
 table); V2 omits it since receipt lines are fixed rows sourced from the PO, not a free
 add/remove list.
@@ -33,7 +33,7 @@ add/remove list.
 | `description` | string | Keterangan; required, max 250 chars |
 | `department_id` | number | required; department master |
 | `department_code` `department_name` | string \| undefined | resolved display fields |
-| `invoice_status` | enum | `not_invoiced`, `invoiced`; read-only in V2 (no invoicing flow builds it yet) |
+| `invoice_status` | enum | `not_invoiced`, `invoiced`; read-only here — set by [create-purchase-invoice](../purchase-invoice/create-purchase-invoice.md) and reset by its delete |
 | `date` | string | Tanggal Penerimaan; required, `YYYY-MM-DD`, cannot be after today |
 | `warehouse_label` | string | display-only summary of the distinct warehouses used by lines with `quantity > 0` |
 | `created_by` | string | creator name |
@@ -64,9 +64,8 @@ always computed **excluding the receipt being read/edited itself** (see
 - A line's `quantity` cannot exceed its `remaining_quantity`.
 - `warehouse_id` is required on a line whenever its `quantity > 0`.
 - `date` cannot be after today.
-- A receipt whose `invoice_status` is `invoiced` cannot be edited or deleted (V2's proxy for
-  Legacy's "already used by supplier settlement" guard — no separate invoice/settlement
-  module exists yet to hold that state).
+- A receipt whose `invoice_status` is `invoiced` cannot be edited or deleted (a purchase invoice
+  now exists for it; deleting that pending invoice releases the receipt again).
 - Delete is a hard delete in the mock; it is not a soft-delete.
 - The linked purchase order's own `delivery_status` is **not** recomputed by this module —
   it stays whatever the purchase-order mock already stores.
