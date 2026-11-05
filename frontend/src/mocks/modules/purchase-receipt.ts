@@ -1,6 +1,6 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { nextId, paginate, sortBy, type ListParams } from '../lib'
+import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
 import { diffFields, diffLines, fmtDate, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
 import type { PurchaseOrder, PurchaseReceipt, PurchaseReceiptLine, PurchaseReceiptLineRequest, PurchaseReceiptRequest } from '@/utils/types'
 
@@ -209,10 +209,16 @@ export function registerPurchaseReceipt(mock: MockAdapter) {
 					.includes(q)
 			)
 		}
-		if (p.invoice_status) rows = rows.filter((row) => row.invoice_status === p.invoice_status)
 		if (p.date_from) rows = rows.filter((row) => row.date >= String(p.date_from))
 		if (p.date_to) rows = rows.filter((row) => row.date <= String(p.date_to))
-		return [200, paginate(sortBy(rows, p.sort_by, p.sort_order), p)]
+		// KPI tiles: honour search + dates, ignore the invoice-status filter below (docs/conventions.md).
+		const summary = summarize(rows, {
+			not_invoiced: (row) => row.invoice_status === 'not_invoiced',
+			invoiced: (row) => row.invoice_status === 'invoiced'
+		})
+		if (p.invoice_status) rows = rows.filter((row) => row.invoice_status === p.invoice_status)
+		const page = paginate(sortBy(rows, p.sort_by, p.sort_order), p)
+		return [200, { data: page.data, meta: { ...page.meta, summary } }]
 	})
 
 	mock.onGet(/\/purchase-receipt\/\d+$/).reply((config) => {

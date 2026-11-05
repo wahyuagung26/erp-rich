@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { IconPlus, IconHistory } from '@tabler/icons-vue'
@@ -19,6 +19,8 @@ import Select from '@/components/base/Select.vue'
 import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
+import KpiFilter from '@/components/base/KpiFilter.vue'
+import { useKpiTiles } from '@/composables/useKpiTiles'
 import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import { invoiceOptions, invoiceStatusLabel, invoiceStatusTone } from '@/views/purchase-receipt/schema'
@@ -40,6 +42,17 @@ function applyAll() {
 	applyFilters({ q: q.value, invoice_status: invoiceStatus.value, date_from: dateFrom.value, date_to: dateTo.value })
 }
 const runSearch = useDebounce(applyAll, 250)
+
+// KPI tiles = presets of the invoice-status dropdown (docs/purchase-receipt/list-purchase-receipt.md).
+const kpi = useKpiTiles(
+	[
+		{ key: 'not_invoiced', label: 'Belum Dibuat Invoice', filters: { invoice_status: 'not_invoiced' } },
+		{ key: 'invoiced', label: 'Sudah Dibuat Invoice', filters: { invoice_status: 'invoiced' } }
+	],
+	{ invoice_status: invoiceStatus },
+	computed(() => pagination.value?.summary),
+	applyAll
+)
 // Opens the shared record-history modal for one row.
 function openHistory(row: PurchaseReceipt) {
 	history.open({ kode: row.number, endpoint: `/purchase-receipt/${row.id}/history` })
@@ -83,6 +96,7 @@ const rows: TableRow[] = [
 			></PageHeader
 		>
 		<Panel>
+			<KpiFilter class="mb-3" :items="kpi.items.value" :active="kpi.active.value" @select="kpi.select" />
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
 				<Input v-model="q" placeholder="Cari nomor / supplier / SJ…" class="!w-64" @update:model-value="runSearch" />
 				<Select v-model="invoiceStatus" :options="invoiceOptions" class="!w-52" @update:model-value="applyAll" />

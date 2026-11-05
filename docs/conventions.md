@@ -3,7 +3,7 @@ type: API Convention
 title: Shared API Conventions
 description: Response envelope, pagination, sorting, auth, and error shape inherited by every endpoint in this bundle.
 tags: [api, convention]
-timestamp: 2026-11-06T02:00:00Z
+timestamp: 2026-11-06T03:00:00Z
 ---
 
 # Shared API Conventions
@@ -41,6 +41,23 @@ Request query params:
 ```json
 "meta": { "page": 1, "per_page": 10, "total": 18, "last_page": 2 }
 ```
+
+## List KPI summary (optional `meta.summary`)
+
+A list that shows KPI tiles above its table (`components/base/KpiFilter.vue`) returns the tile numbers next
+to the page meta, in the **same response**:
+
+```json
+{ "data": [], "meta": { "page": 1, "per_page": 10, "total": 3, "last_page": 1,
+  "summary": { "pending": { "count": 2, "amount": 33300000 }, "approved": { "count": 1 } } } }
+```
+
+- Keys are tile ids defined by each list's doc; `count` is always present, `amount` (Rupiah) only for tiles that show one.
+- Numbers are computed by the server over **all** matching rows — never from the current page — and honour the
+  list's search (`q`) and date range, but **ignore the status filters** (approval/delivery/invoice/tax status),
+  so a tile keeps showing its own count while it is the active filter.
+- A tile is only a shortcut: clicking it sets the same filter params the page's dropdowns use, so the dropdowns
+  and the tiles are always in sync and no extra query parameter exists.
 
 ## Auth
 

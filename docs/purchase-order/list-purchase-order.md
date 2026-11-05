@@ -7,7 +7,7 @@ path: /purchase-order
 status: mock
 tags: [purchase-order, read, list]
 resource: /frontend/src/mocks/modules/purchase-order.ts
-timestamp: 2026-09-10T00:00:00Z
+timestamp: 2026-11-06T03:00:00Z
 ---
 
 # List Purchase Order
@@ -30,6 +30,17 @@ composable). Rows include resolved supplier, department, warehouse, and product 
 
 `sort_by` accepts `date`, `number`, `created_by`, `supplier_name`, `warehouse_name`, or
 `total` — set via the sortable `Tanggal` / `Total` table headers.
+
+## KPI tiles (`meta.summary`)
+
+| Key | Tile | Filter it sets | Counts rows where |
+|---|---|---|---|
+| `pending` | Menunggu Persetujuan | `approval_status=pending` | `approval_status = pending` |
+| `awaiting_receipt` | Belum Diterima | `approval_status=approved`, `delivery_status=not_received` | approved and nothing received yet |
+| `partial` | Diterima Sebagian | `approval_status=approved`, `delivery_status=partial` | approved and partly received |
+| `rejected` | Ditolak | `approval_status=rejected` | `approval_status = rejected` |
+
+Every tile carries `count` and `amount` (sum of `total`). See [conventions](../conventions.md#list-kpi-summary-optional-metasummary).
 
 ## Response
 

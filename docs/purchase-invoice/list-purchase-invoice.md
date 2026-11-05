@@ -7,7 +7,7 @@ path: /purchase-invoice
 status: mock
 tags: [purchase-invoice, read, list]
 resource: /frontend/src/mocks/modules/purchase-invoice.ts
-timestamp: 2026-11-05T23:30:00Z
+timestamp: 2026-11-06T03:00:00Z
 ---
 
 # List Purchase Invoice
@@ -23,11 +23,22 @@ Backs `views/purchase-invoice/pages/PagePurchaseInvoiceTable.vue` (via `useTable
 | `page`, `per_page`, `sort_by`, `sort_order` | — | no | see [conventions](../conventions.md#pagination-list-endpoints) |
 | `q` | string | no | matches number, supplier invoice number, receipt number, PO number, supplier code/name, or description; case-insensitive |
 | `approval_status` | string | no | `pending` or `approved` |
+| `tax_invoice` | string | no | `missing` = PKP invoice without a faktur pajak; `filled` = invoice that has one |
 | `date_from` | string | no | `YYYY-MM-DD`, inclusive lower bound on `date` |
 | `date_to` | string | no | `YYYY-MM-DD`, inclusive upper bound on `date` |
 
 `sort_by` accepts `date`, `number`, `supplier_name`, or `total`; the UI exposes `Tanggal`
 and `Total` as sortable headers. Default UI sort is date descending.
+
+## KPI tiles (`meta.summary`)
+
+| Key | Tile | Filter it sets | Counts rows where | Carries |
+|---|---|---|---|---|
+| `pending` | Menunggu Persetujuan | `approval_status=pending` | `approval_status = pending` | `count`, `amount` (sum of `total`) |
+| `tax_missing` | Belum Ada Faktur Pajak | `tax_invoice=missing` | PKP and no faktur pajak yet | `count` |
+| `approved` | Disetujui | `approval_status=approved` | `approval_status = approved` | `count`, `amount` |
+
+See [conventions](../conventions.md#list-kpi-summary-optional-metasummary).
 
 ## Response
 

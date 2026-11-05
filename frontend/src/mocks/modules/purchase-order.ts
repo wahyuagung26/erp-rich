@@ -1,6 +1,6 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { nextId, paginate, sortBy, type ListParams } from '../lib'
+import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
 import {
 	diffFields,
 	diffLines,
@@ -170,11 +170,23 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 					.includes(q)
 			)
 		}
-		if (p.approval_status) rows = rows.filter((row) => row.approval_status === p.approval_status)
-		if (p.delivery_status) rows = rows.filter((row) => row.delivery_status === p.delivery_status)
 		if (p.date_from) rows = rows.filter((row) => row.date >= String(p.date_from))
 		if (p.date_to) rows = rows.filter((row) => row.date <= String(p.date_to))
-		return [200, paginate(sortBy(rows, p.sort_by, p.sort_order), p)]
+		// KPI tiles: honour search + dates, ignore the status filters below (docs/conventions.md).
+		const summary = summarize(
+			rows,
+			{
+				pending: (row) => row.approval_status === 'pending',
+				awaiting_receipt: (row) => row.approval_status === 'approved' && row.delivery_status === 'not_received',
+				partial: (row) => row.approval_status === 'approved' && row.delivery_status === 'partial',
+				rejected: (row) => row.approval_status === 'rejected'
+			},
+			(row) => row.total
+		)
+		if (p.approval_status) rows = rows.filter((row) => row.approval_status === p.approval_status)
+		if (p.delivery_status) rows = rows.filter((row) => row.delivery_status === p.delivery_status)
+		const page = paginate(sortBy(rows, p.sort_by, p.sort_order), p)
+		return [200, { data: page.data, meta: { ...page.meta, summary } }]
 	})
 
 	mock.onGet(/\/purchase-order\/\d+$/).reply((config) => {

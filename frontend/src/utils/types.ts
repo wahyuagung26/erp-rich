@@ -1,10 +1,17 @@
 // Shared API + UI types
 
+// One KPI tile's numbers (docs/conventions.md#list-kpi-summary-optional-metasummary).
+export interface KpiSummaryItem {
+	count: number
+	amount?: number
+}
+
 export interface Pagination {
 	page: number
 	per_page: number
 	total: number
 	last_page: number
+	summary?: Record<string, KpiSummaryItem>
 }
 
 // Standard backend envelope: payload always under `.data`.

@@ -7,7 +7,7 @@ path: /purchase-receipt
 status: mock
 tags: [purchase-receipt, read, list]
 resource: /frontend/src/mocks/modules/purchase-receipt.ts
-timestamp: 2026-11-05T15:00:00Z
+timestamp: 2026-11-06T03:00:00Z
 ---
 
 # List Purchase Receipt
@@ -29,6 +29,15 @@ composable).
 
 `sort_by` accepts `date`, `number`, `warehouse_label`, `delivery_note_number`, or
 `supplier_name`; the UI exposes `Tanggal` and `Nomor` as sortable headers.
+
+## KPI tiles (`meta.summary`)
+
+| Key | Tile | Filter it sets | Counts rows where |
+|---|---|---|---|
+| `not_invoiced` | Belum Dibuat Invoice | `invoice_status=not_invoiced` | `invoice_status = not_invoiced` |
+| `invoiced` | Sudah Dibuat Invoice | `invoice_status=invoiced` | `invoice_status = invoiced` |
+
+Tiles carry `count` only. See [conventions](../conventions.md#list-kpi-summary-optional-metasummary).
 
 ## Response
 

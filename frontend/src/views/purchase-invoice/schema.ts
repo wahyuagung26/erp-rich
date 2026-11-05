@@ -18,6 +18,12 @@ export const approvalOptions = [
 	...Object.entries(approvalStatusLabel).map(([value, label]) => ({ value, label }))
 ]
 
+export const taxInvoiceOptions = [
+	{ label: 'Semua faktur pajak', value: '' },
+	{ label: 'Belum ada faktur pajak', value: 'missing' },
+	{ label: 'Sudah ada faktur pajak', value: 'filled' }
+]
+
 const today = () => new Date().toISOString().slice(0, 10)
 
 // Type-mismatch message doubles as the "not selected" message — see purchase-order/schema.ts.

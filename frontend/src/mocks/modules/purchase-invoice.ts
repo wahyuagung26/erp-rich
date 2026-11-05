@@ -1,6 +1,6 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { nextId, paginate, sortBy, type ListParams } from '../lib'
+import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
 import { diffFields, diffLines, fmtDate, fmtMoney, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
 import type {
 	JournalAttachment,
@@ -162,7 +162,7 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 	})
 
 	mock.onGet('/purchase-invoice').reply((config) => {
-		const p = (config.params ?? {}) as ListParams & { approval_status?: string; date_from?: string; date_to?: string }
+		const p = (config.params ?? {}) as ListParams & { approval_status?: string; tax_invoice?: string; date_from?: string; date_to?: string }
 		let rows = db.purchaseInvoice.map(resolve)
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
@@ -181,10 +181,24 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 					.includes(q)
 			)
 		}
-		if (p.approval_status) rows = rows.filter((row) => row.approval_status === p.approval_status)
 		if (p.date_from) rows = rows.filter((row) => row.date >= String(p.date_from))
 		if (p.date_to) rows = rows.filter((row) => row.date <= String(p.date_to))
-		return [200, paginate(sortBy(rows, p.sort_by, p.sort_order), p)]
+		// KPI tiles: honour search + dates, ignore the status / faktur pajak filters below (docs/conventions.md).
+		const summary = summarize(
+			rows,
+			{
+				pending: (row) => row.approval_status === 'pending',
+				tax_missing: (row) => row.pkp_active && !row.tax_invoice,
+				approved: (row) => row.approval_status === 'approved'
+			},
+			(row) => row.total,
+			['pending', 'approved']
+		)
+		if (p.approval_status) rows = rows.filter((row) => row.approval_status === p.approval_status)
+		if (p.tax_invoice === 'missing') rows = rows.filter((row) => row.pkp_active && !row.tax_invoice)
+		if (p.tax_invoice === 'filled') rows = rows.filter((row) => Boolean(row.tax_invoice))
+		const page = paginate(sortBy(rows, p.sort_by, p.sort_order), p)
+		return [200, { data: page.data, meta: { ...page.meta, summary } }]
 	})
 
 	mock.onGet(/\/purchase-invoice\/\d+$/).reply((config) => {

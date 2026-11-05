@@ -1,4 +1,4 @@
-import type { Pagination } from '@/utils/types'
+import type { KpiSummaryItem, Pagination } from '@/utils/types'
 
 export interface ListParams {
 	page?: number
@@ -16,6 +16,24 @@ export function paginate<T>(items: T[], params: ListParams): { data: T[]; meta: 
 		data: items.slice(start, start + perPage),
 		meta: { page, per_page: perPage, total: items.length, last_page: Math.max(1, Math.ceil(items.length / perPage)) }
 	}
+}
+
+// KPI tile numbers for a list: per tile key, how many `rows` match, plus their summed amount for the keys in
+// `amountKeys` (default: every tile when `amountOf` is given). Call it on rows AFTER search/date filters but BEFORE
+// status filters — see docs/conventions.md.
+export function summarize<T>(
+	rows: T[],
+	tiles: Record<string, (row: T) => boolean>,
+	amountOf?: (row: T) => number,
+	amountKeys?: string[]
+): Record<string, KpiSummaryItem> {
+	return Object.fromEntries(
+		Object.entries(tiles).map(([key, test]) => {
+			const matched = rows.filter(test)
+			const withAmount = amountOf && (!amountKeys || amountKeys.includes(key))
+			return [key, { count: matched.length, ...(withAmount ? { amount: matched.reduce((sum, row) => sum + amountOf(row), 0) } : {}) }]
+		})
+	)
 }
 
 // Next auto-increment id for an in-memory collection.

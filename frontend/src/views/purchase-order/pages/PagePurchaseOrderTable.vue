@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { IconPlus, IconHistory } from '@tabler/icons-vue'
@@ -19,6 +19,8 @@ import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Badge from '@/components/base/Badge.vue'
 import Table from '@/components/base/Table.vue'
+import KpiFilter from '@/components/base/KpiFilter.vue'
+import { useKpiTiles } from '@/composables/useKpiTiles'
 import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
@@ -55,6 +57,19 @@ function applyAll() {
 	})
 }
 const runSearch = useDebounce(applyAll, 250)
+
+// KPI tiles = presets of the status dropdowns, so tiles and dropdowns always agree (docs/purchase-order/list-purchase-order.md).
+const kpi = useKpiTiles(
+	[
+		{ key: 'pending', label: 'Menunggu Persetujuan', filters: { approval_status: 'pending' } },
+		{ key: 'awaiting_receipt', label: 'Belum Diterima', filters: { approval_status: 'approved', delivery_status: 'not_received' } },
+		{ key: 'partial', label: 'Diterima Sebagian', filters: { approval_status: 'approved', delivery_status: 'partial' } },
+		{ key: 'rejected', label: 'Ditolak', filters: { approval_status: 'rejected' } }
+	],
+	{ approval_status: approvalStatus, delivery_status: deliveryStatus },
+	computed(() => pagination.value?.summary),
+	applyAll
+)
 // Opens the shared record-history modal for one row.
 function openHistory(row: PurchaseOrder) {
 	history.open({ kode: row.number, endpoint: `/purchase-order/${row.id}/history` })
@@ -95,6 +110,7 @@ const rows: TableRow[] = [
 			></PageHeader
 		>
 		<Panel>
+			<KpiFilter class="mb-3" :items="kpi.items.value" :active="kpi.active.value" @select="kpi.select" />
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
 				<Input v-model="q" placeholder="Cari nomor / supplier / keterangan…" class="!w-64" @update:model-value="runSearch" />
 				<Select v-model="approvalStatus" :options="approvalOptions" class="!w-52" @update:model-value="applyAll" />

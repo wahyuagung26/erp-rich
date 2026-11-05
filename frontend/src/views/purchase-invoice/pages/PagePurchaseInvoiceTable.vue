@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { IconPlus, IconHistory } from '@tabler/icons-vue'
@@ -20,10 +20,12 @@ import Select from '@/components/base/Select.vue'
 import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
+import KpiFilter from '@/components/base/KpiFilter.vue'
+import { useKpiTiles } from '@/composables/useKpiTiles'
 import Amount from '@/components/base/Amount.vue'
 import RowActions from '@/components/base/RowActions.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
-import { approvalOptions, approvalStatusLabel, approvalStatusTone } from '@/views/purchase-invoice/schema'
+import { approvalOptions, approvalStatusLabel, approvalStatusTone, taxInvoiceOptions } from '@/views/purchase-invoice/schema'
 import type { PurchaseInvoice, PurchaseInvoiceApprovalStatus, PurchaseInvoiceTaxInvoice, TableRow } from '@/utils/types'
 
 const router = useRouter()
@@ -36,13 +38,26 @@ const history = useHistory()
 const fakturPajak = useFakturPajak()
 const q = ref('')
 const approvalStatus = ref('')
+const taxInvoice = ref('')
 const dateFrom = ref('')
 const dateTo = ref('')
 
 function applyAll() {
-	applyFilters({ q: q.value, approval_status: approvalStatus.value, date_from: dateFrom.value, date_to: dateTo.value })
+	applyFilters({ q: q.value, approval_status: approvalStatus.value, tax_invoice: taxInvoice.value, date_from: dateFrom.value, date_to: dateTo.value })
 }
 const runSearch = useDebounce(applyAll, 250)
+
+// KPI tiles = presets of the status + faktur pajak dropdowns (docs/purchase-invoice/list-purchase-invoice.md).
+const kpi = useKpiTiles(
+	[
+		{ key: 'pending', label: 'Menunggu Persetujuan', filters: { approval_status: 'pending' } },
+		{ key: 'tax_missing', label: 'Belum Ada Faktur Pajak', filters: { tax_invoice: 'missing' } },
+		{ key: 'approved', label: 'Disetujui', filters: { approval_status: 'approved' } }
+	],
+	{ approval_status: approvalStatus, tax_invoice: taxInvoice },
+	computed(() => pagination.value?.summary),
+	applyAll
+)
 // Opens the shared faktur pajak modal for one row; the list refetches after a save.
 function openTaxInvoice(row: PurchaseInvoice) {
 	fakturPajak.open({ kode: row.number, endpoint: `/purchase-invoice/${row.id}/tax-invoice`, onSaved: fetchList })
@@ -87,9 +102,11 @@ const rows: TableRow[] = [
 			></PageHeader
 		>
 		<Panel>
+			<KpiFilter class="mb-3" :items="kpi.items.value" :active="kpi.active.value" @select="kpi.select" />
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
 				<Input v-model="q" placeholder="Cari nomor / supplier / invoice…" class="!w-64" @update:model-value="runSearch" />
 				<Select v-model="approvalStatus" :options="approvalOptions" class="!w-52" @update:model-value="applyAll" />
+				<Select v-model="taxInvoice" :options="taxInvoiceOptions" class="!w-56" @update:model-value="applyAll" />
 				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" @change="applyAll" />
 			</FilterBar>
 			<Table
