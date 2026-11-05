@@ -96,7 +96,7 @@ const item = 'flex w-full items-center gap-2.5 px-3 py-2 text-left text-m hover:
 				:style="{ top: pos.top + 'px', left: pos.left + 'px' }"
 			>
 				<button type="button" role="menuitem" :class="[item, 'text-ink']" @click="go(`${props.base}/${props.id}`)">
-					<IconEye class="h-4 w-4 text-ink-muted" /> Lihat detail
+					<IconEye class="h-4 w-4 text-ink-muted" /> Detail
 				</button>
 				<button v-if="canModify" type="button" role="menuitem" :class="[item, 'text-ink']" @click="go(`${props.base}/edit/${props.id}`)">
 					<IconPencil class="h-4 w-4 text-ink-muted" /> Edit

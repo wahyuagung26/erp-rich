@@ -104,7 +104,7 @@ async function save(payload: SupplierAdvanceRequest) {
 			<Panel>
 				<EmptyState title="Uang muka tidak dapat diubah" description="Uang muka yang sudah dipakai di Hutang Supplier tidak boleh diubah." />
 				<div class="mt-3 flex justify-center">
-					<Button variant="secondary" @click="router.push(`/supplier-advance/${advance.id}`)">Lihat Detail</Button>
+					<Button variant="secondary" @click="router.push(`/supplier-advance/${advance.id}`)">Detail</Button>
 				</div>
 			</Panel>
 			<RiwayatPemakaian :advance-id="advance.id" />

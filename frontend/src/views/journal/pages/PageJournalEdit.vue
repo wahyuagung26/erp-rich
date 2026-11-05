@@ -79,7 +79,7 @@ async function save(payload: JournalForm) {
 		</Panel>
 		<Panel v-else-if="journal.status !== 'submitted'">
 			<EmptyState title="Jurnal tidak dapat diedit" description="Hanya jurnal dengan status Menunggu Persetujuan yang dapat diedit." />
-			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push(`/journal/${journal.id}`)">Lihat Detail</Button></div>
+			<div class="mt-3 flex justify-center"><Button variant="secondary" @click="router.push(`/journal/${journal.id}`)">Detail</Button></div>
 		</Panel>
 		<FormJournalLines ref="formRef" v-else :initial-value="toForm(journal)" :loading="saving" submit-label="Simpan Perubahan" @submit="save" />
 	</div>
