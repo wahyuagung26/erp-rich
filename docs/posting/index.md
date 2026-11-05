@@ -3,7 +3,7 @@ type: OKF Module
 title: Posting & Closing
 description: Posting workspace — period posting run plus monthly closing with a reconciliation overview and a guarded re-open.
 tags: [posting, closing, reconciliation, accounting]
-timestamp: 2026-11-05T22:00:00Z
+timestamp: 2026-11-06T10:00:00Z
 ---
 
 # Posting & Closing
@@ -22,6 +22,7 @@ Company-scoped (`X-Company-Id`). Periods are `YYYY-MM`. Ports the legacy `postin
 - A re-opened period is **pending re-post**: it must be posted again (Posting tab) before the next closing can run.
 - Reconciliation is **advisory**: a failed check is shown in red but does not block closing.
 - Posting is rejected for a locked period (`period <= closed_until`).
+- Other modules read the same lock: e.g. [Hutang Supplier](../supplier-payable/index.md) refuses to add, edit or cancel a payment dated in a closed period (`locked`).
 
 ## Entities
 

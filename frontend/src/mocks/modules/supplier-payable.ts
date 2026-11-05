@@ -1,10 +1,11 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
-import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
+import { companyIdOf, nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
 import { fmtMoney, recordHistory } from '../history'
 import { resolve as resolveInvoice } from './purchase-invoice'
 import { resolve as resolveReturn } from './purchase-return'
 import { resolve as resolveAdvance } from './supplier-advance'
+import { isPeriodClosed } from './posting'
 import type { PurchaseInvoice, SupplierPayable, SupplierPayablePayment, SupplierPayablePaymentRequest } from '@/utils/types'
 
 // Contract: docs/supplier-payable/. A payable is DERIVED from an approved purchase invoice (id = invoice id), so
@@ -19,13 +20,17 @@ const invalid = (message: string, field?: string) => ({
 	...(field ? { errors: { [field]: [message] } } : {})
 })
 
+const monthLabel = (date: string) =>
+	new Date(`${date.slice(0, 7)}-01T00:00:00Z`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+const closedMessage = (date: string) => `Periode ${monthLabel(date)} sudah closing`
+
 function addDays(isoDate: string, days: number) {
 	const d = new Date(`${isoDate}T00:00:00Z`)
 	d.setUTCDate(d.getUTCDate() + days)
 	return d.toISOString().slice(0, 10)
 }
 
-function paymentsOf(payableId: number): SupplierPayablePayment[] {
+function paymentsOf(payableId: number, companyId: number | null): SupplierPayablePayment[] {
 	return db.supplierPayablePayment
 		.filter((item) => item.payable_id === payableId)
 		.map((item) => {
@@ -44,18 +49,19 @@ function paymentsOf(payableId: number): SupplierPayablePayment[] {
 				supplier_advance_id: item.supplier_advance_id,
 				supplier_advance_number: db.supplierAdvance.find((entry) => entry.id === item.supplier_advance_id)?.number,
 				description: item.description,
-				amount: item.amount
+				amount: item.amount,
+				locked: isPeriodClosed(companyId, item.date)
 			}
 		})
 }
 
-function resolve(source: PurchaseInvoice): SupplierPayable {
+function resolve(source: PurchaseInvoice, companyId: number | null): SupplierPayable {
 	const invoice = resolveInvoice(source)
 	const supplier = db.supplier.find((item) => item.id === invoice.supplier_id)
 	const topDays = supplier?.top_days ?? 0
 	const date = (invoice.approved_at ?? invoice.date).slice(0, 10)
 	const due_date = addDays(date, topDays)
-	const payments = paymentsOf(invoice.id)
+	const payments = paymentsOf(invoice.id, companyId)
 	const paid_total = payments.reduce((sum, item) => sum + item.amount, 0)
 	const remaining_total = Math.max(invoice.total - paid_total, 0)
 	return {
@@ -96,7 +102,8 @@ export function registerSupplierPayable(mock: MockAdapter) {
 			date_from?: string
 			date_to?: string
 		}
-		let rows = payables().map(resolve)
+		const companyId = companyIdOf(config)
+		let rows = payables().map((item) => resolve(item, companyId))
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((row) =>
@@ -131,17 +138,19 @@ export function registerSupplierPayable(mock: MockAdapter) {
 
 	mock.onGet(/\/supplier-payable\/\d+$/).reply((config) => {
 		const source = find(idOf(config.url))
-		return source ? [200, { data: resolve(source) }] : [404, { message: 'Hutang supplier tidak ditemukan' }]
+		return source ? [200, { data: resolve(source, companyIdOf(config)) }] : [404, { message: 'Hutang supplier tidak ditemukan' }]
 	})
 
 	mock.onPost(/\/supplier-payable\/\d+\/payments$/).reply((config) => {
 		const source = find(parentIdOf(config.url))
 		if (!source) return [404, { message: 'Hutang supplier tidak ditemukan' }]
-		const payable = resolve(source)
+		const companyId = companyIdOf(config)
+		const payable = resolve(source, companyId)
 		const body = JSON.parse(config.data) as SupplierPayablePaymentRequest
 		if (!isDate(body.date)) return [422, invalid('Tanggal wajib diisi', 'date')]
 		if (body.date > today()) return [422, invalid('Tanggal tidak boleh melebihi hari ini', 'date')]
 		if (body.date < payable.date) return [422, invalid('Tanggal tidak boleh sebelum tanggal hutang', 'date')]
+		if (isPeriodClosed(companyId, body.date)) return [422, invalid(closedMessage(body.date), 'date')]
 		const type = db.paymentType.find((item) => item.id === Number(body.payment_type_id) && !item.deleted_at && item.transaction_type === 'purchase')
 		if (!type) return [422, invalid('Tipe pembayaran wajib dipilih', 'payment_type_id')]
 		if (type.method === 'expense') return [422, invalid('Tipe pembayaran ini belum didukung untuk hutang supplier', 'payment_type_id')]
@@ -221,7 +230,60 @@ export function registerSupplierPayable(mock: MockAdapter) {
 			kind: 'info',
 			summary: `${number} · ${fmtMoney(amount)}`
 		})
-		return [201, { data: resolve(source), message: 'Pembayaran hutang dicatat' }]
+		return [201, { data: resolve(source, companyId), message: 'Pembayaran hutang dicatat' }]
+	})
+
+	// Edit a payment: date, amount, description (and the bank account for cash/bank). Type and the return / advance
+	// it draws on are fixed — to change those, cancel and record again. Locked once its period is closed.
+	mock.onPut(/\/supplier-payable\/\d+\/payments\/\d+$/).reply((config) => {
+		const source = find(grandParentIdOf(config.url))
+		if (!source) return [404, { message: 'Hutang supplier tidak ditemukan' }]
+		const payment = db.supplierPayablePayment.find((item) => item.id === idOf(config.url) && item.payable_id === source.id)
+		if (!payment) return [404, { message: 'Pembayaran tidak ditemukan' }]
+		const companyId = companyIdOf(config)
+		if (isPeriodClosed(companyId, payment.date)) return [422, { message: `${closedMessage(payment.date)}, pembayaran tidak bisa diubah` }]
+		const payable = resolve(source, companyId)
+		const body = JSON.parse(config.data) as Partial<SupplierPayablePaymentRequest>
+		if (!isDate(body.date)) return [422, invalid('Tanggal wajib diisi', 'date')]
+		const date = String(body.date)
+		if (date > today()) return [422, invalid('Tanggal tidak boleh melebihi hari ini', 'date')]
+		if (date < payable.date) return [422, invalid('Tanggal tidak boleh sebelum tanggal hutang', 'date')]
+		if (isPeriodClosed(companyId, date)) return [422, invalid(closedMessage(date), 'date')]
+		const amount = Math.round(Number(body.amount))
+		if (!(amount > 0)) return [422, invalid('Nominal harus lebih dari nol', 'amount')]
+		// What this payment may grow to: the payable's balance plus the amount it already holds.
+		const capacity = payable.remaining_total + payment.amount
+		if (amount > capacity) return [422, invalid(`Nominal melebihi sisa hutang (${capacity})`, 'amount')]
+
+		const type = db.paymentType.find((item) => item.id === payment.payment_type_id)
+		let bankAccountId = payment.bank_account_id
+		if (type?.method === 'cash_bank') {
+			if (!db.bankAccount.some((item) => item.id === Number(body.bank_account_id) && !item.deleted_at))
+				return [422, invalid('Rekening cash / bank wajib dipilih', 'bank_account_id')]
+			bankAccountId = Number(body.bank_account_id)
+		} else if (type?.method === 'down_payment') {
+			const stored = db.supplierAdvance.find((item) => item.id === payment.supplier_advance_id)
+			const advanceCapacity = (stored ? resolveAdvance(stored).remaining : 0) + payment.amount
+			if (amount > advanceCapacity) return [422, invalid(`Nominal melebihi sisa uang muka (${advanceCapacity})`, 'amount')]
+		} else {
+			const stored = db.purchaseReturn.find((item) => item.id === payment.purchase_return_id)
+			const returnCapacity = (stored ? resolveReturn(stored).remaining_total : 0) + payment.amount
+			if (amount > returnCapacity) return [422, invalid(`Nominal melebihi sisa retur (${returnCapacity})`, 'amount')]
+		}
+
+		const description = String(body.description || '').trim()
+		Object.assign(payment, { date, amount, description, bank_account_id: bankAccountId })
+		// Keep the mirrored rows on the return / advance in step.
+		const settlement = db.purchaseReturnSettlement.find((item) => item.payment_number === payment.number)
+		if (settlement) Object.assign(settlement, { date, amount })
+		const usage = db.supplierAdvanceUsage.find((item) => item.payment_number === payment.number)
+		if (usage) Object.assign(usage, { date, amount, note: description || 'Pembayaran hutang' })
+		recordHistory('purchase-invoice', source.id, {
+			title: 'Pembayaran Hutang Diubah',
+			kind: 'updated',
+			summary: `${payment.number} · ${fmtMoney(amount)}`
+		})
+		return [200, { data: resolve(source, companyId), message: 'Pembayaran diperbarui' }]
 	})
 
 	mock.onDelete(/\/supplier-payable\/\d+\/payments\/\d+$/).reply((config) => {
@@ -230,6 +292,8 @@ export function registerSupplierPayable(mock: MockAdapter) {
 		const index = db.supplierPayablePayment.findIndex((item) => item.id === idOf(config.url) && item.payable_id === source.id)
 		if (index < 0) return [404, { message: 'Pembayaran tidak ditemukan' }]
 		const payment = db.supplierPayablePayment[index]
+		const companyId = companyIdOf(config)
+		if (isPeriodClosed(companyId, payment.date)) return [422, { message: `${closedMessage(payment.date)}, pembayaran tidak bisa dibatalkan` }]
 		db.supplierPayablePayment.splice(index, 1)
 		const settlementIndex = db.purchaseReturnSettlement.findIndex((item) => item.payment_number === payment.number)
 		if (settlementIndex >= 0) db.purchaseReturnSettlement.splice(settlementIndex, 1)
@@ -240,6 +304,6 @@ export function registerSupplierPayable(mock: MockAdapter) {
 			kind: 'info',
 			summary: `${payment.number} · ${fmtMoney(payment.amount)}`
 		})
-		return [200, { data: resolve(source), message: 'Pembayaran dibatalkan' }]
+		return [200, { data: resolve(source, companyId), message: 'Pembayaran dibatalkan' }]
 	})
 }

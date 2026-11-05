@@ -3,7 +3,7 @@ type: OKF Module
 title: Hutang Supplier (Supplier Payable)
 description: Hutang ke supplier per invoice pembelian yang disetujui (Legacy "kontrabon") — jatuh tempo, pembayaran cash/bank, dan pembayaran dengan potong retur pembelian.
 tags: [supplier-payable, procurement, payables]
-timestamp: 2026-11-05T14:00:00Z
+timestamp: 2026-11-06T10:00:00Z
 ---
 
 # Hutang Supplier
@@ -52,6 +52,7 @@ Cetak: `PageSupplierPayablePrint.vue` (print view A4 dari halaman detail, disimp
 | `supplier_advance_id` `supplier_advance_number` | — | terisi untuk `down_payment` ([Uang Muka Supplier](../supplier-advance/index.md)) |
 | `description` | string | |
 | `amount` | number | |
+| `locked` | boolean | server-computed: the payment `date` falls in a closed period ([Posting & Closing](../posting/index.md)); it can be neither edited nor cancelled |
 
 ## Guardrails
 
@@ -61,6 +62,8 @@ Cetak: `PageSupplierPayablePrint.vue` (print view A4 dari halaman detail, disimp
 - Pembayaran `return_deduction` otomatis menambah `settlement` bertipe `payable_deduction` pada retur; membatalkan pembayaran menghapusnya.
 - Pembayaran `down_payment` otomatis menambah baris [pemakaian](../supplier-advance/list-supplier-advance-usage.md) pada uang muka (menaikkan `used`, menurunkan `remaining`); membatalkan pembayaran menghapusnya.
 - Tipe pembayaran `expense` ditolak.
+- **Periode closing:** pembayaran dengan `date` pada periode yang sudah closing (`period <= closed_until`) bersifat `locked` — tidak bisa diubah ataupun dibatalkan, dan pembayaran baru tidak boleh bertanggal di periode closing. Memindahkan tanggal pembayaran ke periode closing juga ditolak. UI mengganti ikon edit/hapus dengan keterangan "Closing".
+- Edit hanya untuk `date`, `amount`, `description`, dan `bank_account_id` (cash/bank); tipe dan referensi retur / uang muka tetap.
 
 ## Endpoints
 
@@ -69,6 +72,7 @@ Cetak: `PageSupplierPayablePrint.vue` (print view A4 dari halaman detail, disimp
 | GET | `/supplier-payable` | [list-supplier-payable](./list-supplier-payable.md) |
 | GET | `/supplier-payable/:id` | [get-supplier-payable](./get-supplier-payable.md) |
 | POST | `/supplier-payable/:id/payments` | [create-supplier-payable-payment](./create-supplier-payable-payment.md) |
+| PUT | `/supplier-payable/:id/payments/:paymentId` | [update-supplier-payable-payment](./update-supplier-payable-payment.md) |
 | DELETE | `/supplier-payable/:id/payments/:paymentId` | [delete-supplier-payable-payment](./delete-supplier-payable-payment.md) |
 
 Referensi pendukung: tipe pembayaran lewat [list-payment-type](../payment-type/list-payment-type.md) (`transaction_type=purchase`, `method`), retur lewat [list-purchase-return](../purchase-return/list-purchase-return.md).

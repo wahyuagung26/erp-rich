@@ -7,7 +7,7 @@ path: /supplier-payable/:id/payments
 status: mock
 tags: [supplier-payable, write]
 resource: /frontend/src/mocks/modules/supplier-payable.ts
-timestamp: 2026-11-05T14:00:00Z
+timestamp: 2026-11-06T10:00:00Z
 ---
 
 # Create Supplier Payable Payment
@@ -24,7 +24,7 @@ Backs the payment form in `PageSupplierPayableDetail.vue`.
 
 | Field | Type | Rules |
 |---|---|---|
-| `date` | string | required; not after today, not before the payable `date` |
+| `date` | string | required; not after today, not before the payable `date`, **and not in a closed period** |
 | `payment_type_id` | number | required; `transaction_type = purchase`, `method` = `cash_bank`, `return_deduction` or `down_payment` |
 | `bank_account_id` | number \| null | required when `method = cash_bank` |
 | `purchase_return_id` | number \| null | required when `method = return_deduction`; approved, same supplier |

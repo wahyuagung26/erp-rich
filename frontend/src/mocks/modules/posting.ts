@@ -144,6 +144,13 @@ function statusOf(s: PostingState): ClosingStatus {
 const fieldError = (field: string, msg: string): [number, unknown] => [422, { message: 'Validasi gagal', errors: { [field]: [msg] } }]
 
 // Contract: docs/posting/
+// A date is locked once its period (YYYY-MM) is at or before the company's `closed_until` (docs/posting/index.md rules).
+// Other mock modules use this to refuse writes into a closed period.
+export function isPeriodClosed(companyId: number | null, date: string): boolean {
+	const closedUntil = stateOf(companyId).closed_until
+	return closedUntil !== null && date.slice(0, 7) <= closedUntil
+}
+
 export function registerPosting(mock: MockAdapter) {
 	mock.onGet('/posting').reply((config) => [200, { data: stateOf(companyIdOf(config)).runs }])
 

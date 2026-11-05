@@ -1030,6 +1030,8 @@ export interface SupplierPayablePayment {
 	supplier_advance_number?: string
 	description: string
 	amount: number
+	// true when the payment date falls in a closed period: it can no longer be edited or cancelled
+	locked: boolean
 }
 
 export interface SupplierPayable {
