@@ -445,8 +445,6 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 	mock.onPut(/\/purchase-return\/\d+\/tax-invoice$/).reply((config) => {
 		const row = db.purchaseReturn.find((item) => item.id === parentIdOf(config.url))
 		if (!row) return [404, { message: 'Retur pembelian tidak ditemukan' }]
-		const closed = closedReply(config, row.date, 'faktur pajak tidak bisa diubah')
-		if (closed) return closed
 		if (!row.pkp_active) return [422, { message: 'Retur non-PKP tidak memiliki faktur pajak' }]
 		if (row.approval_status !== 'approved') return [422, { message: 'Faktur pajak hanya bisa diisi untuk retur yang sudah disetujui' }]
 		const body = JSON.parse(config.data) as { number?: string; date?: string; file?: JournalAttachment | null }

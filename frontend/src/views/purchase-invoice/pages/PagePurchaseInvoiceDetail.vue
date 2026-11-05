@@ -205,8 +205,7 @@ function remove() {
 				<section v-if="invoice.pkp_active" class="space-y-3">
 					<div class="flex items-center justify-between gap-3">
 						<h3 class="subhead">Faktur Pajak</h3>
-						<ClosingBadge v-if="invoice.locked" title="Periode sudah closing, faktur pajak tidak bisa diubah" />
-						<Button v-else size="sm" variant="secondary" @click="openTaxInvoice">
+						<Button size="sm" variant="secondary" @click="openTaxInvoice">
 							<component :is="invoice.tax_invoice ? IconPencil : IconPlus" class="h-4 w-4" />
 							{{ invoice.tax_invoice ? 'Lihat / Edit Faktur' : 'Tambah Faktur Pajak' }}
 						</Button>

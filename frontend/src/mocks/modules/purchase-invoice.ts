@@ -320,8 +320,6 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 	mock.onPut(/\/purchase-invoice\/\d+\/tax-invoice$/).reply((config) => {
 		const row = db.purchaseInvoice.find((item) => item.id === parentIdOf(config.url))
 		if (!row) return [404, { message: 'Invoice pembelian tidak ditemukan' }]
-		const closed = closedReply(config, row.date, 'faktur pajak tidak bisa diubah')
-		if (closed) return closed
 		if (!row.pkp_active) return [422, { message: 'Invoice non-PKP tidak memiliki faktur pajak' }]
 		const body = JSON.parse(config.data) as { number?: string; date?: string; file?: JournalAttachment | null }
 		const number = String(body.number || '').trim()

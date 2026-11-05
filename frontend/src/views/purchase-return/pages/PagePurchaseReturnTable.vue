@@ -25,7 +25,6 @@ import Table from '@/components/base/Table.vue'
 import KpiFilter from '@/components/base/KpiFilter.vue'
 import Amount from '@/components/base/Amount.vue'
 import RowActions from '@/components/base/RowActions.vue'
-import ClosingBadge from '@/components/common/ClosingBadge.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import { approvalOptions } from '@/views/purchase-invoice/schema'
 import { settlementOptions, settlementStatusLabel, settlementTone } from '@/views/purchase-return/schema'
@@ -160,7 +159,7 @@ const rows: TableRow[] = [
 					<Amount v-else-if="row.field === 'total'" :value="column.total as number" />
 					<div v-else-if="row.field === 'tax_invoice'">
 						<button
-							v-if="column.tax_invoice && !column.locked"
+							v-if="column.tax_invoice"
 							class="text-left leading-snug"
 							title="Lihat faktur pajak"
 							@click="openTaxInvoice(column as unknown as PurchaseReturn)"
@@ -170,22 +169,14 @@ const rows: TableRow[] = [
 							}}</span>
 							<span class="block whitespace-nowrap text-s text-ink-muted">{{ date((column.tax_invoice as PurchaseInvoiceTaxInvoice).date) }}</span>
 						</button>
-						<div v-else-if="column.tax_invoice" class="leading-snug" title="Periode sudah closing, faktur pajak tidak bisa diubah">
-							<span class="block whitespace-nowrap text-ink">{{ (column.tax_invoice as PurchaseInvoiceTaxInvoice).number }}</span>
-							<span class="block whitespace-nowrap text-s text-ink-muted">{{ date((column.tax_invoice as PurchaseInvoiceTaxInvoice).date) }}</span>
-						</div>
 						<Button
-							v-else-if="column.pkp_active && column.approval_status === 'approved' && !column.locked"
+							v-else-if="column.pkp_active && column.approval_status === 'approved'"
 							size="sm"
 							variant="outline"
 							@click="openTaxInvoice(column as unknown as PurchaseReturn)"
 						>
 							<IconPlus class="h-4 w-4" /> Tambah
 						</Button>
-						<ClosingBadge
-							v-else-if="column.pkp_active && column.approval_status === 'approved'"
-							title="Periode sudah closing, faktur pajak tidak bisa diubah"
-						/>
 						<span v-else class="text-ink-subtle" title="Faktur pajak hanya untuk retur PKP yang sudah disetujui">–</span>
 					</div>
 					<div v-else-if="row.field === 'approval_status'" class="flex flex-col items-start gap-1">

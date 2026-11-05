@@ -351,8 +351,7 @@ function removeRefund(settlementId: number) {
 					<section v-if="row.pkp_active && row.approval_status === 'approved'" class="space-y-3">
 						<div class="flex items-center justify-between gap-3">
 							<h3 class="subhead">Faktur Pajak</h3>
-							<ClosingBadge v-if="row.locked" title="Periode sudah closing, faktur pajak tidak bisa diubah" />
-							<Button v-else size="sm" variant="secondary" @click="openTaxInvoice">
+							<Button size="sm" variant="secondary" @click="openTaxInvoice">
 								<component :is="row.tax_invoice ? IconPencil : IconPlus" class="h-4 w-4" />
 								{{ row.tax_invoice ? 'Lihat / Edit Faktur' : 'Tambah Faktur Pajak' }}
 							</Button>
