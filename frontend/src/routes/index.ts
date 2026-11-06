@@ -35,6 +35,14 @@ import purchaseInvoice from './purchase-invoice'
 import purchaseReturn from './purchase-return'
 import supplierPayable from './supplier-payable'
 import taxInvoiceImport from './tax-invoice-import'
+import customerDeposit from './customer-deposit'
+import salesOrder from './sales-order'
+import salesInvoice from './sales-invoice'
+import deliveryNote from './delivery-note'
+import salesReturn from './sales-return'
+import customerReceivable from './customer-receivable'
+import priceList from './price-list'
+import salesTaxInvoiceImport from './sales-tax-invoice-import'
 
 const routes: RouteRecordRaw[] = [
 	{ path: '/', redirect: '/dashboard' },
@@ -77,6 +85,14 @@ const routes: RouteRecordRaw[] = [
 			...purchaseReturn,
 			...supplierPayable,
 			...taxInvoiceImport,
+			...customerDeposit,
+			...salesOrder,
+			...salesInvoice,
+			...deliveryNote,
+			...salesReturn,
+			...customerReceivable,
+			...priceList,
+			...salesTaxInvoiceImport,
 			{
 				path: '/design-system',
 				name: 'DesignSystem',
@@ -105,6 +121,12 @@ const routes: RouteRecordRaw[] = [
 		meta: { auth: true }
 	},
 	{
+		path: '/customer-deposit/:id/cetak',
+		name: 'CustomerDepositPrint',
+		component: () => import('@/views/customer-deposit/pages/PageCustomerDepositPrint.vue'),
+		meta: { auth: true }
+	},
+	{
 		path: '/purchase-return/:id/cetak',
 		name: 'PurchaseReturnPrint',
 		component: () => import('@/views/purchase-return/pages/PagePurchaseReturnPrint.vue'),
@@ -114,6 +136,12 @@ const routes: RouteRecordRaw[] = [
 		path: '/supplier-payable/:id/cetak',
 		name: 'SupplierPayablePrint',
 		component: () => import('@/views/supplier-payable/pages/PageSupplierPayablePrint.vue'),
+		meta: { auth: true }
+	},
+	{
+		path: '/customer-receivable/:id/cetak',
+		name: 'CustomerReceivablePrint',
+		component: () => import('@/views/customer-receivable/pages/PageCustomerReceivablePrint.vue'),
 		meta: { auth: true }
 	},
 	{
@@ -132,6 +160,30 @@ const routes: RouteRecordRaw[] = [
 		path: '/purchase-order/:id/cetak',
 		name: 'PurchaseOrderPrint',
 		component: () => import('@/views/purchase-order/pages/PagePurchaseOrderPrint.vue'),
+		meta: { auth: true }
+	},
+	{
+		path: '/sales-order/:id/cetak',
+		name: 'SalesOrderPrint',
+		component: () => import('@/views/sales-order/pages/PageSalesOrderPrint.vue'),
+		meta: { auth: true }
+	},
+	{
+		path: '/sales-invoice/:id/cetak',
+		name: 'SalesInvoicePrint',
+		component: () => import('@/views/sales-invoice/pages/PageSalesInvoicePrint.vue'),
+		meta: { auth: true }
+	},
+	{
+		path: '/sales-return/:id/cetak',
+		name: 'SalesReturnPrint',
+		component: () => import('@/views/sales-return/pages/PageSalesReturnPrint.vue'),
+		meta: { auth: true }
+	},
+	{
+		path: '/delivery-note/:id/cetak',
+		name: 'DeliveryNotePrint',
+		component: () => import('@/views/delivery-note/pages/PageDeliveryNotePrint.vue'),
 		meta: { auth: true }
 	},
 	{ path: '/journal/:id/cetak', name: 'JournalPrint', component: () => import('@/views/journal/pages/PageJournalPrint.vue'), meta: { auth: true } },

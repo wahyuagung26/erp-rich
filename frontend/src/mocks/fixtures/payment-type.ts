@@ -17,7 +17,7 @@ export const paymentTypeSeed: PaymentType[] = [
 		id: 2,
 		company_id: 1,
 		code: 'TP02',
-		name: 'Uang Muka Penjualan',
+		name: 'Titipan Customer',
 		account_id: 1,
 		account_code: '1000101',
 		account_name: 'Kas Kecil',

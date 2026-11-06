@@ -3,6 +3,9 @@ import { purchaseOrderSeed } from './purchase-order'
 import { purchaseReceiptSeed } from './purchase-receipt'
 import { purchaseInvoiceSeed } from './purchase-invoice'
 import { supplierAdvanceSeed, supplierAdvanceUsageSeed } from './supplier-advance'
+import { customerDepositSeed, customerDepositUsageSeed } from './customer-deposit'
+import { salesInvoiceSeed } from './sales-invoice'
+import { deliveryNoteSeed } from './delivery-note'
 import { journalSeed } from './journal'
 import { journalExpenseSeed } from './journal-expense'
 import { journalIncomeSeed } from './journal-income'
@@ -67,6 +70,38 @@ for (const advance of supplierAdvanceSeed) {
 			summary: `${usage.payable_number} · Rp ${money(usage.amount)}`
 		})
 	historySeed[`supplier-advance:${advance.id}`] = timeline(drafts)
+}
+
+for (const deposit of customerDepositSeed) {
+	const drafts: Draft[] = [{ at: `${deposit.date}T08:00:00.000Z`, actor: 'FAT', title: 'Dibuat', kind: 'created' }]
+	for (const usage of customerDepositUsageSeed.filter((item) => item.customer_deposit_id === deposit.id))
+		drafts.push({
+			at: `${usage.date}T10:00:00.000Z`,
+			actor: 'Sistem',
+			title: 'Dipakai di Invoice Penjualan',
+			kind: 'info',
+			summary: `${usage.invoice_number} · Rp ${money(usage.amount)}`
+		})
+	historySeed[`customer-deposit:${deposit.id}`] = timeline(drafts)
+}
+
+for (const invoice of salesInvoiceSeed) {
+	const drafts: Draft[] = [{ at: `${invoice.date}T09:00:00.000Z`, actor: invoice.created_by, title: 'Dibuat', kind: 'created' }]
+	if (invoice.tax_invoice)
+		drafts.push({ at: `${invoice.tax_invoice.date}T07:00:00.000Z`, actor: 'FAT', title: 'Faktur Pajak Disimpan', kind: 'info', summary: invoice.tax_invoice.number })
+	if (invoice.approved_at) drafts.push({ at: invoice.approved_at, actor: invoice.approved_by ?? 'FAT', title: 'Disetujui', kind: 'approved' })
+	if (invoice.approval_status === 'rejected')
+		drafts.push({ at: `${invoice.date}T10:00:00.000Z`, actor: 'FAT', title: 'Ditolak', kind: 'rejected', summary: invoice.rejection_reason })
+	historySeed[`sales-invoice:${invoice.id}`] = timeline(drafts)
+}
+
+for (const note of deliveryNoteSeed) {
+	historySeed[`delivery-note:${note.id}`] = timeline([{ at: `${note.date}T08:30:00.000Z`, actor: note.created_by, title: 'Dibuat', kind: 'created' }])
+	// The invoice timeline notes its surat jalan too (written live by mocks/modules/delivery-note.ts).
+	historySeed[`sales-invoice:${note.sales_invoice_id}`] = timeline([
+		...historySeed[`sales-invoice:${note.sales_invoice_id}`],
+		{ at: `${note.date}T08:30:00.000Z`, actor: note.created_by, title: 'Surat Jalan Dibuat', kind: 'info', summary: note.number }
+	])
 }
 
 // Journals and cash advances share one approval flow (submitted → approved / rejected), so one derivation covers them.

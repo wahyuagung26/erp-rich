@@ -33,6 +33,14 @@ import { registerPurchaseInvoice } from './modules/purchase-invoice'
 import { registerPurchaseReturn } from './modules/purchase-return'
 import { registerSupplierPayable } from './modules/supplier-payable'
 import { registerTaxInvoiceImport } from './modules/tax-invoice-import'
+import { registerCustomerDeposit } from './modules/customer-deposit'
+import { registerSalesOrder } from './modules/sales-order'
+import { registerSalesInvoice } from './modules/sales-invoice'
+import { registerDeliveryNote } from './modules/delivery-note'
+import { registerSalesReturn } from './modules/sales-return'
+import { registerCustomerReceivable } from './modules/customer-receivable'
+import { registerPriceList } from './modules/price-list'
+import { registerSalesTaxInvoiceImport } from './modules/sales-tax-invoice-import'
 import { registerDashboard } from './modules/dashboard'
 import { registerCashFlow } from './modules/cash-flow'
 import { registerPosting } from './modules/posting'
@@ -73,6 +81,14 @@ const modules = [
 	registerPurchaseReturn,
 	registerSupplierPayable,
 	registerTaxInvoiceImport,
+	registerCustomerDeposit,
+	registerSalesOrder,
+	registerSalesInvoice,
+	registerDeliveryNote,
+	registerSalesReturn,
+	registerCustomerReceivable,
+	registerPriceList,
+	registerSalesTaxInvoiceImport,
 	registerDashboard,
 	registerCashFlow,
 	registerPosting

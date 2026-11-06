@@ -22,6 +22,9 @@ function addMonths(period: string, n: number): string {
 const monthLabel = (period: string) =>
 	new Date(`${period}-01T00:00:00Z`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric', timeZone: 'UTC' })
 
+// "Periode <bulan tahun> sudah closing" for a `YYYY-MM-DD` date — shared by modules that build their own closing message.
+export const closedMessage = (date: string) => `Periode ${monthLabel(date.slice(0, 7))} sudah closing`
+
 function currentUserName(): string {
 	try {
 		return JSON.parse(localStorage.getItem('user') || '{}').name || 'Admin'

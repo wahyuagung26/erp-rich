@@ -67,6 +67,14 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Retur Pembelian (Purchase Return)        | [`purchase-return/`](./purchase-return/index.md)   | `views/purchase-return/`  | `mocks/modules/purchase-return.ts`  |
 | Hutang Supplier (Supplier Payable)       | [`supplier-payable/`](./supplier-payable/index.md) | `views/supplier-payable/` | `mocks/modules/supplier-payable.ts` |
 | Import Faktur Pajak (Tax Invoice Import) | [`tax-invoice-import/`](./tax-invoice-import/index.md) | `views/tax-invoice-import/` | `mocks/modules/tax-invoice-import.ts` |
+| Titipan Customer (Penjualan) | [`customer-deposit/`](./customer-deposit/index.md) | `views/customer-deposit/` | `mocks/modules/customer-deposit.ts` |
+| Sales Order (Penjualan) | [`sales-order/`](./sales-order/index.md) | `views/sales-order/` | `mocks/modules/sales-order.ts` |
+| Invoice Penjualan (Penjualan) | [`sales-invoice/`](./sales-invoice/index.md) | `views/sales-invoice/` | `mocks/modules/sales-invoice.ts` |
+| Surat Jalan (Penjualan) | [`delivery-note/`](./delivery-note/index.md) | `views/delivery-note/` | `mocks/modules/delivery-note.ts` |
+| Retur Penjualan (Penjualan) | [`sales-return/`](./sales-return/index.md) | `views/sales-return/` | `mocks/modules/sales-return.ts` |
+| Piutang Customer (Penjualan) | [`customer-receivable/`](./customer-receivable/index.md) | `views/customer-receivable/` | `mocks/modules/customer-receivable.ts` |
+| Daftar Harga (Penjualan) | [`price-list/`](./price-list/index.md) | `views/price-list/` | `mocks/modules/price-list.ts` |
+| Import Faktur Pajak (Penjualan) | [`sales-tax-invoice-import/`](./sales-tax-invoice-import/index.md) | `views/sales-tax-invoice-import/` | `mocks/modules/sales-tax-invoice-import.ts` |
 | Dashboard                                | [`dashboard/`](./dashboard/index.md)               | `views/dashboard/`        | `mocks/modules/dashboard.ts`        |
 
 New module: copy [`_TEMPLATE.md`](./_TEMPLATE.md) into `docs/<module>/<endpoint>.md`.

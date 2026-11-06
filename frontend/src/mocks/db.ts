@@ -3,6 +3,7 @@ import { journalExpenseSeed } from './fixtures/journal-expense'
 import { journalIncomeSeed } from './fixtures/journal-income'
 import { cashAdvanceSeed, cashAdvanceSettlementSeed } from './fixtures/cash-advance'
 import { supplierAdvanceSeed, supplierAdvanceUsageSeed } from './fixtures/supplier-advance'
+import { customerDepositSeed, customerDepositUsageSeed } from './fixtures/customer-deposit'
 import { supplierSeed } from './fixtures/supplier'
 import { customerSeed } from './fixtures/customer'
 import { companySeed } from './fixtures/company'
@@ -24,6 +25,10 @@ import { salesExpenseSeed } from './fixtures/sales-expense'
 import { bankAccountSeed } from './fixtures/bank-account'
 import { productSeed } from './fixtures/product'
 import { purchaseOrderSeed } from './fixtures/purchase-order'
+import { salesOrderSeed, type SalesOrderRow } from './fixtures/sales-order'
+import { salesInvoiceSeed, salesInvoicePaymentSeed, type SalesInvoiceRow } from './fixtures/sales-invoice'
+import { deliveryNoteSeed, type DeliveryNoteRow } from './fixtures/delivery-note'
+import { salesReturnSeed, salesReturnSettlementSeed, salesReturnPaymentSeed, type SalesReturnRow, type SalesReturnSettlementRow } from './fixtures/sales-return'
 import { purchaseReceiptSeed } from './fixtures/purchase-receipt'
 import { purchaseInvoiceSeed } from './fixtures/purchase-invoice'
 import { purchaseReturnSeed, purchaseReturnSettlementSeed, type PurchaseReturnSettlementRow } from './fixtures/purchase-return'
@@ -39,6 +44,8 @@ import type {
 	CashAdvanceSettlement,
 	SupplierAdvance,
 	SupplierAdvanceUsage,
+	CustomerDeposit,
+	CustomerDepositUsage,
 	Supplier,
 	Customer,
 	Company,
@@ -62,6 +69,7 @@ import type {
 	PurchaseOrder,
 	PurchaseReceipt,
 	PurchaseInvoice,
+	SalesInvoicePayment,
 	PurchaseReturn,
 	CashFlow,
 	HistoryEvent
@@ -77,6 +85,8 @@ export const db: {
 	cashAdvanceSettlement: CashAdvanceSettlement[]
 	supplierAdvance: SupplierAdvance[]
 	supplierAdvanceUsage: SupplierAdvanceUsage[]
+	customerDeposit: CustomerDeposit[]
+	customerDepositUsage: CustomerDepositUsage[]
 	supplier: Supplier[]
 	customer: Customer[]
 	company: Company[]
@@ -98,6 +108,12 @@ export const db: {
 	bankAccount: BankAccount[]
 	product: Product[]
 	purchaseOrder: PurchaseOrder[]
+	salesOrder: SalesOrderRow[] // line.invoiced_quantity is maintained by Invoice Penjualan, see docs/sales-order/index.md
+	salesInvoice: SalesInvoiceRow[]
+	salesInvoicePayment: SalesInvoicePayment[] // paid_total / outstanding are always recomputed from ALL rows of an invoice, see docs/sales-invoice/index.md
+	deliveryNote: DeliveryNoteRow[] // Surat Jalan: at most one per sales invoice, see docs/delivery-note/index.md
+	salesReturn: SalesReturnRow[] // Retur Penjualan; tax_invoice is also written by Import Faktur Pajak, see docs/sales-return/index.md
+	salesReturnSettlement: SalesReturnSettlementRow[] // a receivable_deduction owns one kind:'receivable' row (return_id) of salesInvoicePayment
 	purchaseReceipt: PurchaseReceipt[]
 	purchaseInvoice: PurchaseInvoice[]
 	purchaseReturn: Omit<PurchaseReturn, 'used_total' | 'refunded_total' | 'remaining_total' | 'settlement_status' | 'settlements'>[]
@@ -114,6 +130,8 @@ export const db: {
 	cashAdvanceSettlement: structuredClone(cashAdvanceSettlementSeed),
 	supplierAdvance: structuredClone(supplierAdvanceSeed),
 	supplierAdvanceUsage: structuredClone(supplierAdvanceUsageSeed),
+	customerDeposit: structuredClone(customerDepositSeed),
+	customerDepositUsage: structuredClone(customerDepositUsageSeed),
 	supplier: structuredClone(supplierSeed),
 	customer: structuredClone(customerSeed),
 	company: structuredClone(companySeed),
@@ -135,6 +153,12 @@ export const db: {
 	bankAccount: structuredClone(bankAccountSeed),
 	product: structuredClone(productSeed),
 	purchaseOrder: structuredClone(purchaseOrderSeed),
+	salesOrder: structuredClone(salesOrderSeed),
+	salesInvoice: structuredClone(salesInvoiceSeed),
+	salesInvoicePayment: structuredClone([...salesInvoicePaymentSeed, ...salesReturnPaymentSeed]),
+	salesReturn: structuredClone(salesReturnSeed),
+	salesReturnSettlement: structuredClone(salesReturnSettlementSeed),
+	deliveryNote: structuredClone(deliveryNoteSeed),
 	purchaseReceipt: structuredClone(purchaseReceiptSeed),
 	purchaseInvoice: structuredClone(purchaseInvoiceSeed),
 	purchaseReturn: structuredClone(purchaseReturnSeed),

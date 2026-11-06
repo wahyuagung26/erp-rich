@@ -35,7 +35,11 @@ import {
 	IconPackageImport,
 	IconTruckDelivery,
 	IconBuildingBank,
-	IconLock
+	IconLock,
+	IconChartLine,
+	IconClipboardList,
+	IconPigMoney,
+	IconTags
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -98,6 +102,20 @@ export const NAV: NavItem[] = [
 			{ label: 'Retur Pembelian', to: '/purchase-return', icon: IconReceiptRefund },
 			{ label: 'Hutang Supplier', to: '/supplier-payable', icon: IconCreditCardPay },
 			{ label: 'Import Faktur Pajak', to: '/tax-invoice-import', icon: IconFileImport }
+		]
+	},
+	{
+		label: 'Penjualan',
+		icon: IconChartLine,
+		children: [
+			{ label: 'Titipan Customer', to: '/customer-deposit', icon: IconPigMoney },
+			{ label: 'Sales Order', to: '/sales-order', icon: IconClipboardList },
+			{ label: 'Invoice Penjualan', to: '/sales-invoice', icon: IconFileInvoice },
+			{ label: 'Surat Jalan', to: '/delivery-note', icon: IconTruckDelivery },
+			{ label: 'Retur Penjualan', to: '/sales-return', icon: IconReceiptRefund },
+			{ label: 'Piutang Customer', to: '/customer-receivable', icon: IconCreditCardPay },
+			{ label: 'Daftar Harga', to: '/price-list', icon: IconTags },
+			{ label: 'Import Faktur Pajak', to: '/sales-tax-invoice-import', icon: IconFileImport }
 		]
 	},
 	{ label: 'Design System', to: '/design-system', icon: IconPalette }

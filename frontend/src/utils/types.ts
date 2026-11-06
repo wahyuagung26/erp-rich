@@ -596,6 +596,43 @@ export interface SupplierAdvanceUsage {
 	amount: number
 }
 
+// Titipan Customer — see docs/customer-deposit/. Money received from a customer in advance, applied later to
+// Invoice Penjualan. `used`/`remaining`/`last_invoice_number` are server-computed from CustomerDepositUsage rows.
+export interface CustomerDeposit {
+	locked?: boolean // response-only: date falls in a closed period → no edit / delete
+	id: number
+	number: string
+	date: string
+	department_id: number
+	department_code?: string
+	department_name?: string
+	customer_id: number
+	customer_code?: string
+	customer_name?: string
+	amount: number
+	used: number
+	remaining: number
+	last_invoice_number: string | null
+	description: string
+	cash_account_id: number
+	cash_account_code?: string
+	cash_account_name?: string
+	cash_flow: string | null
+	cash_flow_name?: string
+	attachment: JournalAttachment | null
+}
+
+// Usage of a CustomerDeposit against an Invoice Penjualan. Read-only on the deposit side; created by the invoice module.
+export interface CustomerDepositUsage {
+	id: number
+	customer_deposit_id: number
+	date: string
+	invoice_id: number | null
+	invoice_number: string
+	note: string
+	amount: number
+}
+
 // Daily cash & bank position report — see docs/cash-position/. Read-only,
 // recomputed per request from approved journal movements.
 export interface CashPositionRow {
@@ -685,6 +722,402 @@ export interface PurchaseOrderRequest {
 	address: string
 	description: string
 	lines: PurchaseOrderLineRequest[]
+}
+
+// Sales Order (Penjualan) — no stok/jurnal effect, so no `locked`. Contract: docs/sales-order/.
+export type SalesOrderApprovalStatus = 'pending' | 'approved' | 'rejected'
+export type SalesOrderInvoiceStatus = 'not_invoiced' | 'partial' | 'invoiced'
+export type SalesOrderDiscountType = 'nominal' | 'percent'
+
+export interface SalesOrderLine {
+	product_id: number
+	product_code?: string
+	product_name?: string
+	brand_name?: string
+	unit_name?: string
+	warehouse_id: number
+	warehouse_code?: string
+	warehouse_name?: string
+	quantity: number
+	price: number
+	discount: number // rupiah per unit
+	notes: string
+	total: number // round((price - discount) × quantity)
+	invoiced_quantity: number
+	remaining_quantity: number
+}
+
+export interface SalesOrderExpense {
+	sales_expense_id: number
+	sales_expense_code?: string
+	sales_expense_name?: string
+	notes: string
+	amount: number
+}
+
+export interface SalesOrder {
+	id: number
+	number: string
+	date: string
+	top_days: number
+	due_date: string
+	customer_id: number
+	customer_code?: string
+	customer_name?: string
+	customer_address?: string
+	customer_phone?: string
+	sales_id: number
+	sales_code?: string
+	sales_name?: string
+	department_id: number
+	department_code?: string
+	department_name?: string
+	pkp_active: boolean
+	description: string
+	discount_type: SalesOrderDiscountType
+	discount_value: number
+	discount_global: number
+	approval_status: SalesOrderApprovalStatus
+	invoice_status: SalesOrderInvoiceStatus
+	rejection_reason: string | null
+	approved_by: string | null
+	approved_at: string | null
+	created_by: string
+	lines: SalesOrderLine[]
+	expenses: SalesOrderExpense[]
+	subtotal: number
+	dpp: number
+	ppn: number
+	expense_total: number
+	total: number
+}
+
+// API input only — no labels, no computed amounts, no invoiced quantity.
+export interface SalesOrderRequest {
+	date: string
+	customer_id: number
+	sales_id: number
+	department_id: number
+	top_days: number
+	pkp_active: boolean
+	description: string
+	discount_type: SalesOrderDiscountType
+	discount_value: number
+	lines: Pick<SalesOrderLine, 'product_id' | 'warehouse_id' | 'quantity' | 'price' | 'discount' | 'notes'>[]
+	expenses: Pick<SalesOrderExpense, 'sales_expense_id' | 'notes' | 'amount'>[]
+}
+
+// GET /sales-order/:id/invoiceable-lines — consumed by the Invoice Penjualan form.
+export interface SalesOrderInvoiceableLines {
+	sales_order: Pick<
+		SalesOrder,
+		| 'id'
+		| 'number'
+		| 'date'
+		| 'description'
+		| 'customer_id'
+		| 'customer_code'
+		| 'customer_name'
+		| 'sales_id'
+		| 'sales_code'
+		| 'sales_name'
+		| 'department_id'
+		| 'department_code'
+		| 'department_name'
+		| 'pkp_active'
+		| 'top_days'
+		| 'discount_type'
+		| 'discount_value'
+		| 'expenses'
+	>
+	lines: (Pick<
+		SalesOrderLine,
+		| 'product_id'
+		| 'product_code'
+		| 'product_name'
+		| 'brand_name'
+		| 'unit_name'
+		| 'invoiced_quantity'
+		| 'remaining_quantity'
+		| 'price'
+		| 'discount'
+		| 'warehouse_id'
+		| 'warehouse_code'
+		| 'warehouse_name'
+		| 'notes'
+	> & { ordered_quantity: number; quantity: number })[]
+}
+
+// Invoice Penjualan — moves stok + jurnal on approve, so it is closing-locked. Contract: docs/sales-invoice/.
+export type SalesInvoiceApprovalStatus = 'pending' | 'approved' | 'rejected'
+export type SalesInvoicePaymentStatus = 'unpaid' | 'partial' | 'paid'
+export type SalesInvoicePaymentKind = 'creation' | 'receivable'
+export type SalesInvoiceTaxInvoice = PurchaseInvoiceTaxInvoice
+
+export interface SalesInvoiceLine {
+	product_id: number
+	product_code?: string
+	product_name?: string
+	brand_name?: string
+	unit_name?: string
+	warehouse_id: number
+	warehouse_code?: string
+	warehouse_name?: string
+	quantity: number
+	price: number
+	discount: number // rupiah per unit
+	notes: string
+	total: number // round((price - discount) × quantity)
+	max_quantity: number | null // with a sales order: ordered − invoiced by other invoices; null without one
+}
+
+// Stored in db.salesInvoicePayment. `receivable` rows are written by Piutang Customer, `creation` rows by the invoice form.
+export interface SalesInvoicePayment {
+	id: number
+	invoice_id: number
+	date: string
+	payment_type_id: number
+	payment_type: string
+	method: 'cash_bank' | 'down_payment' | 'expense'
+	reference: string
+	amount: number
+	kind: SalesInvoicePaymentKind
+	deposit_id?: number
+	deposit_number?: string // resolved on read
+	return_id?: number // set on rows written by a Retur Penjualan settlement (kind 'receivable'); managed from /sales-return only
+	// Piutang Customer rows only (kind 'receivable', no return_id):
+	number?: string // "BYR-…", assigned at create
+	bank_account_id?: number // method cash_bank
+	sales_expense_id?: number // method expense (tipe Biaya)
+	description?: string
+}
+
+export interface SalesInvoice {
+	locked?: boolean // response-only: date falls in a closed period → no edit / delete / approval changes
+	id: number
+	number: string
+	date: string
+	top_days: number
+	due_date: string
+	customer_id: number
+	customer_code?: string
+	customer_name?: string
+	customer_address?: string
+	customer_phone?: string
+	sales_id: number
+	sales_code?: string
+	sales_name?: string
+	department_id: number
+	department_code?: string
+	department_name?: string
+	sales_order_id: number | null
+	sales_order_number: string | null
+	pkp_active: boolean
+	description: string
+	discount_type: SalesOrderDiscountType
+	discount_value: number
+	discount_global: number
+	approval_status: SalesInvoiceApprovalStatus
+	rejection_reason: string | null
+	approved_by: string | null
+	approved_at: string | null
+	tax_invoice: SalesInvoiceTaxInvoice | null
+	created_by: string
+	lines: SalesInvoiceLine[]
+	expenses: SalesOrderExpense[]
+	subtotal: number
+	dpp: number
+	ppn: number
+	expense_total: number
+	total: number
+	payments: SalesInvoicePayment[]
+	paid_total: number
+	outstanding: number
+	payment_status: SalesInvoicePaymentStatus
+}
+
+// API input only — no labels, no computed amounts, no payment kind.
+export interface SalesInvoiceRequest {
+	sales_order_id: number | null
+	date: string
+	customer_id: number
+	sales_id: number
+	department_id: number
+	top_days: number
+	pkp_active: boolean
+	description: string
+	discount_type: SalesOrderDiscountType
+	discount_value: number
+	lines: Pick<SalesInvoiceLine, 'product_id' | 'warehouse_id' | 'quantity' | 'price' | 'discount' | 'notes'>[]
+	expenses: Pick<SalesOrderExpense, 'sales_expense_id' | 'notes' | 'amount'>[]
+	payments: { payment_type_id: number; reference: string; amount: number; deposit_id: number | null; sales_expense_id?: number | null }[]
+}
+
+// Retur Penjualan — goods sent back by a customer against ONE approved Sales Invoice. Moves stok + jurnal, so the document is closing-locked;
+// settlements lock by their own date. Contract: docs/sales-return/.
+export type SalesReturnApprovalStatus = SalesInvoiceApprovalStatus
+export type SalesReturnSettlementStatus = 'open' | 'settled'
+export type SalesReturnSettlementType = 'receivable_deduction' | 'cash_bank'
+export type SalesReturnTaxInvoice = PurchaseInvoiceTaxInvoice
+
+export interface SalesReturnLine {
+	product_id: number
+	product_code?: string
+	product_name?: string
+	brand_name?: string
+	unit_name?: string
+	quantity_sold: number
+	quantity_returned_before: number
+	quantity: number
+	price: number // unit price from the invoice line (server-authoritative)
+	discount: number // rupiah per unit, from the invoice line
+	dpp: number // round((price − discount) × quantity)
+	ppn: number // 11% of dpp when pkp_active
+	total: number // dpp + ppn
+}
+
+export interface SalesReturnSettlement {
+	id: number
+	date: string
+	type: SalesReturnSettlementType
+	bank_account_id: number | null
+	bank_account_name?: string
+	description: string
+	amount: number
+	locked: boolean // date falls in a closed period: cannot be edited or cancelled
+}
+
+export interface SalesReturn {
+	locked?: boolean // response-only: date falls in a closed period → no edit / delete / approval changes
+	id: number
+	number: string
+	date: string
+	sales_invoice_id: number
+	sales_invoice_number?: string
+	sales_invoice_date?: string
+	customer_id?: number
+	customer_code?: string
+	customer_name?: string
+	department_id?: number
+	department_code?: string
+	department_name?: string
+	warehouse_id: number
+	warehouse_code?: string
+	warehouse_name?: string
+	reason: string
+	pkp_active: boolean
+	approval_status: SalesReturnApprovalStatus
+	rejection_reason: string | null
+	approved_by: string | null
+	approved_at: string | null
+	tax_invoice: SalesReturnTaxInvoice | null
+	created_by: string
+	lines: SalesReturnLine[]
+	dpp: number
+	ppn: number
+	total: number
+	used_total: number // potong piutang invoice
+	refunded_total: number // dana kembali ke customer (cash / bank)
+	remaining_total: number // total − used_total − refunded_total ("Sisa Retur")
+	invoice_outstanding: number // Sisa piutang of the source invoice right now (cap for a potong piutang)
+	settlement_status: SalesReturnSettlementStatus
+	settlements: SalesReturnSettlement[]
+}
+
+// API input only — price / discount / amounts come from the invoice and the server.
+export interface SalesReturnRequest {
+	sales_invoice_id: number
+	date: string
+	warehouse_id: number
+	reason: string
+	lines: { product_id: number; quantity: number }[]
+}
+
+export interface SalesReturnSettlementRequest {
+	type: SalesReturnSettlementType
+	date: string
+	bank_account_id: number | null // cash_bank only
+	description: string
+	amount: number
+}
+
+// GET /sales-invoice/:id/returnable-lines — lookup for the return form.
+export interface SalesInvoiceReturnableLines {
+	sales_invoice: {
+		id: number
+		number: string
+		date: string
+		customer_id: number
+		customer_code?: string
+		customer_name?: string
+		department_code?: string
+		department_name?: string
+		pkp_active: boolean
+		outstanding: number
+	}
+	lines: SalesReturnLine[]
+}
+
+// Surat Jalan (Penjualan) — documentary only (never touches stok / HPP / jurnal), one per approved Invoice Penjualan,
+// NOT closing-locked. Lines mirror every invoice line (`quantity` 0 = not shipped). Contract: docs/delivery-note/.
+export interface DeliveryNoteLine {
+	product_id: number
+	product_code?: string
+	product_name?: string
+	brand_name?: string
+	unit_name?: string
+	invoice_quantity: number // qty on the invoice line = the ceiling for `quantity`
+	quantity: number // shipped on this SJ
+}
+
+export interface DeliveryNote {
+	id: number
+	number: string
+	date: string
+	sales_invoice_id: number // immutable after create
+	sales_invoice_number?: string
+	sales_invoice_date?: string
+	customer_id?: number
+	customer_code?: string
+	customer_name?: string
+	department_code?: string
+	department_name?: string
+	delivery_address: string
+	recipient: string // Nama Penerima, optional
+	driver: string // Nama Driver / Pengirim, optional
+	vehicle: string // No. Kendaraan, optional
+	description: string
+	created_by: string
+	total_quantity: number // Σ lines.quantity
+	lines: DeliveryNoteLine[]
+}
+
+// API input only; the client sends the lines it ships (`quantity > 0`).
+export interface DeliveryNoteRequest {
+	sales_invoice_id: number
+	date: string
+	delivery_address: string
+	recipient: string
+	driver: string
+	vehicle: string
+	description: string
+	lines: { product_id: number; quantity: number }[]
+}
+
+// GET /sales-invoice/:id/deliverable-lines — header context + every invoice line prefilled with quantity = invoice_quantity.
+export interface SalesInvoiceDeliverableLines {
+	sales_invoice: {
+		id: number
+		number: string
+		date: string
+		customer_id: number
+		customer_code?: string
+		customer_name?: string
+		customer_address?: string
+		department_code?: string
+		department_name?: string
+	}
+	lines: DeliveryNoteLine[]
 }
 
 // Penerimaan Pembelian (Purchase Receipt) — receives goods against an approved
@@ -1078,6 +1511,65 @@ export interface SupplierPayablePaymentRequest {
 	description: string
 }
 
+// Piutang Customer — derived from an approved Invoice Penjualan (id = invoice id), see docs/customer-receivable/.
+// Payment `source`: 'creation' = paid with the invoice, 'return' = Retur Penjualan settlement (both read-only here), 'receivable' = recorded here.
+export type CustomerReceivablePaymentSource = 'creation' | 'return' | 'receivable'
+
+export interface CustomerReceivablePayment {
+	id: number
+	number: string | null
+	date: string
+	source: CustomerReceivablePaymentSource
+	payment_type_id: number
+	payment_type_name: string
+	method: SalesInvoicePayment['method']
+	bank_account_id: number | null
+	bank_account_name?: string
+	deposit_id: number | null
+	deposit_number?: string
+	sales_expense_id: number | null
+	sales_expense_name?: string
+	return_id: number | null
+	return_number?: string
+	reference: string
+	description: string
+	amount: number
+	// true when the payment date falls in a closed period (source 'receivable' only): it can no longer be edited or cancelled
+	locked: boolean
+}
+
+export interface CustomerReceivable {
+	id: number
+	number: string
+	date: string
+	due_date: string
+	top_days: number
+	customer_id: number
+	customer_code?: string
+	customer_name?: string
+	department_id: number
+	department_code?: string
+	department_name?: string
+	sales_name?: string
+	description: string
+	total: number
+	paid_total: number
+	outstanding: number
+	status: SalesInvoicePaymentStatus
+	overdue: boolean
+	payments: CustomerReceivablePayment[]
+}
+
+export interface CustomerReceivablePaymentRequest {
+	date: string
+	payment_type_id: number
+	bank_account_id: number | null
+	deposit_id: number | null
+	sales_expense_id: number | null
+	description: string
+	amount: number
+}
+
 // Import Faktur Pajak (pembelian side) — see docs/tax-invoice-import/.
 export type TaxInvoiceImportSource = 'purchase_invoice' | 'purchase_return'
 export type TaxInvoiceImportRowStatus = 'matched' | 'to_be_replaced' | 'unmatched' | 'skipped' | 'error'
@@ -1098,4 +1590,28 @@ export interface TaxInvoiceImportPreview {
 	file_name: string
 	summary: Record<TaxInvoiceImportRowStatus | 'total', number>
 	rows: TaxInvoiceImportRow[]
+}
+
+// Import Faktur Pajak (penjualan side) — see docs/sales-tax-invoice-import/. Rows / statuses are shared with the pembelian import.
+export type SalesTaxInvoiceImportSource = 'sales_invoice' | 'sales_return'
+export type SalesTaxInvoiceImportPreview = Omit<TaxInvoiceImportPreview, 'source'> & { source: SalesTaxInvoiceImportSource }
+
+// Daftar Harga (Penjualan): read-only product row with harga jual + available stock. See docs/price-list/.
+export interface PriceListRow {
+	id: number
+	code: string
+	name: string
+	type: Product['type']
+	brand_id: number
+	brand_code?: string
+	brand_name?: string
+	product_category_id: number
+	product_category_code?: string
+	product_category_name?: string
+	unit_name?: string
+	selling_price: number
+	has_price: boolean
+	stock_qty: number | null
+	min_stock: number
+	stock_warning: 'empty' | 'low' | null
 }
