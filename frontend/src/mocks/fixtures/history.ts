@@ -88,7 +88,13 @@ for (const deposit of customerDepositSeed) {
 for (const invoice of salesInvoiceSeed) {
 	const drafts: Draft[] = [{ at: `${invoice.date}T09:00:00.000Z`, actor: invoice.created_by, title: 'Dibuat', kind: 'created' }]
 	if (invoice.tax_invoice)
-		drafts.push({ at: `${invoice.tax_invoice.date}T07:00:00.000Z`, actor: 'FAT', title: 'Faktur Pajak Disimpan', kind: 'info', summary: invoice.tax_invoice.number })
+		drafts.push({
+			at: `${invoice.tax_invoice.date}T07:00:00.000Z`,
+			actor: 'FAT',
+			title: 'Faktur Pajak Disimpan',
+			kind: 'info',
+			summary: invoice.tax_invoice.number
+		})
 	if (invoice.approved_at) drafts.push({ at: invoice.approved_at, actor: invoice.approved_by ?? 'FAT', title: 'Disetujui', kind: 'approved' })
 	if (invoice.approval_status === 'rejected')
 		drafts.push({ at: `${invoice.date}T10:00:00.000Z`, actor: 'FAT', title: 'Ditolak', kind: 'rejected', summary: invoice.rejection_reason })

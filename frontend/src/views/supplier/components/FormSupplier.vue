@@ -54,7 +54,12 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Identitas</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
-					<FormField v-if="code" class="sm:col-span-2" label="Kode Supplier">
+					<FormField
+						v-if="code"
+						class="sm:col-span-2"
+						label="Kode Supplier"
+						help="Kode dibuat otomatis oleh sistem saat data disimpan dan tidak bisa diubah."
+					>
 						<Input :model-value="code" mono disabled class="max-w-[180px]" />
 					</FormField>
 					<FormField class="sm:col-span-2" label="Nama Supplier" required :error="errors.name">
@@ -130,9 +135,9 @@ defineExpose({ setServerErrors })
 				</FormField>
 			</section>
 
-			<div class="flex gap-2 pt-2">
-				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
+			<div class="flex flex-wrap justify-end gap-2 pt-2">
 				<Button variant="secondary" type="button" @click="router.push('/supplier')"> <IconX class="h-4 w-4" /> Batal </Button>
+				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
 			</div>
 		</form>
 	</Panel>

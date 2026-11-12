@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import FormWarehouse from '@/views/warehouse/components/FormWarehouse.vue'
 import type { WarehouseForm } from '@/views/warehouse/schema'
@@ -14,6 +15,7 @@ const saving = ref(false)
 const formRef = ref<InstanceType<typeof FormWarehouse>>()
 
 async function save(payload: WarehouseForm) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.post('/warehouse', payload)
@@ -22,11 +24,13 @@ async function save(payload: WarehouseForm) {
 	} catch (err) {
 		if (axios.isAxiosError(err) && err.response?.status === 422) {
 			const errors = err.response.data?.errors
-			if (errors) formRef.value?.setServerErrors(errors)
-			else toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
+			if (errors) {
+				formRef.value?.setServerErrors(errors)
+				toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
+			} else toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
 			return
 		}
-		throw err
+		toast.error(errorMessage(err))
 	} finally {
 		saving.value = false
 	}

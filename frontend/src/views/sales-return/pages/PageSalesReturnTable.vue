@@ -177,7 +177,9 @@ const rows: TableRow[] = [
 							title="Lihat faktur pajak"
 							@click="openTaxInvoice(column as unknown as SalesReturn)"
 						>
-							<span class="block whitespace-nowrap text-primary-dark hover:underline">{{ (column.tax_invoice as SalesReturnTaxInvoice).number }}</span>
+							<span class="block whitespace-nowrap text-primary-dark hover:underline">{{
+								(column.tax_invoice as SalesReturnTaxInvoice).number
+							}}</span>
 							<span class="block whitespace-nowrap text-s text-ink-muted">{{ date((column.tax_invoice as SalesReturnTaxInvoice).date) }}</span>
 						</button>
 						<Button

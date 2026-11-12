@@ -106,7 +106,17 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Produk</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
-					<FormField label="Kode Produk" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
+					<FormField
+						label="Kode Produk"
+						required
+						:error="errors.code"
+						:hint="isEdit ? undefined : 'Harus unik.'"
+						:help="
+							isEdit
+								? 'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah. Untuk memakai kode lain, buat data baru.'
+								: undefined
+						"
+					>
 						<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. PRD001" />
 					</FormField>
 					<FormField label="Nama Produk" required :error="errors.name">
@@ -213,7 +223,7 @@ defineExpose({ setServerErrors })
 					<FormField label="Harga Jual" required :error="errors.selling_price" hint="Nominal rupiah tanpa desimal.">
 						<MoneyInput v-model="form.selling_price" />
 					</FormField>
-					<FormField class="sm:col-span-2" label="HPP Rata-rata" hint="Dihitung otomatis dari transaksi pembelian. Tidak bisa diubah manual.">
+					<FormField class="sm:col-span-2" label="HPP Rata-rata" help="Dihitung otomatis dari transaksi pembelian, jadi tidak bisa diubah manual.">
 						<MoneyInput :model-value="props.initial?.hpp_avg ?? 0" disabled class="max-w-[240px]" />
 					</FormField>
 					<FormField class="sm:col-span-2" label="Keterangan" :error="errors.notes">
@@ -222,9 +232,9 @@ defineExpose({ setServerErrors })
 				</div>
 			</section>
 
-			<div class="flex gap-2 pt-2">
-				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
+			<div class="flex flex-wrap justify-end gap-2 pt-2">
 				<Button variant="secondary" type="button" @click="router.push('/product')"> <IconX class="h-4 w-4" /> Batal </Button>
+				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
 			</div>
 		</form>
 	</Panel>

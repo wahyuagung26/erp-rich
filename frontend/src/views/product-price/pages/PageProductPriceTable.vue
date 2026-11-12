@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-import axios from 'axios'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import FilterBar from '@/components/base/FilterBar.vue'
@@ -46,13 +46,7 @@ async function save(row: Product, field: 'selling_price' | 'last_purchase_price'
 		toast.success(`Harga "${row.name}" diperbarui`)
 		fetchList()
 	} catch (err) {
-		if (axios.isAxiosError(err) && err.response?.status === 422) {
-			toast.error(err.response.data?.message ?? 'Harga harus bilangan bulat dan tidak negatif')
-		} else if (axios.isAxiosError(err) && err.response?.status === 404) {
-			toast.error(err.response.data?.message ?? 'Produk tidak ditemukan')
-		} else {
-			toast.error('Harga produk gagal diperbarui')
-		}
+		toast.error(errorMessage(err, 'Harga produk gagal diperbarui'))
 	}
 }
 

@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { useCompanyStore } from '@/stores/company'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
@@ -37,6 +38,7 @@ onMounted(async () => {
 })
 
 async function save(payload: CompanyForm) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.put(`/company/${route.params.id}`, payload)
@@ -45,10 +47,14 @@ async function save(payload: CompanyForm) {
 		router.push('/company')
 	} catch (err) {
 		if (axios.isAxiosError(err) && err.response?.status === 422) {
-			formRef.value?.setServerErrors(err.response.data?.errors ?? {})
+			const errors = err.response.data?.errors
+			if (errors) {
+				formRef.value?.setServerErrors(errors)
+				toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
+			} else toast.error(errorMessage(err))
 			return
 		}
-		throw err
+		toast.error(errorMessage(err))
 	} finally {
 		saving.value = false
 	}

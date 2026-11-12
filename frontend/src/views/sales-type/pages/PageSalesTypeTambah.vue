@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import FormSalesType from '@/views/sales-type/components/FormSalesType.vue'
 import type { SalesTypeForm } from '@/views/sales-type/schema'
@@ -14,6 +15,7 @@ const saving = ref(false)
 const formRef = ref<InstanceType<typeof FormSalesType>>()
 
 async function save(payload: SalesTypeForm) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.post('/sales-type', payload)
@@ -22,11 +24,13 @@ async function save(payload: SalesTypeForm) {
 	} catch (err) {
 		if (axios.isAxiosError(err) && err.response?.status === 422) {
 			const errors = err.response.data?.errors
-			if (errors) formRef.value?.setServerErrors(errors)
-			else toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
+			if (errors) {
+				formRef.value?.setServerErrors(errors)
+				toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
+			} else toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
 			return
 		}
-		throw err
+		toast.error(errorMessage(err))
 	} finally {
 		saving.value = false
 	}

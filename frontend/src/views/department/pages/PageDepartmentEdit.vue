@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
@@ -35,6 +36,7 @@ onMounted(async () => {
 })
 
 async function save(payload: DepartmentForm) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.put(`/department/${route.params.id}`, payload)
@@ -43,11 +45,13 @@ async function save(payload: DepartmentForm) {
 	} catch (err) {
 		if (axios.isAxiosError(err) && err.response?.status === 422) {
 			const errors = err.response.data?.errors
-			if (errors) formRef.value?.setServerErrors(errors)
-			else toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
+			if (errors) {
+				formRef.value?.setServerErrors(errors)
+				toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
+			} else toast.error(err.response.data?.message ?? 'Pilih perusahaan aktif terlebih dahulu')
 			return
 		}
-		throw err
+		toast.error(errorMessage(err))
 	} finally {
 		saving.value = false
 	}

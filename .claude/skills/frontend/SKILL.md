@@ -98,6 +98,7 @@ variant.
 - **`pages/Page<X>Tambah|Edit.vue`** — own `saving` / `loading` / `notFound` + a `formRef`.
   `save()`:
   ```ts
+  if (saving.value) return                       // no double submit (§5a)
   saving.value = true
   try {
     await api.post('/x', payload)               // or api.put(`/x/${id}`, payload)
@@ -108,7 +109,7 @@ variant.
       formRef.value?.setServerErrors(err.response.data?.errors ?? {})
       return                                     // STAY on the form — never redirect on error
     }
-    throw err
+    toast.error(errorMessage(err))               // §5a.2: plain + actionable, never rethrow raw
   } finally { saving.value = false }
   ```
   `load()` on Edit/Detail: `try { … } catch { notFound.value = true }` → render an empty
@@ -148,6 +149,38 @@ an invisible-on-invisible colour, or a mock that returns the wrong shape:
   Extend it there rather than rewriting a one-off driver in the scratchpad each session.
 
 A change that passes `vue-tsc` but was never rendered is **not done**.
+
+### 5a. Form & submit checklist — gate for "selesai" AND for frontend review
+
+Tick every item that applies before claiming a frontend change is done, and walk the same list
+when reviewing someone else's change. Each one is checked by **using** the screen (submit it,
+make the mock fail, click twice), not by reading the code.
+
+1. **Submit feedback is a toast.** Every submit / delete / approve / state-change shows `useToast()`
+   — `success` (past-tense, Bahasa) on OK, `error` on failure. Never silent, never only
+   `console.error`, never an inline-only message. (`api.ts` has no global error toast, so each
+   `catch` must raise its own.)
+2. **Error toast text is for the user, not the developer.** Plain, non-technical Bahasa that says
+   *what happened* and *what to do next* — "Periode Oktober sudah ditutup. Ubah tanggal ke periode
+   yang masih terbuka.", not "422 Unprocessable Entity" / "SQLSTATE…" / "Request failed with status
+   code 500". Use `err.response.data.message` only when it already reads like that; otherwise map
+   it, and fall back to an actionable generic ("Gagal menyimpan. Periksa koneksi lalu coba lagi.").
+   Use `errorMessage(err)` (`utils/errorMessage.ts`): network / 5xx / 403 get fixed plain wording (never the raw
+   server text); 404/422 pass the backend `message` through. Failed confirm actions (delete…) are toasted
+   centrally by `stores/modal.ts` — don't add a catch in the callback. Mock `message` strings must follow the same rule.
+3. **No double submit.** Every submit-type button is bound to `:loading="saving"` (`<Button>`
+   already disables itself while `loading`) **and** the handler starts with `if (saving.value) return`
+   (covers Enter key / fast double click). Reset in `finally`. Applies to Simpan, Hapus-confirm,
+   Approve/Reject, import, inline-edit saves — not just the main form.
+4. **Action buttons sit on the right.** Form pages: bottom, `flex flex-wrap justify-end gap-2`, Batal
+   (secondary) then the primary. Detail pages: `PageHeader #actions` (top-right). Modals: footer
+   right-aligned, primary last. No left-aligned or centered action rows.
+5. **A disabled field explains itself.** Any `disabled` / read-only field in a form (locked by
+   status, auto-filled, closed period, immutable after create…) gets a help icon
+   (`IconHelp`/`IconInfoCircle`, muted) right of its label with a tooltip saying *why* it is
+   disabled and, if possible, how to enable it ("Tidak bisa diubah karena dokumen sudah disetujui.").
+   Use `<FormField help="…">` (renders `<HelpTip>`, CSS-only, works on hover/focus/tap) — don't
+   hand-roll a tooltip, and don't leave the reason only in the grey `hint` line.
 
 ## 6. Design rules (full list: DESIGN_SYSTEM.md)
 

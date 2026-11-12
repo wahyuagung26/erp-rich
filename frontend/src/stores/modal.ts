@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia'
+import { useToastStore } from '@/stores/toast'
+import { errorMessage } from '@/utils/errorMessage'
 
 export type ConfirmType = 'warning' | 'danger' | 'info'
 
@@ -32,8 +34,11 @@ export const useModalStore = defineStore('modal', {
 			this.confirmLoading = true
 			try {
 				await this.onConfirm()
-				this.closeConfirm()
+			} catch (err) {
+				// A failed confirm action (e.g. delete) must tell the user why — then close so a stale dialog can't be retried
+				useToastStore().push('danger', errorMessage(err))
 			} finally {
+				this.closeConfirm()
 				this.confirmLoading = false
 			}
 		},

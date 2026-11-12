@@ -44,7 +44,17 @@ defineExpose({ setServerErrors })
 				<h3 class="subhead">Informasi Sales</h3>
 				<div class="space-y-4">
 					<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
-						<FormField label="Kode Sales" required :error="errors.code" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Harus unik.'">
+						<FormField
+							label="Kode Sales"
+							required
+							:error="errors.code"
+							:hint="isEdit ? undefined : 'Harus unik.'"
+							:help="
+								isEdit
+									? 'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah. Untuk memakai kode lain, buat data baru.'
+									: undefined
+							"
+						>
 							<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. SL01" />
 						</FormField>
 						<FormField label="Nama Sales" required :error="errors.name">
@@ -57,9 +67,9 @@ defineExpose({ setServerErrors })
 				</div>
 			</section>
 
-			<div class="flex gap-2 pt-2">
-				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
+			<div class="flex flex-wrap justify-end gap-2 pt-2">
 				<Button variant="secondary" type="button" @click="router.push('/sales')"> <IconX class="h-4 w-4" /> Batal </Button>
+				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
 			</div>
 		</form>
 	</Panel>

@@ -38,13 +38,7 @@ import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import ClosingBadge from '@/components/common/ClosingBadge.vue'
 import Amount from '@/components/base/Amount.vue'
 import Tabs from '@/components/base/Tabs.vue'
-import {
-	settlementStatusLabel,
-	settlementTone,
-	settlementTypeLabel,
-	settlementTypeOptions,
-	validateSettlement
-} from '@/views/sales-return/schema'
+import { settlementStatusLabel, settlementTone, settlementTypeLabel, settlementTypeOptions, validateSettlement } from '@/views/sales-return/schema'
 import type { SalesReturn, SalesReturnApprovalStatus, SalesReturnSettlement, SalesReturnSettlementType } from '@/utils/types'
 
 const route = useRoute()
@@ -87,7 +81,9 @@ const approved = computed(() => row.value?.approval_status === 'approved')
 const canWrite = computed(() => Boolean(row.value && row.value.approval_status !== 'approved' && !row.value.locked))
 const canApprove = computed(() => Boolean(row.value && row.value.approval_status === 'pending' && !row.value.locked))
 const canResubmit = computed(() => Boolean(row.value && row.value.approval_status === 'rejected' && !row.value.locked))
-const canUnapprove = computed(() => Boolean(row.value && row.value.approval_status === 'approved' && !row.value.locked && !row.value.settlements.length))
+const canUnapprove = computed(() =>
+	Boolean(row.value && row.value.approval_status === 'approved' && !row.value.locked && !row.value.settlements.length)
+)
 const canSettle = computed(() => approved.value && (row.value?.remaining_total ?? 0) > 0)
 
 const ACTIONS: Record<string, { label: string; type: 'info' | 'danger'; message: string }> = {

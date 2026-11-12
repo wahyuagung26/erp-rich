@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
@@ -35,6 +36,7 @@ onMounted(async () => {
 })
 
 async function save(payload: SupplierForm) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.put(`/supplier/${route.params.id}`, payload)
@@ -45,12 +47,13 @@ async function save(payload: SupplierForm) {
 			const errors = err.response.data?.errors
 			if (errors) {
 				formRef.value?.setServerErrors(errors)
+				toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
 			} else {
 				toast.error(err.response.data?.message ?? 'Gagal memperbarui supplier')
 			}
 			return
 		}
-		throw err
+		toast.error(errorMessage(err))
 	} finally {
 		saving.value = false
 	}

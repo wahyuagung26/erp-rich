@@ -28,7 +28,13 @@ import { purchaseOrderSeed } from './fixtures/purchase-order'
 import { salesOrderSeed, type SalesOrderRow } from './fixtures/sales-order'
 import { salesInvoiceSeed, salesInvoicePaymentSeed, type SalesInvoiceRow } from './fixtures/sales-invoice'
 import { deliveryNoteSeed, type DeliveryNoteRow } from './fixtures/delivery-note'
-import { salesReturnSeed, salesReturnSettlementSeed, salesReturnPaymentSeed, type SalesReturnRow, type SalesReturnSettlementRow } from './fixtures/sales-return'
+import {
+	salesReturnSeed,
+	salesReturnSettlementSeed,
+	salesReturnPaymentSeed,
+	type SalesReturnRow,
+	type SalesReturnSettlementRow
+} from './fixtures/sales-return'
 import { purchaseReceiptSeed } from './fixtures/purchase-receipt'
 import { purchaseInvoiceSeed } from './fixtures/purchase-invoice'
 import { purchaseReturnSeed, purchaseReturnSettlementSeed, type PurchaseReturnSettlementRow } from './fixtures/purchase-return'
