@@ -58,7 +58,7 @@ const open = ref<Record<string, boolean>>(
 
 <template>
 	<aside
-		class="fixed inset-y-0 left-0 z-40 flex w-56 shrink-0 flex-col bg-gradient-to-b from-primary to-primary-dark py-3 text-ink-invert transition-transform duration-200 lg:static lg:translate-x-0 lg:transition-[width]"
+		class="fixed inset-y-0 left-0 z-40 flex w-56 shrink-0 flex-col bg-gradient-to-b from-[color:var(--side-from)] to-[color:var(--side-to)] py-3 text-ink-invert transition-transform duration-200 lg:static lg:translate-x-0 lg:transition-[width]"
 		:class="[railCollapsed ? 'lg:w-14' : 'lg:w-56', mobileNavOpen ? 'translate-x-0' : '-translate-x-full']"
 	>
 		<div class="flex items-center gap-2 px-4 pb-3" :class="{ 'justify-center px-0': railCollapsed }">

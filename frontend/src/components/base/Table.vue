@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { IconArrowNarrowUp, IconArrowNarrowDown } from '@tabler/icons-vue'
 import Spinner from './Spinner.vue'
 import EmptyState from './EmptyState.vue'
-import type { TableRow, Density } from '@/utils/types'
+import type { TableRow } from '@/utils/types'
 
 // API-compatible with the RICH Table (architecture.md §4): `rows` = column
 // definitions, `columns` = row data. Flat/borderless styling.
@@ -12,10 +12,9 @@ const props = withDefaults(
 		rows: TableRow[]
 		columns: Record<string, unknown>[]
 		loading?: boolean
-		density?: Density
 		emptyText?: string
 	}>(),
-	{ density: 'comfortable', emptyText: 'Tidak ada data' }
+	{ emptyText: 'Tidak ada data' }
 )
 
 const emit = defineEmits<{ handleSort: [TableRow]; rowDblclick: [Record<string, unknown>] }>()
@@ -51,7 +50,7 @@ watch(
 	() => nextTick(measure)
 )
 
-const pad = computed(() => (props.density === 'compact' ? 'px-3 py-1.5' : 'px-4 py-2.5'))
+const pad = 'px-4 py-2.5'
 const alignClass = (a?: string) => (a === 'right' ? 'text-right' : a === 'center' ? 'text-center' : 'text-left')
 </script>
 
@@ -107,7 +106,7 @@ const alignClass = (a?: string) => (a === 'right' ? 'text-right' : a === 'center
 					<td
 						v-for="row in rows"
 						:key="row.field"
-						:class="[pad, alignClass(row.align), pinned(row.field) && 'sticky right-0 z-[1] bg-panel group-hover:bg-fill']"
+						:class="[pad, alignClass(row.align), pinned(row.field) && 'sticky right-0 z-[1] bg-panel transition-colors group-hover:bg-fill']"
 						:style="pinned(row.field) && edge ? edgeStyle : undefined"
 					>
 						<slot name="table-content" :row="row" :column="column" :index="rowIndex" :row-index="rowIndex">

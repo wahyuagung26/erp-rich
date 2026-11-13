@@ -159,7 +159,7 @@ UI: gate actions on `!record.locked` and show `<ClosingBadge>` (`components/comm
 A new dated document module must adopt this; list every action of the record and decide lock/keep before building.
 
 **Chrome state** (`stores/ui.ts`, persisted to localStorage): sidebar rail collapsed,
-and `density` (`comfortable` | `compact`) which `<Table>` and forms read.
+`feel` (`cold` | `warm`: tints neutral surfaces + sidebar, brand primary untouched) and `contentWidth` (`narrow` | `full`).
 
 ### Design system
 

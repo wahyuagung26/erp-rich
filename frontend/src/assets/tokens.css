@@ -36,3 +36,22 @@
 
 	color-scheme: light;
 }
+
+/* Design feel — tints neutral surfaces/ink and the sidebar. Default (warm) = the original look.
+ * Panel stays white; brand primary is set inline by applyBrand and only *followed* here. */
+:root {
+	/* sidebar: one base colour, a barely-there top→bottom fall-off (8% black) for depth */
+	--side-base: rgb(var(--c-primary));
+	--side-from: var(--side-base);
+	--side-to: color-mix(in oklab, var(--side-base) 92%, black);
+}
+:root[data-feel='cold'] {
+	--c-canvas: 238 242 248; /* #EEF2F8 slate, soft */
+	--c-hairline: 219 226 237;
+	--c-fill: 233 238 246;
+	--c-ink: 18 26 40;
+	--c-ink-muted: 80 93 113;
+	--c-ink-subtle: 112 125 146;
+	/* sidebar: brand hue pulled toward deep blue, so it still follows the master colour */
+	--side-base: color-mix(in oklab, rgb(var(--c-primary)) 80%, rgb(22 52 128));
+}

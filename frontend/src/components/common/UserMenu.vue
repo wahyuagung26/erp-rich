@@ -26,7 +26,7 @@ const initials = (name: string) =>
 
 <template>
 	<div ref="root" class="relative">
-		<button class="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-fill" @click="open = !open">
+		<button class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-fill" @click="open = !open">
 			<span class="grid h-7 w-7 place-items-center rounded-full bg-primary-soft text-s font-semibold text-primary-dark">
 				{{ initials(user.getUser?.name ?? '?') }}
 			</span>

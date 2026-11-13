@@ -96,8 +96,8 @@ Shared document overlays follow the same pattern and take only an `endpoint` tha
 `useFakturPajak().open({ kode, endpoint, onSaved })` → `<FakturPajakModal>`. In the mock, every write handler
 calls `recordHistory()` (`mocks/history.ts`) so the timeline fills as you use the app.
 
-**Chrome state** (`stores/ui.ts`, persisted to localStorage): sidebar rail collapsed, and `density`
-(`comfortable` | `compact`) which `<Table>` and forms read.
+**Chrome state** (`stores/ui.ts`, persisted to localStorage): sidebar rail collapsed, `feel`
+(`cold` | `warm`: tints neutral surfaces + sidebar, brand primary untouched) and `contentWidth` (`narrow` | `full`).
 
 ### Code conventions
 
@@ -120,8 +120,7 @@ Full rules in `DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
   `<form>`. A hairline (`border-hairline`) is a last resort: table row dividers,
   stat-tile separators.
 - **Outlined inputs** (`border border-ink-subtle/30 bg-panel` — white field with a light border, like dashboard-kpi-it; disabled → `bg-fill`); focus uses the global ring.
-- **High density**: base font 13px (`text-m`). Table/form `comfortable`/`compact` modes toggle via
-  topbar, persisted in `stores/ui`.
+- **High density**: base font 13px (`text-m`); one fixed table/form density (no toggle).
 - **Numeric spine**: `.tnum` (Inter tabular digits) only where digit-alignment aids column scanning — **never a monospace font; numbers, codes and dates use the same Inter family as every other field** — amounts
   (via `<Amount>`, right-aligned, negatives red + parentheses) and dates. NOT identifiers (account
   code, transaction/invoice number), phone, or formatted phrases ("30 hari") — those are plain

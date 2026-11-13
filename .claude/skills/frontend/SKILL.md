@@ -200,7 +200,6 @@ make the mock fail, click twice), not by reading the code.
   the page root, the Panel, or a wrapper** (owner decision 2026-11-04; the old `max-w-5xl` rule is
   superseded). Cap width only on short fields (code `max-w-[200px]`, city `max-w-xs`, days `w-24`,
   NPWP `w-72`); free text (name, address, notes) stretches.
-- **Density** prop (`comfortable`/`compact`).
 - **Responsive: render ONE variant, never both.** If desktop and phone need different markup
   (a table → per-row cards), switch with `const isMobile = useIsMobile()`
   (`src/composables/useIsMobile.ts`, < 640px) and `v-if="isMobile"` / `v-else`. Do NOT render both

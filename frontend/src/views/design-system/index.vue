@@ -79,7 +79,7 @@ const tableData = [
 
 <template>
 	<div class="space-y-4 p-4">
-		<PageHeader title="Design System" subtitle="Flat · Borderless · Functional Minimalism — gunakan toggle density di topbar" />
+		<PageHeader title="Design System" subtitle="Flat · Borderless · Functional Minimalism" />
 
 		<Panel title="Warna">
 			<div class="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">

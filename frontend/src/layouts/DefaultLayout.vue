@@ -39,9 +39,12 @@ onMounted(async () => {
 		<div class="flex min-w-0 flex-1 flex-col gap-2">
 			<AppTopbar />
 			<main class="min-h-0 flex-1 overflow-y-auto">
-				<RouterView v-slot="{ Component }">
-					<component :is="Component" class="mx-auto max-w-[1200px]" />
-				</RouterView>
+				<!-- px-2 + page p-4 = 24px, the same inset as the topbar's visible edge (header px-4 + button px-2) -->
+				<div class="px-2">
+					<RouterView v-slot="{ Component }">
+						<component :is="Component" :class="ui.contentWidth === 'narrow' && 'mx-auto max-w-[1200px]'" />
+					</RouterView>
+				</div>
 			</main>
 		</div>
 

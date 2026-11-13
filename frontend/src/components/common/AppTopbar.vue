@@ -3,7 +3,8 @@ import { IconSearch, IconMenu2 } from '@tabler/icons-vue'
 import { useUiStore } from '@/stores/ui'
 import CompanyPicker from './CompanyPicker.vue'
 import UserMenu from './UserMenu.vue'
-import DensityToggle from './DensityToggle.vue'
+import FeelToggle from './FeelToggle.vue'
+import WidthToggle from './WidthToggle.vue'
 
 const ui = useUiStore()
 
@@ -26,7 +27,8 @@ const ui = useUiStore()
 				<IconSearch class="h-4 w-4" />
 				<input placeholder="Cari…" class="w-40 bg-transparent text-ink placeholder:text-ink-subtle focus:outline-none" />
 			</label>
-			<DensityToggle class="hidden sm:flex" />
+			<FeelToggle class="hidden sm:flex" />
+			<WidthToggle class="hidden xl:flex" />
 			<UserMenu />
 		</div>
 	</header>

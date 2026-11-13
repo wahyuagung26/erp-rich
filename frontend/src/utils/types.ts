@@ -40,7 +40,8 @@ export interface TableRow {
 	align?: 'left' | 'center' | 'right'
 }
 
-export type Density = 'comfortable' | 'compact'
+export type Feel = 'cold' | 'warm'
+export type ContentWidth = 'narrow' | 'full'
 
 // --- domain ---
 // Master data: supplier / vendor. `code` (SUP-0001) is server-assigned.

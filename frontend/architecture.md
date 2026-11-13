@@ -27,13 +27,13 @@ src/
 ├── assets/          tokens.css (design token) + main.css (@tailwind + @layer)
 ├── components/
 │   ├── base/        primitif design system (lihat DESIGN_SYSTEM.md)
-│   └── common/      AppSidebar, AppTopbar, UserMenu, DensityToggle, ToastHost
+│   └── common/      AppSidebar, AppTopbar, UserMenu, FeelToggle, WidthToggle, ToastHost
 ├── composables/     useTableList, useToast, useConfirm, useDebounce, onClickOutside
 ├── constant/        roles.ts, nav.ts
 ├── layouts/         DefaultLayout (app shell). Halaman full-screen (LoginView) berdiri sendiri.
 ├── router/          index.ts — instance + guard (auth → /login, meta.roles)
 ├── routes/          index.ts (aggregator) + satu file per modul
-├── stores/          user (login/logout + session restore), ui (rail/density), modal, toast
+├── stores/          user (login/logout + session restore), ui (rail/feel/contentWidth), modal, toast
 ├── utils/           api.ts, format.ts (money/date), parseQuery.ts, deviceId.ts, types.ts
 ├── mocks/           index.ts (startMock, satu pintu) + modules/<m>.ts + db.ts + lib.ts + fixtures/
 └── views/           satu folder per modul (auth, dashboard, akun, jurnal, design-system)
@@ -80,7 +80,6 @@ API kompatibel dengan RICH:
 | `rows` | `TableRow[]` | definisi kolom `{ label, field, isSort?, align? }` |
 | `columns` | `Record<string,unknown>[]` | data baris |
 | `loading` | `boolean` | spinner di tbody |
-| `density` | `'comfortable' \| 'compact'` | padding sel |
 
 Slot: `#table-header={ row, index }`, `#table-content={ row, column, index, rowIndex }`.
 Emit: `handleSort(row)`. Visual: tanpa border luar, tanpa garis vertikal, hairline
