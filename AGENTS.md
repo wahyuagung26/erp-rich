@@ -1,18 +1,18 @@
 # AGENTS.md
 
-This file provides guidance to Codex (claude.ai/code) when working with code in this repository.
+Guidance for AI coding agents (Claude Code, Codex) working in this repository. This is the single source of truth; `CLAUDE.md` only imports it.
 
 ## Repository shape
 
 `erp-finance-v2/` is the modern rewrite of the legacy CodeIgniter app **ERP-FUSIDIGITAL**
 (accounting/finance ERP: jurnal, laporan, retur, pembelian, perpajakan, akses departemen).
+The legacy app is checked out beside this one as `applications/erp-legacy` in the migration workspace.
 
 - `frontend/` — Vue 3 + TypeScript SPA (built out; all work happens here for now).
 - `docs/` — the API contract (OKF bundle). Source of truth for both mock and backend.
-- `backend/` — empty placeholder.
+- `backend/` — not created yet; the backend starts only after a module's contract has settled.
 
-Not a git repo yet. Business/meeting context lives at
-`/Users/wahyuagung/Sites/RIN/knowledge/ERP-FUSIDIGITAL/` — consult it before finance-domain work.
+Git repo (`main`, remote `erp-rich`). `frontend/CLAUDE.md` holds frontend-only notes (commands, demo login) and does not replace this file.
 
 ## Build strategy: frontend-first prototype
 
@@ -71,7 +71,7 @@ frontmatter whenever you edit a doc file.
 
 ## Frontend (`frontend/`)
 
-Before any UI work, load the **`frontend` skill** (`.Codex/skills/frontend/`) — it's the
+Before any UI work, load the **`frontend` skill** (`.claude/skills/frontend/`, mirrored at `.agents/skills/frontend/`) — it's the
 short checklist of traps this codebase has already hit (raw elements instead of `base/`
 components, the closed Tailwind palette, "typechecks but was never rendered").
 
@@ -159,7 +159,7 @@ UI: gate actions on `!record.locked` and show `<ClosingBadge>` (`components/comm
 A new dated document module must adopt this; list every action of the record and decide lock/keep before building.
 
 **Chrome state** (`stores/ui.ts`, persisted to localStorage): sidebar rail collapsed,
-and `density` (`comfortable` | `compact`) which `<Table>` and forms read.
+`feel` (`cold` | `warm`: tints neutral surfaces + sidebar, brand primary untouched) and `contentWidth` (`narrow` | `full`).
 
 ### Design system
 
