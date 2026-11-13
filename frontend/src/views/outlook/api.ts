@@ -26,7 +26,12 @@ let queue: Promise<unknown> = Promise.resolve()
 // `ok` = success toast text (omit for quiet auto-save cells); a string is shown instead of the server message.
 export function useOutlookApi() {
 	const toast = useToast()
-	async function send<R = unknown>(method: 'post' | 'put' | 'delete', url: string, body?: unknown, ok: boolean | string = true): Promise<Written<R> | null> {
+	async function send<R = unknown>(
+		method: 'post' | 'put' | 'delete',
+		url: string,
+		body?: unknown,
+		ok: boolean | string = true
+	): Promise<Written<R> | null> {
 		const run = async () => {
 			try {
 				const res = await api.request<{ data: { state: OutlookStateFull; result?: R }; message: string }>({ method, url, data: body })

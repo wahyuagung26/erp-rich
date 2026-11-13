@@ -5,17 +5,15 @@ import type { SalesOrderDiscountType, SalesOrderInvoiceStatus } from '@/utils/ty
 export const VAT_RATE = 11
 export const TOP_DAYS = [0, 7, 14, 21, 30, 60, 90, 120]
 
-export const { label: approvalStatusLabel } = approvalSubset(['pending', 'approved', 'rejected'])
+export const { label: approvalStatusLabel } = approvalSubset(['pending', 'approved'])
 
 export const invoiceStatusLabel: Record<SalesOrderInvoiceStatus, string> = {
 	not_invoiced: 'Belum Diinvoice',
-	partial: 'Diinvoice Sebagian',
 	invoiced: 'Sudah Diinvoice'
 }
 
-export const invoiceStatusTone: Record<SalesOrderInvoiceStatus, 'info' | 'warning' | 'success'> = {
+export const invoiceStatusTone: Record<SalesOrderInvoiceStatus, 'info' | 'success'> = {
 	not_invoiced: 'info',
-	partial: 'warning',
 	invoiced: 'success'
 }
 
@@ -24,9 +22,11 @@ const requiredId = (message: string) => v.pipe(v.number(message), v.minValue(1, 
 
 // Editable UI state for one line — FKs may be unset, labels are display-only.
 export interface SalesOrderLineDraft {
-	product_id: number | null
+	variant_id: number | null
 	product_code?: string
 	product_name?: string
+	sku?: string
+	variant_label?: string
 	brand_name?: string
 	unit_name?: string
 	warehouse_id: number | null
@@ -59,9 +59,11 @@ export interface SalesOrderDraft {
 }
 
 const lineFormSchema = v.object({
-	product_id: requiredId('Produk wajib dipilih'),
+	variant_id: requiredId('Produk wajib dipilih'),
 	product_code: v.optional(v.string()),
 	product_name: v.optional(v.string()),
+	sku: v.optional(v.string()),
+	variant_label: v.optional(v.string()),
 	brand_name: v.optional(v.string()),
 	unit_name: v.optional(v.string()),
 	warehouse_id: requiredId('Gudang wajib dipilih'),
@@ -98,7 +100,10 @@ export const salesOrderSchema = v.pipe(
 		lines: v.pipe(
 			v.array(salesOrderLineSchema),
 			v.minLength(1, 'Minimal satu produk harus ditambahkan'),
-			v.check((lines) => new Set(lines.map((line) => line.product_id)).size === lines.length, 'Produk yang sama tidak boleh ditambahkan dua kali')
+			v.check(
+				(lines) => new Set(lines.map((line) => line.variant_id)).size === lines.length,
+				'Varian produk yang sama tidak boleh ditambahkan dua kali'
+			)
 		),
 		expenses: v.array(expenseSchema)
 	}),
@@ -168,7 +173,7 @@ interface LineAmounts {
 	discount: number
 }
 
-// Per line: (price − discount) × quantity. The server recomputes everything; this only feeds the live preview.
+// Per line: (price − discount) × quantity. The server stores its own result at save; this only feeds the live preview.
 export const lineTotal = (line: LineAmounts) => Math.round((Number(line.price) - Number(line.discount)) * Number(line.quantity))
 
 export interface SalesOrderTotals {

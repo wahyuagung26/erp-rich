@@ -9,7 +9,7 @@ import { nearestTopDays, type SalesInvoiceDraft } from '../schema'
 // Lookups that prefill the invoice form; every prefilled value stays editable afterwards.
 export function useSalesInvoiceLookup() {
 	const toast = useToast()
-	const { applyProduct } = useSalesOrderLookup()
+	const { applyVariant } = useSalesOrderLookup()
 
 	// Customer → PKP status + termin (the invoice's own values stay editable).
 	async function applyCustomerDefaults(draft: SalesInvoiceDraft, customerId: number | null) {
@@ -24,8 +24,8 @@ export function useSalesInvoiceLookup() {
 		}
 	}
 
-	// Sales Order → header defaults, biaya, diskon global and the lines still left to invoice. Returns the order header (labels), or the
-	// 422/404 message when the order cannot be invoiced.
+	// Sales Order → header defaults, biaya, diskon global and all its lines. Returns the order header (labels), or the
+	// 422/404 message when the order cannot be invoiced (not approved, or already invoiced).
 	async function applySalesOrder(
 		draft: SalesInvoiceDraft,
 		orderId: number
@@ -34,7 +34,6 @@ export function useSalesInvoiceLookup() {
 			const { sales_order: order, lines } = (await api.get<{ data: SalesOrderInvoiceableLines }>(`/sales-order/${orderId}/invoiceable-lines`)).data
 				.data
 			const open = fromInvoiceableLines({ sales_order: order, lines })
-			if (!open.length) return { error: 'Semua produk pada sales order ini sudah diinvoice' }
 			Object.assign(draft, {
 				sales_order_id: order.id,
 				customer_id: order.customer_id,
@@ -61,5 +60,5 @@ export function useSalesInvoiceLookup() {
 		}
 	}
 
-	return { applyCustomerDefaults, applySalesOrder, applyProduct }
+	return { applyCustomerDefaults, applySalesOrder, applyVariant }
 }

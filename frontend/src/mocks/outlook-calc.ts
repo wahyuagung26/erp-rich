@@ -25,7 +25,8 @@ const cents = (v: number) => Math.round(v * 100)
 const out = (c: number) => c / 100
 const ach = (actual: number, ol: number) => (ol === 0 ? null : Math.round((actual / ol) * 10000) / 100)
 
-export const lastDayOf = (year: number, month: number) => `${year}-${String(month).padStart(2, '0')}-${String(new Date(year, month, 0).getDate()).padStart(2, '0')}`
+export const lastDayOf = (year: number, month: number) =>
+	`${year}-${String(month).padStart(2, '0')}-${String(new Date(year, month, 0).getDate()).padStart(2, '0')}`
 
 export function calculate(input: CalcInput): Omit<OutlookCalc, 'rekon'> {
 	const { weeks } = input
@@ -56,7 +57,11 @@ export function calculate(input: CalcInput): Omit<OutlookCalc, 'rekon'> {
 		const p = c.parent_id ?? 0
 		kids.set(p, [...(kids.get(p) ?? []), c.id])
 	}
-	for (const [p, ids] of kids) kids.set(p, ids.sort((a, b) => byId.get(a)!.sort_order - byId.get(b)!.sort_order || a - b))
+	for (const [p, ids] of kids)
+		kids.set(
+			p,
+			ids.sort((a, b) => byId.get(a)!.sort_order - byId.get(b)!.sort_order || a - b)
+		)
 
 	const rows = new Map<number, { cat: CalcCategory; leaf: boolean; agg: Internal }>()
 	const order: number[] = []

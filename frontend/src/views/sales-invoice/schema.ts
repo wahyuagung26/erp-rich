@@ -48,10 +48,8 @@ export const taxInvoiceOptions = [
 
 const requiredId = (message: string) => v.pipe(v.number(message), v.minValue(1, message))
 
-// A line is a Sales Order line draft plus the per-product ceiling of the order it was invoiced from (null = no order).
-export interface SalesInvoiceLineDraft extends SalesOrderLineDraft {
-	max_quantity?: number | null
-}
+// A line has the same shape as a Sales Order line draft (an invoice made from an order starts as a copy of its lines).
+export type SalesInvoiceLineDraft = SalesOrderLineDraft
 
 // A payment made together with the invoice. `method` comes from the payment-type master; `down_payment` = Titipan Customer, `expense` = Biaya.
 export interface SalesInvoicePaymentDraft {
@@ -124,7 +122,10 @@ export const salesInvoiceSchema = v.pipe(
 		lines: v.pipe(
 			v.array(salesOrderLineSchema),
 			v.minLength(1, 'Minimal satu produk harus ditambahkan'),
-			v.check((lines) => new Set(lines.map((line) => line.product_id)).size === lines.length, 'Produk yang sama tidak boleh ditambahkan dua kali')
+			v.check(
+				(lines) => new Set(lines.map((line) => line.variant_id)).size === lines.length,
+				'Varian produk yang sama tidak boleh ditambahkan dua kali'
+			)
 		),
 		expenses: v.array(expenseSchema),
 		payments: v.array(paymentSchema)

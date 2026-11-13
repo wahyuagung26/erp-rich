@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconPlus, IconHistory, IconCircleX, IconClockHour4, IconFileInvoice, IconFileDescription } from '@tabler/icons-vue'
+import { IconPlus, IconHistory, IconClockHour4, IconFileInvoice, IconFileDescription } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
@@ -71,22 +71,12 @@ const kpi = useKpiTiles(
 			emptyText: 'Semua sudah diinvoice'
 		},
 		{
-			key: 'partial',
-			label: 'Diinvoice Sebagian',
-			filters: { approval_status: 'approved', invoice_status: 'partial' },
+			key: 'invoiced',
+			label: 'Sudah Diinvoice',
+			filters: { invoice_status: 'invoiced' },
 			icon: IconFileInvoice,
-			tone: 'warning',
-			attention: true,
-			emptyText: 'Tidak ada invoice sebagian'
-		},
-		{
-			key: 'rejected',
-			label: 'Ditolak',
-			filters: { approval_status: 'rejected' },
-			icon: IconCircleX,
-			tone: 'danger',
-			attention: true,
-			emptyText: 'Tidak ada yang ditolak'
+			tone: 'success',
+			emptyText: 'Belum ada yang diinvoice'
 		}
 	],
 	{ approval_status: approvalStatus, invoice_status: invoiceStatus },
@@ -98,7 +88,7 @@ const kpi = useKpiTiles(
 function openHistory(row: SalesOrder) {
 	history.open({ kode: row.number, endpoint: `/sales-order/${row.id}/history` })
 }
-const canWrite = (row: SalesOrder) => row.approval_status !== 'approved' && row.invoice_status === 'not_invoiced'
+const canWrite = (row: SalesOrder) => row.approval_status === 'pending' && !row.locked
 function remove(row: SalesOrder) {
 	ask({ title: 'Hapus sales order', message: `Hapus sales order “${row.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
 		await api.delete(`/sales-order/${row.id}`)

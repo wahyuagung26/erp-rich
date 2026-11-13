@@ -23,9 +23,11 @@ const requiredId = (message: string) => v.pipe(v.number(message), v.minValue(1, 
 
 // Editable UI state for one line — product, sold / already-returned quantities and price are fixed by the invoice; only `quantity` is edited.
 export interface SalesReturnLineDraft {
-	product_id: number
+	variant_id: number
 	product_code?: string
 	product_name?: string
+	sku?: string
+	variant_label?: string
 	brand_name?: string
 	unit_name?: string
 	quantity_sold: number
@@ -62,7 +64,7 @@ export function returnTotals(lines: SalesReturnLineDraft[], pkp: boolean) {
 }
 
 const lineSchema = v.object({
-	product_id: v.number(),
+	variant_id: v.number(),
 	quantity_sold: v.number(),
 	quantity_returned_before: v.number(),
 	quantity: v.pipe(v.number('Jumlah retur tidak valid'), v.minValue(0, 'Jumlah retur tidak boleh negatif')),

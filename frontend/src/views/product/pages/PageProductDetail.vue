@@ -11,6 +11,7 @@ import Skeleton from '@/components/base/Skeleton.vue'
 import Button from '@/components/base/Button.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import Amount from '@/components/base/Amount.vue'
+import Badge from '@/components/base/Badge.vue'
 import { PRODUCT_TYPES } from '@/views/product/schema'
 import type { Product } from '@/utils/types'
 
@@ -94,6 +95,28 @@ function remove() {
 						<dt class="text-ink-muted">Keterangan</dt>
 						<dd class="whitespace-pre-line text-ink">{{ dash(product.notes) }}</dd>
 					</dl>
+				</section>
+
+				<section class="space-y-3">
+					<h3 class="subhead">Varian</h3>
+					<table class="w-full text-m">
+						<thead>
+							<tr class="bg-fill text-left text-s font-medium text-ink-muted [&>th:first-child]:rounded-l-md [&>th:last-child]:rounded-r-md">
+								<th class="px-2 py-2">SKU</th>
+								<th class="px-2 py-2">{{ product.option_names.join(' / ') || 'Varian' }}</th>
+								<th class="px-2 py-2">Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="variant in product.variants" :key="variant.id" class="border-b border-hairline last:border-0">
+								<td class="px-2 py-2 text-ink">{{ variant.sku }}</td>
+								<td class="px-2 py-2 text-ink">{{ Object.values(variant.option_values).join(' / ') || 'Standar' }}</td>
+								<td class="px-2 py-2">
+									<Badge :tone="variant.is_active ? 'success' : 'neutral'">{{ variant.is_active ? 'Aktif' : 'Nonaktif' }}</Badge>
+								</td>
+							</tr>
+						</tbody>
+					</table>
 				</section>
 
 				<section class="space-y-3">

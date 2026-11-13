@@ -13,6 +13,14 @@ export const PRODUCT_TYPES = [
 	{ label: 'Produk Jadi', value: 'finished_good' }
 ] as const
 
+const variantSchema = v.object({
+	id: v.optional(v.number()),
+	sku: v.pipe(v.string(), v.trim()),
+	option_values: v.record(v.string(), v.string()),
+	is_default: v.boolean(),
+	is_active: v.boolean()
+})
+
 export const productSchema = v.object({
 	code: v.pipe(v.string(), v.trim(), v.nonEmpty('Kode produk wajib diisi')),
 	name: v.pipe(v.string(), v.trim(), v.nonEmpty('Nama produk wajib diisi'), v.minLength(2, 'Minimal 2 karakter')),
@@ -29,7 +37,14 @@ export const productSchema = v.object({
 	notes: optionalText,
 	last_purchase_price: v.pipe(v.number('Harga beli terakhir wajib diisi'), v.integer('Harus bilangan bulat'), v.minValue(0, 'Tidak boleh negatif')),
 	selling_price: v.pipe(v.number('Harga jual wajib diisi'), v.integer('Harus bilangan bulat'), v.minValue(0, 'Tidak boleh negatif')),
-	photo_url: optionalText
+	photo_url: optionalText,
+	option_names: v.array(v.pipe(v.string(), v.trim())),
+	// Option values are checked by the server against option_names (docs/product/create-product.md).
+	variants: v.pipe(
+		v.array(variantSchema),
+		v.check((list) => list.every((item) => item.is_default || item.sku), 'SKU varian wajib diisi'),
+		v.check((list) => list.some((item) => item.is_active), 'Minimal satu varian harus aktif')
+	)
 })
 
 export type ProductForm = v.InferOutput<typeof productSchema>

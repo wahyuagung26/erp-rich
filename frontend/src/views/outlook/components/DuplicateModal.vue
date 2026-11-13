@@ -41,8 +41,8 @@ function submit() {
 	<Modal :open="open" size="md" title="Duplikasi Untuk Periode Selanjutnya" @close="emit('close')">
 		<div class="space-y-4">
 			<p class="text-m text-ink-muted">
-				Hanya struktur kategori yang disalin ke periode tujuan. Target OL, actual, saldo awal, tanggal kolom, dan status closing tidak ikut disalin. Bila periode
-				tujuan sudah ada, Anda akan diminta mengonfirmasi penggantian template.
+				Hanya struktur kategori yang disalin ke periode tujuan. Target OL, actual, saldo awal, tanggal kolom, dan status closing tidak ikut disalin.
+				Bila periode tujuan sudah ada, Anda akan diminta mengonfirmasi penggantian template.
 			</p>
 			<FormField label="Periode tujuan" :error="error">
 				<div class="flex gap-2">

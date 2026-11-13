@@ -33,7 +33,9 @@ const footers = computed<{ label: string; agg: ResumeAgg; flow: Flow | null; cls
 
 <template>
 	<div>
-		<p class="mb-3 inline-flex items-center gap-1.5 text-s text-ink-muted"><IconLock class="h-4 w-4" /> Resume Weekly dihitung dari Daily dan hanya dapat dibaca.</p>
+		<p class="mb-3 inline-flex items-center gap-1.5 text-s text-ink-muted">
+			<IconLock class="h-4 w-4" /> Resume Weekly dihitung dari Daily dan hanya dapat dibaca.
+		</p>
 		<GridScroller :weeks="weekNos" :frozen="FROZEN">
 			<table class="border-separate border-spacing-0 text-s">
 				<thead>
@@ -75,15 +77,25 @@ const footers = computed<{ label: string; agg: ResumeAgg; flow: Flow | null; cls
 						<td :class="[base, c2, 'bg-warning-soft', num(rw.saldo_awal.monthly)]">{{ cell(rw.saldo_awal.monthly, true) }}</td>
 						<template v-for="(w, wi) in weeks" :key="w.week_no">
 							<td :class="[base, weekStart, mtd, 'text-right tnum']">{{ cell(rw.saldo_awal.weeks[wi].target_mtd, true) }}</td>
-							<td :class="[base, mtd, 'text-right tnum', num(rw.saldo_awal.weeks[wi].actual_mtd)]">{{ cell(rw.saldo_awal.weeks[wi].actual_mtd, true) }}</td>
+							<td :class="[base, mtd, 'text-right tnum', num(rw.saldo_awal.weeks[wi].actual_mtd)]">
+								{{ cell(rw.saldo_awal.weeks[wi].actual_mtd, true) }}
+							</td>
 							<td :class="base" />
 							<td :class="[base, wk, 'text-right tnum']">{{ cell(rw.saldo_awal.weeks[wi].ol_week, true) }}</td>
-							<td :class="[base, wk, 'text-right tnum', num(rw.saldo_awal.weeks[wi].actual_week)]">{{ cell(rw.saldo_awal.weeks[wi].actual_week, true) }}</td>
+							<td :class="[base, wk, 'text-right tnum', num(rw.saldo_awal.weeks[wi].actual_week)]">
+								{{ cell(rw.saldo_awal.weeks[wi].actual_week, true) }}
+							</td>
 							<td :class="base" />
 						</template>
 					</tr>
 
-					<template v-for="sec in [{ flow: 'CASH_IN' as Flow, label: 'CASH IN' }, { flow: 'CASH_OUT' as Flow, label: 'CASH OUT' }]" :key="sec.flow">
+					<template
+						v-for="sec in [
+							{ flow: 'CASH_IN' as Flow, label: 'CASH IN' },
+							{ flow: 'CASH_OUT' as Flow, label: 'CASH OUT' }
+						]"
+						:key="sec.flow"
+					>
 						<tr class="bg-ink font-semibold text-ink-invert">
 							<td :class="[c1, 'bg-ink px-3 py-1']">{{ sec.label }}</td>
 							<td :class="[c2, 'bg-ink']" />
@@ -111,10 +123,14 @@ const footers = computed<{ label: string; agg: ResumeAgg; flow: Flow | null; cls
 						<template v-for="(w, wi) in weeks" :key="w.week_no">
 							<td :class="[base, weekStart, mtd, f.cls, 'text-right tnum']">{{ cell(f.agg.target_mtd[wi]) }}</td>
 							<td :class="[base, mtd, f.cls, 'text-right tnum', num(f.agg.actual_mtd[wi])]">{{ cell(f.agg.actual_mtd[wi]) }}</td>
-							<td :class="[base, f.cls, 'text-center tnum', f.flow ? achClass(f.agg.ach_mtd[wi], f.flow) : '']">{{ f.flow ? pct(f.agg.ach_mtd[wi]) : '' }}</td>
+							<td :class="[base, f.cls, 'text-center tnum', f.flow ? achClass(f.agg.ach_mtd[wi], f.flow) : '']">
+								{{ f.flow ? pct(f.agg.ach_mtd[wi]) : '' }}
+							</td>
 							<td :class="[base, wk, f.cls, 'text-right tnum']">{{ cell(f.agg.ol_week[wi]) }}</td>
 							<td :class="[base, wk, f.cls, 'text-right tnum', num(f.agg.actual_week[wi])]">{{ cell(f.agg.actual_week[wi]) }}</td>
-							<td :class="[base, f.cls, 'text-center tnum', f.flow ? achClass(f.agg.ach_week[wi], f.flow) : '']">{{ f.flow ? pct(f.agg.ach_week[wi]) : '' }}</td>
+							<td :class="[base, f.cls, 'text-center tnum', f.flow ? achClass(f.agg.ach_week[wi], f.flow) : '']">
+								{{ f.flow ? pct(f.agg.ach_week[wi]) : '' }}
+							</td>
 						</template>
 					</tr>
 
@@ -123,10 +139,18 @@ const footers = computed<{ label: string; agg: ResumeAgg; flow: Flow | null; cls
 						<td :class="[c2, 'bottom-0 bg-warning-soft shadow-[0_-2px_0_rgb(var(--c-hairline))]']" />
 						<template v-for="(w, wi) in weeks" :key="w.week_no">
 							<td :class="['sticky bottom-0 z-[1] bg-warning-soft px-1.5 shadow-[0_-2px_0_rgb(var(--c-hairline))]', weekStart]" />
-							<td :class="['sticky bottom-0 z-[1] bg-warning-soft px-1.5 text-right tnum shadow-[0_-2px_0_rgb(var(--c-hairline))]', num(rw.saldo[wi])]">{{ cell(rw.saldo[wi], true) }}</td>
+							<td
+								:class="['sticky bottom-0 z-[1] bg-warning-soft px-1.5 text-right tnum shadow-[0_-2px_0_rgb(var(--c-hairline))]', num(rw.saldo[wi])]"
+							>
+								{{ cell(rw.saldo[wi], true) }}
+							</td>
 							<td class="sticky bottom-0 z-[1] bg-fill shadow-[0_-2px_0_rgb(var(--c-hairline))]" />
 							<td class="sticky bottom-0 z-[1] bg-success-soft shadow-[0_-2px_0_rgb(var(--c-hairline))]" />
-							<td :class="['sticky bottom-0 z-[1] bg-success-soft px-1.5 text-right tnum shadow-[0_-2px_0_rgb(var(--c-hairline))]', num(rw.saldo[wi])]">{{ cell(rw.saldo[wi], true) }}</td>
+							<td
+								:class="['sticky bottom-0 z-[1] bg-success-soft px-1.5 text-right tnum shadow-[0_-2px_0_rgb(var(--c-hairline))]', num(rw.saldo[wi])]"
+							>
+								{{ cell(rw.saldo[wi], true) }}
+							</td>
 							<td class="sticky bottom-0 z-[1] bg-fill shadow-[0_-2px_0_rgb(var(--c-hairline))]" />
 						</template>
 					</tr>

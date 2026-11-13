@@ -7,7 +7,7 @@ path: /sales-invoice/:id/returnable-lines
 status: mock
 tags: [sales-return, read]
 resource: /frontend/src/mocks/modules/sales-return.ts
-timestamp: 2026-11-06T17:00:00Z
+timestamp: 2026-11-13T12:00:00Z
 ---
 
 # Get Sales Invoice Returnable Lines
@@ -36,7 +36,7 @@ Owned by Retur Penjualan (handler lives in `mocks/modules/sales-return.ts`). Bac
 {
   "data": {
     "sales_invoice": { "id": 1, "number": "RIN.INV260920/001", "date": "2026-09-20", "customer_id": 4, "customer_code": "CUST-0004", "customer_name": "...", "department_code": "...", "department_name": "...", "pkp_active": true, "outstanding": 8122000 },
-    "lines": [ { "product_id": 1, "quantity_sold": 4, "quantity_returned_before": 1, "quantity": 0, "price": 4200000, "discount": 200000, "dpp": 0, "ppn": 0, "total": 0 } ]
+    "lines": [ { "variant_id": 1, "quantity_sold": 4, "quantity_returned_before": 1, "quantity": 0, "price": 4200000, "discount": 200000, "dpp": 0, "ppn": 0, "total": 0 } ]
   }
 }
 ```

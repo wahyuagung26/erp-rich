@@ -147,8 +147,17 @@ const srcLabel = (s: string) => SRC.find((o) => o.value === s)?.label ?? '-'
 				<thead>
 					<tr class="h-8">
 						<th :class="[stick('left-0', 'w-[48px] min-w-[48px]'), 'top-0 z-[4] bg-fill px-1.5 text-center font-semibold']">No</th>
-						<th :class="[stick('left-[48px]', 'w-[280px] min-w-[280px]'), 'top-0 z-[4] bg-fill px-2 text-left font-semibold']">Keterangan Pengeluaran (Unbudget)</th>
-						<th :class="[stick('left-[328px]', 'w-[128px] min-w-[128px]'), 'top-0 z-[4] border-r border-ink-subtle/30 bg-fill px-2 text-left font-semibold']">Sumber Dana</th>
+						<th :class="[stick('left-[48px]', 'w-[280px] min-w-[280px]'), 'top-0 z-[4] bg-fill px-2 text-left font-semibold']">
+							Keterangan Pengeluaran (Unbudget)
+						</th>
+						<th
+							:class="[
+								stick('left-[328px]', 'w-[128px] min-w-[128px]'),
+								'top-0 z-[4] border-r border-ink-subtle/30 bg-fill px-2 text-left font-semibold'
+							]"
+						>
+							Sumber Dana
+						</th>
 						<th v-for="d in days" :key="d" class="sticky top-0 z-[3] w-[100px] min-w-[100px] bg-fill px-1.5 text-center font-semibold">{{ d }}</th>
 						<th class="sticky top-0 z-[3] w-[120px] min-w-[120px] bg-fill px-1.5 text-center font-semibold">Total</th>
 						<th v-if="editable" class="sticky top-0 z-[3] w-[48px] min-w-[48px] bg-fill" />
@@ -161,7 +170,12 @@ const srcLabel = (s: string) => SRC.find((o) => o.value === s)?.label ?? '-'
 					<tr v-for="(r, n) in rows" :key="r.key" class="bg-panel align-middle">
 						<td :class="[base1, stick('left-0', 'w-[48px] min-w-[48px]'), 'bg-panel text-center']">
 							<span class="inline-flex items-center gap-1">
-								<component :is="STATUS[status[r.key]].icon" v-if="editable && status[r.key]" :class="['h-3.5 w-3.5', STATUS[status[r.key]].cls]" :title="STATUS[status[r.key]].title" />
+								<component
+									:is="STATUS[status[r.key]].icon"
+									v-if="editable && status[r.key]"
+									:class="['h-3.5 w-3.5', STATUS[status[r.key]].cls]"
+									:title="STATUS[status[r.key]].title"
+								/>
 								{{ n + 1 }}
 							</span>
 						</td>
@@ -179,22 +193,30 @@ const srcLabel = (s: string) => SRC.find((o) => o.value === s)?.label ?? '-'
 							<span v-else class="block max-w-[270px] truncate" :title="r.ket">{{ r.ket }}</span>
 						</td>
 						<td :class="[base1, stick('left-[328px]', 'w-[128px] min-w-[128px]'), 'border-r border-ink-subtle/30 bg-panel py-1']">
-							<Select v-if="editable" :model-value="r.src" dense :options="SRC" placeholder="Pilih" aria-label="Sumber Dana" @update:model-value="pickSource(r, $event)" />
+							<Select
+								v-if="editable"
+								:model-value="r.src"
+								dense
+								:options="SRC"
+								placeholder="Pilih"
+								aria-label="Sumber Dana"
+								@update:model-value="pickSource(r, $event)"
+							/>
 							<template v-else>{{ srcLabel(r.src) }}</template>
 						</td>
 						<td v-for="d in days" :key="d" :class="[base1, 'text-right tnum', negative(r.hari[d]) && 'text-danger']">
-							<GridInput
-								v-if="editable"
-								:value="r.hari[d] ?? null"
-								nav="lp"
-								:label="`Tanggal ${d} baris ${n + 1}`"
-								@commit="setDay(r, d, $event)"
-							/>
+							<GridInput v-if="editable" :value="r.hari[d] ?? null" nav="lp" :label="`Tanggal ${d} baris ${n + 1}`" @commit="setDay(r, d, $event)" />
 							<template v-else>{{ r.hari[d] === undefined ? '' : cell(r.hari[d], true) }}</template>
 						</td>
 						<td :class="[base1, 'text-right font-semibold tnum', negative(rowTotal(r)) && 'text-danger']">{{ cell(rowTotal(r), true) }}</td>
 						<td v-if="editable" :class="[base1, 'text-center']">
-							<button type="button" title="Hapus baris" aria-label="Hapus baris" class="rounded p-1 text-ink-muted hover:bg-fill hover:text-danger" @click="remove(r)">
+							<button
+								type="button"
+								title="Hapus baris"
+								aria-label="Hapus baris"
+								class="rounded p-1 text-ink-muted hover:bg-fill hover:text-danger"
+								@click="remove(r)"
+							>
 								<IconTrash class="h-4 w-4" />
 							</button>
 						</td>
@@ -204,7 +226,11 @@ const srcLabel = (s: string) => SRC.find((o) => o.value === s)?.label ?? '-'
 						<td :class="[stick('left-0', 'w-[48px] min-w-[48px]'), 'sticky bottom-0 bg-fill']" />
 						<td :class="[stick('left-[48px]', 'w-[280px] min-w-[280px]'), 'sticky bottom-0 bg-fill px-2']">Total (Cash In − Cash Out)</td>
 						<td :class="[stick('left-[328px]', 'w-[128px] min-w-[128px]'), 'sticky bottom-0 border-r border-ink-subtle/30 bg-fill']" />
-						<td v-for="d in days" :key="d" :class="['sticky bottom-0 z-[1] bg-fill px-1.5 text-right tnum', negative(L.day_totals[d]) && 'text-danger']">
+						<td
+							v-for="d in days"
+							:key="d"
+							:class="['sticky bottom-0 z-[1] bg-fill px-1.5 text-right tnum', negative(L.day_totals[d]) && 'text-danger']"
+						>
 							{{ L.day_totals[d] === undefined ? '' : cell(L.day_totals[d], true) }}
 						</td>
 						<td :class="['sticky bottom-0 z-[1] bg-fill px-1.5 text-right tnum', negative(L.total) && 'text-danger']">{{ money(L.total) }}</td>

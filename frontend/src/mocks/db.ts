@@ -120,7 +120,7 @@ export const db: {
 	bankAccount: BankAccount[]
 	product: Product[]
 	purchaseOrder: PurchaseOrder[]
-	salesOrder: SalesOrderRow[] // line.invoiced_quantity is maintained by Invoice Penjualan, see docs/sales-order/index.md
+	salesOrder: SalesOrderRow[] // invoice link is derived from salesInvoice.sales_order_id (1 SO <-> 1 invoice), see docs/sales-order/index.md
 	salesInvoice: SalesInvoiceRow[]
 	salesInvoicePayment: SalesInvoicePayment[] // paid_total / outstanding are always recomputed from ALL rows of an invoice, see docs/sales-invoice/index.md
 	deliveryNote: DeliveryNoteRow[] // Surat Jalan: at most one per sales invoice, see docs/delivery-note/index.md

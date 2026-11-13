@@ -22,8 +22,10 @@ const STATUS: Record<RekonStatus, { label: string; tone: 'success' | 'danger' | 
 	tidak_tersedia: { label: 'Saldo kas/bank tidak tersedia', tone: 'neutral', icon: IconMinus }
 }
 const NOTE: Record<RekonStatus, string> = {
-	balance: 'Saldo akhir Outlook sama dengan Saldo Kas/Bank Harian. Saldo Kas/Bank berubah mengikuti transaksi, jadi status bisa berubah tanpa mengedit Outlook.',
-	tidak_balance: 'Saldo akhir Outlook berbeda dengan Saldo Kas/Bank Harian. Closing periode di Posting ditolak sampai selisih nol; perbaiki Outlook Daily lebih dulu.',
+	balance:
+		'Saldo akhir Outlook sama dengan Saldo Kas/Bank Harian. Saldo Kas/Bank berubah mengikuti transaksi, jadi status bisa berubah tanpa mengedit Outlook.',
+	tidak_balance:
+		'Saldo akhir Outlook berbeda dengan Saldo Kas/Bank Harian. Closing periode di Posting ditolak sampai selisih nol; perbaiki Outlook Daily lebih dulu.',
 	belum_diisi: 'Isi Saldo Awal Bank di baris Saldo Awal agar saldo akhir Outlook bisa dibandingkan.',
 	tidak_tersedia: 'Saldo Kas/Bank Harian gagal dibaca; muat ulang halaman.'
 }
@@ -49,7 +51,11 @@ const status = computed(() => STATUS[rekon.value.status])
 				<div class="grid grid-cols-2">
 					<StatTile label="Saldo Akhir Outlook" :value="money(rekon.outlook)" />
 					<StatTile label="Saldo Kas/Bank Harian" :value="rekon.bank == null ? '-' : money(rekon.bank)" />
-					<StatTile label="Selisih (Outlook - Kas/Bank)" :value="rekon.selisih == null ? '-' : money(rekon.selisih)" :value-tone="rekon.selisih ? 'danger' : undefined" />
+					<StatTile
+						label="Selisih (Outlook - Kas/Bank)"
+						:value="rekon.selisih == null ? '-' : money(rekon.selisih)"
+						:value-tone="rekon.selisih ? 'danger' : undefined"
+					/>
 					<div class="px-4 py-3">
 						<p class="text-s text-ink-muted">Status</p>
 						<Badge :tone="status.tone" class="mt-1.5 gap-1 text-m"><component :is="status.icon" class="h-4 w-4" /> {{ status.label }}</Badge>

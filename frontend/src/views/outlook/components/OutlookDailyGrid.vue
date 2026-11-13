@@ -90,8 +90,8 @@ const awal = computed(() => calc.value.saldo_awal_row)
 <template>
 	<div>
 		<p v-if="!anyDate && editable" class="mb-3 rounded-md bg-warning-soft px-3 py-2 text-s text-warning">
-			Tanggal kolom masih kosong. Klik tanda <strong>+</strong> di header kolom untuk mengisi tanggalnya (7 hari terakhir bulan lalu sampai 7 hari pertama bulan
-			depan; tanggal boleh sama, tiap kolom punya isian sendiri). Actual hanya bisa diisi pada kolom bertanggal.
+			Tanggal kolom masih kosong. Klik tanda <strong>+</strong> di header kolom untuk mengisi tanggalnya (7 hari terakhir bulan lalu sampai 7 hari
+			pertama bulan depan; tanggal boleh sama, tiap kolom punya isian sendiri). Actual hanya bisa diisi pada kolom bertanggal.
 		</p>
 		<GridScroller :weeks="weekNos" :frozen="FROZEN">
 			<table class="border-separate border-spacing-0 text-s">
@@ -132,7 +132,9 @@ const awal = computed(() => calc.value.saldo_awal_row)
 									@click="editable && emit('pick', w.week_no, i + 1)"
 								>
 									<span :class="['block text-s', w.slots[i] ? 'font-semibold text-ink' : 'text-ink-subtle']">{{ colLabel(w, i) }}</span>
-									<small v-if="w.slots[i]" class="block font-normal text-ink-muted">{{ colDayName(w, i, state.period.year, state.period.month) }}</small>
+									<small v-if="w.slots[i]" class="block font-normal text-ink-muted">{{
+										colDayName(w, i, state.period.year, state.period.month)
+									}}</small>
 								</component>
 							</th>
 						</template>
@@ -160,17 +162,19 @@ const awal = computed(() => calc.value.saldo_awal_row)
 							<td :class="[base, weekStart, tint, 'text-right tnum']">{{ cell(awal.ol_week[wi], true) }}</td>
 							<td :class="[base, tint, 'text-right tnum', num(awal.actual_week[wi])]">{{ cell(awal.actual_week[wi], true) }}</td>
 							<td :class="[base, tint]" />
-							<td
-								v-for="i in SLOTS"
-								:key="i"
-								:class="[base, 'text-right tnum', !w.slots[i] && 'bg-fill/60', num(awal.actual_day[wi][i])]"
-							>
+							<td v-for="i in SLOTS" :key="i" :class="[base, 'text-right tnum', !w.slots[i] && 'bg-fill/60', num(awal.actual_day[wi][i])]">
 								<template v-if="w.slots[i]">{{ cell(awal.actual_day[wi][i], true) }}</template>
 							</td>
 						</template>
 					</tr>
 
-					<template v-for="sec in [{ flow: 'CASH_IN' as Flow, label: 'CASH IN' }, { flow: 'CASH_OUT' as Flow, label: 'CASH OUT' }]" :key="sec.flow">
+					<template
+						v-for="sec in [
+							{ flow: 'CASH_IN' as Flow, label: 'CASH IN' },
+							{ flow: 'CASH_OUT' as Flow, label: 'CASH OUT' }
+						]"
+						:key="sec.flow"
+					>
 						<tr class="bg-ink font-semibold text-ink-invert">
 							<td :class="[c1, 'bg-ink px-3 py-1']">{{ sec.label }}</td>
 							<td :colspan="totalCols - 1" class="bg-ink" />
@@ -188,7 +192,13 @@ const awal = computed(() => calc.value.saldo_awal_row)
 											@keydown.enter.prevent="submitRename"
 											@keydown.esc="renaming = null"
 										/>
-										<button type="button" title="Simpan" aria-label="Simpan nama" class="rounded p-1 text-success hover:bg-success-soft" @click="submitRename">
+										<button
+											type="button"
+											title="Simpan"
+											aria-label="Simpan nama"
+											class="rounded p-1 text-success hover:bg-success-soft"
+											@click="submitRename"
+										>
 											<IconDeviceFloppy class="h-4 w-4" />
 										</button>
 										<button type="button" title="Batal" aria-label="Batal" class="rounded p-1 text-ink-muted hover:bg-fill" @click="renaming = null">
@@ -219,10 +229,22 @@ const awal = computed(() => calc.value.saldo_awal_row)
 											>
 												<IconPlus class="h-3.5 w-3.5" />
 											</button>
-											<button type="button" title="Ubah nama" aria-label="Ubah nama" class="rounded p-1 text-ink-muted hover:bg-hairline hover:text-ink" @click="startRename(r)">
+											<button
+												type="button"
+												title="Ubah nama"
+												aria-label="Ubah nama"
+												class="rounded p-1 text-ink-muted hover:bg-hairline hover:text-ink"
+												@click="startRename(r)"
+											>
 												<IconPencil class="h-3.5 w-3.5" />
 											</button>
-											<button type="button" title="Hapus kategori" aria-label="Hapus kategori" class="rounded p-1 text-ink-muted hover:bg-hairline hover:text-danger" @click="emit('remove', r)">
+											<button
+												type="button"
+												title="Hapus kategori"
+												aria-label="Hapus kategori"
+												class="rounded p-1 text-ink-muted hover:bg-hairline hover:text-danger"
+												@click="emit('remove', r)"
+											>
 												<IconTrash class="h-3.5 w-3.5" />
 											</button>
 										</span>
@@ -241,9 +263,15 @@ const awal = computed(() => calc.value.saldo_awal_row)
 										/>
 										<template v-else>{{ cell(r.ol_week[wi]) }}</template>
 									</td>
-									<td :class="[base, tint, 'text-right tnum', !r.is_leaf && 'font-semibold', num(r.actual_week[wi])]">{{ cell(r.actual_week[wi]) }}</td>
+									<td :class="[base, tint, 'text-right tnum', !r.is_leaf && 'font-semibold', num(r.actual_week[wi])]">
+										{{ cell(r.actual_week[wi]) }}
+									</td>
 									<td :class="[base, 'text-center tnum', achClass(r.ach_week[wi], r.flow_type)]">{{ pct(r.ach_week[wi]) }}</td>
-									<td v-for="i in SLOTS" :key="i" :class="[base, 'text-right tnum', !w.slots[i] && 'bg-fill/60', !r.is_leaf && 'font-semibold', num(r.actual_day[wi][i])]">
+									<td
+										v-for="i in SLOTS"
+										:key="i"
+										:class="[base, 'text-right tnum', !w.slots[i] && 'bg-fill/60', !r.is_leaf && 'font-semibold', num(r.actual_day[wi][i])]"
+									>
 										<template v-if="w.slots[i]">
 											<GridInput
 												v-if="r.is_leaf && editable"
@@ -271,7 +299,13 @@ const awal = computed(() => calc.value.saldo_awal_row)
 											@keydown.enter.prevent="submitAdd"
 											@keydown.esc="adding = null"
 										/>
-										<button type="button" title="Simpan" aria-label="Simpan kategori" class="rounded p-1 text-success hover:bg-success-soft" @click="submitAdd">
+										<button
+											type="button"
+											title="Simpan"
+											aria-label="Simpan kategori"
+											class="rounded p-1 text-success hover:bg-success-soft"
+											@click="submitAdd"
+										>
 											<IconDeviceFloppy class="h-4 w-4" />
 										</button>
 										<button type="button" title="Batal" aria-label="Batal" class="rounded p-1 text-ink-muted hover:bg-fill" @click="adding = null">
@@ -295,7 +329,13 @@ const awal = computed(() => calc.value.saldo_awal_row)
 										@keydown.enter.prevent="submitAdd"
 										@keydown.esc="adding = null"
 									/>
-									<button type="button" title="Simpan" aria-label="Simpan kategori" class="rounded p-1 text-success hover:bg-success-soft" @click="submitAdd">
+									<button
+										type="button"
+										title="Simpan"
+										aria-label="Simpan kategori"
+										class="rounded p-1 text-success hover:bg-success-soft"
+										@click="submitAdd"
+									>
 										<IconDeviceFloppy class="h-4 w-4" />
 									</button>
 									<button type="button" title="Batal" aria-label="Batal" class="rounded p-1 text-ink-muted hover:bg-fill" @click="adding = null">
@@ -322,7 +362,9 @@ const awal = computed(() => calc.value.saldo_awal_row)
 						<template v-for="(w, wi) in weeks" :key="w.week_no">
 							<td :class="[base, weekStart, tint, f.cls, 'text-right tnum']">{{ cell(f.agg.ol_week[wi]) }}</td>
 							<td :class="[base, tint, f.cls, 'text-right tnum', num(f.agg.actual_week[wi])]">{{ cell(f.agg.actual_week[wi]) }}</td>
-							<td :class="[base, f.cls, 'text-center tnum', f.flow ? achClass(f.agg.ach_week[wi], f.flow) : tint]">{{ f.flow ? pct(f.agg.ach_week[wi]) : '' }}</td>
+							<td :class="[base, f.cls, 'text-center tnum', f.flow ? achClass(f.agg.ach_week[wi], f.flow) : tint]">
+								{{ f.flow ? pct(f.agg.ach_week[wi]) : '' }}
+							</td>
 							<td v-for="i in SLOTS" :key="i" :class="[base, f.cls, 'text-right tnum', !w.slots[i] && 'bg-fill/60', num(f.agg.actual_day[wi][i])]">
 								<template v-if="w.slots[i]">{{ cell(f.agg.actual_day[wi][i]) }}</template>
 							</td>
@@ -333,10 +375,18 @@ const awal = computed(() => calc.value.saldo_awal_row)
 					<tr class="font-semibold">
 						<td :class="[c1, 'sticky bottom-0 z-[2] bg-fill px-3 shadow-[0_-2px_0_rgb(var(--c-hairline))]']">Saldo Balance</td>
 						<td :class="[c2, 'bottom-0 bg-fill shadow-[0_-2px_0_rgb(var(--c-hairline))]']" />
-						<td :class="[c3, 'bottom-0 bg-fill shadow-[0_-2px_0_rgb(var(--c-hairline))]', num(calc.saldo_akhir)]">{{ cell(calc.saldo_akhir, true) }}</td>
+						<td :class="[c3, 'bottom-0 bg-fill shadow-[0_-2px_0_rgb(var(--c-hairline))]', num(calc.saldo_akhir)]">
+							{{ cell(calc.saldo_akhir, true) }}
+						</td>
 						<template v-for="(w, wi) in weeks" :key="w.week_no">
-							<td :class="['sticky bottom-0 z-[1] bg-fill px-1.5 text-right tnum shadow-[0_-2px_0_rgb(var(--c-hairline))]', weekStart]">{{ cell(calc.saldo_ol_week[wi], true) }}</td>
-							<td :class="['sticky bottom-0 z-[1] bg-fill px-1.5 text-right tnum shadow-[0_-2px_0_rgb(var(--c-hairline))]', num(calc.saldo_week[wi])]">{{ cell(calc.saldo_week[wi], true) }}</td>
+							<td :class="['sticky bottom-0 z-[1] bg-fill px-1.5 text-right tnum shadow-[0_-2px_0_rgb(var(--c-hairline))]', weekStart]">
+								{{ cell(calc.saldo_ol_week[wi], true) }}
+							</td>
+							<td
+								:class="['sticky bottom-0 z-[1] bg-fill px-1.5 text-right tnum shadow-[0_-2px_0_rgb(var(--c-hairline))]', num(calc.saldo_week[wi])]"
+							>
+								{{ cell(calc.saldo_week[wi], true) }}
+							</td>
 							<td class="sticky bottom-0 z-[1] bg-fill shadow-[0_-2px_0_rgb(var(--c-hairline))]" />
 							<td
 								v-for="i in SLOTS"

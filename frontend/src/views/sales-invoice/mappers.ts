@@ -35,9 +35,11 @@ export function toSalesInvoiceDraft(invoice: SalesInvoice): SalesInvoiceDraft {
 		discount_type: invoice.discount_type,
 		discount_value: invoice.discount_value,
 		lines: invoice.lines.map((line) => ({
-			product_id: line.product_id,
+			variant_id: line.variant_id,
 			product_code: line.product_code,
 			product_name: line.product_name,
+			sku: line.sku,
+			variant_label: line.variant_label,
 			brand_name: line.brand_name,
 			unit_name: line.unit_name,
 			warehouse_id: line.warehouse_id,
@@ -45,8 +47,7 @@ export function toSalesInvoiceDraft(invoice: SalesInvoice): SalesInvoiceDraft {
 			quantity: line.quantity,
 			price: line.price,
 			discount: line.discount,
-			notes: line.notes,
-			max_quantity: line.max_quantity
+			notes: line.notes
 		})),
 		expenses: invoice.expenses.map((expense) => ({
 			sales_expense_id: expense.sales_expense_id,
@@ -71,24 +72,23 @@ export function toSalesInvoiceDraft(invoice: SalesInvoice): SalesInvoiceDraft {
 	}
 }
 
-// Sales Order lookup → draft lines. Lines with nothing left to invoice are dropped; the rest default to the full remaining quantity.
+// Sales Order lookup → draft lines: the whole order becomes the invoice (1 SO <-> 1 invoice); every line stays editable.
 export function fromInvoiceableLines(data: SalesOrderInvoiceableLines): SalesInvoiceLineDraft[] {
-	return data.lines
-		.filter((line) => line.remaining_quantity > 0)
-		.map((line) => ({
-			product_id: line.product_id,
-			product_code: line.product_code,
-			product_name: line.product_name,
-			brand_name: line.brand_name,
-			unit_name: line.unit_name,
-			warehouse_id: line.warehouse_id,
-			warehouse_label: `${line.warehouse_code} — ${line.warehouse_name}`,
-			quantity: line.remaining_quantity,
-			price: line.price,
-			discount: line.discount,
-			notes: line.notes,
-			max_quantity: line.remaining_quantity
-		}))
+	return data.lines.map((line) => ({
+		variant_id: line.variant_id,
+		product_code: line.product_code,
+		product_name: line.product_name,
+		sku: line.sku,
+		variant_label: line.variant_label,
+		brand_name: line.brand_name,
+		unit_name: line.unit_name,
+		warehouse_id: line.warehouse_id,
+		warehouse_label: `${line.warehouse_code} — ${line.warehouse_name}`,
+		quantity: line.quantity,
+		price: line.price,
+		discount: line.discount,
+		notes: line.notes
+	}))
 }
 
 export function toSalesInvoiceRequest(form: SalesInvoiceForm): SalesInvoiceRequest {
@@ -104,7 +104,7 @@ export function toSalesInvoiceRequest(form: SalesInvoiceForm): SalesInvoiceReque
 		discount_type: form.discount_type,
 		discount_value: form.discount_value,
 		lines: form.lines.map((line) => ({
-			product_id: line.product_id,
+			variant_id: line.variant_id,
 			warehouse_id: line.warehouse_id,
 			quantity: line.quantity,
 			price: line.price,

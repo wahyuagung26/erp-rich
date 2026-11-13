@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
 import { integerInput } from '@/utils/format'

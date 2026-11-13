@@ -326,11 +326,7 @@ function submit() {
 					<FormField
 						label="Nomor"
 						:error="errors.number"
-						:help="
-							isEdit
-								? 'Nomor dikunci setelah jurnal tersimpan supaya referensi di laporan dan jurnal lain tidak berubah.'
-								: undefined
-						"
+						:help="isEdit ? 'Nomor dikunci setelah jurnal tersimpan supaya referensi di laporan dan jurnal lain tidak berubah.' : undefined"
 					>
 						<Input v-model="form.number" :disabled="isEdit" placeholder="Otomatis jika dikosongkan" />
 					</FormField>

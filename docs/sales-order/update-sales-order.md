@@ -7,7 +7,7 @@ path: /sales-order/:id
 status: mock
 tags: [sales-order, write]
 resource: /frontend/src/mocks/modules/sales-order.ts
-timestamp: 2026-11-06T15:00:00Z
+timestamp: 2026-11-13T12:00:00Z
 ---
 
 # Update Sales Order
@@ -40,6 +40,7 @@ Same shape and rules as [create-sales-order](./create-sales-order.md).
 
 ## Notes
 
-Write guard: refused when `approval_status` is `approved` ("Sales order yang sudah disetujui tidak boleh diubah") or when any line has `invoiced_quantity > 0`
-("Sales order yang sudah memiliki invoice tidak boleh diubah"). A rejected order can be edited and keeps `rejected` until it is resubmitted.
-No closing-period check.
+Write guard: refused when the stored `date` is in a closed period (`422 { "message": "Periode <bulan tahun> sudah closing, sales order tidak bisa diubah" }`),
+when the new `date` is in a closed period (`422` with `errors.date`), or when `approval_status` is `approved`
+("Sales order yang sudah disetujui tidak boleh diubah" — cancel the approval first; an invoiced order cannot be un-approved).
+A variant that was deactivated after it was put on the order may stay on it. The customer snapshot and every amount are re-stored.
