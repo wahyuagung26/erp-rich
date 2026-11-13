@@ -76,6 +76,7 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Daftar Harga (Penjualan) | [`price-list/`](./price-list/index.md) | `views/price-list/` | `mocks/modules/price-list.ts` |
 | Import Faktur Pajak (Penjualan) | [`sales-tax-invoice-import/`](./sales-tax-invoice-import/index.md) | `views/sales-tax-invoice-import/` | `mocks/modules/sales-tax-invoice-import.ts` |
 | Budgeting | [`budgeting/`](./budgeting/index.md) | `views/budgeting/` | `mocks/modules/budgeting.ts` |
+| Outlook Daily (Outlook & Forecasting) | [`outlook/`](./outlook/index.md) | `views/outlook/` | `mocks/modules/outlook.ts` |
 | Dashboard                                | [`dashboard/`](./dashboard/index.md)               | `views/dashboard/`        | `mocks/modules/dashboard.ts`        |
 
 New module: copy [`_TEMPLATE.md`](./_TEMPLATE.md) into `docs/<module>/<endpoint>.md`.

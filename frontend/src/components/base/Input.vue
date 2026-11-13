@@ -10,6 +10,7 @@ withDefaults(
 		align?: 'left' | 'right'
 		mono?: boolean
 		addon?: string
+		dense?: boolean // compact height for in-grid entry
 	}>(),
 	{ type: 'text', align: 'left' }
 )
@@ -42,7 +43,8 @@ const hasSuffix = !!useSlots().suffix
 				:placeholder="placeholder"
 				:disabled="disabled"
 				:class="[
-					'w-full px-3 py-2 text-m text-ink placeholder:text-ink-subtle disabled:opacity-50',
+					'w-full px-3 text-ink placeholder:text-ink-subtle disabled:opacity-50',
+					dense ? 'py-1 text-s' : 'py-2 text-m',
 					addon ? 'bg-transparent focus-visible:ring-0' : 'rounded-md border border-ink-subtle/30 bg-panel disabled:bg-fill',
 					align === 'right' && 'text-right',
 					mono && 'tnum',

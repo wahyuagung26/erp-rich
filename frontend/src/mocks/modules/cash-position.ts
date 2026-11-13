@@ -109,6 +109,13 @@ function movements(companyId: number): Move[] {
 	return out
 }
 
+// Total balance of all cash/bank accounts of the company at the end of `date` (used by the Outlook balance check).
+export function cashBankBalance(companyId: number, date: string): number {
+	return movements(companyId)
+		.filter((m) => m.date <= date)
+		.reduce((s, m) => s + m.debit - m.credit, 0)
+}
+
 const today = () => new Date().toISOString().slice(0, 10)
 const isDate = (v: unknown) => /^\d{4}-\d{2}-\d{2}$/.test(String(v))
 

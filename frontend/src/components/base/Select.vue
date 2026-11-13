@@ -11,6 +11,7 @@ defineProps<{
 	options: Option[]
 	placeholder?: string
 	disabled?: boolean
+	dense?: boolean // compact height for in-grid entry
 }>()
 
 defineEmits<{ 'update:modelValue': [string] }>()
@@ -21,7 +22,8 @@ defineEmits<{ 'update:modelValue': [string] }>()
 		<select
 			:value="modelValue"
 			:disabled="disabled"
-			class="w-full appearance-none rounded-md border border-ink-subtle/30 bg-panel py-2 pl-3 pr-8 text-m text-ink disabled:bg-fill disabled:opacity-50"
+			class="w-full appearance-none rounded-md border border-ink-subtle/30 bg-panel pl-3 pr-8 text-ink disabled:bg-fill disabled:opacity-50"
+			:class="dense ? 'py-1 text-s' : 'py-2 text-m'"
 			@change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
 		>
 			<option v-if="placeholder" value="">{{ placeholder }}</option>

@@ -44,6 +44,7 @@ import { supplierPayablePaymentSeed, type SupplierPayablePaymentRow } from './fi
 import { cashFlowSeed } from './fixtures/cash-flow'
 import { historySeed } from './fixtures/history'
 import type { PostingState } from './fixtures/posting'
+import type { OutlookStore } from './fixtures/outlook'
 import type {
 	Journal,
 	JournalExpense,
@@ -133,6 +134,7 @@ export const db: {
 	cashFlow: CashFlow[]
 	history: Record<string, HistoryEvent[]> // `<resource>:<id>` → timeline, see mocks/history.ts
 	posting: Record<number, PostingState> // lazily seeded per company, see mocks/modules/posting.ts
+	outlook: Record<number, OutlookStore> // lazily seeded per company, see mocks/modules/outlook.ts
 } = {
 	budget: budgetSeed,
 	budgetRevision: revisionSeed,
@@ -180,5 +182,6 @@ export const db: {
 	supplierPayablePayment: structuredClone(supplierPayablePaymentSeed),
 	cashFlow: structuredClone(cashFlowSeed),
 	history: structuredClone(historySeed),
-	posting: {}
+	posting: {},
+	outlook: {}
 }

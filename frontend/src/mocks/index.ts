@@ -45,6 +45,7 @@ import { registerDashboard } from './modules/dashboard'
 import { registerCashFlow } from './modules/cash-flow'
 import { registerPosting } from './modules/posting'
 import { registerBudgeting } from './modules/budgeting'
+import { registerOutlook } from './modules/outlook'
 
 // One entry point for all mocking. Register a new module here; keep its
 // handlers in src/mocks/modules/<module>.ts and its contract in docs/<module>/.
@@ -93,7 +94,8 @@ const modules = [
 	registerDashboard,
 	registerCashFlow,
 	registerPosting,
-	registerBudgeting
+	registerBudgeting,
+	registerOutlook
 ]
 
 // Dev-only. Attaches an adapter to the real `api` instance so production code

@@ -40,7 +40,9 @@ import {
 	IconClipboardList,
 	IconPigMoney,
 	IconTags,
-	IconChartPie
+	IconChartPie,
+	IconTimeline,
+	IconCalendarStats
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -128,6 +130,11 @@ export const NAV: NavItem[] = [
 			{ label: 'Realisasi Budget', to: '/budgeting/realization', icon: IconChartLine },
 			{ label: 'Periode Revisi', to: '/budgeting/period', icon: IconLock }
 		]
+	},
+	{
+		label: 'Outlook & Forecasting',
+		icon: IconTimeline,
+		children: [{ label: 'Outlook Daily', to: '/outlook/daily', icon: IconCalendarStats }]
 	},
 	{ label: 'Design System', to: '/design-system', icon: IconPalette }
 ]
