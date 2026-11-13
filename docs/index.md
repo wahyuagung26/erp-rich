@@ -3,7 +3,7 @@ type: OKF Bundle
 title: ERP Finance v2 — API Contract
 description: Frontend-authored API specification. Each module is a directory; each endpoint is one file. The mock and the future backend both follow these files.
 tags: [erp, finance, api, contract]
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-13T00:00:00Z
 ---
 
 # ERP Finance v2 — API Contract
@@ -75,6 +75,7 @@ envelope, pagination, auth, and error shape that every endpoint inherits.
 | Piutang Customer (Penjualan) | [`customer-receivable/`](./customer-receivable/index.md) | `views/customer-receivable/` | `mocks/modules/customer-receivable.ts` |
 | Daftar Harga (Penjualan) | [`price-list/`](./price-list/index.md) | `views/price-list/` | `mocks/modules/price-list.ts` |
 | Import Faktur Pajak (Penjualan) | [`sales-tax-invoice-import/`](./sales-tax-invoice-import/index.md) | `views/sales-tax-invoice-import/` | `mocks/modules/sales-tax-invoice-import.ts` |
+| Budgeting | [`budgeting/`](./budgeting/index.md) | `views/budgeting/` | `mocks/modules/budgeting.ts` |
 | Dashboard                                | [`dashboard/`](./dashboard/index.md)               | `views/dashboard/`        | `mocks/modules/dashboard.ts`        |
 
 New module: copy [`_TEMPLATE.md`](./_TEMPLATE.md) into `docs/<module>/<endpoint>.md`.

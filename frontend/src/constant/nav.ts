@@ -39,7 +39,8 @@ import {
 	IconChartLine,
 	IconClipboardList,
 	IconPigMoney,
-	IconTags
+	IconTags,
+	IconChartPie
 } from '@tabler/icons-vue'
 import type { Component } from 'vue'
 
@@ -116,6 +117,16 @@ export const NAV: NavItem[] = [
 			{ label: 'Piutang Customer', to: '/customer-receivable', icon: IconCreditCardPay },
 			{ label: 'Daftar Harga', to: '/price-list', icon: IconTags },
 			{ label: 'Import Faktur Pajak', to: '/sales-tax-invoice-import', icon: IconFileImport }
+		]
+	},
+	{
+		label: 'Budgeting',
+		icon: IconChartPie,
+		children: [
+			{ label: 'Form Budget', to: '/budgeting/budgets', icon: IconClipboardList },
+			{ label: 'Revisi Budget', to: '/budgeting/revisions', icon: IconBook2 },
+			{ label: 'Realisasi Budget', to: '/budgeting/realization', icon: IconChartLine },
+			{ label: 'Periode Revisi', to: '/budgeting/period', icon: IconLock }
 		]
 	},
 	{ label: 'Design System', to: '/design-system', icon: IconPalette }

@@ -1,3 +1,5 @@
+import { budgetSeed, revisionSeed, budgetPeriodSeed } from './fixtures/budgeting'
+import type { BudgetDocument, RevisionPeriod } from '@/views/budgeting/types'
 import { journalSeed } from './fixtures/journal'
 import { journalExpenseSeed } from './fixtures/journal-expense'
 import { journalIncomeSeed } from './fixtures/journal-income'
@@ -84,6 +86,9 @@ import type {
 // Single in-memory store shared by every mock module. Mutations persist for
 // the browser session; a reload re-seeds from fixtures.
 export const db: {
+	budget: BudgetDocument[]
+	budgetRevision: BudgetDocument[]
+	budgetPeriod: Record<number, RevisionPeriod>
 	journal: Journal[]
 	journalExpense: JournalExpense[]
 	journalIncome: JournalIncome[]
@@ -129,6 +134,9 @@ export const db: {
 	history: Record<string, HistoryEvent[]> // `<resource>:<id>` → timeline, see mocks/history.ts
 	posting: Record<number, PostingState> // lazily seeded per company, see mocks/modules/posting.ts
 } = {
+	budget: budgetSeed,
+	budgetRevision: revisionSeed,
+	budgetPeriod: budgetPeriodSeed,
 	journal: structuredClone(journalSeed),
 	journalExpense: structuredClone(journalExpenseSeed),
 	journalIncome: structuredClone(journalIncomeSeed),
