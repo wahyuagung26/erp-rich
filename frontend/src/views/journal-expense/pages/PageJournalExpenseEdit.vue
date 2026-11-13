@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
@@ -52,19 +53,19 @@ const toForm = (value: JournalExpense): JournalExpenseForm => ({
 })
 
 async function save(payload: JournalExpenseForm) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.put(`/journal-expense/${route.params.id}`, payload)
 		toast.success('Jurnal pengeluaran diperbarui')
 		router.push(`/journal-expense/${route.params.id}`)
 	} catch (err) {
-		if (axios.isAxiosError(err)) {
-			if (err.response?.status === 422 && err.response.data?.errors) {
-				formRef.value?.setServerErrors(err.response.data.errors)
-				return
-			}
-			toast.error(err.response?.data?.message ?? 'Jurnal pengeluaran tidak dapat diperbarui')
-		} else throw err
+		if (axios.isAxiosError(err) && err.response?.status === 422 && err.response.data?.errors) {
+			formRef.value?.setServerErrors(err.response.data.errors)
+			toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
+			return
+		}
+		toast.error(errorMessage(err, 'Jurnal pengeluaran tidak dapat diperbarui'))
 	} finally {
 		saving.value = false
 	}

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { IconArrowDownLeft, IconArrowUpRight, IconBuildingBank, IconFileSpreadsheet, IconRefresh } from '@tabler/icons-vue'
-import axios from 'axios'
 import api from '@/utils/api'
 import { useCompanyStore } from '@/stores/company'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { useIsMobile } from '@/composables/useIsMobile'
 import { money } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
@@ -14,6 +14,7 @@ import Button from '@/components/base/Button.vue'
 import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import StatTile from '@/components/base/StatTile.vue'
 import Amount from '@/components/base/Amount.vue'
+import DifferenceModal from '../components/DifferenceModal.vue'
 import type { CashPosition } from '@/utils/types'
 
 const companyStore = useCompanyStore()
@@ -24,6 +25,7 @@ const dateFrom = ref(today)
 const dateTo = ref(today)
 const report = ref<CashPosition>()
 const loading = ref(true)
+const differenceOpen = ref(false)
 
 async function load() {
 	loading.value = true
@@ -33,8 +35,7 @@ async function load() {
 		})
 		report.value = res.data.data
 	} catch (err) {
-		if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Posisi kas tidak dapat dimuat')
-		else toast.error('Posisi kas tidak dapat dimuat')
+		toast.error(errorMessage(err, 'Posisi kas tidak dapat dimuat'))
 	} finally {
 		loading.value = false
 	}
@@ -113,7 +114,18 @@ function exportReport() {
 						</div>
 						<div class="flex items-center justify-between gap-3">
 							<dt class="text-ink-muted">Selisih</dt>
-							<dd><Amount :value="report.difference" /></dd>
+							<dd>
+								<button
+									v-if="report.difference"
+									type="button"
+									class="rounded-sm text-primary underline decoration-dotted underline-offset-4 hover:decoration-solid"
+									title="Lihat transaksi penyebab selisih"
+									@click="differenceOpen = true"
+								>
+									<Amount :value="report.difference" />
+								</button>
+								<Amount v-else :value="report.difference" />
+							</dd>
 						</div>
 					</dl>
 				</div>
@@ -157,12 +169,25 @@ function exportReport() {
 							</tr>
 							<tr class="border-t border-hairline">
 								<td class="px-3 py-3 text-right font-semibold text-ink" colspan="5">Selisih (Saldo Akhir - Saldo Kas Akhir)</td>
-								<td class="px-3 py-3 text-right"><Amount :value="report.difference" /></td>
+								<td class="px-3 py-3 text-right">
+									<button
+										v-if="report.difference"
+										type="button"
+										class="rounded-sm text-primary underline decoration-dotted underline-offset-4 hover:decoration-solid"
+										title="Lihat transaksi penyebab selisih"
+										@click="differenceOpen = true"
+									>
+										<Amount :value="report.difference" />
+									</button>
+									<Amount v-else :value="report.difference" />
+								</td>
 							</tr>
 						</tfoot>
 					</table>
 				</div>
 			</template>
 		</Panel>
+
+		<DifferenceModal :open="differenceOpen" :date-to="dateTo" @close="differenceOpen = false" />
 	</div>
 </template>

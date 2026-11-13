@@ -61,7 +61,11 @@ defineExpose({ setServerErrors })
 						label="Group Perkiraan"
 						required
 						:error="errors.account_group_id"
-						:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : undefined"
+						:help="
+							isEdit
+								? 'Group perkiraan dikunci setelah data dibuat karena menjadi bagian dari kode sub akun. Untuk memakai group lain, buat data baru.'
+								: undefined
+						"
 					>
 						<AsyncSelect
 							:model-value="form.account_group_id || null"
@@ -79,7 +83,12 @@ defineExpose({ setServerErrors })
 							label="Kode Sub Akun"
 							required
 							:error="errors.code_suffix"
-							:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : '2 digit pertama otomatis dari kode group perkiraan — isi 3 digit sisanya.'"
+							:hint="isEdit ? undefined : '2 digit pertama otomatis dari kode group perkiraan — isi 3 digit sisanya.'"
+							:help="
+								isEdit
+									? 'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah. Untuk memakai kode lain, buat data baru.'
+									: 'Prefix 2 digit diambil dari kode group perkiraan yang dipilih, jadi tidak bisa diubah di sini.'
+							"
 						>
 							<Input v-if="isEdit" :model-value="initial?.code ?? ''" mono disabled />
 							<div v-else class="flex items-stretch gap-1">
@@ -104,9 +113,9 @@ defineExpose({ setServerErrors })
 				</div>
 			</section>
 
-			<div class="flex gap-2 pt-2">
-				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
+			<div class="flex flex-wrap justify-end gap-2 pt-2">
 				<Button variant="secondary" type="button" @click="router.push('/sub-account')"> <IconX class="h-4 w-4" /> Batal </Button>
+				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
 			</div>
 		</form>
 	</Panel>

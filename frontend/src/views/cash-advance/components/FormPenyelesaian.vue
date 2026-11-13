@@ -156,7 +156,7 @@ defineExpose({ setServerErrors })
 		</dl>
 
 		<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
-			<FormField label="No. Penyelesaian">
+			<FormField label="Nomor" help="Nomor dibuat otomatis oleh sistem saat data disimpan.">
 				<Input :model-value="editing?.number ?? ''" placeholder="Nomor otomatis" disabled />
 			</FormField>
 			<FormField label="Tanggal" required :error="errors.date">

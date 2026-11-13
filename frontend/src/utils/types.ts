@@ -654,6 +654,27 @@ export interface CashPosition {
 	difference: number
 }
 
+// One document behind the report's "Selisih" — see docs/cash-position/get-cash-position-difference.md
+export interface CashPositionDifferenceRow {
+	group: string | null
+	source: 'journal' | 'journal-income' | 'journal-expense'
+	source_label: string
+	id: number
+	number: string
+	date: string
+	saldo_kas: number
+	arus_kas: number
+	selisih: number
+	cause: string
+}
+
+export interface CashPositionDifference {
+	date_to: string
+	groups: { key: string; label: string; action: string }[]
+	rows: CashPositionDifferenceRow[]
+	total: { saldo_kas: number; arus_kas: number; selisih: number }
+}
+
 export type PurchaseOrderApprovalStatus = 'pending' | 'approved' | 'rejected'
 export type PurchaseOrderDeliveryStatus = 'not_received' | 'partial' | 'full'
 

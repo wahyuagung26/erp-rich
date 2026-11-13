@@ -4,6 +4,7 @@ import axios from 'axios'
 import { IconAlertCircle, IconAlertTriangle, IconArchive, IconCircleCheck, IconLockOpen, IconRefresh } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { useConfirm } from '@/composables/useConfirm'
 import { date } from '@/utils/format'
 import Select from '@/components/base/Select.vue'
@@ -119,8 +120,9 @@ function selectPeriod(p: string) {
 	loadRecon()
 }
 
-function errorMessage(err: unknown, fallback: string): string {
-	return axios.isAxiosError(err) ? (err.response?.data?.errors?.period?.[0] ?? err.response?.data?.message ?? fallback) : fallback
+// A period-specific validation message wins; everything else goes through the shared helper.
+function closingError(err: unknown, fallback: string): string {
+	return (axios.isAxiosError(err) && err.response?.data?.errors?.period?.[0]) || errorMessage(err, fallback)
 }
 
 function askClose() {
@@ -138,7 +140,7 @@ function askClose() {
 				toast.success(res.data.message)
 				await refresh(true)
 			} catch (err) {
-				toast.error(errorMessage(err, 'Periode gagal ditutup'))
+				toast.error(closingError(err, 'Periode gagal ditutup'))
 			}
 		}
 	)
@@ -167,7 +169,7 @@ async function reopen() {
 	} catch (err) {
 		if (axios.isAxiosError(err) && err.response?.status === 422 && err.response.data?.errors?.reason)
 			reasonError.value = err.response.data.errors.reason[0]
-		else toast.error(errorMessage(err, 'Periode gagal dibuka'))
+		else toast.error(closingError(err, 'Periode gagal dibuka'))
 	} finally {
 		reopening.value = false
 	}

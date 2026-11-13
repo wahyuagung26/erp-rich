@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
@@ -60,6 +61,7 @@ const toForm = (value: CashAdvance): CashAdvanceDraft => ({
 })
 
 async function save(payload: CashAdvanceRequest) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.put(`/cash-advance/${route.params.id}`, payload)
@@ -68,12 +70,13 @@ async function save(payload: CashAdvanceRequest) {
 	} catch (err) {
 		if (axios.isAxiosError(err) && err.response?.status === 422) {
 			const errors = err.response.data?.errors
-			if (errors) formRef.value?.setServerErrors(errors)
-			else toast.error(err.response.data?.message ?? 'Uang muka operasional tidak dapat diperbarui')
+			if (errors) {
+				formRef.value?.setServerErrors(errors)
+				toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
+			} else toast.error(errorMessage(err, 'Uang muka operasional tidak dapat diperbarui'))
 			return
 		}
-		if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Uang muka operasional tidak dapat diperbarui')
-		else throw err
+		toast.error(errorMessage(err, 'Uang muka operasional tidak dapat diperbarui'))
 	} finally {
 		saving.value = false
 	}

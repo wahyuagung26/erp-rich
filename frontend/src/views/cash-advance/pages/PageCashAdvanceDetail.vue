@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconArrowLeft, IconCheck, IconPencil, IconPrinter, IconRefresh, IconTrash, IconX, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { useHistory } from '@/composables/useHistory'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
@@ -43,7 +43,7 @@ function openApprove() {
 
 async function confirmApprove() {
 	const value = advance.value
-	if (!value || !approveDate.value) return
+	if (!value || !approveDate.value || approving.value) return
 	approving.value = true
 	try {
 		const res = await api.patch<{ data: CashAdvance }>(`/cash-advance/${value.id}/status`, { status: 'approved', date: approveDate.value })
@@ -51,7 +51,7 @@ async function confirmApprove() {
 		approveOpen.value = false
 		toast.success('Uang muka operasional disetujui')
 	} catch (err) {
-		if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Status uang muka tidak dapat diubah')
+		toast.error(errorMessage(err, 'Status uang muka tidak dapat diubah'))
 	} finally {
 		approving.value = false
 	}
@@ -90,7 +90,7 @@ function reject() {
 			advance.value = res.data.data
 			toast.success('Uang muka operasional ditolak')
 		} catch (err) {
-			if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Status uang muka tidak dapat diubah')
+			toast.error(errorMessage(err, 'Status uang muka tidak dapat diubah'))
 		}
 	})
 }
@@ -106,7 +106,7 @@ function resubmit() {
 				advance.value = res.data.data
 				toast.success('Uang muka diajukan ulang')
 			} catch (err) {
-				if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Status uang muka tidak dapat diubah')
+				toast.error(errorMessage(err, 'Status uang muka tidak dapat diubah'))
 			}
 		}
 	)
@@ -121,7 +121,7 @@ function remove() {
 			toast.success('Uang muka operasional dihapus')
 			router.push('/cash-advance')
 		} catch (err) {
-			if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Uang muka tidak dapat dihapus')
+			toast.error(errorMessage(err, 'Uang muka tidak dapat dihapus'))
 		}
 	})
 }
@@ -161,7 +161,7 @@ function remove() {
 					<h3 class="subhead">Informasi Uang Muka</h3>
 					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
-							<dt class="text-s text-ink-muted">No. Transaksi</dt>
+							<dt class="text-s text-ink-muted">Nomor</dt>
 							<dd class="mt-1 text-m text-ink">{{ advance.number }}</dd>
 						</div>
 						<div>

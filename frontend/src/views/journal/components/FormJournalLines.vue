@@ -290,7 +290,15 @@ function submit() {
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Jurnal</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
-					<FormField label="No. Transaksi" :error="errors.number">
+					<FormField
+						label="Nomor"
+						:error="errors.number"
+						:help="
+							isEdit
+								? 'Nomor dikunci setelah jurnal tersimpan supaya referensi di laporan dan jurnal lain tidak berubah.'
+								: undefined
+						"
+					>
 						<Input v-model="form.number" :disabled="isEdit" placeholder="Otomatis jika dikosongkan" />
 					</FormField>
 					<FormField label="Tanggal" required :error="errors.date">

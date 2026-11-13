@@ -47,7 +47,12 @@ defineExpose({ setServerErrors })
 							label="Kode Group Akun"
 							required
 							:error="errors.code"
-							:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : 'Angka, maksimal 2 digit. Harus unik.'"
+							:hint="isEdit ? undefined : 'Angka, maksimal 2 digit. Harus unik.'"
+							:help="
+								isEdit
+									? 'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah. Untuk memakai kode lain, buat data baru.'
+									: undefined
+							"
 						>
 							<Input v-model="form.code" mono inputmode="numeric" maxlength="2" :disabled="isEdit" placeholder="mis. 10" />
 						</FormField>
@@ -73,9 +78,9 @@ defineExpose({ setServerErrors })
 				</div>
 			</section>
 
-			<div class="flex gap-2 pt-2">
-				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
+			<div class="flex flex-wrap justify-end gap-2 pt-2">
 				<Button variant="secondary" type="button" @click="router.push('/account-group')"> <IconX class="h-4 w-4" /> Batal </Button>
+				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
 			</div>
 		</form>
 	</Panel>

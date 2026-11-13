@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import {
 	IconArrowBackUp,
 	IconArrowLeft,
@@ -17,6 +16,7 @@ import {
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { useHistory } from '@/composables/useHistory'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
@@ -51,6 +51,7 @@ function openApprove() {
 }
 
 async function confirmApprove() {
+	if (approving.value) return
 	const value = journal.value
 	if (!value || !approveDate.value) return
 	approving.value = true
@@ -60,7 +61,7 @@ async function confirmApprove() {
 		approveOpen.value = false
 		toast.success('Jurnal pengeluaran disetujui')
 	} catch (err) {
-		if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Status jurnal tidak dapat diubah')
+		toast.error(errorMessage(err, 'Status jurnal tidak dapat diubah'))
 	} finally {
 		approving.value = false
 	}
@@ -96,7 +97,7 @@ function changeStatus(status: JournalStatus) {
 				journal.value = res.data.data
 				toast.success(isResubmit ? 'Jurnal diajukan ulang' : 'Jurnal ditolak')
 			} catch (err) {
-				if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Status jurnal tidak dapat diubah')
+				toast.error(errorMessage(err, 'Status jurnal tidak dapat diubah'))
 			}
 		}
 	)
@@ -119,7 +120,7 @@ function cancelApproval() {
 				journal.value = res.data.data
 				toast.success('Approval dibatalkan')
 			} catch (err) {
-				if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Approval tidak dapat dibatalkan')
+				toast.error(errorMessage(err, 'Approval tidak dapat dibatalkan'))
 			}
 		}
 	)
@@ -134,7 +135,7 @@ function remove() {
 			toast.success('Jurnal pengeluaran dihapus')
 			router.push('/journal-expense')
 		} catch (err) {
-			if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Jurnal tidak dapat dihapus')
+			toast.error(errorMessage(err, 'Jurnal tidak dapat dihapus'))
 		}
 	})
 }
@@ -189,7 +190,7 @@ function printDoc() {
 					<h3 class="subhead">Informasi Jurnal</h3>
 					<dl class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-3">
 						<div>
-							<dt class="text-s text-ink-muted">No. Transaksi</dt>
+							<dt class="text-s text-ink-muted">Nomor</dt>
 							<dd class="mt-1 text-m text-ink">{{ journal.number }}</dd>
 						</div>
 						<div>

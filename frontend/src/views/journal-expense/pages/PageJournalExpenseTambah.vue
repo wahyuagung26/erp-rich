@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import FormJournalExpense from '@/views/journal-expense/components/FormJournalExpense.vue'
@@ -15,21 +16,19 @@ const saving = ref(false)
 const formRef = ref<InstanceType<typeof FormJournalExpense>>()
 
 async function save(payload: JournalExpenseForm) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.post('/journal-expense', payload)
 		toast.success('Jurnal pengeluaran diajukan')
 		router.push('/journal-expense')
 	} catch (err) {
-		if (axios.isAxiosError(err)) {
-			if (err.response?.status === 422 && err.response.data?.errors) {
-				formRef.value?.setServerErrors(err.response.data.errors)
-				return
-			}
-			toast.error(err.response?.data?.message ?? 'Jurnal pengeluaran tidak dapat disimpan')
+		if (axios.isAxiosError(err) && err.response?.status === 422 && err.response.data?.errors) {
+			formRef.value?.setServerErrors(err.response.data.errors)
+			toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
 			return
 		}
-		throw err
+		toast.error(errorMessage(err, 'Jurnal pengeluaran tidak dapat disimpan'))
 	} finally {
 		saving.value = false
 	}

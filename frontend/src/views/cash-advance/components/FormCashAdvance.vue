@@ -136,7 +136,7 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Uang Muka</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
-					<FormField label="No. Transaksi">
+					<FormField label="Nomor" help="Nomor dibuat otomatis oleh sistem saat data disimpan.">
 						<Input :model-value="form.number" placeholder="Nomor otomatis" disabled />
 					</FormField>
 					<FormField label="Tanggal" required :error="errors.date">
@@ -217,18 +217,26 @@ defineExpose({ setServerErrors })
 			<section v-if="isEdit" class="space-y-3">
 				<h3 class="subhead">Realisasi</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
-					<FormField label="Terpakai" hint="Terisi otomatis dari realisasi.">
+					<FormField
+						label="Terpakai"
+						hint="Terisi otomatis dari realisasi."
+						help="Tidak bisa diubah di sini. Jumlah ini dihitung otomatis dari total penyelesaian yang tercatat pada uang muka ini."
+					>
 						<MoneyInput :model-value="form.used" disabled />
 					</FormField>
-					<FormField label="Sisa" hint="Nominal dikurangi terpakai.">
+					<FormField
+						label="Sisa"
+						hint="Nominal dikurangi terpakai."
+						help="Tidak bisa diubah di sini. Jumlah ini dihitung otomatis: nominal dikurangi terpakai."
+					>
 						<MoneyInput :model-value="remaining" disabled />
 					</FormField>
 				</div>
 			</section>
 
-			<div class="flex flex-wrap gap-2 pt-2">
-				<Button type="submit" :loading="loading"><IconSend v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan & Ajukan' }}</Button>
+			<div class="flex flex-wrap justify-end gap-2 pt-2">
 				<Button variant="subtle" type="button" @click="router.push('/cash-advance')"><IconX class="h-4 w-4" /> Batal</Button>
+				<Button type="submit" :loading="loading"><IconSend v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan & Ajukan' }}</Button>
 			</div>
 		</form>
 	</Panel>

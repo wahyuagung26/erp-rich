@@ -56,7 +56,16 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Akun Perkiraan</h3>
 				<div class="space-y-4">
-					<FormField label="Sub Akun" required :error="errors.sub_account_id" :hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : undefined">
+					<FormField
+						label="Sub Akun"
+						required
+						:error="errors.sub_account_id"
+						:help="
+							isEdit
+								? 'Sub akun dikunci setelah data dibuat karena menjadi bagian dari kode akun. Untuk memakai sub akun lain, buat data baru.'
+								: undefined
+						"
+					>
 						<AsyncSelect
 							:model-value="form.sub_account_id || null"
 							endpoint="/sub-account"
@@ -73,7 +82,12 @@ defineExpose({ setServerErrors })
 							label="Kode Akun Perkiraan"
 							required
 							:error="errors.code_suffix"
-							:hint="isEdit ? 'Tidak bisa diubah setelah dibuat.' : '5 digit pertama otomatis dari kode sub akun — isi 2 digit sisanya.'"
+							:hint="isEdit ? undefined : '5 digit pertama otomatis dari kode sub akun — isi 2 digit sisanya.'"
+							:help="
+								isEdit
+									? 'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah. Untuk memakai kode lain, buat data baru.'
+									: 'Prefix 5 digit diambil dari kode sub akun yang dipilih, jadi tidak bisa diubah di sini.'
+							"
 						>
 							<Input v-if="isEdit" :model-value="initial?.code ?? ''" mono disabled />
 							<div v-else class="flex items-stretch gap-1">
@@ -91,9 +105,9 @@ defineExpose({ setServerErrors })
 				</div>
 			</section>
 
-			<div class="flex gap-2 pt-2">
-				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
+			<div class="flex flex-wrap justify-end gap-2 pt-2">
 				<Button variant="secondary" type="button" @click="router.push('/account')"> <IconX class="h-4 w-4" /> Batal </Button>
+				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
 			</div>
 		</form>
 	</Panel>

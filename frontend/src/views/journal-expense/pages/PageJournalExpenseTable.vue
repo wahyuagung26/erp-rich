@@ -7,6 +7,7 @@ import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { useHistory } from '@/composables/useHistory'
 import { useKpiTiles } from '@/composables/useKpiTiles'
 import { journalKpiDefs } from '@/views/journal/kpi'
@@ -80,21 +81,23 @@ function toggleRow(id: number, checked: boolean) {
 }
 
 async function confirmBulkApprove() {
+	if (bulkApproving.value) return
 	const ids = [...selected.value]
 	bulkApproving.value = true
 	let ok = 0
+	let reason = ''
 	for (const id of ids) {
 		try {
 			await api.patch(`/journal-expense/${id}/status`, { status: 'approved' })
 			ok++
-		} catch {
-			// Collected into the summary toast below.
+		} catch (err) {
+			reason ||= errorMessage(err)
 		}
 	}
 	bulkApproving.value = false
 	bulkOpen.value = false
 	if (ok) toast.success(`${ok} jurnal disetujui`)
-	if (ok < ids.length) toast.error(`${ids.length - ok} jurnal gagal disetujui`)
+	if (ok < ids.length) toast.error(`${ids.length - ok} jurnal gagal disetujui. ${reason}`)
 	fetchList()
 }
 

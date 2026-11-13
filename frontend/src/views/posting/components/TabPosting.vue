@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { date } from '@/utils/format'
 import FormField from '@/components/base/FormField.vue'
 import Select from '@/components/base/Select.vue'
@@ -44,6 +45,7 @@ async function load() {
 }
 
 async function run() {
+	if (posting.value) return
 	error.value = ''
 	posting.value = true
 	try {
@@ -52,7 +54,7 @@ async function run() {
 		await load()
 	} catch (err) {
 		if (axios.isAxiosError(err) && err.response?.status === 422) error.value = err.response.data?.errors?.period?.[0] ?? err.response.data?.message
-		else throw err
+		else toast.error(errorMessage(err, 'Posting periode gagal'))
 	} finally {
 		posting.value = false
 	}
@@ -72,6 +74,7 @@ onMounted(load)
 				</FormField>
 				<Button :loading="posting" :disabled="!period" @click="run">Posting Periode</Button>
 			</div>
+			<p v-if="!period" class="text-s text-ink-subtle">Pilih periode terlebih dahulu.</p>
 			<p class="text-s text-ink-subtle">
 				{{
 					lastRun

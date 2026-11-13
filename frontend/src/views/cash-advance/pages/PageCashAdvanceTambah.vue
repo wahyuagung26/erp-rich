@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import FormCashAdvance from '@/views/cash-advance/components/FormCashAdvance.vue'
@@ -15,6 +16,7 @@ const saving = ref(false)
 const formRef = ref<InstanceType<typeof FormCashAdvance>>()
 
 async function save(payload: CashAdvanceRequest) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.post('/cash-advance', payload)
@@ -23,15 +25,13 @@ async function save(payload: CashAdvanceRequest) {
 	} catch (err) {
 		if (axios.isAxiosError(err) && err.response?.status === 422) {
 			const errors = err.response.data?.errors
-			if (errors) formRef.value?.setServerErrors(errors)
-			else toast.error(err.response.data?.message ?? 'Uang muka operasional tidak dapat disimpan')
+			if (errors) {
+				formRef.value?.setServerErrors(errors)
+				toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
+			} else toast.error(errorMessage(err, 'Uang muka operasional tidak dapat disimpan'))
 			return
 		}
-		if (axios.isAxiosError(err)) {
-			toast.error(err.response?.data?.message ?? 'Uang muka operasional tidak dapat disimpan')
-			return
-		}
-		throw err
+		toast.error(errorMessage(err, 'Uang muka operasional tidak dapat disimpan'))
 	} finally {
 		saving.value = false
 	}

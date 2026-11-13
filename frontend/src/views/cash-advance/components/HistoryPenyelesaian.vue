@@ -6,6 +6,7 @@ import { IconPaperclip, IconPencil, IconPlus, IconPrinter, IconTrash } from '@ta
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { date } from '@/utils/format'
 import FormPenyelesaian from '@/views/cash-advance/components/FormPenyelesaian.vue'
 import type { SettlementRequest } from '@/views/cash-advance/schema'
@@ -88,11 +89,11 @@ async function save(payload: SettlementRequest) {
 		await load()
 		emit('changed')
 	} catch (err) {
-		if (axios.isAxiosError(err)) {
-			const serverErrors = err.response?.data?.errors
-			if (err.response?.status === 422 && serverErrors) formRef.value?.setServerErrors(serverErrors)
-			else toast.error(err.response?.data?.message ?? 'Penyelesaian tidak dapat disimpan')
-		} else throw err
+		const serverErrors = axios.isAxiosError(err) ? err.response?.data?.errors : undefined
+		if (axios.isAxiosError(err) && err.response?.status === 422 && serverErrors) {
+			formRef.value?.setServerErrors(serverErrors)
+			toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
+		} else toast.error(errorMessage(err, 'Penyelesaian tidak dapat disimpan'))
 	} finally {
 		saving.value = false
 	}
@@ -106,7 +107,7 @@ function remove(row: CashAdvanceSettlement) {
 			await load()
 			emit('changed')
 		} catch (err) {
-			if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Penyelesaian tidak dapat dihapus')
+			toast.error(errorMessage(err, 'Penyelesaian tidak dapat dihapus'))
 		}
 	})
 }
