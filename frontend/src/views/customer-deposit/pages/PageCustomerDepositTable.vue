@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconHistory, IconPencil, IconPlus } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
@@ -46,15 +45,9 @@ function openHistory(row: CustomerDeposit) {
 
 function remove(row: CustomerDeposit) {
 	ask({ title: 'Hapus titipan customer', message: `Hapus titipan customer "${row.number}"?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/customer-deposit/${row.id}`)
-			toast.success('Titipan customer dihapus')
-			fetchList()
-		} catch (err) {
-			toast.error(
-				axios.isAxiosError(err) ? (err.response?.data?.message ?? 'Titipan customer tidak dapat dihapus') : 'Titipan customer tidak dapat dihapus'
-			)
-		}
+		await api.delete(`/customer-deposit/${row.id}`)
+		toast.success('Titipan customer dihapus')
+		fetchList()
 	})
 }
 

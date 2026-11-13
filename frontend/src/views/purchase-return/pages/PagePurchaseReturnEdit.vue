@@ -5,6 +5,7 @@ import axios from 'axios'
 import { IconArrowLeft } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
@@ -35,23 +36,19 @@ onMounted(async () => {
 })
 const blocked = computed(() => !row.value || row.value.approval_status === 'approved')
 async function save(payload: PurchaseReturnRequest) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.put(`/purchase-return/${route.params.id}`, payload)
 		toast.success('Retur pembelian diperbarui')
 		router.push(`/purchase-return/${route.params.id}`)
 	} catch (error) {
-		if (axios.isAxiosError(error)) {
-			if (error.response?.status === 422) {
-				const errors = error.response.data?.errors
-				if (errors) formRef.value?.setServerErrors(errors)
-				else toast.error(error.response.data?.message ?? 'Retur pembelian tidak dapat diperbarui')
-				return
-			}
-			toast.error(error.response?.data?.message ?? 'Retur pembelian tidak dapat diperbarui')
+		if (axios.isAxiosError(error) && error.response?.status === 422 && error.response.data?.errors) {
+			formRef.value?.setServerErrors(error.response.data.errors)
+			toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
 			return
 		}
-		throw error
+		toast.error(errorMessage(error, 'Retur pembelian tidak dapat diperbarui'))
 	} finally {
 		saving.value = false
 	}

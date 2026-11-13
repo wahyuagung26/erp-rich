@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import {
 	IconArrowBackUp,
 	IconArrowLeft,
@@ -111,13 +110,9 @@ function updateApproval(action: keyof typeof ACTIONS) {
 	ask(
 		{ title: `${label} invoice penjualan`, message: `${label} invoice penjualan “${value.number}”? ${message}`, type, confirmText: label },
 		async () => {
-			try {
-				const res = await api.patch<{ data: SalesInvoice }>(`/sales-invoice/${value.id}/approval`, { status })
-				invoice.value = res.data.data
-				toast.success('Status persetujuan diperbarui')
-			} catch (error) {
-				if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Status persetujuan tidak dapat diubah')
-			}
+			const res = await api.patch<{ data: SalesInvoice }>(`/sales-invoice/${value.id}/approval`, { status })
+			invoice.value = res.data.data
+			toast.success('Status persetujuan diperbarui')
 		}
 	)
 }
@@ -140,13 +135,9 @@ function remove() {
 	const value = invoice.value
 	if (!value) return
 	ask({ title: 'Hapus invoice penjualan', message: `Hapus invoice penjualan “${value.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/sales-invoice/${value.id}`)
-			toast.success('Invoice penjualan dihapus')
-			router.push('/sales-invoice')
-		} catch (error) {
-			if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Invoice penjualan tidak dapat dihapus')
-		}
+		await api.delete(`/sales-invoice/${value.id}`)
+		toast.success('Invoice penjualan dihapus')
+		router.push('/sales-invoice')
 	})
 }
 </script>

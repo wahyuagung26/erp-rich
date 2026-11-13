@@ -96,7 +96,9 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Transaksi</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
-					<FormField label="Nomor"><Input :model-value="transactionNumber" placeholder="Auto Generated" disabled /></FormField>
+					<FormField label="Nomor" help="Nomor dibuat otomatis oleh sistem saat data disimpan."
+						><Input :model-value="transactionNumber" placeholder="Auto Generated" disabled
+					/></FormField>
 					<FormField label="Tanggal" required :error="errors.date"><DatePicker v-model="draft.date" :max="today" /></FormField>
 					<FormField label="Gudang" required :error="errors.warehouse_id" hint="Gudang asal barang yang diretur ke supplier">
 						<AsyncSelect
@@ -114,6 +116,11 @@ defineExpose({ setServerErrors })
 						required
 						:error="errors.purchase_invoice_id"
 						:hint="returnId ? undefined : 'Hanya invoice yang sudah disetujui; produk dan harga terisi otomatis'"
+						:help="
+							returnId
+								? 'Tidak bisa diganti karena produk dan harga retur mengikuti invoice ini. Hapus retur lalu buat baru bila salah pilih.'
+								: undefined
+						"
 					>
 						<AsyncSelect
 							:model-value="draft.purchase_invoice_id"

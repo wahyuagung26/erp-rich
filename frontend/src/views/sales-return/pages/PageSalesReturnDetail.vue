@@ -19,6 +19,7 @@ import {
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { useHistory } from '@/composables/useHistory'
 import { useFakturPajak } from '@/composables/useFakturPajak'
 import { date, money } from '@/utils/format'
@@ -74,7 +75,6 @@ async function load() {
 		loading.value = false
 	}
 }
-const message = (error: unknown, fallback: string) => (axios.isAxiosError(error) ? (error.response?.data?.message ?? fallback) : fallback)
 
 // Every action that moves stok / jurnal is gated on !locked; Faktur Pajak, Riwayat and Cetak stay (docs/sales-return/index.md).
 const approved = computed(() => row.value?.approval_status === 'approved')
@@ -99,15 +99,11 @@ function updateApproval(action: keyof typeof ACTIONS) {
 	const { label, type, message: text } = ACTIONS[action]
 	const status: SalesReturnApprovalStatus = action === 'approved' ? 'approved' : action === 'rejected' ? 'rejected' : 'pending'
 	ask({ title: `${label} retur penjualan`, message: `${label} retur penjualan “${value.number}”? ${text}`, type, confirmText: label }, async () => {
-		try {
-			const res = await api.patch<{ data: SalesReturn; message: string }>(`/sales-return/${value.id}/approval`, { status })
-			row.value = res.data.data
-			tab.value = res.data.data.approval_status === 'approved' ? 'penyelesaian' : 'informasi'
-			resetForm()
-			toast.success(res.data.message)
-		} catch (error) {
-			toast.error(message(error, 'Status persetujuan tidak dapat diubah'))
-		}
+		const res = await api.patch<{ data: SalesReturn; message: string }>(`/sales-return/${value.id}/approval`, { status })
+		row.value = res.data.data
+		tab.value = res.data.data.approval_status === 'approved' ? 'penyelesaian' : 'informasi'
+		resetForm()
+		toast.success(res.data.message)
 	})
 }
 
@@ -127,13 +123,9 @@ function remove() {
 	const value = row.value
 	if (!value) return
 	ask({ title: 'Hapus retur penjualan', message: `Hapus retur penjualan “${value.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/sales-return/${value.id}`)
-			toast.success('Retur penjualan dihapus')
-			router.push('/sales-return')
-		} catch (error) {
-			toast.error(message(error, 'Retur penjualan tidak dapat dihapus'))
-		}
+		await api.delete(`/sales-return/${value.id}`)
+		toast.success('Retur penjualan dihapus')
+		router.push('/sales-return')
 	})
 }
 
@@ -201,7 +193,7 @@ async function saveSettlement() {
 			formErrors.value = Object.fromEntries(
 				Object.entries(error.response.data.errors as Record<string, string[]>).map(([key, msgs]) => [key, msgs[0]])
 			)
-		} else toast.error(message(error, editing.value ? 'Penyelesaian tidak dapat diubah' : 'Penyelesaian tidak dapat dicatat'))
+		} else toast.error(errorMessage(error, editing.value ? 'Penyelesaian tidak dapat diubah' : 'Penyelesaian tidak dapat dicatat'))
 	} finally {
 		saving.value = false
 	}
@@ -221,14 +213,10 @@ function removeSettlement(item: SalesReturnSettlement) {
 			confirmText: 'Batalkan'
 		},
 		async () => {
-			try {
-				const res = await api.delete<{ data: SalesReturn; message: string }>(`/sales-return/${value.id}/settlements/${item.id}`)
-				row.value = res.data.data
-				if (editing.value?.id === item.id) resetForm()
-				toast.success(res.data.message)
-			} catch (error) {
-				toast.error(message(error, 'Penyelesaian tidak dapat dibatalkan'))
-			}
+			const res = await api.delete<{ data: SalesReturn; message: string }>(`/sales-return/${value.id}/settlements/${item.id}`)
+			row.value = res.data.data
+			if (editing.value?.id === item.id) resetForm()
+			toast.success(res.data.message)
 		}
 	)
 }

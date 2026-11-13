@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconArrowLeft, IconPencil, IconPrinter, IconTrash, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
@@ -56,13 +55,9 @@ function remove() {
 	ask(
 		{ title: 'Hapus penerimaan pembelian', message: `Hapus penerimaan pembelian “${value.number}”?`, type: 'danger', confirmText: 'Hapus' },
 		async () => {
-			try {
-				await api.delete(`/purchase-receipt/${value.id}`)
-				toast.success('Penerimaan pembelian dihapus')
-				router.push('/purchase-receipt')
-			} catch (error) {
-				if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Penerimaan pembelian tidak dapat dihapus')
-			}
+			await api.delete(`/purchase-receipt/${value.id}`)
+			toast.success('Penerimaan pembelian dihapus')
+			router.push('/purchase-receipt')
 		}
 	)
 }

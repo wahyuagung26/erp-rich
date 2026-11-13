@@ -154,7 +154,9 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Transaksi</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-2 lg:grid-cols-4">
-					<FormField label="Nomor"><Input :model-value="transactionNumber" placeholder="Auto Generated" disabled /></FormField>
+					<FormField label="Nomor" help="Nomor dibuat otomatis oleh sistem saat data disimpan."
+						><Input :model-value="transactionNumber" placeholder="Auto Generated" disabled
+					/></FormField>
 					<FormField label="Tanggal" required :error="errors.date"><DatePicker v-model="draft.date" /></FormField>
 					<FormField label="Departemen" required :error="errors.department_id"
 						><AsyncSelect
@@ -180,7 +182,12 @@ defineExpose({ setServerErrors })
 						class="md:col-span-2"
 						label="Sales Order"
 						:error="errors.sales_order_id"
-						:hint="orderFixed ? 'Sales order sumber tidak bisa diganti' : 'Opsional — pilih untuk menarik produk yang belum diinvoice'"
+						hint="Opsional — pilih untuk menarik produk yang belum diinvoice"
+						:help="
+							orderFixed
+								? 'Tidak bisa diganti karena invoice ini dibuat dari sales order tersebut. Buat invoice baru bila ingin memakai sales order lain.'
+								: undefined
+						"
 					>
 						<AsyncSelect
 							:key="`order-${version}`"
@@ -199,7 +206,7 @@ defineExpose({ setServerErrors })
 						label="Customer"
 						required
 						:error="errors.customer_id"
-						:hint="hasOrder ? 'Mengikuti customer sales order' : undefined"
+						:help="hasOrder ? 'Mengikuti customer pada sales order. Kosongkan sales order bila ingin memilih customer lain.' : undefined"
 						><AsyncSelect
 							:key="`customer-${version}`"
 							:model-value="draft.customer_id"

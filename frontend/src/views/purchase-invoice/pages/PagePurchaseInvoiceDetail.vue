@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconArrowLeft, IconCheck, IconPaperclip, IconPencil, IconPlus, IconPrinter, IconTrash, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
@@ -53,13 +52,9 @@ function approve() {
 			confirmText: 'Setujui'
 		},
 		async () => {
-			try {
-				const res = await api.patch<{ data: PurchaseInvoice }>(`/purchase-invoice/${value.id}/approval`, { status: 'approved' })
-				invoice.value = res.data.data
-				toast.success('Invoice disetujui')
-			} catch (error) {
-				if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Invoice tidak dapat disetujui')
-			}
+			const res = await api.patch<{ data: PurchaseInvoice }>(`/purchase-invoice/${value.id}/approval`, { status: 'approved' })
+			invoice.value = res.data.data
+			toast.success('Invoice disetujui')
 		}
 	)
 }
@@ -86,13 +81,9 @@ function remove() {
 	const value = invoice.value
 	if (!value) return
 	ask({ title: 'Hapus invoice pembelian', message: `Hapus invoice pembelian “${value.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/purchase-invoice/${value.id}`)
-			toast.success('Invoice pembelian dihapus')
-			router.push('/purchase-invoice')
-		} catch (error) {
-			if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Invoice pembelian tidak dapat dihapus')
-		}
+		await api.delete(`/purchase-invoice/${value.id}`)
+		toast.success('Invoice pembelian dihapus')
+		router.push('/purchase-invoice')
 	})
 }
 </script>

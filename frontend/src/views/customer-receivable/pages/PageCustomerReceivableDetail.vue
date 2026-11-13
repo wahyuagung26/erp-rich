@@ -6,6 +6,7 @@ import { IconArrowLeft, IconFileInvoice, IconLock, IconPencil, IconPrinter, Icon
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { date, money } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import ClosingBadge from '@/components/common/ClosingBadge.vue'
@@ -56,7 +57,6 @@ onMounted(async () => {
 function printDoc() {
 	if (row.value) window.open(router.resolve({ name: 'CustomerReceivablePrint', params: { id: row.value.id }, query: { auto: '1' } }).href, '_blank')
 }
-const message = (error: unknown, fallback: string) => (axios.isAxiosError(error) ? (error.response?.data?.message ?? fallback) : fallback)
 
 // Payment form. The picked payment type's `method` decides whether a bank account, a titipan or a sales expense (Biaya) is asked for.
 const today = new Date().toISOString().slice(0, 10)
@@ -153,7 +153,7 @@ async function savePayment() {
 	} catch (error) {
 		if (axios.isAxiosError(error) && error.response?.status === 422 && error.response.data?.errors) {
 			errors.value = Object.fromEntries(Object.entries(error.response.data.errors as Record<string, string[]>).map(([key, msgs]) => [key, msgs[0]]))
-		} else toast.error(message(error, editing.value ? 'Pembayaran tidak dapat diubah' : 'Pembayaran tidak dapat dicatat'))
+		} else toast.error(errorMessage(error, editing.value ? 'Pembayaran tidak dapat diubah' : 'Pembayaran tidak dapat dicatat'))
 	} finally {
 		saving.value = false
 	}
@@ -163,14 +163,10 @@ function removePayment(item: CustomerReceivablePayment) {
 	const value = row.value
 	if (!value) return
 	ask({ title: 'Batalkan pembayaran', message: `Batalkan pembayaran “${item.number}”?`, type: 'danger', confirmText: 'Batalkan' }, async () => {
-		try {
-			const res = await api.delete<{ data: CustomerReceivable; message: string }>(`/customer-receivable/${value.id}/payments/${item.id}`)
-			row.value = res.data.data
-			if (editing.value?.id === item.id) resetForm()
-			toast.success(res.data.message)
-		} catch (error) {
-			toast.error(message(error, 'Pembayaran tidak dapat dibatalkan'))
-		}
+		const res = await api.delete<{ data: CustomerReceivable; message: string }>(`/customer-receivable/${value.id}/payments/${item.id}`)
+		row.value = res.data.data
+		if (editing.value?.id === item.id) resetForm()
+		toast.success(res.data.message)
 	})
 }
 </script>
@@ -262,7 +258,12 @@ function removePayment(item: CustomerReceivablePayment) {
 								<FormField label="Tanggal" required :error="errors.date">
 									<DatePicker v-model="payment.date" :min="row.date" :max="today" />
 								</FormField>
-								<FormField label="Tipe Pembayaran" required :error="errors.payment_type_id">
+								<FormField
+									label="Tipe Pembayaran"
+									required
+									:error="errors.payment_type_id"
+									:help="editing ? 'Tidak bisa diubah saat mengedit pembayaran. Batalkan pembayaran lalu catat ulang bila perlu.' : undefined"
+								>
 									<AsyncSelect
 										:key="`type-${editing?.id ?? 'new'}`"
 										:disabled="Boolean(editing)"
@@ -299,6 +300,7 @@ function removePayment(item: CustomerReceivablePayment) {
 									required
 									:error="errors.deposit_id"
 									hint="Titipan dari customer ini yang masih punya sisa"
+									:help="editing ? 'Tidak bisa diubah saat mengedit pembayaran. Batalkan pembayaran lalu catat ulang bila perlu.' : undefined"
 								>
 									<AsyncSelect
 										:key="`deposit-${editing?.id ?? 'new'}`"
@@ -330,7 +332,12 @@ function removePayment(item: CustomerReceivablePayment) {
 										@update:model-value="(value) => (payment.sales_expense_id = value ? Number(value) : null)"
 									/>
 								</FormField>
-								<FormField v-else label="Referensi" hint="Terisi setelah tipe pembayaran dipilih">
+								<FormField
+									v-else
+									label="Referensi"
+									hint="Terisi setelah tipe pembayaran dipilih"
+									help="Aktif setelah tipe pembayaran dipilih, sesuai tipe yang dipilih."
+								>
 									<Input disabled placeholder="–" />
 								</FormField>
 								<FormField label="Nominal" required :error="errors.amount" :hint="`Maksimal Rp ${money(maxAmount)}`">

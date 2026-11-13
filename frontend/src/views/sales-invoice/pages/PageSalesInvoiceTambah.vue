@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import FormSalesInvoice from '@/views/sales-invoice/components/FormSalesInvoice.vue'
 import type { SalesInvoiceRequest } from '@/utils/types'
@@ -17,19 +18,19 @@ const formRef = ref<InstanceType<typeof FormSalesInvoice>>()
 const salesOrderId = Number(route.query.sales_order_id) || null
 
 async function save(payload: SalesInvoiceRequest) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		const res = await api.post<{ data: { id: number } }>('/sales-invoice', payload)
 		toast.success('Invoice penjualan ditambahkan')
 		router.push(`/sales-invoice/${res.data.data.id}`)
 	} catch (error) {
-		if (axios.isAxiosError(error) && error.response?.status === 422) {
-			const errors = error.response.data?.errors
-			if (errors) formRef.value?.setServerErrors(errors)
-			else toast.error(error.response.data?.message ?? 'Invoice penjualan tidak dapat disimpan')
+		if (axios.isAxiosError(error) && error.response?.status === 422 && error.response.data?.errors) {
+			formRef.value?.setServerErrors(error.response.data.errors)
+			toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
 			return
 		}
-		throw error
+		toast.error(errorMessage(error, 'Invoice penjualan tidak dapat disimpan'))
 	} finally {
 		saving.value = false
 	}

@@ -93,7 +93,9 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Surat Jalan</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
-					<FormField label="Nomor"><Input :model-value="transactionNumber" placeholder="Auto Generated" disabled /></FormField>
+					<FormField label="Nomor" help="Nomor dibuat otomatis oleh sistem saat data disimpan."
+						><Input :model-value="transactionNumber" placeholder="Auto Generated" disabled
+					/></FormField>
 					<FormField label="Tanggal" required :error="errors.date" hint="Tanggal barang dikirim"
 						><DatePicker v-model="draft.date" :max="today"
 					/></FormField>
@@ -102,6 +104,11 @@ defineExpose({ setServerErrors })
 						required
 						:error="errors.sales_invoice_id"
 						:hint="invoiceLocked ? undefined : 'Hanya invoice yang sudah disetujui dan belum punya surat jalan; satu invoice satu surat jalan'"
+						:help="
+							invoiceLocked
+								? 'Tidak bisa diganti karena surat jalan sudah dibuat untuk invoice ini. Hapus surat jalan lalu buat baru bila salah pilih.'
+								: undefined
+						"
 						><AsyncSelect
 							:model-value="draft.sales_invoice_id"
 							endpoint="/delivery-note/deliverable-invoices"

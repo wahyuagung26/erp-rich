@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import FormPurchaseOrder from '@/views/purchase-order/components/FormPurchaseOrder.vue'
 import type { PurchaseOrderRequest } from '@/utils/types'
@@ -13,17 +14,19 @@ const toast = useToast()
 const saving = ref(false)
 const formRef = ref<InstanceType<typeof FormPurchaseOrder>>()
 async function save(payload: PurchaseOrderRequest) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.post('/purchase-order', payload)
 		toast.success('Order pembelian ditambahkan')
 		router.push('/purchase-order')
 	} catch (error) {
-		if (axios.isAxiosError(error) && error.response?.status === 422) {
-			formRef.value?.setServerErrors(error.response.data?.errors ?? {})
+		if (axios.isAxiosError(error) && error.response?.status === 422 && error.response.data?.errors) {
+			formRef.value?.setServerErrors(error.response.data.errors)
+			toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
 			return
 		}
-		throw error
+		toast.error(errorMessage(error, 'Order pembelian tidak dapat disimpan'))
 	} finally {
 		saving.value = false
 	}

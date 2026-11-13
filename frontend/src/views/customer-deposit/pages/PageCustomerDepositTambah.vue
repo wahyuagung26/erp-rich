@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import FormCustomerDeposit from '@/views/customer-deposit/components/FormCustomerDeposit.vue'
 import type { CustomerDepositRequest } from '@/views/customer-deposit/schema'
@@ -14,23 +15,19 @@ const saving = ref(false)
 const formRef = ref<InstanceType<typeof FormCustomerDeposit>>()
 
 async function save(payload: CustomerDepositRequest) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.post('/customer-deposit', payload)
 		toast.success('Titipan customer ditambahkan')
 		router.push('/customer-deposit')
 	} catch (err) {
-		if (axios.isAxiosError(err) && err.response?.status === 422) {
-			const errors = err.response.data?.errors
-			if (errors) formRef.value?.setServerErrors(errors)
-			else toast.error(err.response.data?.message ?? 'Titipan customer tidak dapat disimpan')
+		if (axios.isAxiosError(err) && err.response?.status === 422 && err.response.data?.errors) {
+			formRef.value?.setServerErrors(err.response.data.errors)
+			toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
 			return
 		}
-		if (axios.isAxiosError(err)) {
-			toast.error(err.response?.data?.message ?? 'Titipan customer tidak dapat disimpan')
-			return
-		}
-		throw err
+		toast.error(errorMessage(err, 'Titipan customer tidak dapat disimpan'))
 	} finally {
 		saving.value = false
 	}

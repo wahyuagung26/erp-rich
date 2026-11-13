@@ -1,6 +1,6 @@
-import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import type { SalesInvoiceDeliverableLines } from '@/utils/types'
 import type { DeliveryNoteDraft } from '../schema'
 
@@ -21,7 +21,7 @@ export function useDeliveryNoteInvoice() {
 			return sales_invoice
 		} catch (error) {
 			draft.sales_invoice_id = null
-			toast.error(axios.isAxiosError(error) ? (error.response?.data?.message ?? 'Invoice tidak dapat dimuat') : 'Invoice tidak dapat dimuat')
+			toast.error(errorMessage(error, 'Invoice tidak dapat dimuat'))
 			return null
 		}
 	}

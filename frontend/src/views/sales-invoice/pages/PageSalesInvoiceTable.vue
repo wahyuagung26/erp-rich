@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconPlus, IconHistory, IconCircleX, IconClockHour4, IconFileAlert, IconCash } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
@@ -112,14 +111,9 @@ const canWrite = (row: SalesInvoice) => row.approval_status !== 'approved' && !r
 const isOverdue = (row: SalesInvoice) => row.approval_status === 'approved' && row.outstanding > 0 && row.due_date < today
 function remove(row: SalesInvoice) {
 	ask({ title: 'Hapus invoice penjualan', message: `Hapus invoice penjualan “${row.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/sales-invoice/${row.id}`)
-			toast.success('Invoice penjualan dihapus')
-			fetchList()
-		} catch (error) {
-			if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Invoice penjualan tidak dapat dihapus')
-			else toast.error('Invoice penjualan tidak dapat dihapus')
-		}
+		await api.delete(`/sales-invoice/${row.id}`)
+		toast.success('Invoice penjualan dihapus')
+		fetchList()
 	})
 }
 

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import FormSalesReturn from '@/views/sales-return/components/FormSalesReturn.vue'
 import type { SalesReturnRequest } from '@/utils/types'
@@ -13,23 +14,19 @@ const toast = useToast()
 const saving = ref(false)
 const formRef = ref<InstanceType<typeof FormSalesReturn>>()
 async function save(payload: SalesReturnRequest) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.post('/sales-return', payload)
 		toast.success('Retur penjualan ditambahkan')
 		router.push('/sales-return')
 	} catch (error) {
-		if (axios.isAxiosError(error)) {
-			if (error.response?.status === 422) {
-				const errors = error.response.data?.errors
-				if (errors) formRef.value?.setServerErrors(errors)
-				else toast.error(error.response.data?.message ?? 'Retur penjualan tidak dapat disimpan')
-				return
-			}
-			toast.error(error.response?.data?.message ?? 'Retur penjualan tidak dapat disimpan')
+		if (axios.isAxiosError(error) && error.response?.status === 422 && error.response.data?.errors) {
+			formRef.value?.setServerErrors(error.response.data.errors)
+			toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
 			return
 		}
-		throw error
+		toast.error(errorMessage(error, 'Retur penjualan tidak dapat disimpan'))
 	} finally {
 		saving.value = false
 	}

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconPlus, IconHistory, IconCircleX, IconClockHour4, IconFileInvoice, IconFileDescription } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
@@ -102,14 +101,9 @@ function openHistory(row: SalesOrder) {
 const canWrite = (row: SalesOrder) => row.approval_status !== 'approved' && row.invoice_status === 'not_invoiced'
 function remove(row: SalesOrder) {
 	ask({ title: 'Hapus sales order', message: `Hapus sales order “${row.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/sales-order/${row.id}`)
-			toast.success('Sales order dihapus')
-			fetchList()
-		} catch (error) {
-			if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Sales order tidak dapat dihapus')
-			else toast.error('Sales order tidak dapat dihapus')
-		}
+		await api.delete(`/sales-order/${row.id}`)
+		toast.success('Sales order dihapus')
+		fetchList()
 	})
 }
 

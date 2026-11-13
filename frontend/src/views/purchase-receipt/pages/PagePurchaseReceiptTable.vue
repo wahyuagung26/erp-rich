@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconPlus, IconHistory, IconCircleCheck, IconFileInvoice } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import Badge from '@/components/base/Badge.vue'
@@ -79,14 +78,9 @@ function remove(row: PurchaseReceipt) {
 	ask(
 		{ title: 'Hapus penerimaan pembelian', message: `Hapus penerimaan pembelian “${row.number}”?`, type: 'danger', confirmText: 'Hapus' },
 		async () => {
-			try {
-				await api.delete(`/purchase-receipt/${row.id}`)
-				toast.success('Penerimaan pembelian dihapus')
-				fetchList()
-			} catch (error) {
-				if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Penerimaan pembelian tidak dapat dihapus')
-				else toast.error('Penerimaan pembelian tidak dapat dihapus')
-			}
+			await api.delete(`/purchase-receipt/${row.id}`)
+			toast.success('Penerimaan pembelian dihapus')
+			fetchList()
 		}
 	)
 }

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconPlus, IconHistory, IconCircleCheck, IconClockHour4, IconFileAlert } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
@@ -94,14 +93,9 @@ function canWrite(row: PurchaseInvoice) {
 }
 function remove(row: PurchaseInvoice) {
 	ask({ title: 'Hapus invoice pembelian', message: `Hapus invoice pembelian “${row.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/purchase-invoice/${row.id}`)
-			toast.success('Invoice pembelian dihapus')
-			fetchList()
-		} catch (error) {
-			if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Invoice pembelian tidak dapat dihapus')
-			else toast.error('Invoice pembelian tidak dapat dihapus')
-		}
+		await api.delete(`/purchase-invoice/${row.id}`)
+		toast.success('Invoice pembelian dihapus')
+		fetchList()
 	})
 }
 

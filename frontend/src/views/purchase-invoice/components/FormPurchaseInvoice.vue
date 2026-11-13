@@ -84,7 +84,9 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Transaksi</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
-					<FormField label="Nomor"><Input :model-value="transactionNumber" placeholder="Auto Generated" disabled /></FormField>
+					<FormField label="Nomor" help="Nomor dibuat otomatis oleh sistem saat data disimpan."
+						><Input :model-value="transactionNumber" placeholder="Auto Generated" disabled
+					/></FormField>
 					<FormField label="Tanggal" required :error="errors.date"><DatePicker v-model="draft.date" :max="today" /></FormField>
 					<FormField
 						label="Nomor Invoice Supplier"
@@ -100,6 +102,11 @@ defineExpose({ setServerErrors })
 						required
 						:error="errors.purchase_receipt_id"
 						:hint="receiptLocked ? undefined : 'Hanya penerimaan yang belum dibuat invoice; produk dan harga terisi otomatis'"
+						:help="
+							receiptLocked
+								? 'Tidak bisa diganti karena produk dan harga invoice mengikuti penerimaan ini. Hapus invoice lalu buat baru bila salah pilih.'
+								: undefined
+						"
 					>
 						<AsyncSelect
 							:model-value="draft.purchase_receipt_id"

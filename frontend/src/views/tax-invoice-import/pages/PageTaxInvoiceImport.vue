@@ -17,6 +17,7 @@ import {
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
@@ -64,8 +65,6 @@ watch(file, () => {
 	visible.value = PAGE_SIZE
 })
 
-const message = (error: unknown, fallback: string) => (axios.isAxiosError(error) ? (error.response?.data?.message ?? fallback) : fallback)
-
 async function upload() {
 	const error = validateImportFile(file.value)
 	fileError.value = error ?? ''
@@ -82,7 +81,7 @@ async function upload() {
 		preview.value = res.data.data
 	} catch (e) {
 		if (axios.isAxiosError(e) && e.response?.status === 422 && e.response.data?.errors?.file) fileError.value = e.response.data.errors.file[0]
-		else toast.error(message(e, 'File tidak dapat diproses'))
+		else toast.error(errorMessage(e, 'File tidak dapat diproses'))
 	} finally {
 		uploading.value = false
 	}
@@ -107,8 +106,6 @@ function submit() {
 				toast.success(res.data.message)
 				reset()
 				result.value = res.data.data
-			} catch (error) {
-				toast.error(message(error, 'Faktur pajak tidak dapat diimpor'))
 			} finally {
 				importing.value = false
 			}

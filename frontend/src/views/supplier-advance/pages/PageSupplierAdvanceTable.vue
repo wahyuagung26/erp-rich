@@ -45,13 +45,9 @@ function openHistory(row: SupplierAdvance) {
 
 function remove(row: SupplierAdvance) {
 	ask({ title: 'Hapus uang muka supplier', message: `Hapus uang muka supplier "${row.number}"?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/supplier-advance/${row.id}`)
-			toast.success('Uang muka supplier dihapus')
-			fetchList()
-		} catch (err) {
-			toast.error('Uang muka yang sudah dipakai di Hutang Supplier tidak boleh dihapus')
-		}
+		await api.delete(`/supplier-advance/${row.id}`)
+		toast.success('Uang muka supplier dihapus')
+		fetchList()
 	})
 }
 

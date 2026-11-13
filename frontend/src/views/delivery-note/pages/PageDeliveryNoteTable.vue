@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconPlus, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
@@ -54,15 +53,9 @@ function remove(row: DeliveryNote) {
 			confirmText: 'Hapus'
 		},
 		async () => {
-			try {
-				await api.delete(`/delivery-note/${row.id}`)
-				toast.success('Surat jalan dihapus')
-				fetchList()
-			} catch (error) {
-				toast.error(
-					axios.isAxiosError(error) ? (error.response?.data?.message ?? 'Surat jalan tidak dapat dihapus') : 'Surat jalan tidak dapat dihapus'
-				)
-			}
+			await api.delete(`/delivery-note/${row.id}`)
+			toast.success('Surat jalan dihapus')
+			fetchList()
 		}
 	)
 }

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconArrowLeft, IconPencil, IconPrinter, IconTrash, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
@@ -56,13 +55,9 @@ function remove() {
 			confirmText: 'Hapus'
 		},
 		async () => {
-			try {
-				await api.delete(`/delivery-note/${value.id}`)
-				toast.success('Surat jalan dihapus')
-				router.push('/delivery-note')
-			} catch (error) {
-				if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Surat jalan tidak dapat dihapus')
-			}
+			await api.delete(`/delivery-note/${value.id}`)
+			toast.success('Surat jalan dihapus')
+			router.push('/delivery-note')
 		}
 	)
 }

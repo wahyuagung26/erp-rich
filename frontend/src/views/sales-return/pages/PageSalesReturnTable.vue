@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconPlus, IconHistory, IconCircleCheck, IconCircleX, IconClockHour4, IconCoin } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
@@ -98,15 +97,9 @@ function openHistory(row: SalesReturn) {
 const canWrite = (row: SalesReturn) => row.approval_status !== 'approved' && !row.locked
 function remove(row: SalesReturn) {
 	ask({ title: 'Hapus retur penjualan', message: `Hapus retur penjualan “${row.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/sales-return/${row.id}`)
-			toast.success('Retur penjualan dihapus')
-			fetchList()
-		} catch (error) {
-			toast.error(
-				axios.isAxiosError(error) ? (error.response?.data?.message ?? 'Retur penjualan tidak dapat dihapus') : 'Retur penjualan tidak dapat dihapus'
-			)
-		}
+		await api.delete(`/sales-return/${row.id}`)
+		toast.success('Retur penjualan dihapus')
+		fetchList()
 	})
 }
 

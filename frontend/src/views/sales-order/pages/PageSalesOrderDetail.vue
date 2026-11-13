@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconArrowLeft, IconCheck, IconFileInvoice, IconPencil, IconPrinter, IconRefresh, IconTrash, IconX, IconHistory } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
@@ -68,13 +67,9 @@ function updateApproval(status: SalesOrderApprovalStatus) {
 			confirmText: label
 		},
 		async () => {
-			try {
-				const res = await api.patch<{ data: SalesOrder }>(`/sales-order/${value.id}/approval`, { status })
-				order.value = res.data.data
-				toast.success('Status persetujuan diperbarui')
-			} catch (error) {
-				if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Status persetujuan tidak dapat diubah')
-			}
+			const res = await api.patch<{ data: SalesOrder }>(`/sales-order/${value.id}/approval`, { status })
+			order.value = res.data.data
+			toast.success('Status persetujuan diperbarui')
 		}
 	)
 }
@@ -91,13 +86,9 @@ function remove() {
 	const value = order.value
 	if (!value) return
 	ask({ title: 'Hapus sales order', message: `Hapus sales order “${value.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/sales-order/${value.id}`)
-			toast.success('Sales order dihapus')
-			router.push('/sales-order')
-		} catch (error) {
-			if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Sales order tidak dapat dihapus')
-		}
+		await api.delete(`/sales-order/${value.id}`)
+		toast.success('Sales order dihapus')
+		router.push('/sales-order')
 	})
 }
 </script>

@@ -5,6 +5,7 @@ import axios from 'axios'
 import { IconArrowLeft } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
@@ -36,17 +37,19 @@ async function load() {
 }
 const blocked = computed(() => !order.value || order.value.approval_status === 'approved' || order.value.invoice_status !== 'not_invoiced')
 async function save(payload: SalesOrderRequest) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.put(`/sales-order/${route.params.id}`, payload)
 		toast.success('Sales order diperbarui')
 		router.push(`/sales-order/${route.params.id}`)
 	} catch (error) {
-		if (axios.isAxiosError(error) && error.response?.status === 422) {
-			formRef.value?.setServerErrors(error.response.data?.errors ?? {})
+		if (axios.isAxiosError(error) && error.response?.status === 422 && error.response.data?.errors) {
+			formRef.value?.setServerErrors(error.response.data.errors)
+			toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
 			return
 		}
-		throw error
+		toast.error(errorMessage(error, 'Sales order tidak dapat diperbarui'))
 	} finally {
 		saving.value = false
 	}
@@ -57,7 +60,7 @@ async function save(payload: SalesOrderRequest) {
 	<div class="space-y-4 p-4">
 		<PageHeader title="Edit Sales Order" subtitle="Penjualan"
 			><template #actions
-				><div class="flex items-center gap-2">
+				><div class="flex flex-wrap items-center gap-2">
 					<ApprovalBadge v-if="order" :status="order.approval_status" /><Button
 						size="sm"
 						variant="subtle"

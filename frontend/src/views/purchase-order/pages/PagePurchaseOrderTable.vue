@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconPlus, IconHistory, IconCircleX, IconClockHour4, IconPackage, IconTruckDelivery } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useTableList } from '@/composables/useTableList'
@@ -105,14 +104,9 @@ function canWrite(row: PurchaseOrder) {
 }
 function remove(row: PurchaseOrder) {
 	ask({ title: 'Hapus order pembelian', message: `Hapus order pembelian “${row.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/purchase-order/${row.id}`)
-			toast.success('Order pembelian dihapus')
-			fetchList()
-		} catch (error) {
-			if (axios.isAxiosError(error)) toast.error(error.response?.data?.message ?? 'Order pembelian tidak dapat dihapus')
-			else toast.error('Order pembelian tidak dapat dihapus')
-		}
+		await api.delete(`/purchase-order/${row.id}`)
+		toast.success('Order pembelian dihapus')
+		fetchList()
 	})
 }
 

@@ -17,6 +17,7 @@ import {
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import { useHistory } from '@/composables/useHistory'
 import { useFakturPajak } from '@/composables/useFakturPajak'
 import { date, money } from '@/utils/format'
@@ -70,7 +71,6 @@ async function load() {
 		loading.value = false
 	}
 }
-const message = (error: unknown, fallback: string) => (axios.isAxiosError(error) ? (error.response?.data?.message ?? fallback) : fallback)
 const canWrite = computed(() => row.value?.approval_status === 'pending' && !row.value.locked)
 const canUnapprove = computed(() => row.value?.approval_status === 'approved' && !row.value.settlements.length)
 const canSettle = computed(() => row.value?.approval_status === 'approved' && row.value.remaining_total > 0)
@@ -90,14 +90,10 @@ function setApproval(status: 'approved' | 'pending') {
 			confirmText: approve ? 'Setujui' : 'Batalkan Persetujuan'
 		},
 		async () => {
-			try {
-				const res = await api.patch<{ data: PurchaseReturn; message: string }>(`/purchase-return/${value.id}/approval`, { status })
-				row.value = res.data.data
-				tab.value = res.data.data.approval_status === 'approved' ? 'penyelesaian' : 'informasi'
-				toast.success(res.data.message)
-			} catch (error) {
-				toast.error(message(error, 'Persetujuan tidak dapat diubah'))
-			}
+			const res = await api.patch<{ data: PurchaseReturn; message: string }>(`/purchase-return/${value.id}/approval`, { status })
+			row.value = res.data.data
+			tab.value = res.data.data.approval_status === 'approved' ? 'penyelesaian' : 'informasi'
+			toast.success(res.data.message)
 		}
 	)
 }
@@ -118,13 +114,9 @@ function remove() {
 	const value = row.value
 	if (!value) return
 	ask({ title: 'Hapus retur pembelian', message: `Hapus retur pembelian “${value.number}”?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/purchase-return/${value.id}`)
-			toast.success('Retur pembelian dihapus')
-			router.push('/purchase-return')
-		} catch (error) {
-			toast.error(message(error, 'Retur pembelian tidak dapat dihapus'))
-		}
+		await api.delete(`/purchase-return/${value.id}`)
+		toast.success('Retur pembelian dihapus')
+		router.push('/purchase-return')
 	})
 }
 
@@ -176,7 +168,7 @@ async function saveRefund() {
 			refundErrors.value = Object.fromEntries(
 				Object.entries(error.response.data.errors as Record<string, string[]>).map(([key, msgs]) => [key, msgs[0]])
 			)
-		} else toast.error(message(error, editing.value ? 'Pengembalian dana tidak dapat diubah' : 'Pengembalian dana tidak dapat dicatat'))
+		} else toast.error(errorMessage(error, editing.value ? 'Pengembalian dana tidak dapat diubah' : 'Pengembalian dana tidak dapat dicatat'))
 	} finally {
 		saving.value = false
 	}
@@ -188,14 +180,10 @@ function removeRefund(settlementId: number) {
 	ask(
 		{ title: 'Batalkan pengembalian dana', message: 'Batalkan pencatatan pengembalian dana ini?', type: 'danger', confirmText: 'Batalkan' },
 		async () => {
-			try {
-				const res = await api.delete<{ data: PurchaseReturn; message: string }>(`/purchase-return/${value.id}/settlements/${settlementId}`)
-				row.value = res.data.data
-				if (editing.value?.id === settlementId) resetForm()
-				toast.success(res.data.message)
-			} catch (error) {
-				toast.error(message(error, 'Pengembalian dana tidak dapat dibatalkan'))
-			}
+			const res = await api.delete<{ data: PurchaseReturn; message: string }>(`/purchase-return/${value.id}/settlements/${settlementId}`)
+			row.value = res.data.data
+			if (editing.value?.id === settlementId) resetForm()
+			toast.success(res.data.message)
 		}
 	)
 }

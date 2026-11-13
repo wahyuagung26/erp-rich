@@ -87,7 +87,9 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Transaksi</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-2 lg:grid-cols-4">
-					<FormField label="Nomor"><Input :model-value="transactionNumber" placeholder="Auto Generated" disabled /></FormField>
+					<FormField label="Nomor" help="Nomor dibuat otomatis oleh sistem saat data disimpan."
+						><Input :model-value="transactionNumber" placeholder="Auto Generated" disabled
+					/></FormField>
 					<FormField label="Tanggal" required :error="errors.date"><DatePicker v-model="draft.date" /></FormField>
 					<FormField label="Departemen" required :error="errors.department_id"
 						><AsyncSelect

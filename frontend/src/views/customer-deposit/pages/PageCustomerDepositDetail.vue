@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import { IconArrowLeft, IconHistory, IconPaperclip, IconPencil, IconPrinter, IconTrash } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useConfirm } from '@/composables/useConfirm'
@@ -58,13 +57,9 @@ function remove() {
 	const value = deposit.value
 	if (!value) return
 	ask({ title: 'Hapus titipan customer', message: `Hapus titipan customer "${value.number}"?`, type: 'danger', confirmText: 'Hapus' }, async () => {
-		try {
-			await api.delete(`/customer-deposit/${value.id}`)
-			toast.success('Titipan customer dihapus')
-			router.push('/customer-deposit')
-		} catch (err) {
-			if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Titipan customer tidak dapat dihapus')
-		}
+		await api.delete(`/customer-deposit/${value.id}`)
+		toast.success('Titipan customer dihapus')
+		router.push('/customer-deposit')
 	})
 }
 </script>

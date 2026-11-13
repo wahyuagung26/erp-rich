@@ -145,7 +145,7 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Transaksi</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
-					<FormField label="Nomor">
+					<FormField label="Nomor" help="Nomor dibuat otomatis oleh sistem saat data disimpan.">
 						<Input :model-value="form.number" placeholder="Auto Generated" disabled />
 					</FormField>
 					<FormField label="Tanggal" required :error="errors.date">
@@ -166,7 +166,12 @@ defineExpose({ setServerErrors })
 						label="Customer"
 						required
 						:error="errors.customer_id"
-						:hint="hasUsage ? 'Tidak bisa diganti karena titipan sudah dipakai di Invoice Penjualan' : 'Customer yang menitipkan dana'"
+						hint="Customer yang menitipkan dana"
+						:help="
+							hasUsage
+								? 'Tidak bisa diganti karena titipan sudah dipakai di Invoice Penjualan. Batalkan pemakaiannya di invoice terlebih dahulu.'
+								: undefined
+						"
 					>
 						<AsyncSelect
 							:model-value="form.customer_id"

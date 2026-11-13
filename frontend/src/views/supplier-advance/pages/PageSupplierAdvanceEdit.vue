@@ -5,6 +5,7 @@ import axios from 'axios'
 import api from '@/utils/api'
 import { IconArrowLeft } from '@tabler/icons-vue'
 import { useToast } from '@/composables/useToast'
+import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Skeleton from '@/components/base/Skeleton.vue'
@@ -63,20 +64,19 @@ const toForm = (value: SupplierAdvance): SupplierAdvanceDraft => ({
 const locked = computed(() => (advance.value?.used ?? 0) > 0)
 
 async function save(payload: SupplierAdvanceRequest) {
+	if (saving.value) return
 	saving.value = true
 	try {
 		await api.put(`/supplier-advance/${route.params.id}`, payload)
 		toast.success('Uang muka supplier diperbarui')
 		router.push(`/supplier-advance/${route.params.id}`)
 	} catch (err) {
-		if (axios.isAxiosError(err) && err.response?.status === 422) {
-			const errors = err.response.data?.errors
-			if (errors) formRef.value?.setServerErrors(errors)
-			else toast.error(err.response.data?.message ?? 'Uang muka supplier tidak dapat diperbarui')
+		if (axios.isAxiosError(err) && err.response?.status === 422 && err.response.data?.errors) {
+			formRef.value?.setServerErrors(err.response.data.errors)
+			toast.error('Data belum tersimpan. Periksa isian yang ditandai merah.')
 			return
 		}
-		if (axios.isAxiosError(err)) toast.error(err.response?.data?.message ?? 'Uang muka supplier tidak dapat diperbarui')
-		else throw err
+		toast.error(errorMessage(err, 'Uang muka supplier tidak dapat diperbarui'))
 	} finally {
 		saving.value = false
 	}
