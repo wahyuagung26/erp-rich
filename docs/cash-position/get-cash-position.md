@@ -7,7 +7,7 @@ path: /cash-position
 status: mock
 tags: [report, cash, bank, read]
 resource: /frontend/src/mocks/modules/cash-position.ts
-timestamp: 2026-11-05T12:00:00Z
+timestamp: 2026-11-13T13:00:00Z
 ---
 
 # Get Cash Position
@@ -58,6 +58,8 @@ active company has not resolved yet (no `X-Company-Id`).
 
 - `rows` includes every `cash_bank` account even at zero.
 - Only `approved` journals contribute; `submitted` / `rejected` are ignored.
-- `cash_flow_closing` — cumulative Σ(debit − credit) of approved cash/bank movements dated ≤ `date_to` that carry an Arus Kas code (`cash_flow`). Movements without one (e.g. Jurnal Umum lines left untagged) count in `closing` but not here.
-- `difference` = `total.closing − cash_flow_closing`; non-zero means some cash movements are missing an Arus Kas code.
+- `cash_flow_closing` — cumulative Arus Kas amount of approved cash/bank movements dated ≤ `date_to`. The amount follows the tag's
+  position: `IN` → +|movement|, `OUT` → −|movement|, `INOUT` → the signed movement; untagged movements count 0.
+- `difference` = `total.closing − cash_flow_closing`. Non-zero means a document is missing a tag, has a reversed tag, or is not posted
+  yet — itemised by [get-cash-position-difference](./get-cash-position-difference.md).
 - The report is recomputed on every request — there is no snapshot table.

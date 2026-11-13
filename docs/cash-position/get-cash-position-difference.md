@@ -7,7 +7,7 @@ path: /cash-position/difference
 status: mock
 tags: [report, cash, bank, read]
 resource: /frontend/src/mocks/modules/cash-position.ts
-timestamp: 2026-11-13T11:00:00Z
+timestamp: 2026-11-13T13:00:00Z
 ---
 
 # Get Cash Position Difference
@@ -51,7 +51,8 @@ for how `difference` is defined.
 }
 ```
 
-`source` is `journal` | `journal-income` | `journal-expense`; the UI links a row to `/<source>/:id`.
+`source` is `journal` | `journal-income` | `journal-expense` | `cash-advance` | `supplier-advance` | `customer-deposit`;
+the UI links a row to `/<source>/:id`.
 
 ## Notes
 
@@ -62,6 +63,14 @@ for how `difference` is defined.
 - `group` is a `groups[].key` or `null`. Rows of a group render under a collapsible header (`label`, row count, Σ`selisih`, `action`);
   `null` rows are standalone. Order: `null` rows first, then groups; inside, by `date` ascending then `number`.
 - `cause` is plain-language Bahasa Indonesia, shown in the "Penyebab" column.
-- Only cause `untagged_journal` is produced for now (cash line without an Arus Kas code). Other causes (reversed tag direction,
-  not yet posted) have no mock data and are added as new `group`/`cause` values when the backend models them.
+- Causes (`cause` text; first match wins per document):
+
+  | Cause | When | `group` |
+  |---|---|---|
+  | Belum diposting | approved cash-advance / supplier-advance / customer-deposit whose period is not posted yet (no Posting run, not closed): `saldo_kas = 0`, `arus_kas ≠ 0` | `null` |
+  | Jurnal posting tidak mengubah saldo | posted, but the counter account is also cash/bank (cash-advance): `saldo_kas = 0` | `null` |
+  | Arah tag terbalik | the Arus Kas tag position (`IN`/`OUT`) contradicts the real movement direction | `null` |
+  | Akun kas tanpa tag arus kas | a journal cash line without an Arus Kas code: `arus_kas = 0` | `untagged_journal` |
+  | Dokumen belum diberi tag | same, for a non-journal document | `null` |
+
 - Empty `rows`/`groups` and zero `total` when the company has not resolved yet (no `X-Company-Id`) or nothing differs.

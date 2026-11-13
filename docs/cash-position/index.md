@@ -3,7 +3,7 @@ type: OKF Module
 title: Cash Position
 description: Daily cash & bank position report — per cash/bank account, yesterday's balance plus the day's movements, computed live from approved journals. Company-scoped, read-only.
 tags: [report, cash, bank, accounting]
-timestamp: 2026-11-13T09:00:00Z
+timestamp: 2026-11-13T13:00:00Z
 ---
 
 # Cash Position
@@ -30,6 +30,10 @@ per account:
   `credit = cash_out`.
 - [journal-income](../journal-income/index.md) — the header `cash_account_id`:
   `debit = cash_in`.
+- [cash-advance](../cash-advance/index.md) (`credit = amount`), [supplier-advance](../supplier-advance/index.md) (`credit = amount`),
+  [customer-deposit](../customer-deposit/index.md) (`debit = amount`) — their `cash_account_id`. Unlike journals, these move the balance
+  **only once their period is posted** (a [Posting](../posting/index.md) run exists or the period is closed), and a cash-advance whose
+  `advance_account_id` is also a cash/bank account never moves it.
 
 ## Entity: `CashPosition`
 

@@ -154,6 +154,12 @@ export function isPeriodClosed(companyId: number | null, date: string): boolean 
 	return closedUntil !== null && date.slice(0, 7) <= closedUntil
 }
 
+// True once the period's posting has run (or it is closed) — documents of an unposted period do not move cash/bank balances yet.
+export function isPeriodPosted(companyId: number | null, period: string): boolean {
+	const st = stateOf(companyId)
+	return (st.closed_until !== null && period <= st.closed_until) || st.runs.some((r) => r.period === period)
+}
+
 // A write handler's 422 when `date` is in a closed period (null otherwise): `const closed = closedReply(config, row.date, 'jurnal tidak bisa diedit'); if (closed) return closed`.
 export function closedReply(config: { headers?: Record<string, unknown> }, date: string, rest: string): [number, { message: string }] | null {
 	return isPeriodClosed(companyIdOf(config), date) ? [422, { message: `Periode ${monthLabel(date.slice(0, 7))} sudah closing, ${rest}` }] : null

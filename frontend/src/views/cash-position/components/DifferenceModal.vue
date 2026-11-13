@@ -109,7 +109,7 @@ const rowKey = (r: CashPositionDifferenceRow) => `${r.source}-${r.id}`
 				</template>
 			</template>
 			<div class="flex items-center justify-between pt-3 font-semibold">
-				<span class="text-ink">Total Selisih</span>
+				<span class="text-ink">Total Rincian</span>
 				<Amount :value="data.total.selisih" />
 			</div>
 		</div>
@@ -124,7 +124,7 @@ const rowKey = (r: CashPositionDifferenceRow) => `${r.source}-${r.id}`
 						<th class="px-3 py-2 text-right">Saldo Kas</th>
 						<th class="px-3 py-2 text-right">Arus Kas</th>
 						<th class="px-3 py-2 text-right">Selisih</th>
-						<th class="px-3 py-2">Penyebab</th>
+						<th class="min-w-[14rem] px-3 py-2">Penyebab</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -137,12 +137,12 @@ const rowKey = (r: CashPositionDifferenceRow) => `${r.source}-${r.id}`
 								</span>
 							</td>
 							<td class="px-3 py-2 text-right"><Amount :value="sec.selisih" /></td>
-							<td class="min-w-[16rem] whitespace-normal px-3 py-2">{{ sec.action }}</td>
+							<td class="min-w-[14rem] whitespace-normal px-3 py-2">{{ sec.action }}</td>
 						</tr>
 						<template v-if="!sec.key || !collapsed.has(sec.key)">
 							<tr v-for="r in sec.rows" :key="rowKey(r)" class="border-b border-hairline align-top">
 								<td class="px-3 py-2 text-ink">{{ fmtDate(r.date) }}</td>
-								<td class="px-3 py-2 text-ink">{{ r.source_label }}</td>
+								<td class="whitespace-normal px-3 py-2 text-ink">{{ r.source_label }}</td>
 								<td class="px-3 py-2">
 									<RouterLink :to="`/${r.source}/${r.id}`" class="text-primary hover:underline" target="_blank" rel="noopener">{{
 										r.number
@@ -158,7 +158,7 @@ const rowKey = (r: CashPositionDifferenceRow) => `${r.source}-${r.id}`
 				</tbody>
 				<tfoot>
 					<tr class="font-semibold">
-						<td class="px-3 py-3 text-ink" colspan="3">Total</td>
+						<td class="px-3 py-3 text-ink" colspan="3">Total Rincian</td>
 						<td class="px-3 py-3 text-right"><Amount :value="data.total.saldo_kas" /></td>
 						<td class="px-3 py-3 text-right"><Amount :value="data.total.arus_kas" /></td>
 						<td class="px-3 py-3 text-right"><Amount :value="data.total.selisih" /></td>

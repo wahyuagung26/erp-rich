@@ -657,7 +657,7 @@ export interface CashPosition {
 // One document behind the report's "Selisih" — see docs/cash-position/get-cash-position-difference.md
 export interface CashPositionDifferenceRow {
 	group: string | null
-	source: 'journal' | 'journal-income' | 'journal-expense'
+	source: 'journal' | 'journal-income' | 'journal-expense' | 'cash-advance' | 'supplier-advance' | 'customer-deposit'
 	source_label: string
 	id: number
 	number: string
