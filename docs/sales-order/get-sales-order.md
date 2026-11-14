@@ -7,7 +7,7 @@ path: /sales-order/:id
 status: mock
 tags: [sales-order, read]
 resource: /frontend/src/mocks/modules/sales-order.ts
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T15:00:00Z
 ---
 
 # Get Sales Order
@@ -25,9 +25,9 @@ Backs `PageSalesOrderDetail.vue` (read-only view), `PageSalesOrderEdit.vue` (loa
 
 ## Response
 
-`200`: `{ "data": { ...SalesOrder } }` — see the entity in [index](./index.md). Sales, department, warehouse, variant and expense display
-fields and `customer_code` are resolved; `customer_name` / `customer_address` / `customer_phone` are the stored snapshot; every amount is
-the stored value (never recomputed); `due_date`, `invoice_status`, `sales_invoice_*` and `locked` are computed.
+`200`: `{ "data": { ...SalesOrder } }` — see the entity in [index](./index.md). Customer, sales, department, warehouse, product and
+expense display fields are resolved; `discount_global`, `subtotal`, `dpp`, `ppn`, `expense_total`, `total`, `due_date`,
+`invoice_status` and every line's `total` / `remaining_quantity` are recomputed.
 
 ```json
 {
@@ -54,21 +54,16 @@ the stored value (never recomputed); `due_date`, `invoice_status`, `sales_invoic
     "discount_value": 5,
     "discount_global": 200000,
     "approval_status": "approved",
-    "invoice_status": "invoiced",
-    "sales_invoice_id": 1,
-    "sales_invoice_number": "RIN.INV260920/001",
-    "locked": false,
+    "invoice_status": "partial",
+    "rejection_reason": null,
     "approved_by": "Admin",
     "approved_at": "2026-09-10T09:30:00.000Z",
     "created_by": "Admin",
     "lines": [
       {
-        "variant_id": 1,
         "product_id": 1,
         "product_code": "PRD001",
         "product_name": "Kulkas 2 Pintu",
-        "sku": "PRD001",
-        "variant_label": "Standar",
         "brand_name": "Samsung",
         "unit_name": "Pieces",
         "warehouse_id": 1,
@@ -78,7 +73,9 @@ the stored value (never recomputed); `due_date`, `invoice_status`, `sales_invoic
         "price": 4200000,
         "discount": 200000,
         "notes": "",
-        "total": 4000000
+        "total": 4000000,
+        "invoiced_quantity": 0,
+        "remaining_quantity": 1
       }
     ],
     "expenses": [
@@ -101,6 +98,5 @@ the stored value (never recomputed); `due_date`, `invoice_status`, `sales_invoic
 
 ## Notes
 
-The detail page exposes actions by state: `pending` and not `locked` → Edit / Hapus / Setujui; `approved`, not invoiced and not `locked` →
-Batalkan Persetujuan; `approved` and not invoiced → Buat Invoice (links to the Invoice Penjualan form with `?sales_order_id=<id>`);
-`locked` → `ClosingBadge` instead of the write actions. An invoiced order links to its invoice.
+The detail page exposes actions by state: `pending` → Setujui / Tolak; `rejected` → Ajukan Ulang; not approved and not invoiced → Edit / Hapus;
+`approved` and not fully invoiced → Buat Invoice (links to the Invoice Penjualan form with `?sales_order_id=<id>`).

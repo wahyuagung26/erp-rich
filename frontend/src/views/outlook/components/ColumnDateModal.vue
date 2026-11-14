@@ -48,25 +48,15 @@ function apply() {
 <template>
 	<Modal :open="open" size="sm" :title="`Tanggal kolom ${slot} · Minggu ${week?.week_no ?? ''}`" @close="emit('close')">
 		<div class="space-y-3">
-			<FormField
-				:label="isRange ? 'Dari tanggal' : 'Tanggal'"
-				:hint="`Boleh dari 7 hari terakhir bulan lalu sampai 7 hari pertama bulan depan. Tanggal boleh sama dengan kolom lain; tiap kolom punya isian sendiri.`"
-				:error="error"
-			>
+			<FormField :label="isRange ? 'Dari tanggal' : 'Tanggal'" :hint="`Boleh dari 7 hari terakhir bulan lalu sampai 7 hari pertama bulan depan. Tanggal boleh sama dengan kolom lain; tiap kolom punya isian sendiri.`" :error="error">
 				<DatePicker v-model="start" :min="min" :max="max" />
 			</FormField>
-			<FormField
-				v-if="isRange"
-				label="Sampai tanggal (opsional)"
-				:hint="`Satu rentang (maksimal ${RANGE_MAX_DAYS} hari) menjadi satu kolom dengan satu isian actual.`"
-			>
+			<FormField v-if="isRange" label="Sampai tanggal (opsional)" :hint="`Satu rentang (maksimal ${RANGE_MAX_DAYS} hari) menjadi satu kolom dengan satu isian actual.`">
 				<DatePicker v-model="end" :min="start || min" :max="max" :disabled="!start" />
 			</FormField>
 		</div>
 		<template #footer>
-			<Button v-if="filled" variant="subtle" :loading="saving" class="mr-auto text-danger" @click="emit('clear')"
-				><IconTrash class="h-4 w-4" /> Kosongkan</Button
-			>
+			<Button v-if="filled" variant="subtle" :loading="saving" class="mr-auto text-danger" @click="emit('clear')"><IconTrash class="h-4 w-4" /> Kosongkan</Button>
 			<Button variant="secondary" @click="emit('close')"><IconX class="h-4 w-4" /> Batal</Button>
 			<Button :loading="saving" :disabled="!start || !!error" @click="apply"><IconCheck class="h-4 w-4" /> Terapkan</Button>
 		</template>

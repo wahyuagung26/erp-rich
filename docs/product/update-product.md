@@ -1,13 +1,13 @@
 ---
 type: API Endpoint
 title: Update Product
-description: Edit an existing product. Code is immutable; the 5 FKs, type, stock, price, notes, photo and variants can all change.
+description: Edit an existing product. Code is immutable; the 5 FKs, type, stock, price, notes and photo can all change.
 method: PUT
 path: /product/:id
 status: mock
 tags: [product, write]
 resource: /frontend/src/mocks/modules/product.ts
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-09-07T00:00:00Z
 ---
 
 # Update Product
@@ -33,7 +33,7 @@ brand, category, sales type, supplier, or unit).
 
 ### Body
 
-Same shape as [create-product](./create-product.md)'s body, minus `code`. Send every variant to keep (with its `id`); see the variant rules there.
+Same shape as [create-product](./create-product.md)'s body, minus `code`.
 
 `code`, `id`, and `company_id` are ignored if sent — a row can't be moved to
 another company via this endpoint.

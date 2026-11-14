@@ -375,32 +375,7 @@ export interface Product {
 	// mock, computed from purchases by the backend later. See docs/product-price/.
 	hpp_avg: number
 	photo_url: string
-	option_names: string[] // variant attribute names, e.g. ['Ukuran']; [] = no variants besides the default
-	variants: ProductVariant[] // never empty: the default variant always exists
 	deleted_at: string | null
-}
-
-// One sellable SKU. Transaction lines reference a variant, never a bare product. Contract: docs/product/.
-export interface ProductVariant {
-	id: number
-	sku: string
-	option_values: Record<string, string> // keyed by Product.option_names; {} on the default variant
-	is_default: boolean
-	is_active: boolean
-	deleted_at?: string | null // soft delete keeps history resolvable; deleted rows are never returned
-}
-
-// GET /product-variant row — the SKU picker of transaction lines.
-export interface ProductVariantOption {
-	id: number
-	sku: string
-	label: string // option values joined by " / ", "Standar" for the default variant
-	product_id: number
-	product_code: string
-	product_name: string
-	brand_name?: string
-	unit_name?: string
-	selling_price: number
 }
 
 export interface JournalLine {
@@ -771,18 +746,15 @@ export interface PurchaseOrderRequest {
 	lines: PurchaseOrderLineRequest[]
 }
 
-// Sales Order (Penjualan) — closing-locked like every dated document; 1 SO <-> at most 1 invoice. Contract: docs/sales-order/.
-export type SalesOrderApprovalStatus = 'pending' | 'approved'
-export type SalesOrderInvoiceStatus = 'not_invoiced' | 'invoiced'
+// Sales Order (Penjualan) — no stok/jurnal effect, so no `locked`. Contract: docs/sales-order/.
+export type SalesOrderApprovalStatus = 'pending' | 'approved' | 'rejected'
+export type SalesOrderInvoiceStatus = 'not_invoiced' | 'partial' | 'invoiced'
 export type SalesOrderDiscountType = 'nominal' | 'percent'
 
 export interface SalesOrderLine {
-	variant_id: number
-	product_id: number // resolved from the variant
+	product_id: number
 	product_code?: string
 	product_name?: string
-	sku?: string
-	variant_label?: string // "Standar" for a product's default variant
 	brand_name?: string
 	unit_name?: string
 	warehouse_id: number
@@ -792,7 +764,9 @@ export interface SalesOrderLine {
 	price: number
 	discount: number // rupiah per unit
 	notes: string
-	total: number // stored at save: round((price - discount) × quantity)
+	total: number // round((price - discount) × quantity)
+	invoiced_quantity: number
+	remaining_quantity: number
 }
 
 export interface SalesOrderExpense {
@@ -804,7 +778,6 @@ export interface SalesOrderExpense {
 }
 
 export interface SalesOrder {
-	locked?: boolean // response-only: date falls in a closed period → no edit / delete / approval change
 	id: number
 	number: string
 	date: string
@@ -812,9 +785,9 @@ export interface SalesOrder {
 	due_date: string
 	customer_id: number
 	customer_code?: string
-	customer_name: string // snapshot taken at save; detail and print read these, not the customer master
-	customer_address: string
-	customer_phone: string
+	customer_name?: string
+	customer_address?: string
+	customer_phone?: string
 	sales_id: number
 	sales_code?: string
 	sales_name?: string
@@ -825,25 +798,23 @@ export interface SalesOrder {
 	description: string
 	discount_type: SalesOrderDiscountType
 	discount_value: number
+	discount_global: number
 	approval_status: SalesOrderApprovalStatus
 	invoice_status: SalesOrderInvoiceStatus
-	sales_invoice_id: number | null // the one non-rejected invoice made from this order
-	sales_invoice_number: string | null
+	rejection_reason: string | null
 	approved_by: string | null
 	approved_at: string | null
 	created_by: string
 	lines: SalesOrderLine[]
 	expenses: SalesOrderExpense[]
-	// Stored at save and authoritative afterwards (history keeps the formula it was saved with).
 	subtotal: number
-	discount_global: number
 	dpp: number
 	ppn: number
 	expense_total: number
 	total: number
 }
 
-// API input only — no labels, no snapshot, no computed amounts.
+// API input only — no labels, no computed amounts, no invoiced quantity.
 export interface SalesOrderRequest {
 	date: string
 	customer_id: number
@@ -854,11 +825,11 @@ export interface SalesOrderRequest {
 	description: string
 	discount_type: SalesOrderDiscountType
 	discount_value: number
-	lines: Pick<SalesOrderLine, 'variant_id' | 'warehouse_id' | 'quantity' | 'price' | 'discount' | 'notes'>[]
+	lines: Pick<SalesOrderLine, 'product_id' | 'warehouse_id' | 'quantity' | 'price' | 'discount' | 'notes'>[]
 	expenses: Pick<SalesOrderExpense, 'sales_expense_id' | 'notes' | 'amount'>[]
 }
 
-// GET /sales-order/:id/invoiceable-lines — prefill of the Invoice Penjualan form (the whole order becomes one invoice).
+// GET /sales-order/:id/invoiceable-lines — consumed by the Invoice Penjualan form.
 export interface SalesOrderInvoiceableLines {
 	sales_order: Pick<
 		SalesOrder,
@@ -881,7 +852,22 @@ export interface SalesOrderInvoiceableLines {
 		| 'discount_value'
 		| 'expenses'
 	>
-	lines: Omit<SalesOrderLine, 'total'>[]
+	lines: (Pick<
+		SalesOrderLine,
+		| 'product_id'
+		| 'product_code'
+		| 'product_name'
+		| 'brand_name'
+		| 'unit_name'
+		| 'invoiced_quantity'
+		| 'remaining_quantity'
+		| 'price'
+		| 'discount'
+		| 'warehouse_id'
+		| 'warehouse_code'
+		| 'warehouse_name'
+		| 'notes'
+	> & { ordered_quantity: number; quantity: number })[]
 }
 
 // Invoice Penjualan — moves stok + jurnal on approve, so it is closing-locked. Contract: docs/sales-invoice/.
@@ -891,12 +877,9 @@ export type SalesInvoicePaymentKind = 'creation' | 'receivable'
 export type SalesInvoiceTaxInvoice = PurchaseInvoiceTaxInvoice
 
 export interface SalesInvoiceLine {
-	variant_id: number
-	product_id: number // resolved from the variant
+	product_id: number
 	product_code?: string
 	product_name?: string
-	sku?: string
-	variant_label?: string
 	brand_name?: string
 	unit_name?: string
 	warehouse_id: number
@@ -907,6 +890,7 @@ export interface SalesInvoiceLine {
 	discount: number // rupiah per unit
 	notes: string
 	total: number // round((price - discount) × quantity)
+	max_quantity: number | null // with a sales order: ordered − invoiced by other invoices; null without one
 }
 
 // Stored in db.salesInvoicePayment. `receivable` rows are written by Piutang Customer, `creation` rows by the invoice form.
@@ -986,7 +970,7 @@ export interface SalesInvoiceRequest {
 	description: string
 	discount_type: SalesOrderDiscountType
 	discount_value: number
-	lines: Pick<SalesInvoiceLine, 'variant_id' | 'warehouse_id' | 'quantity' | 'price' | 'discount' | 'notes'>[]
+	lines: Pick<SalesInvoiceLine, 'product_id' | 'warehouse_id' | 'quantity' | 'price' | 'discount' | 'notes'>[]
 	expenses: Pick<SalesOrderExpense, 'sales_expense_id' | 'notes' | 'amount'>[]
 	payments: { payment_type_id: number; reference: string; amount: number; deposit_id: number | null; sales_expense_id?: number | null }[]
 }
@@ -999,12 +983,9 @@ export type SalesReturnSettlementType = 'receivable_deduction' | 'cash_bank'
 export type SalesReturnTaxInvoice = PurchaseInvoiceTaxInvoice
 
 export interface SalesReturnLine {
-	variant_id: number
-	product_id: number // resolved from the variant
+	product_id: number
 	product_code?: string
 	product_name?: string
-	sku?: string
-	variant_label?: string
 	brand_name?: string
 	unit_name?: string
 	quantity_sold: number
@@ -1071,7 +1052,7 @@ export interface SalesReturnRequest {
 	date: string
 	warehouse_id: number
 	reason: string
-	lines: { variant_id: number; quantity: number }[]
+	lines: { product_id: number; quantity: number }[]
 }
 
 export interface SalesReturnSettlementRequest {
@@ -1102,12 +1083,9 @@ export interface SalesInvoiceReturnableLines {
 // Surat Jalan (Penjualan) — documentary only (never touches stok / HPP / jurnal), one per approved Invoice Penjualan,
 // NOT closing-locked. Lines mirror every invoice line (`quantity` 0 = not shipped). Contract: docs/delivery-note/.
 export interface DeliveryNoteLine {
-	variant_id: number
-	product_id: number // resolved from the variant
+	product_id: number
 	product_code?: string
 	product_name?: string
-	sku?: string
-	variant_label?: string
 	brand_name?: string
 	unit_name?: string
 	invoice_quantity: number // qty on the invoice line = the ceiling for `quantity`
@@ -1145,7 +1123,7 @@ export interface DeliveryNoteRequest {
 	driver: string
 	vehicle: string
 	description: string
-	lines: { variant_id: number; quantity: number }[]
+	lines: { product_id: number; quantity: number }[]
 }
 
 // GET /sales-invoice/:id/deliverable-lines — header context + every invoice line prefilled with quantity = invoice_quantity.

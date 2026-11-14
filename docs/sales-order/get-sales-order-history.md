@@ -7,7 +7,7 @@ path: /sales-order/:id/history
 status: mock
 tags: [sales-order, read, history]
 resource: /frontend/src/mocks/modules/sales-order.ts
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T15:00:00Z
 ---
 
 # Get Sales Order History
@@ -32,10 +32,11 @@ Backs the global `HistoryModal`, opened from the detail header and the **Riwayat
 | Event | `kind` | Notes |
 |---|---|---|
 | Dibuat | `created` | |
-| Diubah | `updated` | `changes` covers date, customer (+ address snapshot), sales, department, termin, PKP status, description, diskon global, per-variant quantity/price/discount/gudang (added/removed variants too) and biaya penjualan |
+| Diubah | `updated` | `changes` covers date, customer, sales, department, termin, PKP status, description, diskon global, per-product quantity/price/discount/gudang (added/removed products too) and biaya penjualan |
 | Disetujui | `approved` | |
-| Persetujuan Dibatalkan | `info` | approved order moved back to pending |
-| Invoice Dibuat / Invoice Dihapus | `info` | written by Invoice Penjualan (`summary` = invoice number) |
+| Ditolak | `rejected` | `summary` = rejection reason |
+| Diajukan Ulang | `info` | rejected order resubmitted as pending |
+| Invoice Dibuat / Invoice Dibatalkan | `info` | written by Invoice Penjualan through `applyInvoicedQuantity` (`summary` = invoice number) |
 
 ## Errors
 

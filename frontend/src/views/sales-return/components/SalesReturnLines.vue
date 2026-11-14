@@ -37,10 +37,10 @@ function updateQuantity(index: number, value: number) {
 				<tr v-if="!lines.length">
 					<td colspan="9" class="px-3 py-6 text-center text-s text-ink-muted">Pilih invoice penjualan untuk memuat daftar produk.</td>
 				</tr>
-				<tr v-for="(line, index) in lines" :key="line.variant_id" class="border-b border-hairline align-top last:border-0">
+				<tr v-for="(line, index) in lines" :key="line.product_id" class="border-b border-hairline align-top last:border-0">
 					<td class="min-w-[220px] px-2 py-3">
 						<div class="text-ink">{{ line.product_name }}</div>
-						<div class="text-s text-ink-muted">{{ [line.sku, line.variant_label, line.brand_name].filter(Boolean).join(' · ') }}</div>
+						<div class="text-s text-ink-muted">{{ [line.product_code, line.brand_name].filter(Boolean).join(' · ') }}</div>
 					</td>
 					<td class="px-2 py-3 text-right">
 						<div class="tnum text-ink">{{ line.quantity_sold }}</div>

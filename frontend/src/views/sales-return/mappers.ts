@@ -7,11 +7,9 @@ export function createEmptySalesReturnDraft(): SalesReturnDraft {
 
 export function toLineDraft(line: SalesReturnLine): SalesReturnLineDraft {
 	return {
-		variant_id: line.variant_id,
+		product_id: line.product_id,
 		product_code: line.product_code,
 		product_name: line.product_name,
-		sku: line.sku,
-		variant_label: line.variant_label,
 		brand_name: line.brand_name,
 		unit_name: line.unit_name,
 		quantity_sold: line.quantity_sold,
@@ -40,6 +38,6 @@ export function toSalesReturnRequest(form: SalesReturnForm): SalesReturnRequest 
 		date: form.date,
 		warehouse_id: form.warehouse_id,
 		reason: form.reason,
-		lines: form.lines.map((line) => ({ variant_id: line.variant_id, quantity: line.quantity }))
+		lines: form.lines.map((line) => ({ product_id: line.product_id, quantity: line.quantity }))
 	}
 }

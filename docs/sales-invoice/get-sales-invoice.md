@@ -7,7 +7,7 @@ path: /sales-invoice/:id
 status: mock
 tags: [sales-invoice, read]
 resource: /frontend/src/mocks/modules/sales-invoice.ts
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T20:00:00Z
 ---
 
 # Get Sales Invoice
@@ -26,8 +26,8 @@ watermark while `approval_status` is `pending`). Also the read model for Surat J
 
 ## Response
 
-`200`: `{ "data": { ...SalesInvoice } }` — entity in [index](./index.md). Every display field, amount, `paid_total`, `outstanding`, `payment_status`
-and `locked` are recomputed.
+`200`: `{ "data": { ...SalesInvoice } }` — entity in [index](./index.md). Every display field, amount, `paid_total`, `outstanding`, `payment_status`, `locked`
+and each line's `max_quantity` are recomputed.
 
 ```json
 { "data": {
@@ -63,10 +63,9 @@ and `locked` are recomputed.
     "created_by": "Admin",
     "lines": [
       {
-        "variant_id": 1, "product_id": 1, "product_code": "PRD001", "product_name": "Kulkas 2 Pintu", "sku": "PRD001", "variant_label": "Standar",
-        "brand_name": "Samsung", "unit_name": "Pieces",
+        "product_id": 1, "product_code": "PRD001", "product_name": "Kulkas 2 Pintu", "brand_name": "Samsung", "unit_name": "Pieces",
         "warehouse_id": 1, "warehouse_code": "GD1", "warehouse_name": "Gudang Pusat",
-        "quantity": 4, "price": 4200000, "discount": 200000, "notes": "", "total": 16000000
+        "quantity": 4, "price": 4200000, "discount": 200000, "notes": "", "total": 16000000, "max_quantity": 10
       }
     ],
     "expenses": [

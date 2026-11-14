@@ -7,7 +7,7 @@ path: /sales-invoice/:id
 status: mock
 tags: [sales-invoice, write]
 resource: /frontend/src/mocks/modules/sales-invoice.ts
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T16:00:00Z
 ---
 
 # Delete Sales Invoice
@@ -37,5 +37,5 @@ Backs the delete action in `PageSalesInvoiceTable.vue` and `PageSalesInvoiceDeta
 
 ## Notes
 
-Hard delete; history is deleted with it. Side effects: the source Sales Order is released (it may get another invoice) and gets the history event
-"Invoice Dihapus" unless the invoice was `rejected`, the payments and the deposit usage rows are removed, and each used deposit gets a history event "Pemakaian Invoice Dibatalkan".
+Hard delete; history is deleted with it. Side effects: the source Sales Order quantity is released (`applyInvoicedQuantity(…, −1, number)` unless the invoice was
+`rejected`), the payments and the deposit usage rows are removed, and each used deposit gets a history event "Pemakaian Invoice Dibatalkan".

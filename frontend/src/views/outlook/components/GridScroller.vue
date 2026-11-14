@@ -46,10 +46,7 @@ function mark() {
 }
 
 onMounted(() => nextTick(mark))
-watch(
-	() => props.weeks.join(),
-	() => nextTick(mark)
-)
+watch(() => props.weeks.join(), () => nextTick(mark))
 </script>
 
 <template>

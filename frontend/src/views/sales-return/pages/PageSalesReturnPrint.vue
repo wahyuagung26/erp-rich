@@ -80,7 +80,7 @@ onMounted(async () => {
 					<tr>
 						<th :class="[th, 'w-[4%]']">No</th>
 						<th :class="th">Description</th>
-						<th :class="[th, 'w-[13%]']">SKU</th>
+						<th :class="[th, 'w-[13%]']">Kode Barang</th>
 						<th :class="[th, 'w-[9%]']">Satuan</th>
 						<th :class="[th, 'w-[8%]']">Qty Retur</th>
 						<th :class="[th, 'w-[14%]']">Unit Price</th>
@@ -89,10 +89,10 @@ onMounted(async () => {
 					</tr>
 				</thead>
 				<tbody>
-					<tr v-for="(line, index) in row.lines" :key="line.variant_id">
+					<tr v-for="(line, index) in row.lines" :key="line.product_id">
 						<td :class="[td, 'text-center']">{{ index + 1 }}</td>
 						<td :class="td">{{ line.product_name }}</td>
-						<td :class="[td, 'text-center']">{{ line.sku }}</td>
+						<td :class="[td, 'text-center']">{{ line.product_code }}</td>
 						<td :class="[td, 'text-center']">{{ line.unit_name }}</td>
 						<td :class="[td, 'text-right']">{{ line.quantity }}</td>
 						<td :class="[td, 'text-right']">{{ amount(line.price) }}</td>

@@ -7,7 +7,7 @@ path: /sales-order
 status: mock
 tags: [sales-order, read, list]
 resource: /frontend/src/mocks/modules/sales-order.ts
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T15:00:00Z
 ---
 
 # List Sales Order
@@ -21,9 +21,9 @@ Backs `views/sales-order/pages/PageSalesOrderTable.vue` (via `useTableList`).
 | Name | Type | Required | Notes |
 |---|---|---|---|
 | `page`, `per_page`, `sort_by`, `sort_order` | — | no | see [conventions](../conventions.md#pagination-list-endpoints) |
-| `q` | string | no | matches number, date, created_by, customer code/name, sales name, description, invoice number; case-insensitive |
-| `approval_status` | string | no | `pending` or `approved` |
-| `invoice_status` | string | no | `not_invoiced` or `invoiced` |
+| `q` | string | no | matches number, date, created_by, customer code/name, sales name, description; case-insensitive |
+| `approval_status` | string | no | `pending`, `approved`, or `rejected` |
+| `invoice_status` | string | no | `not_invoiced`, `partial`, or `invoiced` |
 | `date_from` | string | no | `YYYY-MM-DD`, inclusive lower bound on `date` |
 | `date_to` | string | no | `YYYY-MM-DD`, inclusive upper bound on `date` |
 
@@ -34,8 +34,9 @@ Backs `views/sales-order/pages/PageSalesOrderTable.vue` (via `useTableList`).
 | Key | Tile | Filter it sets | Counts rows where |
 |---|---|---|---|
 | `pending` | Menunggu Persetujuan | `approval_status=pending` | `approval_status = pending` |
-| `awaiting_invoice` | Belum Diinvoice | `approval_status=approved`, `invoice_status=not_invoiced` | approved and no invoice yet |
-| `invoiced` | Sudah Diinvoice | `invoice_status=invoiced` | has its (one) invoice |
+| `awaiting_invoice` | Belum Diinvoice | `approval_status=approved`, `invoice_status=not_invoiced` | approved and nothing invoiced yet |
+| `partial` | Diinvoice Sebagian | `approval_status=approved`, `invoice_status=partial` | approved and partly invoiced |
+| `rejected` | Ditolak | `approval_status=rejected` | `approval_status = rejected` |
 
 Every tile carries `count` and `amount` (sum of `total`). See [conventions](../conventions.md#list-kpi-summary-optional-metasummary).
 
@@ -60,8 +61,6 @@ Every tile carries `count` and `amount` (sum of `total`). See [conventions](../c
       "description": "Pesanan perlengkapan kantor",
       "approval_status": "pending",
       "invoice_status": "not_invoiced",
-      "sales_invoice_number": null,
-      "locked": false,
       "total": 8750000
     }
   ],
@@ -78,5 +77,5 @@ Standard only (`401`).
 ## Notes
 
 - Default UI sorting is date descending.
-- Edit and delete (row menu) are shown only while the order is `pending` and not `locked`.
+- Edit and delete (row menu) are shown only while the order is not approved and not invoiced.
 - The order number opens [get-sales-order](./get-sales-order.md).

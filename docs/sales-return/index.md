@@ -3,7 +3,7 @@ type: OKF Module
 title: Retur Penjualan (Sales Return)
 description: Retur barang dari customer atas satu invoice penjualan yang sudah disetujui — jumlah per produk (harga, diskon dan PPN dari invoice), approval dengan tolak / ajukan ulang, faktur pajak, dan penyelesaian retur (potong piutang invoice atau dana kembali ke customer).
 tags: [sales-return, penjualan, receivables]
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T17:00:00Z
 ---
 
 # Retur Penjualan
@@ -67,7 +67,7 @@ Diskon global / biaya penjualan di header invoice **tidak** ikut dibagi ke retur
 
 | Field | Type | Notes |
 |---|---|---|
-| `variant_id` | number | varian pada invoice sumber; identitas baris, unik per retur; `product_id` `product_*` `sku` `variant_label` resolved |
+| `product_id` | number | produk pada invoice sumber; identitas baris, unik per retur |
 | `product_code` `product_name` `brand_name` `unit_name` | string \| undefined | resolved |
 | `quantity_sold` | number | jumlah pada invoice ("Qty Terjual") |
 | `quantity_returned_before` | number | jumlah yang sudah diretur oleh retur LAIN yang tidak `rejected` ("Sudah Diretur") |
@@ -101,7 +101,7 @@ Diskon global / biaya penjualan di header invoice **tidak** ikut dibagi ke retur
 
 ## Guardrails
 
-- Invoice sumber harus `approved`. Boleh lebih dari satu retur per invoice selama total `quantity` per varian (retur yang tidak `rejected`) tidak melebihi jumlah invoice; retur `rejected` melepas jumlahnya.
+- Invoice sumber harus `approved`. Boleh lebih dari satu retur per invoice selama total `quantity` per produk (retur yang tidak `rejected`) tidak melebihi jumlah invoice; retur `rejected` melepas jumlahnya.
 - Hanya retur yang belum `approved` (`pending` / `rejected`) yang boleh diedit atau dihapus.
 - **Approval:** `pending` → `approved` / `rejected`; `rejected` → `pending` (Ajukan Ulang, jumlah dicek ulang); `approved` → `pending` (Batalkan Approval) **ditolak bila sudah ada `settlements`**.
 - **Batalkan Approval invoice sumber ditolak** selama ada retur yang tidak `rejected` (guard di `unapproveGuards` Invoice Penjualan).

@@ -3,7 +3,7 @@ type: OKF Module
 title: Surat Jalan (Delivery Note)
 description: Dokumen pengantaran barang untuk satu Invoice Penjualan yang sudah disetujui (legacy `surat_jalan` / `trsj`) — hanya dokumen, tidak menggerakkan stok, HPP, maupun jurnal.
 tags: [delivery-note, penjualan, logistics]
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T17:00:00Z
 ---
 
 # Surat Jalan
@@ -50,7 +50,7 @@ PRD menyebut kendaraan, driver, dan penerima; legacy menyebut satu SJ per invoic
 
 | Field | Type | Notes |
 |---|---|---|
-| `variant_id` | number | varian dari baris invoice (unik); `product_id` `product_*` `sku` `variant_label` resolved |
+| `product_id` | number | produk dari baris invoice |
 | `product_code` `product_name` `brand_name` `unit_name` | string \| undefined | resolved |
 | `invoice_quantity` | number | qty baris di invoice = batas atas, read-only |
 | `quantity` | number | qty dikirim di SJ ini, `0`…`invoice_quantity` |

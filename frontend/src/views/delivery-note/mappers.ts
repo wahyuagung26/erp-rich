@@ -37,6 +37,6 @@ export function toDeliveryNoteRequest(draft: DeliveryNoteDraft): DeliveryNoteReq
 		driver: draft.driver.trim(),
 		vehicle: draft.vehicle.trim(),
 		description: draft.description.trim(),
-		lines: draft.lines.filter((line) => line.quantity > 0).map((line) => ({ variant_id: line.variant_id, quantity: line.quantity }))
+		lines: draft.lines.filter((line) => line.quantity > 0).map((line) => ({ product_id: line.product_id, quantity: line.quantity }))
 	}
 }

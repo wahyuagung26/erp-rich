@@ -77,7 +77,7 @@ onMounted(async () => {
 					<tr>
 						<th :class="[th, 'w-[4%]']">No</th>
 						<th :class="th">Description</th>
-						<th :class="[th, 'w-[13%]']">SKU</th>
+						<th :class="[th, 'w-[13%]']">Kode Barang</th>
 						<th :class="[th, 'w-[8%]']">Qty</th>
 						<th :class="[th, 'w-[14%]']">Harga</th>
 						<th :class="[th, 'w-[12%]']">Diskon</th>
@@ -88,10 +88,9 @@ onMounted(async () => {
 					<tr v-for="(line, index) in order.lines" :key="index">
 						<td :class="[td, 'text-center']">{{ index + 1 }}</td>
 						<td :class="td">
-							{{ line.product_name }}<template v-if="line.variant_label && line.variant_label !== 'Standar'"> · {{ line.variant_label }}</template
-							><span v-if="line.notes" class="block text-[10px] leading-tight">{{ line.notes }}</span>
+							{{ line.product_name }}<span v-if="line.notes" class="block text-[10px] leading-tight">{{ line.notes }}</span>
 						</td>
-						<td :class="[td, 'text-center']">{{ line.sku }}</td>
+						<td :class="[td, 'text-center']">{{ line.product_code }}</td>
 						<td :class="[td, 'text-right']">{{ line.quantity }}</td>
 						<td :class="[td, 'text-right']">{{ amount(line.price) }}</td>
 						<td :class="[td, 'text-right']">{{ amount(line.discount) }}</td>

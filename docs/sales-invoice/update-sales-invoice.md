@@ -7,7 +7,7 @@ path: /sales-invoice/:id
 status: mock
 tags: [sales-invoice, write]
 resource: /frontend/src/mocks/modules/sales-invoice.ts
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T20:00:00Z
 ---
 
 # Update Sales Invoice
@@ -42,4 +42,5 @@ moving `date` into a closed period gives the same `errors.date` as create ([conv
 
 ## Side effects
 
-The link to the sales order does not change (lines may differ from the order). Deposit usage rows are rebuilt; the deposit gets a history event only for usage that is new.
+Sales order quantity follows the change (`−1` old lines, `+1` new lines, skipped while the invoice is `rejected`); the quantity limit is
+`ordered − invoiced by other invoices`. Deposit usage rows are rebuilt; the deposit gets a history event only for usage that is new.

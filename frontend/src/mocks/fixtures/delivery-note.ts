@@ -6,7 +6,7 @@ export type DeliveryNoteRow = Pick<
 	DeliveryNote,
 	'id' | 'number' | 'date' | 'sales_invoice_id' | 'delivery_address' | 'recipient' | 'driver' | 'vehicle' | 'description' | 'created_by'
 > & {
-	lines: { variant_id: number; quantity: number }[]
+	lines: { product_id: number; quantity: number }[]
 }
 
 // One SJ per approved invoice. Invoice 1 is shipped in part (3 of 4), 2 in full, 4 sits in the closed period (an SJ stays editable there).
@@ -23,7 +23,7 @@ export const deliveryNoteSeed: DeliveryNoteRow[] = [
 		vehicle: 'L 8123 XY',
 		description: 'Pengiriman tahap pertama, sisa 1 unit menyusul',
 		created_by: 'Admin',
-		lines: [{ variant_id: 1, quantity: 3 }]
+		lines: [{ product_id: 1, quantity: 3 }]
 	},
 	{
 		id: 2,
@@ -36,7 +36,7 @@ export const deliveryNoteSeed: DeliveryNoteRow[] = [
 		vehicle: 'B 9021 KCD',
 		description: '',
 		created_by: 'Admin',
-		lines: [{ variant_id: 3, quantity: 8 }]
+		lines: [{ product_id: 3, quantity: 8 }]
 	},
 	{
 		id: 3,
@@ -49,6 +49,6 @@ export const deliveryNoteSeed: DeliveryNoteRow[] = [
 		vehicle: 'L 8123 XY',
 		description: 'Periode Juli (sudah closing), surat jalan tetap bisa diubah',
 		created_by: 'Admin',
-		lines: [{ variant_id: 3, quantity: 10 }]
+		lines: [{ product_id: 3, quantity: 10 }]
 	}
 ]

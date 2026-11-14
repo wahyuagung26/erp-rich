@@ -186,13 +186,10 @@ function clearColumn() {
 	const hasActual = f.calc.rows.some((r) => r.is_leaf && (r.actual_day[wi][col.value.slot - 1] ?? 0) !== 0)
 	if (!hasActual) return void saveColumn('', '', true)
 	col.value.open = false
-	confirm.ask(
-		{ type: 'danger', title: 'Kosongkan kolom?', message: 'Seluruh actual pada kolom ini akan dihapus.', confirmText: 'Kosongkan' },
-		async () => {
-			const res = await send('put', `/outlook/periods/${f.period.id}/columns/${col.value.week}/${col.value.slot}`, { start: '', end: '' })
-			apply(res)
-		}
-	)
+	confirm.ask({ type: 'danger', title: 'Kosongkan kolom?', message: 'Seluruh actual pada kolom ini akan dihapus.', confirmText: 'Kosongkan' }, async () => {
+		const res = await send('put', `/outlook/periods/${f.period.id}/columns/${col.value.week}/${col.value.slot}`, { start: '', end: '' })
+		apply(res)
+	})
 }
 
 // ---- duplicate ----
@@ -259,15 +256,10 @@ const tabs = [
 
 <template>
 	<div class="space-y-4 p-4">
-		<PageHeader
-			title="Outlook Daily"
-			subtitle="Pantau target (OL) dan realisasi arus kas harian per minggu, lalu cocokkan saldo akhirnya dengan saldo kas/bank"
-		>
+		<PageHeader title="Outlook Daily" subtitle="Pantau target (OL) dan realisasi arus kas harian per minggu, lalu cocokkan saldo akhirnya dengan saldo kas/bank">
 			<template #actions>
 				<div v-if="full" class="flex flex-wrap items-center gap-2">
-					<Button v-if="full.can_edit" variant="outline" @click="dupOpen = true"
-						><IconCopy class="h-4 w-4" /> Duplikasi Untuk Periode Selanjutnya</Button
-					>
+					<Button v-if="full.can_edit" variant="outline" @click="dupOpen = true"><IconCopy class="h-4 w-4" /> Duplikasi Untuk Periode Selanjutnya</Button>
 					<Button :loading="exporting" @click="download"><IconFileSpreadsheet class="h-4 w-4" /> Unduh Excel</Button>
 				</div>
 			</template>
@@ -280,12 +272,7 @@ const tabs = [
 				</FormField>
 				<FormField label="Periode">
 					<div class="flex gap-2">
-						<Select
-							:model-value="String(month)"
-							:options="MONTHS.map((m, i) => ({ label: m, value: String(i + 1) }))"
-							class="w-40"
-							@update:model-value="setMonth"
-						/>
+						<Select :model-value="String(month)" :options="MONTHS.map((m, i) => ({ label: m, value: String(i + 1) }))" class="w-40" @update:model-value="setMonth" />
 						<Input
 							v-model="yearText"
 							type="number"
@@ -305,9 +292,7 @@ const tabs = [
 					</div>
 				</FormField>
 			</div>
-			<p v-if="full?.period.locked" class="mt-3 text-s text-ink-muted">
-				Bulan ini sudah di-closing di Posting. Data hanya dapat dibaca; untuk mengubah, buka closing periode di Posting › Closing Periode.
-			</p>
+			<p v-if="full?.period.locked" class="mt-3 text-s text-ink-muted">Bulan ini sudah di-closing di Posting. Data hanya dapat dibaca; untuk mengubah, buka closing periode di Posting › Closing Periode.</p>
 		</Panel>
 
 		<Panel v-if="loading"><Skeleton :lines="6" /></Panel>
@@ -322,9 +307,7 @@ const tabs = [
 					Bulan ini sudah di-closing di Posting, sehingga periode Outlook tidak dapat dibuat. Buka closing di Posting › Closing Periode bila perlu.
 				</p>
 				<template v-else-if="state.can_edit">
-					<p class="max-w-md text-s text-ink-subtle">
-						Periode dibuat dengan <strong>5 minggu</strong>, semua tanggal kolom kosong. Tanggal kolom diisi sendiri setelah periode dibuat.
-					</p>
+					<p class="max-w-md text-s text-ink-subtle">Periode dibuat dengan <strong>5 minggu</strong>, semua tanggal kolom kosong. Tanggal kolom diisi sendiri setelah periode dibuat.</p>
 					<Button class="mt-2" :loading="creating" @click="createPeriod"><IconPlus class="h-4 w-4" /> Buat Periode</Button>
 				</template>
 				<p v-else class="text-s text-ink-subtle">Anda tidak memiliki hak untuk membuat periode.</p>
@@ -365,14 +348,6 @@ const tabs = [
 			@apply="saveColumn($event.start, $event.end, true)"
 			@clear="clearColumn"
 		/>
-		<DuplicateModal
-			v-if="full"
-			:open="dupOpen"
-			:year="full.period.year"
-			:month="full.period.month"
-			:saving="dupSaving"
-			@close="dupOpen = false"
-			@submit="runDuplicate($event, false)"
-		/>
+		<DuplicateModal v-if="full" :open="dupOpen" :year="full.period.year" :month="full.period.month" :saving="dupSaving" @close="dupOpen = false" @submit="runDuplicate($event, false)" />
 	</div>
 </template>

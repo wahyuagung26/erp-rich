@@ -7,7 +7,7 @@ path: /delivery-note
 status: mock
 tags: [delivery-note, write]
 resource: /frontend/src/mocks/modules/delivery-note.ts
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T17:00:00Z
 ---
 
 # Create Delivery Note
@@ -28,7 +28,7 @@ Not closing-locked: a `date` in a closed period is accepted.
   "driver": "Sutrisno",
   "vehicle": "L 8123 XY",
   "description": "",
-  "lines": [{ "variant_id": 1, "quantity": 2 }]
+  "lines": [{ "product_id": 1, "quantity": 2 }]
 }
 ```
 
@@ -42,7 +42,7 @@ Not closing-locked: a `date` in a closed period is accepted.
 | `description` | string | optional; max 250 chars |
 | `lines` | array | at least one; the client sends only lines with `quantity > 0` |
 
-Each line: `variant_id` (one of the invoice's lines, unique per request) and `quantity` (`> 0`, ≤ that line's `invoice_quantity`).
+Each line: `product_id` (one of the invoice's products, unique per request) and `quantity` (`> 0`, ≤ that line's `invoice_quantity`).
 The client never sends `id`, `number`, `created_by` or any resolved field.
 
 ## Response

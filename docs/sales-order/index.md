@@ -1,25 +1,21 @@
 ---
 type: OKF Module
 title: Sales Order
-description: Pesanan penjualan ke customer (legacy Sales Quotation `sq`, dicetak "SALES ORDER") — header, varian produk per gudang, diskon global, biaya penjualan, approval, satu invoice per order. Tidak menggerakkan stok/jurnal, tetapi terkunci closing period.
+description: Pesanan penjualan ke customer (legacy Sales Quotation `sq`, dicetak "SALES ORDER") — header, produk per gudang, diskon global, biaya penjualan, approval, status invoice. Dasar pembuatan Invoice Penjualan; tidak menggerakkan stok maupun jurnal.
 tags: [sales-order, penjualan]
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T17:00:00Z
 ---
 
 # Sales Order
 
 Pesanan dari customer. Consumed by `frontend/src/views/sales-order/` (list, detail, tambah, edit, cetak).
-Sales Order tidak menggerakkan stok maupun jurnal, tetapi **tetap terkena closing period** seperti semua dokumen bertanggal
-(`locked`, `ClosingBadge`; lihat [conventions](../conventions.md#closing-period-lock-locked)).
-Satu Sales Order menjadi **paling banyak satu** [Invoice Penjualan](../sales-invoice/index.md), untuk seluruh dokumen
-(legacy `trsq.RefSO`), lewat [get-sales-order-invoiceable-lines](./get-sales-order-invoiceable-lines.md).
+Sales Order **tidak** menggerakkan stok maupun jurnal — karena itu **tidak terkena closing period**
+(tidak ada field `locked`, tidak ada `ClosingBadge`; lihat [conventions](../conventions.md#closing-period-lock-locked)).
+Dokumen ini kemudian dijadikan dasar [Invoice Penjualan](../sales-invoice/index.md) lewat
+[get-sales-order-invoiceable-lines](./get-sales-order-invoiceable-lines.md).
 
-Semua angka (`total` baris, `subtotal`, `discount_global`, `dpp`, `ppn`, `expense_total`, `total`) dihitung **server saat simpan
-dan disimpan**; setelah itu nilai tersimpan yang berlaku (tidak dihitung ulang saat dibaca), supaya dokumen hasil migrasi legacy
-dengan rumus lama tetap utuh. Client hanya mengirim input; UI menghitung preview dengan rumus yang sama.
-
-Nama, alamat, dan telepon customer disimpan sebagai **snapshot** di header saat simpan; detail dan cetak membaca snapshot,
-bukan master customer.
+Semua angka (`total` baris, `subtotal`, `discount_global`, `dpp`, `ppn`, `expense_total`, `total`) dihitung **server**;
+client hanya mengirim input. UI menghitung preview dengan rumus yang sama, tetapi server yang menentukan.
 
 Tidak diport dari legacy: persetujuan harga di bawah harga minimum lewat kredensial (`apso1`), draft per-sesi (`tempo`), nomor global per cabang.
 
@@ -39,22 +35,17 @@ expense_total   = Σ expense.amount
 total           = max(subtotal − discount_global, 0) + ppn + expense_total
 ```
 
-Rumus ini dipakai saat simpan. Order hasil migrasi legacy membawa total aslinya (mis. order sebelum FUSI-484 memakai PPN per baris)
-dan tidak dihitung ulang.
-
 ## Entity: `SalesOrder`
 
 | Field | Type | Notes |
 |---|---|---|
-| `locked` | boolean | response-only; `date` ada di periode closing → tidak bisa edit, hapus, atau ubah persetujuan |
 | `id` | number | auto-increment, server-assigned |
 | `number` | string | `<kode perusahaan>.SO<yymmdd><nnn>`, mis. `RIN.SO260902001`; otomatis, read-only (format legacy `sq`) |
 | `date` | string | required, `YYYY-MM-DD` |
-| `top_days` | number | termin pembayaran, salah satu dari `0, 7, 14, 21, 30, 60, 90, 120` (0 = tunai). Legacy `trsq` tidak punya TOP; data migrasi = 0 |
+| `top_days` | number | termin pembayaran, salah satu dari `0, 7, 14, 21, 30, 60, 90, 120` (0 = tunai) |
 | `due_date` | string | read-only, `date + top_days` |
 | `customer_id` | number | required; customer master |
-| `customer_code` | string \| undefined | resolved dari master |
-| `customer_name` `customer_address` `customer_phone` | string | **snapshot** saat simpan (dipakai detail & cetak) |
+| `customer_code` `customer_name` `customer_address` `customer_phone` | string \| undefined | resolved display fields (address & phone feed the print view) |
 | `sales_id` | number | required; Master Sales (salesperson) |
 | `sales_code` `sales_name` | string \| undefined | resolved display fields |
 | `department_id` | number | required |
@@ -63,28 +54,31 @@ dan tidak dihitung ulang.
 | `description` | string | optional (boleh kosong) |
 | `discount_type` | enum | `nominal` \| `percent` — jenis diskon global (legacy "Diskon Invoice") |
 | `discount_value` | number | input diskon global: rupiah (`nominal`) atau persen 0–100 (`percent`); 0 = tanpa diskon |
-| `approval_status` | enum | `pending`, `approved` (tidak ada `rejected`) |
-| `invoice_status` | enum | computed: `invoiced` bila ada invoice yang merujuk order ini dan tidak `rejected`, selain itu `not_invoiced` |
-| `sales_invoice_id` `sales_invoice_number` | number \| null, string \| null | invoice tersebut |
+| `discount_global` | number | computed, nilai diskon global dalam rupiah |
+| `approval_status` | enum | `pending`, `approved`, `rejected` |
+| `invoice_status` | enum | computed: `not_invoiced`, `partial`, `invoiced` — dari `invoiced_quantity` semua baris |
+| `rejection_reason` | string \| null | terisi saat ditolak |
 | `approved_by` `approved_at` | string \| null | metadata approval |
 | `created_by` | string | nama pembuat |
-| `lines` | array of `SalesOrderLine` | minimal satu baris, varian tidak boleh dobel |
+| `lines` | array of `SalesOrderLine` | minimal satu baris, produk tidak boleh dobel |
 | `expenses` | array of `SalesOrderExpense` | Biaya Penjualan, boleh kosong |
-| `subtotal` `discount_global` `dpp` `ppn` `expense_total` `total` | number | disimpan saat simpan (lihat Rumus) |
+| `subtotal` `dpp` `ppn` `expense_total` `total` | number | computed (lihat Rumus) |
 
 ## Entity: `SalesOrderLine`
 
 | Field | Type | Notes |
 |---|---|---|
-| `variant_id` | number | required; varian aktif ([Product variants](../product/index.md#variants-sku)). Unik per order — dua ukuran dari produk yang sama = dua baris |
-| `product_id` `product_code` `product_name` `sku` `variant_label` `brand_name` `unit_name` | resolved | dari varian; `variant_label` = `Standar` untuk varian default |
+| `product_id` | number | required; produk aktif. Unik per order |
+| `product_code` `product_name` `brand_name` `unit_name` | string \| undefined | resolved display fields |
 | `warehouse_id` | number | required; gudang asal barang |
 | `warehouse_code` `warehouse_name` | string \| undefined | resolved display fields |
 | `quantity` | number | > 0 |
-| `price` | number | > 0; default UI dari `selling_price` produk, bisa diubah |
+| `price` | number | > 0; default UI dari `product.selling_price`, bisa diubah |
 | `discount` | number | ≥ 0, rupiah **per satuan**, tidak boleh melebihi `price` |
 | `notes` | string | keterangan baris, boleh kosong |
-| `total` | number | disimpan saat simpan: `round((price − discount) × quantity)` |
+| `total` | number | computed: `round((price − discount) × quantity)` |
+| `invoiced_quantity` | number | computed/read-only untuk client; jumlah yang sudah dibuat Invoice Penjualan (lihat Catatan) |
+| `remaining_quantity` | number | computed: `max(quantity − invoiced_quantity, 0)` |
 
 ## Entity: `SalesOrderExpense` (Biaya Penjualan)
 
@@ -98,19 +92,18 @@ dan tidak dihitung ulang.
 ## Status dan aturan
 
 - Order baru: `approval_status: pending`, `invoice_status: not_invoiced`.
-- `pending` → `approved` (Setujui); `approved` → `pending` (Batalkan Persetujuan) **selama belum ada invoice**. Tidak ada status ditolak.
-- Edit dan hapus hanya selama `pending` dan tidak `locked`.
-- Hanya order `approved` yang belum diinvoice yang bisa dijadikan invoice (lihat invoiceable-lines).
-- **Closing period:** create, edit, hapus, dan perubahan persetujuan ditolak bila `date` (lama maupun baru) ada di periode closing.
-  Baca, cetak, dan riwayat tetap boleh.
+- `pending` → disetujui / ditolak lewat detail; `rejected` → bisa Ajukan Ulang (`pending`). Order yang sudah `approved` tidak bisa dibatalkan persetujuannya.
+- Edit dan hapus hanya selama `approval_status ≠ approved` **dan** belum ada invoice (`invoice_status = not_invoiced`).
+- Hanya order `approved` yang bisa dijadikan Invoice (lihat invoiceable-lines).
+- `invoice_status`: semua `invoiced_quantity = 0` → `not_invoiced`; semua baris `invoiced_quantity ≥ quantity` → `invoiced`; selain itu `partial`.
 - Hapus = hard delete di mock; riwayatnya ikut terhapus.
 
 ## Catatan lintas modul (Invoice Penjualan)
 
-Satu order ↔ paling banyak satu invoice yang tidak `rejected` (`sales_invoice.sales_order_id`). Invoice yang ditolak melepas order-nya,
-sehingga order bisa dibuatkan invoice lain; mengajukan ulang invoice yang ditolak ditolak bila order sudah diambil invoice lain.
-Jumlah per baris invoice boleh berbeda dari order (legacy juga mengizinkan); tidak ada penghitung `invoiced_quantity` per baris.
-Mock: helper `linkedInvoice(orderId)` di `mocks/modules/sales-order.ts`; Invoice Penjualan menulis riwayat order "Invoice Dibuat" / "Invoice Dihapus".
+`invoiced_quantity` per baris disimpan di mock pada `db.salesOrder[].lines[].invoiced_quantity`. Mock Invoice Penjualan **tidak** menulisnya langsung,
+melainkan memanggil helper yang diekspor `applyInvoicedQuantity(orderId, lines, direction, reference?)` dari `mocks/modules/sales-order.ts`
+(`direction` `1` saat invoice dibuat/diubah ke order, `-1` saat dibatalkan/dihapus; `lines` = `[{ product_id, quantity }]`; `reference` = nomor invoice untuk riwayat).
+Backend nyata: jumlah yang sudah diinvoice = Σ `quantity` baris invoice (tidak ditolak/dibatalkan) yang merujuk order & produk tersebut.
 
 ## Endpoints
 

@@ -19,7 +19,7 @@ import SalesOrderExpenses from '@/views/sales-order/components/SalesOrderExpense
 import { discountTypeOptions, parseSalesInvoice, pkpOptions, topOptions, totals } from '@/views/sales-invoice/schema'
 import { createEmptySalesInvoiceDraft, DEFAULT_DEPARTMENT_LABEL, toSalesInvoiceRequest } from '@/views/sales-invoice/mappers'
 import { useSalesInvoiceLookup } from '@/views/sales-invoice/composables/useSalesInvoiceLookup'
-import type { SalesInvoiceDraft } from '@/views/sales-invoice/schema'
+import type { SalesInvoiceDraft, SalesInvoiceLineDraft } from '@/views/sales-invoice/schema'
 import type { Customer, SalesInvoiceRequest } from '@/utils/types'
 
 const emit = defineEmits<{ submit: [SalesInvoiceRequest] }>()
@@ -52,6 +52,7 @@ const draft = reactive<SalesInvoiceDraft>(
 		: createEmptySalesInvoiceDraft()
 )
 // Products that can be invoiced from the linked order, each with its ceiling — never shrinks while the form is open.
+const orderLines = ref<Record<number, SalesInvoiceLineDraft>>({})
 const orderLabel = ref(props.initialLabels?.salesOrder)
 // Labels of the picked masters; a Sales Order prefill replaces them and `version` remounts the pickers so they show the new labels.
 const labels = reactive({
@@ -67,9 +68,17 @@ const namedLabel = (item: Record<string, unknown>) => `${String(item.code)} — 
 const customerLabel = (item: Record<string, unknown>) => `${(item as unknown as Customer).code} — ${(item as unknown as Customer).name}`
 const orderOptionLabel = (item: Record<string, unknown>) => `${String(item.number)} — ${String(item.customer_name)}`
 
+function indexOrderLines() {
+	orderLines.value = Object.fromEntries(
+		draft.lines.filter((line) => line.max_quantity != null).map((line) => [line.product_id as number, { ...line }])
+	)
+}
+if (props.initial?.sales_order_id) indexOrderLines()
+
 async function pickOrder(orderId: number | null) {
 	if (!orderId) {
 		Object.assign(draft, { sales_order_id: null, lines: [], expenses: [] })
+		orderLines.value = {}
 		orderLabel.value = undefined
 		version.value++
 		return
@@ -85,6 +94,7 @@ async function pickOrder(orderId: number | null) {
 			department: `${result.data.department_code} — ${result.data.department_name}`
 		})
 		version.value++
+		indexOrderLines()
 		errors.value = {}
 	} else {
 		toast.error(result.error ?? 'Sales order tidak dapat dimuat')
@@ -172,7 +182,7 @@ defineExpose({ setServerErrors })
 						class="md:col-span-2"
 						label="Sales Order"
 						:error="errors.sales_order_id"
-						hint="Opsional — menyalin seluruh isi sales order; satu sales order hanya untuk satu invoice"
+						hint="Opsional — pilih untuk menarik produk yang belum diinvoice"
 						:help="
 							orderFixed
 								? 'Tidak bisa diganti karena invoice ini dibuat dari sales order tersebut. Buat invoice baru bila ingin memakai sales order lain.'
@@ -183,7 +193,7 @@ defineExpose({ setServerErrors })
 							:key="`order-${version}`"
 							:model-value="draft.sales_order_id"
 							endpoint="/sales-order"
-							:params="{ approval_status: 'approved', invoice_status: 'not_invoiced' }"
+							:params="{ approval_status: 'approved' }"
 							:option-label="orderOptionLabel"
 							:initial-label="orderLabel"
 							:disabled="orderFixed || loadingOrder"
@@ -230,6 +240,7 @@ defineExpose({ setServerErrors })
 					:totals="summary"
 					:pkp-active="draft.pkp_active"
 					:paid="paid"
+					:order-lines="hasOrder ? orderLines : undefined"
 					@update:lines="(lines) => (draft.lines = lines)"
 				/>
 				<p v-if="errors.lines" class="text-s text-danger">{{ errors.lines }}</p>

@@ -1,13 +1,13 @@
 ---
 type: API Endpoint
 title: Get Sales Order Invoiceable Lines
-description: Lookup used by the Invoice Penjualan form — an approved, not yet invoiced sales order's header defaults plus all its lines.
+description: Lookup used by the Invoice Penjualan form — a sales order's header defaults plus per-product ordered/invoiced/remaining quantity.
 method: GET
 path: /sales-order/:id/invoiceable-lines
 status: mock
 tags: [sales-order, read, lookup]
 resource: /frontend/src/mocks/modules/sales-order.ts
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T15:00:00Z
 ---
 
 # Get Sales Order Invoiceable Lines
@@ -55,15 +55,15 @@ detail page via `?sales_order_id=`). Caller: the Invoice Penjualan form (`/sales
     },
     "lines": [
       {
-        "variant_id": 1,
         "product_id": 1,
         "product_code": "PRD001",
         "product_name": "Kulkas 2 Pintu",
-        "sku": "PRD001",
-        "variant_label": "Standar",
         "brand_name": "Samsung",
         "unit_name": "Pieces",
-        "quantity": 10,
+        "ordered_quantity": 10,
+        "invoiced_quantity": 4,
+        "remaining_quantity": 6,
+        "quantity": 0,
         "price": 4200000,
         "discount": 200000,
         "warehouse_id": 1,
@@ -76,9 +76,9 @@ detail page via `?sales_order_id=`). Caller: the Invoice Penjualan form (`/sales
 }
 ```
 
-The whole order becomes one invoice (1 SO ↔ 1 invoice): every line is returned with the ordered `quantity`, `price`, `discount`,
-`warehouse_id` and `notes` to prefill; the user may still change them on the invoice. The header-level `discount_*` and `expenses` are prefill
-only: the invoice stores its own copy, and the invoice server computes every amount.
+Every line starts with `quantity: 0` — the user fills in the quantity to invoice now (≤ `remaining_quantity`). `price`, `discount`, `warehouse_id` and
+`notes` are the SO values to prefill. Lines with `remaining_quantity = 0` are still returned (the form may hide them). The header-level
+`discount_*` and `expenses` are prefill only: the invoice stores its own copy, and the server of the invoice recomputes every amount.
 
 ## Errors
 
@@ -86,4 +86,8 @@ only: the invoice stores its own copy, and the invoice server computes every amo
 |---|---|---|
 | `404` | id not found | `{ "message": "Sales order tidak ditemukan" }` |
 | `422` | order is not `approved` | `{ "message": "Sales order belum disetujui" }` |
-| `422` | order already has a non-rejected invoice | `{ "message": "Sales order sudah dibuatkan invoice <nomor>" }` |
+
+## Notes
+
+`invoiced_quantity` is the per-line counter described in [index](./index.md#catatan-lintas-modul-invoice-penjualan); the Invoice module maintains it
+through `applyInvoicedQuantity` and must never let `invoiced_quantity` exceed `ordered_quantity`.

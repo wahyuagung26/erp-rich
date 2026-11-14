@@ -158,10 +158,10 @@ function remove() {
 								</tr>
 							</thead>
 							<tbody>
-								<tr v-for="line in note.lines" :key="line.variant_id" class="border-b border-hairline last:border-0">
+								<tr v-for="line in note.lines" :key="line.product_id" class="border-b border-hairline last:border-0">
 									<td class="px-3 py-3 text-ink">
 										<div>{{ line.product_name }}</div>
-										<div class="text-s text-ink-muted">{{ [line.sku, line.variant_label, line.brand_name].filter(Boolean).join(' · ') }}</div>
+										<div class="text-s text-ink-muted">{{ [line.product_code, line.brand_name].filter(Boolean).join(' · ') }}</div>
 									</td>
 									<td class="px-3 py-3 text-right tnum text-ink-muted">{{ line.invoice_quantity }} {{ line.unit_name }}</td>
 									<td class="px-3 py-3 text-right text-ink">

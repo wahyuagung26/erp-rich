@@ -20,7 +20,7 @@ export function useSalesReturnInvoice() {
 			})
 			const { sales_invoice, lines } = res.data.data
 			draft.pkp_active = sales_invoice.pkp_active
-			draft.lines = lines.map((line) => ({ ...toLineDraft(line), quantity: keep[line.variant_id] ?? 0 }))
+			draft.lines = lines.map((line) => ({ ...toLineDraft(line), quantity: keep[line.product_id] ?? 0 }))
 			return sales_invoice
 		} catch {
 			toast.error('Invoice penjualan tidak dapat dimuat')

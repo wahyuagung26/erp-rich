@@ -35,20 +35,14 @@ const fail = (message: string, errors?: Record<string, string[]>): Reply => [422
 const notFound = (what: string): Reply => [404, { message: `${what} tidak ditemukan` }]
 
 const isDate = (v: unknown): v is string =>
-	typeof v === 'string' &&
-	/^\d{4}-\d{2}-\d{2}$/.test(v) &&
-	!Number.isNaN(Date.parse(`${v}T12:00:00`)) &&
-	new Date(`${v}T12:00:00`).toISOString().slice(0, 10) === v
+	typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T12:00:00`)) && new Date(`${v}T12:00:00`).toISOString().slice(0, 10) === v
 const addDays = (date: string, n: number) => {
 	const t = new Date(`${date}T12:00:00`)
 	t.setDate(t.getDate() + n)
 	return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`
 }
 const daysBetween = (a: string, b: string) => Math.round((Date.parse(`${b}T12:00:00`) - Date.parse(`${a}T12:00:00`)) / 86_400_000)
-const cleanText = (v: unknown) =>
-	String(v ?? '')
-		.replace(/\s+/g, ' ')
-		.trim()
+const cleanText = (v: unknown) => String(v ?? '').replace(/\s+/g, ' ').trim()
 
 // null/''/0 → 0 (delete); a number or numeric string within ±MAX_ABS → rounded; anything else → 'invalid'.
 function parseAmount(v: unknown): number | 'invalid' {
@@ -72,15 +66,7 @@ function storeOf(companyId: number | null): OutlookStore {
 }
 
 const calc = (p: OutlookPeriodRow) =>
-	calculate({
-		saldo_awal_bank: p.saldo_awal_bank,
-		year: p.year,
-		month: p.month,
-		weeks: p.weeks,
-		categories: p.categories,
-		ol: p.ol,
-		actual: p.actual
-	})
+	calculate({ saldo_awal_bank: p.saldo_awal_bank, year: p.year, month: p.month, weeks: p.weeks, categories: p.categories, ol: p.ol, actual: p.actual })
 
 function rekonOf(companyId: number | null, outlook: number, date: string, set: boolean): Rekon {
 	const bank = companyId === null ? null : round2(cashBankBalance(companyId, date))
@@ -112,13 +98,7 @@ function stateOf(companyId: number | null, p: OutlookPeriodRow): OutlookStateFul
 	return {
 		exists: true,
 		can_edit: true,
-		period: {
-			id: p.id,
-			year: p.year,
-			month: p.month,
-			locked: isPeriodClosed(companyId, firstOf(p.year, p.month)),
-			saldo_awal_bank: p.saldo_awal_bank
-		},
+		period: { id: p.id, year: p.year, month: p.month, locked: isPeriodClosed(companyId, firstOf(p.year, p.month)), saldo_awal_bank: p.saldo_awal_bank },
 		weeks: p.weeks.map((w) => {
 			const dated = [...w.slots, ...w.ends].filter((d): d is string => !!d).sort()
 			return {
@@ -229,8 +209,7 @@ export function registerOutlook(mock: MockAdapter) {
 		const companyId = companyIdOf(config)
 		if (companyId === null) return fail('Pilih perusahaan aktif terlebih dahulu')
 		const { year, month } = bodyOf(config) as { year?: number; month?: number }
-		if (!Number.isInteger(year) || year! < 2000 || year! > 2100 || !Number.isInteger(month) || month! < 1 || month! > 12)
-			return fail('Tahun/bulan tidak valid')
+		if (!Number.isInteger(year) || year! < 2000 || year! > 2100 || !Number.isInteger(month) || month! < 1 || month! > 12) return fail('Tahun/bulan tidak valid')
 		const closed = closedReply(config, firstOf(year!, month!), 'periode Outlook tidak bisa dibuat')
 		if (closed) return closed
 		const store = storeOf(companyId)
@@ -258,8 +237,7 @@ export function registerOutlook(mock: MockAdapter) {
 		const source = store.periods.find((p) => p.id === Number(config.url!.split('/')[3]))
 		if (!source) return notFound('Periode sumber')
 		const { target_year: ty, target_month: tm, replace } = bodyOf(config) as { target_year?: number; target_month?: number; replace?: boolean }
-		if (!Number.isInteger(ty) || ty! < 2000 || ty! > 2100 || !Number.isInteger(tm) || tm! < 1 || tm! > 12)
-			return fail('Tahun/bulan tujuan tidak valid')
+		if (!Number.isInteger(ty) || ty! < 2000 || ty! > 2100 || !Number.isInteger(tm) || tm! < 1 || tm! > 12) return fail('Tahun/bulan tujuan tidak valid')
 		if (ty === source.year && tm === source.month) return [409, { message: 'Periode tujuan sama dengan periode sumber' }]
 		const closed = closedReply(config, firstOf(ty!, tm!), 'periode Outlook tidak bisa dibuat atau diganti')
 		if (closed) return closed
@@ -343,13 +321,11 @@ export function registerOutlook(mock: MockAdapter) {
 			if (start < min || start > max) return fail('Tanggal tidak valid', { start: [bound] })
 			let last: string | null = null
 			if (end && end !== start) {
-				if (week.week_no !== RANGE_WEEK || slot < RANGE_FIRST_SLOT)
-					return fail('Rentang hanya untuk kolom 5-7 minggu 5', { end: ['Kolom ini hanya bisa satu tanggal'] })
+				if (week.week_no !== RANGE_WEEK || slot < RANGE_FIRST_SLOT) return fail('Rentang hanya untuk kolom 5-7 minggu 5', { end: ['Kolom ini hanya bisa satu tanggal'] })
 				if (!isDate(end)) return fail('Tanggal akhir tidak valid', { end: ['Tanggal tidak valid (format YYYY-MM-DD)'] })
 				if (end < start) return fail('Tanggal akhir tidak boleh sebelum tanggal mulai', { end: ['Tanggal akhir sebelum tanggal mulai'] })
 				if (end < min || end > max) return fail('Tanggal tidak valid', { end: [bound] })
-				if (daysBetween(start, end) + 1 > RANGE_MAX_DAYS)
-					return fail(`Rentang maksimal ${RANGE_MAX_DAYS} hari`, { end: [`Rentang melebihi ${RANGE_MAX_DAYS} hari`] })
+				if (daysBetween(start, end) + 1 > RANGE_MAX_DAYS) return fail(`Rentang maksimal ${RANGE_MAX_DAYS} hari`, { end: [`Rentang melebihi ${RANGE_MAX_DAYS} hari`] })
 				last = end
 			}
 			const was = week.slots[i] === start && week.ends[i] === last
@@ -393,14 +369,7 @@ export function registerOutlook(mock: MockAdapter) {
 			}
 			const siblings = p.categories.filter((c) => (parent ? c.parent_id === parent.id : c.parent_id === null && c.flow_type === flow))
 			const id = p.id * 1000 + ++p.seq.category
-			p.categories.push({
-				id,
-				parent_id: parent?.id ?? null,
-				flow_type: flow,
-				name,
-				sort_order: Math.max(0, ...siblings.map((c) => c.sort_order)) + 1,
-				depth
-			})
+			p.categories.push({ id, parent_id: parent?.id ?? null, flow_type: flow, name, sort_order: Math.max(0, ...siblings.map((c) => c.sort_order)) + 1, depth })
 			return { status: 201, message: 'Kategori ditambahkan', result: { category_id: id, reset } }
 		})
 	)
@@ -436,8 +405,7 @@ export function registerOutlook(mock: MockAdapter) {
 			if (amount === 'invalid') return fail('Nominal tidak valid', { amount: ['Isi dengan angka (maksimal 9.999.999.999.999,99)'] })
 			const cat = findCategory(p, Number(body.category_id))
 			if (!cat) return notFound('Kategori')
-			if (p.categories.some((c) => c.parent_id === cat.id))
-				return fail('Kategori ini memiliki sub kategori; OL/actual hanya bisa diisi pada kategori paling bawah')
+			if (p.categories.some((c) => c.parent_id === cat.id)) return fail('Kategori ini memiliki sub kategori; OL/actual hanya bisa diisi pada kategori paling bawah')
 			const week = p.weeks.find((w) => w.week_no === Number(body.week_no))
 			if (!week) return fail('Minggu tidak ditemukan')
 			if (kind === 'ol') {

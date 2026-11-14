@@ -7,7 +7,7 @@ path: /sales-invoice
 status: mock
 tags: [sales-invoice, write]
 resource: /frontend/src/mocks/modules/sales-invoice.ts
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T20:00:00Z
 ---
 
 # Create Sales Invoice
@@ -30,7 +30,7 @@ Backs `PageSalesInvoiceTambah.vue`. Client validation: `views/sales-invoice/sche
   "description": "Pengiriman tahap pertama",
   "discount_type": "percent",
   "discount_value": 5,
-  "lines": [{ "variant_id": 1, "warehouse_id": 1, "quantity": 4, "price": 4200000, "discount": 200000, "notes": "" }],
+  "lines": [{ "product_id": 1, "warehouse_id": 1, "quantity": 4, "price": 4200000, "discount": 200000, "notes": "" }],
   "expenses": [{ "sales_expense_id": 1, "notes": "", "amount": 250000 }],
   "payments": [
     { "payment_type_id": 1, "reference": "", "amount": 5000000, "deposit_id": null },
@@ -42,14 +42,14 @@ Backs `PageSalesInvoiceTambah.vue`. Client validation: `views/sales-invoice/sche
 
 | Field | Type | Rules |
 |---|---|---|
-| `sales_order_id` | number \| null | optional; must be an `approved` [Sales Order](../sales-order/index.md) without another non-rejected invoice (1 SO ↔ 1 invoice). `customer_id` must equal the order's customer; lines are free (prefilled from the order) |
+| `sales_order_id` | number \| null | optional; must be an `approved` [Sales Order](../sales-order/index.md). `customer_id` must equal the order's customer; every line product must be on the order |
 | `date` | string | required; `YYYY-MM-DD`; not in a closed period |
 | `customer_id` `sales_id` `department_id` | number | required; active master rows |
 | `top_days` | number | one of `0, 7, 14, 21, 30, 60, 90, 120` |
 | `pkp_active` | boolean | required |
 | `description` | string | optional |
 | `discount_type` `discount_value` | — | same rules as [create-sales-order](../sales-order/create-sales-order.md) |
-| `lines` | array | at least one; `variant_id` (active variant, unique; see [list-product-variant](../product/list-product-variant.md)), `warehouse_id`, `quantity` (> 0), `price` (> 0), `discount` (≥ 0, ≤ `price`, per unit), `notes` |
+| `lines` | array | at least one; `product_id` (unique), `warehouse_id`, `quantity` (> 0; with an order: ≤ remaining on the order), `price` (> 0), `discount` (≥ 0, ≤ `price`, per unit), `notes` |
 | `expenses` | array | may be empty; `sales_expense_id`, `amount` (> 0), `notes` |
 | `payments` | array | may be empty; `payment_type_id` (a `sale` type with `method` `cash_bank` or `down_payment`, or the hard-coded **Biaya** `-1`), `amount` (> 0), `reference` (optional; ignored for Titipan / Biaya), `deposit_id` (required for `down_payment`, else must be `null`), `sales_expense_id` (required for Biaya = an active [Biaya Penjualan](../sales-expense/index.md), else omitted) |
 
@@ -63,7 +63,7 @@ New invoices are `pending`; each payment becomes a `kind: creation` row dated at
 
 ## Side effects
 
-- With `sales_order_id`: the order becomes `invoiced` and gets the history event "Invoice Dibuat".
+- With `sales_order_id`: `applyInvoicedQuantity(orderId, lines, 1, number)` (sales order `invoiced_quantity` + history "Invoice Dibuat").
 - Each `down_payment` payment adds a `CustomerDepositUsage` row ([contract](../customer-deposit/index.md#contract-for-invoice-penjualan)) and a
   "Dipakai di Invoice Penjualan" event on the deposit.
 
@@ -72,7 +72,6 @@ New invoices are `pending`; each payment becomes a `kind: creation` row dated at
 | Status | When | Body |
 |---|---|---|
 | `422` | validation failure | `{ "message": "Validasi gagal", "errors": { "<field>": ["..."] } }` |
-| `422` | the sales order already has a non-rejected invoice | `{ "message": "Validasi gagal", "errors": { "sales_order_id": ["Sales order sudah dibuatkan invoice <nomor>"] } }` |
 | `422` | `date` in a closed period | `{ "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` |
 
 Error keys: `sales_order_id`, `date`, `customer_id`, `sales_id`, `department_id`, `top_days`, `pkp_active`, `discount_type`, `discount_value`, `lines`, `expenses`, `payments`.

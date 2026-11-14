@@ -19,7 +19,7 @@ export interface DeliveryNoteDraft {
 
 const deliveryNoteLineSchema = v.pipe(
 	v.object({
-		variant_id: v.number(),
+		product_id: v.number(),
 		invoice_quantity: v.number(),
 		quantity: v.pipe(v.number('Jumlah wajib diisi'), v.minValue(0, 'Jumlah tidak boleh negatif'))
 	}),

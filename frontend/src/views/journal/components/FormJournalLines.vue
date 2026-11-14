@@ -199,11 +199,11 @@ function lineValidation(line: JournalFormLine, prefix: string) {
 const draftHasInput = computed(() =>
 	Boolean(
 		lineDraft.account_id ||
-			lineDraft.department_id ||
-			lineDraft.cash_flow ||
-			lineDraft.detail_description?.trim() ||
-			lineDraft.debit ||
-			lineDraft.credit
+		lineDraft.department_id ||
+		lineDraft.cash_flow ||
+		lineDraft.detail_description?.trim() ||
+		lineDraft.debit ||
+		lineDraft.credit
 	)
 )
 
@@ -293,7 +293,11 @@ function submit() {
 					<FormField
 						label="Nomor"
 						:error="errors.number"
-						:help="isEdit ? 'Nomor dikunci setelah jurnal tersimpan supaya referensi di laporan dan jurnal lain tidak berubah.' : undefined"
+						:help="
+							isEdit
+								? 'Nomor dikunci setelah jurnal tersimpan supaya referensi di laporan dan jurnal lain tidak berubah.'
+								: undefined
+						"
 					>
 						<Input v-model="form.number" :disabled="isEdit" placeholder="Otomatis jika dikosongkan" />
 					</FormField>

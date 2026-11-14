@@ -1,62 +1,42 @@
 import type { SalesOrder, SalesOrderExpense, SalesOrderLine } from '@/utils/types'
-import { lineTotal, totals } from '@/views/sales-order/schema'
-import { customerSeed } from './customer'
 
-// Stored shape: inputs, approval bookkeeping, the customer snapshot and the totals stored at save. Labels are resolved on read (mocks/modules/sales-order.ts).
+// Stored shape: only inputs + the approval/invoice bookkeeping. Labels and every amount are derived on read (mocks/modules/sales-order.ts).
 export type SalesOrderRow = Omit<
 	SalesOrder,
-	| 'locked'
 	| 'due_date'
 	| 'customer_code'
+	| 'customer_name'
+	| 'customer_address'
+	| 'customer_phone'
 	| 'sales_code'
 	| 'sales_name'
 	| 'department_code'
 	| 'department_name'
+	| 'discount_global'
 	| 'invoice_status'
-	| 'sales_invoice_id'
-	| 'sales_invoice_number'
 	| 'lines'
 	| 'expenses'
+	| 'subtotal'
+	| 'dpp'
+	| 'ppn'
+	| 'expense_total'
+	| 'total'
 > & {
-	lines: Pick<SalesOrderLine, 'variant_id' | 'warehouse_id' | 'quantity' | 'price' | 'discount' | 'notes' | 'total'>[]
+	lines: Pick<SalesOrderLine, 'product_id' | 'warehouse_id' | 'quantity' | 'price' | 'discount' | 'notes' | 'invoiced_quantity'>[]
 	expenses: Pick<SalesOrderExpense, 'sales_expense_id' | 'notes' | 'amount'>[]
 }
 
-type SeedRow = Omit<
-	SalesOrderRow,
-	'customer_name' | 'customer_address' | 'customer_phone' | 'subtotal' | 'discount_global' | 'dpp' | 'ppn' | 'expense_total' | 'total' | 'lines'
-> & { lines: Omit<SalesOrderRow['lines'][number], 'total'>[] }
-
-// Line ids are default variant ids (= product ids, see fixtures/product.ts).
-const line = (variant_id: number, quantity: number, price: number, discount = 0, notes = '') => ({
-	variant_id,
+const line = (product_id: number, quantity: number, price: number, discount = 0, invoiced_quantity = 0, notes = '') => ({
+	product_id,
 	warehouse_id: 1,
 	quantity,
 	price,
 	discount,
-	notes
+	notes,
+	invoiced_quantity
 })
 
-// Stamps what a save stores (customer snapshot + totals), the same way the ETL fills legacy rows.
-function stored(row: SeedRow): SalesOrderRow {
-	const customer = customerSeed.find((item) => item.id === row.customer_id)
-	const { discount, ...sum } = totals(row.lines, row.expenses, {
-		pkp: row.pkp_active,
-		discount_type: row.discount_type,
-		discount_value: row.discount_value
-	})
-	return {
-		...row,
-		customer_name: customer?.name ?? '',
-		customer_address: customer?.address ?? '',
-		customer_phone: customer?.phone ?? '',
-		lines: row.lines.map((item) => ({ ...item, total: lineTotal(item) })),
-		discount_global: discount,
-		...sum
-	}
-}
-
-const seeds: SeedRow[] = [
+export const salesOrderSeed: SalesOrderRow[] = [
 	{
 		id: 1,
 		number: 'RIN.SO260902001',
@@ -70,10 +50,11 @@ const seeds: SeedRow[] = [
 		discount_type: 'nominal',
 		discount_value: 0,
 		approval_status: 'pending',
+		rejection_reason: null,
 		approved_by: null,
 		approved_at: null,
 		created_by: 'Admin',
-		lines: [line(1, 2, 4_200_000, 100_000), line(3, 2, 250_000, 0, 'Pasang di lantai 2')],
+		lines: [line(1, 2, 4_200_000, 100_000), line(3, 2, 250_000, 0, 0, 'Pasang di lantai 2')],
 		expenses: []
 	},
 	{
@@ -89,6 +70,7 @@ const seeds: SeedRow[] = [
 		discount_type: 'nominal',
 		discount_value: 0,
 		approval_status: 'approved',
+		rejection_reason: null,
 		approved_by: 'Admin',
 		approved_at: '2026-09-05T09:30:00.000Z',
 		created_by: 'Admin',
@@ -108,10 +90,11 @@ const seeds: SeedRow[] = [
 		discount_type: 'percent',
 		discount_value: 5,
 		approval_status: 'approved',
+		rejection_reason: null,
 		approved_by: 'Admin',
 		approved_at: '2026-09-10T09:30:00.000Z',
 		created_by: 'Admin',
-		lines: [line(1, 10, 4_200_000, 200_000), line(3, 5, 250_000, 0, 'Jadwal pemasangan menyusul')],
+		lines: [line(1, 10, 4_200_000, 200_000, 4), line(3, 5, 250_000, 0, 0, 'Jadwal pemasangan menyusul')],
 		expenses: [{ sales_expense_id: 1, notes: 'Kirim ke gudang customer', amount: 250_000 }]
 	},
 	{
@@ -127,10 +110,11 @@ const seeds: SeedRow[] = [
 		discount_type: 'nominal',
 		discount_value: 150_000,
 		approval_status: 'approved',
+		rejection_reason: null,
 		approved_by: 'Admin',
 		approved_at: '2026-09-18T10:00:00.000Z',
 		created_by: 'Admin',
-		lines: [line(3, 8, 250_000)],
+		lines: [line(3, 8, 250_000, 0, 8)],
 		expenses: []
 	},
 	{
@@ -145,7 +129,8 @@ const seeds: SeedRow[] = [
 		description: 'Pesanan yayasan',
 		discount_type: 'nominal',
 		discount_value: 0,
-		approval_status: 'pending',
+		approval_status: 'rejected',
+		rejection_reason: 'SO ditolak, silakan periksa kembali detailnya.',
 		approved_by: null,
 		approved_at: null,
 		created_by: 'Admin',
@@ -165,12 +150,11 @@ const seeds: SeedRow[] = [
 		discount_type: 'nominal',
 		discount_value: 100_000,
 		approval_status: 'pending',
+		rejection_reason: null,
 		approved_by: null,
 		approved_at: null,
 		created_by: 'Admin',
-		lines: [line(1, 2, 4_200_000), line(1001, 12, 65_000), line(1002, 8, 65_000)],
+		lines: [line(1, 2, 4_200_000), line(2, 1, 1_250_000)],
 		expenses: [{ sales_expense_id: 1, notes: '', amount: 300_000 }]
 	}
 ]
-
-export const salesOrderSeed: SalesOrderRow[] = seeds.map(stored)

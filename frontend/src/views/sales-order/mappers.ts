@@ -32,11 +32,9 @@ export function toSalesOrderDraft(order: SalesOrder): SalesOrderDraft {
 		discount_type: order.discount_type,
 		discount_value: order.discount_value,
 		lines: order.lines.map((line) => ({
-			variant_id: line.variant_id,
+			product_id: line.product_id,
 			product_code: line.product_code,
 			product_name: line.product_name,
-			sku: line.sku,
-			variant_label: line.variant_label,
 			brand_name: line.brand_name,
 			unit_name: line.unit_name,
 			warehouse_id: line.warehouse_id,
@@ -67,7 +65,7 @@ export function toSalesOrderRequest(form: SalesOrderForm): SalesOrderRequest {
 		discount_type: form.discount_type,
 		discount_value: form.discount_value,
 		lines: form.lines.map((line) => ({
-			variant_id: line.variant_id,
+			product_id: line.product_id,
 			warehouse_id: line.warehouse_id,
 			quantity: line.quantity,
 			price: line.price,

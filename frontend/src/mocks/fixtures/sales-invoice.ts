@@ -27,12 +27,12 @@ export type SalesInvoiceRow = Omit<
 	| 'outstanding'
 	| 'payment_status'
 > & {
-	lines: Pick<SalesInvoiceLine, 'variant_id' | 'warehouse_id' | 'quantity' | 'price' | 'discount' | 'notes'>[]
+	lines: Pick<SalesInvoiceLine, 'product_id' | 'warehouse_id' | 'quantity' | 'price' | 'discount' | 'notes'>[]
 	expenses: Pick<SalesOrderExpense, 'sales_expense_id' | 'notes' | 'amount'>[]
 }
 
-const line = (variant_id: number, quantity: number, price: number, discount = 0, notes = '') => ({
-	variant_id,
+const line = (product_id: number, quantity: number, price: number, discount = 0, notes = '') => ({
+	product_id,
 	warehouse_id: 1,
 	quantity,
 	price,
@@ -54,7 +54,7 @@ const base = {
 const approved = (at: string) => ({ approval_status: 'approved' as const, approved_by: 'Admin', approved_at: `${at}T09:30:00.000Z` })
 
 // Refs resolve against the company 1 fixtures (customers 1/2/4/5/6, sales 1-3, department 9, products 1-3, warehouse 1).
-// 1 + 2 are the one invoice of Sales Order 3 and 4 (1 SO <-> 1 invoice; invoice 1 ships fewer than ordered, as legacy allows); line ids are default variant ids (= product ids); 4 is dated in the closed period (closed_until 2026-07).
+// 1 + 2 mirror the invoiced quantities already seeded on Sales Order 3 (4 of 10) and 4 (8 of 8); 4 is dated in the closed period (closed_until 2026-07).
 export const salesInvoiceSeed: SalesInvoiceRow[] = [
 	{
 		...base,

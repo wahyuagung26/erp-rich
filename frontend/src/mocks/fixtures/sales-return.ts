@@ -25,7 +25,7 @@ export type SalesReturnRow = Omit<
 	| 'invoice_outstanding'
 	| 'settlement_status'
 	| 'settlements'
-> & { lines: Pick<SalesReturnLine, 'variant_id' | 'quantity'>[] }
+> & { lines: Pick<SalesReturnLine, 'product_id' | 'quantity'>[] }
 
 export interface SalesReturnSettlementRow {
 	id: number
@@ -54,7 +54,7 @@ export const salesReturnSeed: SalesReturnRow[] = [
 		reason: 'Barang diterima dalam kondisi rusak',
 		pkp_active: true,
 		...approved('2026-09-25'),
-		lines: [{ variant_id: 1, quantity: 1 }]
+		lines: [{ product_id: 1, quantity: 1 }]
 	},
 	{
 		...base,
@@ -66,7 +66,7 @@ export const salesReturnSeed: SalesReturnRow[] = [
 		reason: 'Spesifikasi tidak sesuai pesanan',
 		pkp_active: true,
 		approval_status: 'pending',
-		lines: [{ variant_id: 1, quantity: 1 }]
+		lines: [{ product_id: 1, quantity: 1 }]
 	},
 	{
 		...base,
@@ -79,7 +79,7 @@ export const salesReturnSeed: SalesReturnRow[] = [
 		pkp_active: true,
 		...approved('2026-09-28'),
 		tax_invoice: { number: '010.000-26.00000031', date: '2026-09-29', file: null },
-		lines: [{ variant_id: 3, quantity: 2 }]
+		lines: [{ product_id: 3, quantity: 2 }]
 	},
 	{
 		...base,
@@ -91,7 +91,7 @@ export const salesReturnSeed: SalesReturnRow[] = [
 		reason: 'Periode Juli (sudah closing)',
 		pkp_active: true,
 		...approved('2026-07-20'),
-		lines: [{ variant_id: 3, quantity: 1 }]
+		lines: [{ product_id: 3, quantity: 1 }]
 	},
 	{
 		...base,
@@ -104,7 +104,7 @@ export const salesReturnSeed: SalesReturnRow[] = [
 		pkp_active: true,
 		approval_status: 'rejected',
 		rejection_reason: 'Retur ditolak, silakan periksa kembali detailnya.',
-		lines: [{ variant_id: 1, quantity: 1 }]
+		lines: [{ product_id: 1, quantity: 1 }]
 	}
 ]
 

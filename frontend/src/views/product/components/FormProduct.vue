@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconDeviceFloppy, IconPlus, IconTrash, IconX } from '@tabler/icons-vue'
+import { IconDeviceFloppy, IconX } from '@tabler/icons-vue'
 import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
@@ -9,7 +9,6 @@ import MoneyInput from '@/components/base/MoneyInput.vue'
 import Textarea from '@/components/base/Textarea.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import RadioGroup from '@/components/base/RadioGroup.vue'
-import Switch from '@/components/base/Switch.vue'
 import Button from '@/components/base/Button.vue'
 import { useToast } from '@/composables/useToast'
 import { validateProduct, PRODUCT_TYPES, type ProductForm } from '@/views/product/schema'
@@ -34,41 +33,8 @@ const form = reactive<ProductForm>({
 	notes: props.initial?.notes ?? '',
 	last_purchase_price: props.initial?.last_purchase_price ?? 0,
 	selling_price: props.initial?.selling_price ?? 0,
-	photo_url: props.initial?.photo_url ?? '',
-	option_names: [...(props.initial?.option_names ?? [])],
-	// Plain copies (§2: never structuredClone a reactive prop); a new product starts with only the default variant.
-	variants: (props.initial?.variants ?? [{ sku: '', option_values: {}, is_default: true, is_active: true }]).map((item) => ({
-		id: 'id' in item ? item.id : undefined,
-		sku: item.sku,
-		option_values: { ...item.option_values },
-		is_default: item.is_default,
-		is_active: item.is_active
-	}))
+	photo_url: props.initial?.photo_url ?? ''
 })
-
-const optionText = ref(form.option_names.join(', '))
-
-function setOptionNames(value: string | number) {
-	optionText.value = String(value)
-	form.option_names = [
-		...new Set(
-			optionText.value
-				.split(',')
-				.map((name) => name.trim())
-				.filter(Boolean)
-		)
-	]
-}
-
-function addVariant() {
-	form.variants.push({
-		id: undefined,
-		sku: '',
-		option_values: Object.fromEntries(form.option_names.map((name) => [name, ''])),
-		is_default: false,
-		is_active: true
-	})
-}
 
 const errors = ref<Record<string, string>>({})
 
@@ -123,12 +89,7 @@ function onPhotoPick(e: Event) {
 function onSubmit() {
 	const found = validateProduct(form)
 	errors.value = found ?? {}
-	if (!found)
-		emit('submit', {
-			...form,
-			option_names: [...form.option_names],
-			variants: form.variants.map((item) => ({ ...item, option_values: { ...item.option_values } }))
-		})
+	if (!found) emit('submit', { ...form })
 }
 
 // server-side errors (e.g. duplicate code) — parent calls this on a 422
@@ -268,60 +229,6 @@ defineExpose({ setServerErrors })
 					<FormField class="sm:col-span-2" label="Keterangan" :error="errors.notes">
 						<Textarea v-model="form.notes" :rows="2" placeholder="Keterangan produk" />
 					</FormField>
-				</div>
-			</section>
-
-			<section class="space-y-3">
-				<h3 class="subhead">Varian</h3>
-				<FormField label="Atribut Varian" hint="Pisahkan dengan koma, mis. Ukuran, Warna. Kosongkan bila produk tidak punya varian.">
-					<Input :model-value="optionText" class="max-w-md" placeholder="mis. Ukuran" @update:model-value="setOptionNames" />
-				</FormField>
-				<p class="text-s text-ink-subtle">
-					Varian Standar dipakai untuk transaksi tanpa varian dan tidak bisa dihapus. Nonaktifkan bila produk hanya dijual per varian.
-				</p>
-				<div class="overflow-x-auto">
-					<table class="w-full text-m">
-						<thead>
-							<tr class="bg-fill text-left text-s font-medium text-ink-muted [&>th:first-child]:rounded-l-md [&>th:last-child]:rounded-r-md">
-								<th class="px-2 py-2">SKU<span class="text-danger">*</span></th>
-								<th v-for="name in form.option_names" :key="name" class="px-2 py-2">{{ name }}<span class="text-danger">*</span></th>
-								<th class="px-2 py-2">Aktif</th>
-								<th class="px-2 py-2 text-right">Aksi</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="(variant, index) in form.variants" :key="variant.id ?? `new-${index}`" class="border-b border-hairline last:border-0">
-								<td class="min-w-[200px] px-2 py-2">
-									<Input v-model="variant.sku" mono :placeholder="variant.is_default ? 'Sama dengan kode produk' : 'mis. PRD004-XL'" />
-								</td>
-								<td v-for="name in form.option_names" :key="name" class="min-w-[140px] px-2 py-2">
-									<span v-if="variant.is_default" class="text-ink-muted">Standar</span>
-									<Input v-else v-model="variant.option_values[name]" />
-								</td>
-								<td class="px-2 py-2"><Switch v-model="variant.is_active" /></td>
-								<td class="px-2 py-2">
-									<div class="flex justify-end">
-										<Button
-											v-if="!variant.is_default"
-											type="button"
-											size="sm"
-											variant="subtle"
-											title="Hapus varian"
-											@click="form.variants.splice(index, 1)"
-										>
-											<IconTrash class="h-4 w-4" />
-										</Button>
-									</div>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div class="flex flex-wrap items-center justify-between gap-2">
-					<p class="text-s text-danger">{{ errors.variants }}</p>
-					<Button v-if="form.option_names.length" type="button" size="sm" variant="secondary" @click="addVariant">
-						<IconPlus class="h-4 w-4" /> Tambah Varian
-					</Button>
 				</div>
 			</section>
 

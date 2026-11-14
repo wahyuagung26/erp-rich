@@ -7,7 +7,7 @@ path: /sales-invoice/:id/deliverable-lines
 status: mock
 tags: [delivery-note, read, lookup]
 resource: /frontend/src/mocks/modules/delivery-note.ts
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-06T17:00:00Z
 ---
 
 # Get Sales Invoice Deliverable Lines
@@ -44,7 +44,7 @@ its lines from [get-delivery-note](./get-delivery-note.md). Modelled on
       "department_name": "Finance & Accounting"
     },
     "lines": [
-      { "variant_id": 1, "product_id": 1, "product_code": "PRD001", "sku": "PRD001", "variant_label": "Standar", "product_name": "Produk Contoh", "brand_name": "Merk Contoh", "unit_name": "Pieces", "invoice_quantity": 2, "quantity": 2 }
+      { "product_id": 1, "product_code": "PRD001", "product_name": "Produk Contoh", "brand_name": "Merk Contoh", "unit_name": "Pieces", "invoice_quantity": 2, "quantity": 2 }
     ]
   }
 }
