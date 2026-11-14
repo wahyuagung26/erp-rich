@@ -19,10 +19,12 @@ a debounce, or a list-fetch loop — **look in `src/components/base/` and `src/c
 It is almost certainly already there:
 
 - primitives: `Button Input Textarea Select Checkbox RadioGroup Switch DatePicker
-  DateRangePicker FileDrop FormField Table TablePagination RowActions InlineEdit Modal ConfirmDialog Badge Tabs Breadcrumb
+  DateRangePicker FileDrop FormField Table TablePagination RowActions InlineEdit Modal ConfirmDialog Badge Tabs Breadcrumb TagInput
   PageHeader FilterBar Panel EmptyState Skeleton Spinner Amount StatTile`
 - composables: `useTableList` (the whole list/table/sort/filter/paginate loop), `useToast`,
   `useConfirm`, `useDebounce`, `onClickOutside`
+
+**Product on a transaction line** → `<VariantSelect>` (SKU picker on `GET /product-variant`, two-line rows) to pick and `<VariantName>` to show it (name + variant chip + SKU · merk), both in `components/common/`. `AsyncSelect` takes an `#option="{ item }"` slot and `menu-min-width` for richer pickers.
 
 **Dropdown that references another menu's data** (Merk, Cabang, Akun, Sub Akun, …) → `AsyncSelect` (search + infinite scroll; pass `initial-label` from the denormalized code/name on edit; `@select` gives the picked row). Never an eager-fetch `<Select>` — plain `Select` is only for fixed enums.
 
@@ -178,7 +180,8 @@ make the mock fail, click twice), not by reading the code.
    status, auto-filled, closed period, immutable after create…) gets a help icon
    (`IconHelp`/`IconInfoCircle`, muted) right of its label with a tooltip saying *why* it is
    disabled and, if possible, how to enable it ("Tidak bisa diubah karena dokumen sudah disetujui.").
-   Use `<FormField help="…">` (renders `<HelpTip>`, CSS-only, works on hover/focus/tap) — don't
+   Use `<FormField help="…">` (renders `<HelpTip>`, a click/tap/Enter popover with an X; `HelpTip` also takes `title` and
+   `sections` for richer help) — don't
    hand-roll a tooltip, and don't leave the reason only in the grey `hint` line.
 
 ## 6. Design rules (full list: DESIGN_SYSTEM.md)

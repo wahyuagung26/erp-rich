@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconDeviceFloppy, IconX } from '@tabler/icons-vue'
+import { IconDeviceFloppy, IconTrash, IconX } from '@tabler/icons-vue'
 import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
@@ -10,7 +10,9 @@ import Textarea from '@/components/base/Textarea.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import RadioGroup from '@/components/base/RadioGroup.vue'
 import Button from '@/components/base/Button.vue'
+import FileDrop from '@/components/base/FileDrop.vue'
 import { useToast } from '@/composables/useToast'
+import ProductVariants from '@/views/product/components/ProductVariants.vue'
 import { validateProduct, PRODUCT_TYPES, type ProductForm } from '@/views/product/schema'
 import type { Brand, Product, ProductCategory, SalesType, Supplier, Unit } from '@/utils/types'
 
@@ -33,10 +35,32 @@ const form = reactive<ProductForm>({
 	notes: props.initial?.notes ?? '',
 	last_purchase_price: props.initial?.last_purchase_price ?? 0,
 	selling_price: props.initial?.selling_price ?? 0,
-	photo_url: props.initial?.photo_url ?? ''
+	photo_url: props.initial?.photo_url ?? '',
+	option_names: [...(props.initial?.option_names ?? [])],
+	// Plain copies (§2: never structuredClone a reactive prop); a new product starts with only the default variant.
+	variants: (props.initial?.variants ?? [{ sku: '', option_values: {}, is_default: true, is_active: true, selling_price: 0 }]).map((item) => ({
+		id: 'id' in item ? item.id : undefined,
+		sku: item.sku,
+		option_values: { ...item.option_values },
+		is_default: item.is_default,
+		is_active: item.is_active,
+		selling_price: item.selling_price
+	}))
+})
+
+const isService = computed(() => form.type === 'service')
+// Jasa has no size/colour and no stock: variants and Stok Minimal are hidden unless the product already has saved variants.
+const hasSavedVariants = (props.initial?.option_names?.length ?? 0) > 0
+const showVariants = computed(() => !isService.value || hasSavedVariants)
+const variantMode = ref(hasSavedVariants)
+const sellsPerVariant = computed(() => showVariants.value && variantMode.value)
+const skuSummary = computed(() => {
+	const sellable = form.variants.filter((item) => item.is_active).length
+	return `${form.variants.length} SKU · ${sellable} aktif`
 })
 
 const errors = ref<Record<string, string>>({})
+const variantsRef = ref<InstanceType<typeof ProductVariants>>()
 
 // Already-denormalized on the entity (see docs/product/) — no resolve-by-id fetch needed on edit.
 const initialBrandLabel = props.initial?.brand_code ? `${props.initial.brand_code} — ${props.initial.brand_name}` : undefined
@@ -70,26 +94,41 @@ const unitLabel = (item: Record<string, unknown>) => {
 }
 
 const MAX_PHOTO = 2 * 1024 * 1024
+const PHOTO_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
 
-// ponytail: no FileUpload base component exists; raw input + FileReader to a data
-// URL is the whole feature. Swap photo_url for a real upload endpoint when the backend lands.
-function onPhotoPick(e: Event) {
-	const file = (e.target as HTMLInputElement).files?.[0]
+// ponytail: the photo is kept as a data URL; swap photo_url for a real upload endpoint when the backend lands.
+function onPhotoPick(file: File | undefined) {
 	if (!file) return
-	if (file.size > MAX_PHOTO) {
-		toast.error('Ukuran foto maksimal 2 MB')
-		;(e.target as HTMLInputElement).value = ''
-		return
-	}
+	if (!PHOTO_TYPES.includes(file.type)) return toast.error('Foto harus JPG, PNG, GIF, atau WEBP')
+	if (file.size > MAX_PHOTO) return toast.error('Ukuran foto maksimal 2 MB')
 	const reader = new FileReader()
 	reader.onload = () => (form.photo_url = String(reader.result))
 	reader.readAsDataURL(file)
 }
 
+// The request body: one Standar SKU at Harga Jual without variants; with variants Harga Jual mirrors the Standar price.
+function payload(): ProductForm {
+	const standar = form.variants.find((item) => item.is_default)!
+	const variants = sellsPerVariant.value
+		? form.variants.map((item) => ({ ...item, option_values: { ...item.option_values } }))
+		: [{ ...standar, option_values: {}, is_active: true, selling_price: form.selling_price }]
+	return {
+		...form,
+		min_stock: isService.value ? 0 : form.min_stock,
+		selling_price: sellsPerVariant.value ? standar.selling_price : form.selling_price,
+		option_names: sellsPerVariant.value ? [...form.option_names] : [],
+		variants
+	}
+}
+
 function onSubmit() {
-	const found = validateProduct(form)
+	const body = payload()
+	const variantError = sellsPerVariant.value ? variantsRef.value?.check() : null
+	const found = validateProduct(body) ?? (variantError ? {} : null)
+	if (found && variantError) found.variants = variantError
 	errors.value = found ?? {}
-	if (!found) emit('submit', { ...form })
+	if (found) return toast.error('Periksa kembali isian yang ditandai merah')
+	emit('submit', body)
 }
 
 // server-side errors (e.g. duplicate code) — parent calls this on a 422
@@ -125,18 +164,21 @@ defineExpose({ setServerErrors })
 					<FormField class="sm:col-span-2" label="Jenis Produk" required :error="errors.type">
 						<RadioGroup v-model="form.type" inline :options="[...PRODUCT_TYPES]" />
 					</FormField>
-					<FormField class="sm:col-span-2" label="Foto Produk" :error="errors.photo_url" hint="JPG, PNG, GIF, atau WEBP. Maksimal 2 MB.">
-						<div class="flex items-center gap-3">
-							<img v-if="form.photo_url" :src="form.photo_url" alt="Foto produk" class="h-14 w-14 rounded-md object-contain" />
-							<div v-else class="grid h-14 w-14 place-items-center rounded-md bg-fill text-xs text-ink-subtle">Foto</div>
-							<input
-								type="file"
-								accept="image/png,image/jpeg,image/gif,image/webp"
-								class="text-s text-ink-muted file:mr-3 file:rounded-md file:border-0 file:bg-fill file:px-3 file:py-1.5 file:text-s file:text-ink"
-								@change="onPhotoPick"
-							/>
-							<button v-if="form.photo_url" type="button" class="text-s text-danger hover:underline" @click="form.photo_url = ''">Hapus</button>
+					<FormField class="sm:col-span-2" label="Keterangan" :error="errors.notes">
+						<Textarea v-model="form.notes" :rows="2" placeholder="mis. spesifikasi singkat atau catatan gudang" />
+					</FormField>
+					<FormField class="sm:col-span-2" label="Foto Produk" :error="errors.photo_url">
+						<div v-if="form.photo_url" class="flex items-center gap-4">
+							<img :src="form.photo_url" alt="Foto produk" class="h-24 w-24 rounded-md bg-fill object-contain" />
+							<Button type="button" size="sm" variant="subtle" @click="form.photo_url = ''"><IconTrash class="h-4 w-4" /> Hapus Foto</Button>
 						</div>
+						<FileDrop
+							v-else
+							class="max-w-md"
+							accept="image/png,image/jpeg,image/gif,image/webp"
+							hint="JPG, PNG, GIF, atau WEBP. Maksimal 2 MB."
+							@update:model-value="onPhotoPick"
+						/>
 					</FormField>
 				</div>
 			</section>
@@ -198,15 +240,45 @@ defineExpose({ setServerErrors })
 				</div>
 			</section>
 
+			<ProductVariants
+				v-if="showVariants"
+				ref="variantsRef"
+				v-model:enabled="variantMode"
+				v-model:option-names="form.option_names"
+				v-model:variants="form.variants"
+				:code="form.code"
+				:base-price="form.selling_price"
+				:product-id="initial?.id"
+				:error="errors.variants"
+			/>
+
 			<section class="space-y-3">
-				<h3 class="subhead">Stok &amp; Harga</h3>
+				<h3 class="subhead">Harga &amp; Stok</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
 					<FormField
-						class="sm:col-span-2"
+						label="Harga Beli Terakhir"
+						required
+						:error="errors.last_purchase_price"
+						:hint="sellsPerVariant ? 'Berlaku untuk semua varian produk ini.' : undefined"
+					>
+						<MoneyInput v-model="form.last_purchase_price" />
+					</FormField>
+					<FormField v-if="!sellsPerVariant" label="Harga Jual" required :error="errors.selling_price" hint="Sebelum pajak.">
+						<MoneyInput v-model="form.selling_price" />
+					</FormField>
+					<FormField v-else label="Harga Jual">
+						<p class="py-2 text-m text-ink-muted">Diatur per SKU di tabel Varian.</p>
+					</FormField>
+					<FormField v-if="isEdit" label="HPP Rata-rata" help="Dihitung otomatis dari transaksi pembelian, jadi tidak bisa diubah manual.">
+						<MoneyInput :model-value="props.initial?.hpp_avg ?? 0" disabled />
+					</FormField>
+					<FormField
+						v-if="!isService"
+						:class="!isEdit && 'sm:col-span-2'"
 						label="Stok Minimal"
 						required
 						:error="errors.min_stock"
-						hint="Batas stok minimal untuk peringatan restock."
+						hint="Batas stok untuk peringatan restock."
 					>
 						<Input
 							:model-value="form.min_stock"
@@ -214,27 +286,20 @@ defineExpose({ setServerErrors })
 							mono
 							align="right"
 							class="max-w-[200px]"
+							:addon="initial?.unit_name"
 							@update:model-value="(v) => (form.min_stock = Number(v))"
 						/>
-					</FormField>
-					<FormField label="Harga Beli Terakhir" required :error="errors.last_purchase_price" hint="Nominal rupiah tanpa desimal.">
-						<MoneyInput v-model="form.last_purchase_price" />
-					</FormField>
-					<FormField label="Harga Jual" required :error="errors.selling_price" hint="Nominal rupiah tanpa desimal.">
-						<MoneyInput v-model="form.selling_price" />
-					</FormField>
-					<FormField class="sm:col-span-2" label="HPP Rata-rata" help="Dihitung otomatis dari transaksi pembelian, jadi tidak bisa diubah manual.">
-						<MoneyInput :model-value="props.initial?.hpp_avg ?? 0" disabled class="max-w-[240px]" />
-					</FormField>
-					<FormField class="sm:col-span-2" label="Keterangan" :error="errors.notes">
-						<Textarea v-model="form.notes" :rows="2" placeholder="Keterangan produk" />
 					</FormField>
 				</div>
 			</section>
 
-			<div class="flex flex-wrap justify-end gap-2 pt-2">
-				<Button variant="secondary" type="button" @click="router.push('/product')"> <IconX class="h-4 w-4" /> Batal </Button>
-				<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
+			<!-- Sticky action bar: Simpan stays in reach however long the variant table gets. -->
+			<div class="sticky bottom-0 z-10 -mx-4 -mb-4 flex flex-wrap items-center justify-between gap-3 border-t border-hairline bg-panel px-4 py-3">
+				<p class="text-s text-ink-muted">{{ sellsPerVariant ? skuSummary : '' }}</p>
+				<div class="flex flex-wrap justify-end gap-2">
+					<Button variant="secondary" type="button" @click="router.push('/product')"> <IconX class="h-4 w-4" /> Batal </Button>
+					<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>
+				</div>
 			</div>
 		</form>
 	</Panel>

@@ -1,14 +1,15 @@
 <script setup lang="ts">
-defineProps<{ modelValue?: boolean; label?: string }>()
+defineProps<{ modelValue?: boolean; label?: string; disabled?: boolean }>()
 defineEmits<{ 'update:modelValue': [boolean] }>()
 </script>
 
 <template>
-	<label class="inline-flex cursor-pointer select-none items-center gap-2 text-m text-ink">
+	<label :class="['inline-flex select-none items-center gap-2 text-m text-ink', disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']">
 		<button
 			type="button"
 			role="switch"
 			:aria-checked="modelValue"
+			:disabled="disabled"
 			:class="['relative h-5 w-9 rounded-full transition-colors', modelValue ? 'bg-primary' : 'bg-hairline']"
 			@click="$emit('update:modelValue', !modelValue)"
 		>

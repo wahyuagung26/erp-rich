@@ -7,7 +7,7 @@ path: /sales-order
 status: mock
 tags: [sales-order, write]
 resource: /frontend/src/mocks/modules/sales-order.ts
-timestamp: 2026-11-06T15:00:00Z
+timestamp: 2026-11-13T12:00:00Z
 ---
 
 # Create Sales Order
@@ -29,7 +29,7 @@ Backs `views/sales-order/pages/PageSalesOrderTambah.vue`. Client-side validation
   "description": "Pesanan rutin bulanan",
   "discount_type": "percent",
   "discount_value": 5,
-  "lines": [{ "product_id": 1, "warehouse_id": 1, "quantity": 1, "price": 4200000, "discount": 200000, "notes": "" }],
+  "lines": [{ "variant_id": 1, "warehouse_id": 1, "quantity": 1, "price": 4200000, "discount": 200000, "notes": "" }],
   "expenses": [{ "sales_expense_id": 1, "notes": "Kirim ke gudang customer", "amount": 250000 }]
 }
 ```
@@ -45,24 +45,26 @@ Backs `views/sales-order/pages/PageSalesOrderTambah.vue`. Client-side validation
 | `description` | string | optional |
 | `discount_type` | string | required; `nominal` or `percent` |
 | `discount_value` | number | ≥ 0; `percent` → 0–100; `nominal` → not greater than the products subtotal |
-| `lines` | array | at least one; each `product_id` (active product, **unique per order**), `warehouse_id` (active warehouse), `quantity` (> 0), `price` (> 0), `discount` (≥ 0, ≤ `price`, per unit), `notes` (optional) |
+| `lines` | array | at least one; each `variant_id` (active variant of a live product, see [list-product-variant](../product/list-product-variant.md); **unique per order**), `warehouse_id` (active warehouse), `quantity` (> 0), `price` (> 0), `discount` (≥ 0, ≤ `price`, per unit), `notes` (optional) |
 | `expenses` | array | may be empty; each `sales_expense_id` (active Biaya Penjualan), `amount` (> 0), `notes` (optional) |
 
-The client never sends `id`, `number`, `due_date`, status fields, resolved labels, `invoiced_quantity` or any computed amount.
+The client never sends `id`, `number`, `due_date`, status fields, resolved labels, the customer snapshot, or any computed amount.
+The server stores the customer snapshot (`customer_name`, `customer_address`, `customer_phone`) and every amount at save.
 
 ## Response
 
 `201`: `{ "data": { ...SalesOrder }, "message": "Sales order ditambahkan" }` — shape in [get-sales-order](./get-sales-order.md).
-New orders are `pending` / `not_invoiced` with every `invoiced_quantity = 0`.
+New orders are `pending` / `not_invoiced`.
 
 ## Errors
 
 | Status | When | Body |
 |---|---|---|
 | `422` | validation failure | `{ "message": "Validasi gagal", "errors": { "<field>": ["..."] } }` |
+| `422` | `date` in a closed period | `{ "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` |
 
 Error keys: `date`, `customer_id`, `sales_id`, `department_id`, `top_days`, `pkp_active`, `discount_type`, `discount_value`, `lines`, `expenses`.
 
 ## Notes
 
-No closing-period check: Sales Order does not move stock or journal ([index](./index.md)).
+A `date` in a closed period is refused ([conventions](../conventions.md#closing-period-lock-locked)), even though Sales Order moves no stock or journal.

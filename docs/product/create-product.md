@@ -7,7 +7,7 @@ path: /product
 status: mock
 tags: [product, write]
 resource: /frontend/src/mocks/modules/product.ts
-timestamp: 2026-09-07T10:00:00Z
+timestamp: 2026-11-15T12:00:00Z
 ---
 
 # Create Product
@@ -39,7 +39,12 @@ Backs `views/product/pages/PageProductTambah.vue`. Client-side validation:
   "notes": "Stok gudang utama",
   "last_purchase_price": 3500000,
   "selling_price": 4200000,
-  "photo_url": ""
+  "photo_url": "",
+  "option_names": ["Ukuran"],
+  "variants": [
+    { "sku": "", "option_values": {}, "is_default": true, "is_active": false, "selling_price": 4200000 },
+    { "sku": "PRD004-S", "option_values": { "Ukuran": "S" }, "is_active": true, "selling_price": 65000 }
+  ]
 }
 ```
 
@@ -56,8 +61,10 @@ Backs `views/product/pages/PageProductTambah.vue`. Client-side validation:
 | `min_stock` | number | required; integer >= 0 |
 | `notes` | string | optional |
 | `last_purchase_price` | number | required; integer >= 0 |
-| `selling_price` | number | required; integer >= 0 |
+| `selling_price` | number | required; integer >= 0. Price of the default variant when `option_names` is empty; ignored otherwise (each variant carries its own) |
 | `photo_url` | string | optional; data-URL string |
+| `option_names` | string[] | optional; trimmed, blanks and duplicates dropped |
+| `variants` | array | optional. The entry with `is_default: true` sets the default variant's `sku` (blank = product `code`), `is_active` and `selling_price`. Every other entry needs `sku`, a non-blank value for each `option_names` entry, and `selling_price` (integer >= 0). On update, an entry with an existing `id` updates that variant, an entry without `id` adds one, and a stored variant missing from the list is soft-deleted |
 
 `id` and `company_id` are **not** accepted from the client — the server assigns
 them (`company_id` is stamped from the active company, see
@@ -85,4 +92,5 @@ transactions / [PATCH `/product/:id/price`](../product-price/update-price.md).
 | `422` | `sales_type_id` doesn't reference a valid row | `{ "message": "...", "errors": { "sales_type_id": ["Jenis penjualan tidak valid"] } }` |
 | `422` | `supplier_id` doesn't reference a valid row | `{ "message": "...", "errors": { "supplier_id": ["Supplier utama tidak valid"] } }` |
 | `422` | `unit_id` doesn't reference a valid row | `{ "message": "...", "errors": { "unit_id": ["Satuan tidak valid"] } }` |
+| `422` | variant rules: SKU blank or duplicated (in the request or on another product of the company), option value blank, variant `selling_price` missing/negative/not an integer, duplicate option combination, variants without `option_names`, or no active variant | `{ "message": "Validasi gagal", "errors": { "variants": ["..."] } }` |
 | `422` | no active company | `{ "message": "Pilih perusahaan aktif terlebih dahulu" }` |

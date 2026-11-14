@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import VariantName from '@/components/common/VariantName.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
@@ -97,7 +98,7 @@ const totals = computed(() => {
 
 const ACTIONS: Record<string, { label: string; type: 'info' | 'danger'; message: string }> = {
 	approved: { label: 'Setujui', type: 'info', message: 'Invoice yang disetujui mengeluarkan stok dan membentuk jurnal piutang.' },
-	rejected: { label: 'Tolak', type: 'danger', message: 'Invoice yang ditolak melepas jumlah pada sales order.' },
+	rejected: { label: 'Tolak', type: 'danger', message: 'Invoice yang ditolak melepas sales order-nya sehingga bisa dibuatkan invoice lain.' },
 	resubmit: { label: 'Ajukan Ulang', type: 'info', message: 'Invoice kembali menunggu persetujuan.' },
 	unapprove: { label: 'Batalkan Approval', type: 'danger', message: 'Stok dan jurnal invoice dikembalikan, invoice kembali menunggu persetujuan.' }
 }
@@ -309,10 +310,9 @@ function remove() {
 								</tr>
 							</thead>
 							<tbody>
-								<tr v-for="line in invoice.lines" :key="line.product_id" class="border-b border-hairline last:border-0">
+								<tr v-for="line in invoice.lines" :key="line.variant_id" class="border-b border-hairline last:border-0">
 									<td class="px-3 py-3 text-ink">
-										<div>{{ line.product_name }}</div>
-										<div class="text-s text-ink-muted">{{ [line.product_code, line.brand_name].filter(Boolean).join(' · ') }}</div>
+										<VariantName :name="line.product_name" :sku="line.sku" :label="line.variant_label" :brand="line.brand_name" />
 										<div v-if="line.notes" class="text-s text-ink-muted">{{ line.notes }}</div>
 									</td>
 									<td class="px-3 py-3 text-ink">

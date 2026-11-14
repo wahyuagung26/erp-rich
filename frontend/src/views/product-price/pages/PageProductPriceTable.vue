@@ -14,7 +14,7 @@ import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Table from '@/components/base/Table.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
-import type { Brand, Product, ProductCategory, TableRow } from '@/utils/types'
+import type { Brand, Product, ProductCategory, ProductVariant, TableRow } from '@/utils/types'
 
 const toast = useToast()
 
@@ -32,8 +32,26 @@ function onFilter<K extends keyof typeof filters>(key: K, value: (typeof filters
 	runSearch()
 }
 
-const marginValue = (row: Product) => row.selling_price - row.hpp_avg
-const marginPct = (row: Product) => (row.hpp_avg > 0 ? `${((marginValue(row) / row.hpp_avg) * 100).toFixed(2)}%` : '—')
+// Margin against the product's HPP, for the product price or one SKU's price.
+const marginValue = (row: Product, price = row.selling_price) => price - row.hpp_avg
+const marginPct = (row: Product, price = row.selling_price) =>
+	row.hpp_avg > 0 ? `${((marginValue(row, price) / row.hpp_avg) * 100).toFixed(2)}%` : '—'
+const variantLabel = (variant: ProductVariant) => Object.values(variant.option_values).join(' / ') || 'Standar'
+
+// Products with variants: each SKU's selling price saves on its own (docs/product-price/update-variant-price.md).
+async function saveVariant(row: Product, variant: ProductVariant, value: number) {
+	if (!Number.isInteger(value) || value < 0) {
+		toast.error('Harga harus bilangan bulat dan tidak negatif')
+		return
+	}
+	try {
+		await api.patch(`/product-variant/${variant.id}/price`, { selling_price: value })
+		toast.success(`Harga "${row.name} · ${variantLabel(variant)}" diperbarui`)
+		fetchList()
+	} catch (err) {
+		toast.error(errorMessage(err, 'Harga varian gagal diperbarui'))
+	}
+}
 
 // Each price saves on its own: send the row's current prices with the one field that changed.
 async function save(row: Product, field: 'selling_price' | 'last_purchase_price', value: number) {
@@ -100,6 +118,21 @@ const rows: TableRow[] = [
 					<span v-if="row.field === 'code'" class="text-ink">{{ column.code }}</span>
 					<span v-else-if="row.field === 'name'" class="text-ink">{{ column.name }}</span>
 					<span v-else-if="row.field === 'hpp_avg'"><Amount :value="column.hpp_avg as number" muted /></span>
+					<div v-else-if="row.field === 'selling_price' && (column as unknown as Product).option_names.length" class="space-y-1.5">
+						<div v-for="variant in (column as unknown as Product).variants" :key="variant.id" class="flex items-center justify-end gap-2">
+							<span :class="['whitespace-nowrap text-s', variant.is_active ? 'text-ink-muted' : 'text-ink-subtle line-through']">{{
+								variantLabel(variant)
+							}}</span>
+							<InlineEdit
+								kind="money"
+								:label="`Harga jual ${column.name} ${variantLabel(variant)}`"
+								:model-value="variant.selling_price"
+								@save="(v) => saveVariant(column as unknown as Product, variant, v as number)"
+							>
+								<Amount :value="variant.selling_price" />
+							</InlineEdit>
+						</div>
+					</div>
 					<InlineEdit
 						v-else-if="row.field === 'last_purchase_price' || row.field === 'selling_price'"
 						kind="money"
@@ -109,6 +142,12 @@ const rows: TableRow[] = [
 					>
 						<Amount :value="column[row.field] as number" />
 					</InlineEdit>
+					<div v-else-if="row.field === 'margin' && (column as unknown as Product).option_names.length" class="space-y-1.5">
+						<div v-for="variant in (column as unknown as Product).variants" :key="variant.id" class="whitespace-nowrap py-1">
+							<Amount :value="marginValue(column as unknown as Product, variant.selling_price)" />
+							<span class="ml-1 text-s text-ink-subtle">{{ marginPct(column as unknown as Product, variant.selling_price) }}</span>
+						</div>
+					</div>
 					<span v-else-if="row.field === 'margin'" class="whitespace-nowrap">
 						<Amount :value="marginValue(column as unknown as Product)" />
 						<span class="ml-1 text-s text-ink-subtle">{{ marginPct(column as unknown as Product) }}</span>

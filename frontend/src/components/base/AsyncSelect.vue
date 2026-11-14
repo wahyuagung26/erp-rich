@@ -11,7 +11,7 @@ import type { ApiList } from '@/utils/types'
 // Cabang, Akun, Sub Akun, ...) uses this, never an eager-fetch <Select>. Plain
 // <Select> is only for fixed picklists (enums like status/type). Pass the already-
 // denormalized code/name as `initialLabel` on edit; use `@select` to read other
-// fields of the picked row (e.g. its `code`).
+// fields of the picked row (e.g. its `code`). `#option="{ item }"` customises a menu row.
 //
 // Not a generic SFC: Vue's template type inference can't pin a generic from a
 // callback prop alone (no typed `items` prop to anchor it, and `endpoint` is
@@ -31,8 +31,9 @@ const props = withDefaults(
 		perPage?: number
 		disabled?: boolean
 		params?: Record<string, string | number> // extra query params merged into every request, e.g. { type: 'cash_bank' }
+		menuMinWidth?: number // px; widen the menu past a narrow trigger (e.g. two-line rows in a grid cell)
 	}>(),
-	{ perPage: 20, placeholder: 'Pilih…' }
+	{ perPage: 20, placeholder: 'Pilih…', menuMinWidth: 240 }
 )
 
 const emit = defineEmits<{ 'update:modelValue': [number | string | null]; select: [item: Row | null] }>()
@@ -83,7 +84,8 @@ function place() {
 	const r = root.value!.getBoundingClientRect()
 	const h = menuEl.value?.offsetHeight ?? 0
 	const flip = h > 0 && r.bottom + 4 + h > window.innerHeight && r.top > h // open upward when there's no room below
-	pos.value = { left: r.left, width: r.width, top: flip ? r.top - h - 4 : r.bottom + 4 }
+	const width = Math.max(r.width, props.menuMinWidth)
+	pos.value = { left: Math.max(8, Math.min(r.left, window.innerWidth - width - 8)), width, top: flip ? r.top - h - 4 : r.bottom + 4 } // keep a wide menu on screen
 }
 async function onOpen() {
 	if (props.disabled) return
@@ -160,7 +162,7 @@ onBeforeUnmount(() => {
 			<div
 				v-if="open"
 				ref="menuEl"
-				class="fixed z-[60] min-w-[240px] rounded-md bg-panel shadow-overlay"
+				class="fixed z-[60] rounded-md bg-panel shadow-overlay"
 				:style="{ top: pos.top + 'px', left: pos.left + 'px', width: pos.width + 'px' }"
 			>
 				<div class="flex items-center gap-2 border-b border-hairline px-2.5 py-2">
@@ -183,7 +185,8 @@ onBeforeUnmount(() => {
 						class="block w-full truncate rounded px-2.5 py-2 text-left text-m text-ink hover:bg-fill"
 						@click="pick(item)"
 					>
-						{{ optionLabel(item) }}
+						<!-- #option renders a richer row (e.g. two-line SKU picker); the trigger still shows optionLabel -->
+						<slot name="option" :item="item">{{ optionLabel(item) }}</slot>
 					</button>
 					<p v-if="!loading && !options.length" class="px-2.5 py-2 text-s text-ink-subtle">Tidak ada hasil</p>
 				</div>

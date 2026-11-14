@@ -7,7 +7,7 @@ path: /sales-invoice/:id/approval
 status: mock
 tags: [sales-invoice, write]
 resource: /frontend/src/mocks/modules/sales-invoice.ts
-timestamp: 2026-11-06T16:00:00Z
+timestamp: 2026-11-13T12:00:00Z
 ---
 
 # Update Sales Invoice Approval Status
@@ -32,8 +32,8 @@ Approve moves stock out and posts the journal in the real system (mock: state + 
 | `status` | From | Meaning |
 |---|---|---|
 | `approved` | `pending` | Setujui — sets `approved_by` / `approved_at` |
-| `rejected` | `pending` | Tolak — sets `rejection_reason`; releases the Sales Order quantity (`applyInvoicedQuantity −1`) |
-| `pending` | `rejected` | Ajukan Ulang — re-reserves the Sales Order quantity (refused if it no longer fits) |
+| `rejected` | `pending` | Tolak — sets `rejection_reason`; releases the Sales Order (it may get another invoice) |
+| `pending` | `rejected` | Ajukan Ulang — takes the Sales Order again (refused if another invoice took it meanwhile) |
 | `pending` | `approved` | Batalkan Approval — clears approval metadata |
 
 ## Response

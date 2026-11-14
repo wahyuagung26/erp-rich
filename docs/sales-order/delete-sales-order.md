@@ -7,7 +7,7 @@ path: /sales-order/:id
 status: mock
 tags: [sales-order, write]
 resource: /frontend/src/mocks/modules/sales-order.ts
-timestamp: 2026-11-06T15:00:00Z
+timestamp: 2026-11-13T12:00:00Z
 ---
 
 # Delete Sales Order
@@ -31,8 +31,8 @@ Backs the delete action in `PageSalesOrderTable.vue` and `PageSalesOrderDetail.v
 | Status | When | Body |
 |---|---|---|
 | `404` | id not found | `{ "message": "Sales order tidak ditemukan" }` |
-| `422` | approved, or already has an invoice | `{ "message": "..." }` |
+| `422` | `date` in a closed period, or approved (an invoiced order is always approved) | `{ "message": "..." }` |
 
 ## Notes
 
-Same write guard as [update-sales-order](./update-sales-order.md) (messages say "dihapus"). Hard delete; the history timeline is deleted with it. No closing-period check.
+Same write guard as [update-sales-order](./update-sales-order.md) (messages say "dihapus"). Hard delete; the history timeline is deleted with it.

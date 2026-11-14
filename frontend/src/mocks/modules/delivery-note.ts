@@ -6,6 +6,7 @@ import { diffFields, diffLines, fmtDate, purgeHistory, recordHistory, recordUpda
 import { findSalesInvoice, unapproveGuards } from './sales-invoice'
 import type { DeliveryNoteRow } from '../fixtures/delivery-note'
 import type { DeliveryNote, DeliveryNoteLine, DeliveryNoteRequest, SalesInvoice } from '@/utils/types'
+import { variantFields } from './product'
 
 const NOT_FOUND = 'Surat jalan tidak ditemukan'
 const idOf = (url?: string) => Number(url?.split('/').at(-1))
@@ -24,17 +25,13 @@ unapproveGuards.push((invoiceId) => {
 
 // Every invoice line, `quantity` taken from the stored SJ line (0 when absent); the invoice's lines are frozen while it is approved.
 function resolveLines(stored: DeliveryNoteRow['lines'], invoice?: SalesInvoice): DeliveryNoteLine[] {
-	const source = invoice ? invoice.lines.map((line) => ({ product_id: line.product_id, invoice_quantity: line.quantity })) : []
+	const source = invoice ? invoice.lines.map((line) => ({ variant_id: line.variant_id, invoice_quantity: line.quantity })) : []
 	return source.map((line) => {
-		const product = db.product.find((item) => item.id === line.product_id && !item.deleted_at)
 		return {
-			product_id: line.product_id,
-			product_code: product?.code,
-			product_name: product?.name,
-			brand_name: product?.brand_name,
-			unit_name: product?.unit_name,
+			...variantFields(line.variant_id),
+			variant_id: line.variant_id,
 			invoice_quantity: line.invoice_quantity,
-			quantity: stored.find((item) => item.product_id === line.product_id)?.quantity ?? 0
+			quantity: stored.find((item) => item.variant_id === line.variant_id)?.quantity ?? 0
 		}
 	})
 }
@@ -76,12 +73,12 @@ function validate(body: DeliveryNoteRequest, invoice: SalesInvoice): Invalid | n
 	if (!Array.isArray(body.lines) || body.lines.length === 0) return invalid('Minimal satu produk harus dikirim', 'lines')
 	const seen = new Set<number>()
 	for (const line of body.lines) {
-		const productId = Number(line.product_id)
+		const variantId = Number(line.variant_id)
 		const quantity = Number(line.quantity)
-		const source = invoice.lines.find((item) => item.product_id === productId)
+		const source = invoice.lines.find((item) => item.variant_id === variantId)
 		if (!source) return invalid('Produk tidak ada di invoice', 'lines')
-		if (seen.has(productId)) return invalid('Produk yang sama tidak boleh muncul dua kali', 'lines')
-		seen.add(productId)
+		if (seen.has(variantId)) return invalid('Produk yang sama tidak boleh muncul dua kali', 'lines')
+		seen.add(variantId)
 		if (!Number.isFinite(quantity) || quantity < 0) return invalid('Jumlah tidak boleh negatif', 'lines')
 		if (quantity > source.quantity) return invalid(`Jumlah melebihi qty invoice (maksimal ${source.quantity})`, 'lines')
 	}
@@ -100,7 +97,7 @@ function buildRow(body: DeliveryNoteRequest, base: Pick<DeliveryNoteRow, 'id' | 
 		description: String(body.description ?? '').trim(),
 		lines: body.lines
 			.filter((line) => Number(line.quantity) > 0)
-			.map((line) => ({ product_id: Number(line.product_id), quantity: Math.round(Number(line.quantity) * 1000) / 1000 }))
+			.map((line) => ({ variant_id: Number(line.variant_id), quantity: Math.round(Number(line.quantity) * 1000) / 1000 }))
 	}
 }
 
@@ -237,8 +234,8 @@ export function registerDeliveryNote(mock: MockAdapter) {
 		recordUpdate('delivery-note', row.id, [
 			...diffFields(before, after, FIELDS),
 			...diffLines(before.lines, after.lines, {
-				id: (line) => line.product_id,
-				name: (line) => line.product_name ?? `Produk #${line.product_id}`,
+				id: (line) => line.variant_id,
+				name: (line) => [line.product_name ?? `Produk #${line.product_id}`, line.variant_label].filter(Boolean).join(' · '),
 				specs: LINE_FIELDS
 			})
 		])

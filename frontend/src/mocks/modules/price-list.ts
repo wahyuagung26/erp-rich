@@ -24,6 +24,8 @@ export function registerPriceList(mock: MockAdapter) {
 			.filter((prod) => !prod.deleted_at && prod.company_id === companyId)
 			.map((prod) => {
 				const stock_qty = prod.type === 'service' ? null : stockOf(prod.id)
+				// Prices are per SKU: the row shows the range over sellable (active, non-deleted) variants.
+				const prices = prod.variants.filter((item) => item.is_active && !item.deleted_at).map((item) => item.selling_price)
 				return {
 					id: prod.id,
 					code: prod.code,
@@ -36,8 +38,9 @@ export function registerPriceList(mock: MockAdapter) {
 					product_category_code: prod.product_category_code,
 					product_category_name: prod.product_category_name,
 					unit_name: prod.unit_name,
-					selling_price: prod.selling_price,
-					has_price: prod.selling_price > 0,
+					selling_price: prices.length ? Math.min(...prices) : 0,
+					selling_price_max: prices.length ? Math.max(...prices) : 0,
+					has_price: prices.length > 0 && prices.every((price) => price > 0),
 					stock_qty,
 					min_stock: prod.min_stock,
 					stock_warning: stock_qty === null ? null : stock_qty <= 0 ? 'empty' : stock_qty < prod.min_stock ? 'low' : null

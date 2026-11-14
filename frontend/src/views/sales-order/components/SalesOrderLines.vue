@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import VariantName from '@/components/common/VariantName.vue'
+import VariantSelect from '@/components/common/VariantSelect.vue'
 import { computed, reactive, ref } from 'vue'
 import { IconCheck, IconPencil, IconPlus, IconTrash, IconX } from '@tabler/icons-vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
@@ -9,11 +11,10 @@ import Amount from '@/components/base/Amount.vue'
 import SalesTotalRows from '@/components/common/SalesTotalRows.vue'
 import { lineTotal, validateSalesOrderLine, type SalesOrderLineDraft, type SalesOrderTotals } from '@/views/sales-order/schema'
 import { useSalesOrderLookup } from '@/views/sales-order/composables/useSalesOrderLookup'
-import type { Product } from '@/utils/types'
 
 const props = defineProps<{ lines: SalesOrderLineDraft[]; totals: SalesOrderTotals; pkpActive: boolean }>()
 const emit = defineEmits<{ 'update:lines': [SalesOrderLineDraft[]] }>()
-const { applyProduct } = useSalesOrderLookup()
+const { applyVariant } = useSalesOrderLookup()
 const errors = ref('')
 const editingIndex = ref<number | null>(null)
 // The warehouse of the last saved line is the next entry's default — most orders ship from one warehouse.
@@ -25,7 +26,7 @@ const draft = reactive<SalesOrderLineDraft>(blank())
 
 function blank(): SalesOrderLineDraft {
 	return {
-		product_id: null,
+		variant_id: null,
 		warehouse_id: lastWarehouse.value.id,
 		warehouse_label: lastWarehouse.value.label,
 		quantity: 1,
@@ -35,14 +36,17 @@ function blank(): SalesOrderLineDraft {
 	}
 }
 
-const productLabel = (item: Record<string, unknown>) => {
-	const product = item as unknown as Product
-	return `${product.code} — ${product.name}`
-}
 const warehouseLabel = (item: Record<string, unknown>) => `${String(item.code)} — ${String(item.name)}`
 
 function reset() {
-	Object.assign(draft, blank(), { product_code: undefined, product_name: undefined, brand_name: undefined, unit_name: undefined })
+	Object.assign(draft, blank(), {
+		product_code: undefined,
+		product_name: undefined,
+		sku: undefined,
+		variant_label: undefined,
+		brand_name: undefined,
+		unit_name: undefined
+	})
 	editingIndex.value = null
 	errors.value = ''
 }
@@ -54,8 +58,8 @@ function pickWarehouse(item: Record<string, unknown> | null) {
 function save() {
 	const validationError = validateSalesOrderLine(draft)
 	if (validationError) return (errors.value = validationError)
-	if (props.lines.some((line, index) => line.product_id === draft.product_id && index !== editingIndex.value))
-		return (errors.value = 'Produk ini sudah ada di daftar, ubah baris yang sudah ada')
+	if (props.lines.some((line, index) => line.variant_id === draft.variant_id && index !== editingIndex.value))
+		return (errors.value = 'Varian produk ini sudah ada di daftar, ubah baris yang sudah ada')
 	const next = [...props.lines]
 	if (editingIndex.value === null) next.push({ ...draft })
 	else next[editingIndex.value] = { ...draft }
@@ -99,13 +103,12 @@ const preview = computed(() => lineTotal(draft))
 				<tbody>
 					<tr class="border-b border-hairline align-top">
 						<td class="min-w-[250px] space-y-1.5 px-2 py-2">
-							<AsyncSelect
-								:model-value="draft.product_id"
-								endpoint="/product"
-								:option-label="productLabel"
-								:initial-label="draft.product_code ? `${draft.product_code} — ${draft.product_name}` : undefined"
-								placeholder="Cari produk…"
-								@update:model-value="(value) => applyProduct(draft, value ? Number(value) : null)"
+							<VariantSelect
+								:model-value="draft.variant_id"
+								:sku="draft.sku"
+								:name="draft.product_name"
+								:label="draft.variant_label"
+								@select="(row) => applyVariant(draft, row)"
 							/>
 							<Input v-model="draft.notes" placeholder="Keterangan baris (opsional)" @keydown.enter.prevent="save" />
 						</td>
@@ -134,7 +137,7 @@ const preview = computed(() => lineTotal(draft))
 						<td class="min-w-[150px] px-2 py-2"><MoneyInput v-model="draft.price" blank-zero placeholder="0" @keydown.enter.prevent="save" /></td>
 						<td class="min-w-[140px] px-2 py-2"><MoneyInput v-model="draft.discount" blank-zero placeholder="0" @keydown.enter.prevent="save" /></td>
 						<!-- live preview of the row being entered -->
-						<td class="px-2 py-4 text-right"><Amount v-if="draft.product_id" muted :value="preview" /></td>
+						<td class="px-2 py-4 text-right"><Amount v-if="draft.variant_id" muted :value="preview" /></td>
 						<td class="px-2 py-2">
 							<div class="flex justify-end gap-1">
 								<Button type="button" size="sm" variant="secondary" :title="editingIndex === null ? 'Tambah produk' : 'Simpan produk'" @click="save">
@@ -153,13 +156,12 @@ const preview = computed(() => lineTotal(draft))
 					</tr>
 					<tr
 						v-for="(line, index) in lines"
-						:key="`${line.product_id}-${index}`"
+						:key="`${line.variant_id}-${index}`"
 						class="border-b border-hairline last:border-0"
 						:class="{ 'bg-primary/5': editingIndex === index }"
 					>
 						<td class="px-2 py-3">
-							<div class="text-ink">{{ line.product_name }}</div>
-							<div class="text-s text-ink-muted">{{ [line.product_code, line.brand_name].filter(Boolean).join(' · ') }}</div>
+							<VariantName :name="line.product_name" :sku="line.sku" :label="line.variant_label" :brand="line.brand_name" />
 							<div v-if="line.notes" class="text-s text-ink-muted">{{ line.notes }}</div>
 						</td>
 						<td class="px-2 py-3 text-ink">{{ line.warehouse_label }}</td>

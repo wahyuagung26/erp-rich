@@ -58,6 +58,12 @@ const rows: TableRow[] = [
 
 const typeLabel = (v: string) => PRODUCT_TYPES.find((t) => t.value === v)?.label ?? v
 
+// Variant products price per SKU: show the range over active SKUs.
+function priceRange(row: Product): [number, number] {
+	const prices = row.variants.filter((v) => v.is_active).map((v) => v.selling_price)
+	return prices.length ? [Math.min(...prices), Math.max(...prices)] : [row.selling_price, row.selling_price]
+}
+
 function remove(row: Product) {
 	ask({ title: 'Hapus produk', message: `Hapus "${row.code} — ${row.name}"?`, type: 'danger', confirmText: 'Hapus' }, async () => {
 		await api.delete(`/product/${row.id}`)
@@ -100,8 +106,19 @@ function remove(row: Product) {
 					<button v-if="row.field === 'code'" class="text-primary-dark hover:underline" @click="router.push(`/product/${column.id}`)">
 						{{ column.code }}
 					</button>
+					<div v-else-if="row.field === 'name'" class="leading-snug">
+						<p class="text-ink">{{ column.name }}</p>
+						<p v-if="(column as unknown as Product).option_names.length" class="text-s text-ink-muted">
+							{{ (column as unknown as Product).variants.length - 1 }} varian · {{ (column as unknown as Product).option_names.join(', ') }}
+						</p>
+					</div>
 					<span v-else-if="row.field === 'type'">{{ typeLabel(column.type as string) }}</span>
-					<span v-else-if="row.field === 'selling_price'"><Amount :value="column.selling_price as number" /></span>
+					<span v-else-if="row.field === 'selling_price'" class="whitespace-nowrap">
+						<Amount :value="priceRange(column as unknown as Product)[0]" />
+						<template v-if="priceRange(column as unknown as Product)[1] !== priceRange(column as unknown as Product)[0]">
+							– <Amount :value="priceRange(column as unknown as Product)[1]" />
+						</template>
+					</span>
 					<RowActions v-else-if="row.field === 'action'" :id="column.id as number" base="/product" @remove="remove(column as unknown as Product)" />
 					<span v-else>{{ column[row.field] }}</span>
 				</template>

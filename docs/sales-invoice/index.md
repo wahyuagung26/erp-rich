@@ -3,7 +3,7 @@ type: OKF Module
 title: Invoice Penjualan (Sales Invoice)
 description: Tagihan penjualan ke customer (legacy `so` / `trso`) — header, produk per gudang, diskon global, biaya penjualan, pembayaran saat invoice dibuat, approval yang menggerakkan stok + jurnal, faktur pajak. Hub bagi Surat Jalan, Retur Penjualan, Piutang Customer, dan Import Faktur Pajak.
 tags: [sales-invoice, penjualan, receivables]
-timestamp: 2026-11-06T17:00:00Z
+timestamp: 2026-11-13T12:00:00Z
 ---
 
 # Invoice Penjualan
@@ -69,15 +69,14 @@ due_date        = date + top_days
 
 | Field | Type | Notes |
 |---|---|---|
-| `product_id` | number | identitas baris, unik per invoice |
-| `product_code` `product_name` `brand_name` `unit_name` | string | resolved |
+| `variant_id` | number | identitas baris ([varian produk](../product/index.md#variants-sku)), unik per invoice |
+| `product_id` `product_code` `product_name` `sku` `variant_label` `brand_name` `unit_name` | — | resolved dari varian |
 | `warehouse_id` `warehouse_code` `warehouse_name` | — | gudang asal barang |
-| `quantity` | number | > 0; bila dari SO ≤ `max_quantity` |
+| `quantity` | number | > 0 (boleh berbeda dari SO) |
 | `price` | number | harga satuan sebelum diskon, > 0 |
 | `discount` | number | rupiah **per satuan**, ≥ 0, ≤ `price` |
 | `notes` | string | keterangan baris |
 | `total` | number | `round((price − discount) × quantity)` |
-| `max_quantity` | number \| null | hanya bila invoice dari SO: `ordered − diinvoice invoice lain`; `null` bila tanpa SO |
 
 ## Entity: `SalesInvoicePayment`
 
@@ -102,9 +101,9 @@ Baris disimpan di `db.salesInvoicePayment` (`mocks/db.ts`): `{ id, invoice_id, d
 - Invoice baru `pending`. `pending` → `approved` / `rejected`; `rejected` → **Ajukan Ulang** (`pending`); `approved` → **Batalkan Approval** (`pending`).
 - Edit dan hapus hanya selama `approval_status ≠ approved` dan tidak `locked`. Invoice `rejected` boleh diedit (tetap `rejected` sampai diajukan ulang).
 - **Batalkan Approval** ditolak bila: ada pembayaran `kind: receivable`, atau ada dokumen turunan (Surat Jalan / Retur Penjualan — mock: guard di `unapproveGuards`, lihat bawah), atau `locked`.
-- Dari Sales Order: customer terkunci ke customer SO, produk harus ada di SO, `quantity ≤ max_quantity`. Hanya SO `approved`.
-- Jumlah SO yang sudah diinvoice dipelihara lewat `applyInvoicedQuantity` ([sales-order](../sales-order/index.md#catatan-lintas-modul-invoice-penjualan)):
-  `+1` saat invoice dibuat / diperbesar / diajukan ulang, `−1` saat dihapus / diperkecil / ditolak. Invoice `rejected` **tidak** dihitung sebagai sudah diinvoice.
+- Dari Sales Order: **1 SO ↔ paling banyak 1 invoice** untuk seluruh dokumen ([sales-order](../sales-order/index.md#catatan-lintas-modul-invoice-penjualan)).
+  Hanya SO `approved` yang belum punya invoice (yang tidak `rejected`). Form diisi dari semua baris SO; customer terkunci ke customer SO,
+  baris lain tetap boleh diubah. Invoice `rejected` melepas SO-nya; Ajukan Ulang ditolak bila SO sudah diambil invoice lain.
 - Pembayaran saat invoice dibuat: `payments[]` di body create / update (replace penuh baris `creation`; baris `receivable` tidak tersentuh). Total semua pembayaran ≤ `total`.
   Tipe `down_payment` (Titipan) wajib memilih `deposit_id` milik customer yang sama, nominal ≤ `remaining` titipan; menulis
   `CustomerDepositUsage` ([contract](../customer-deposit/index.md#contract-for-invoice-penjualan)) dan menghapusnya saat pembayaran / invoice dihapus.
@@ -115,8 +114,8 @@ Baris disimpan di `db.salesInvoicePayment` (`mocks/db.ts`): `{ id, invoice_id, d
 
 | Modul | Yang dipakai |
 |---|---|
-| Surat Jalan (satu SJ per invoice) | `GET /sales-invoice/:id` → `lines[].{product_id, product_*, unit_name, quantity, warehouse_*}`, `approval_status`, header customer. Baris stabil & unik per produk. Daftarkan guard di `unapproveGuards` |
-| Retur Penjualan | `lines[].{product_id, quantity (qty terjual), price, discount, total}`, `pkp_active`, `tax_invoice` |
+| Surat Jalan (satu SJ per invoice) | `GET /sales-invoice/:id` → `lines[].{variant_id, product_*, sku, variant_label, unit_name, quantity, warehouse_*}`, `approval_status`, header customer. Baris stabil & unik per varian. Daftarkan guard di `unapproveGuards` |
+| Retur Penjualan | `lines[].{variant_id, quantity (qty terjual), price, discount, total}`, `pkp_active`, `tax_invoice` |
 | Piutang Customer | tulis `db.salesInvoicePayment` dengan `kind: 'receivable'`; baca `outstanding`, `due_date`, `payment_status`; helper `invoicePaidTotal`, `findSalesInvoice` |
 | Import Faktur Pajak | `GET/PUT /sales-invoice/:id/tax-invoice` |
 

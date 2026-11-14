@@ -7,7 +7,7 @@ path: /price-list
 status: mock
 tags: [price-list, read, list]
 resource: /frontend/src/mocks/modules/price-list.ts
-timestamp: 2026-11-06T12:00:00Z
+timestamp: 2026-11-15T12:00:00Z
 ---
 
 # List Daftar Harga
@@ -31,7 +31,7 @@ Backs `views/price-list/pages/PagePriceListTable.vue` (via `useTableList`). Read
 | `brand_id` | number | no | exact match |
 | `product_category_id` | number | no | exact match |
 | `warehouse_id` | number | no | stock is counted for this gudang only; omitted = sum of all gudang of the active company |
-| `price_status` | `unset` | no | only products whose harga jual is not set (`selling_price = 0`) |
+| `price_status` | `unset` | no | only products with an active SKU whose harga jual is not set (`has_price = false`) |
 
 ## Response
 
@@ -53,6 +53,7 @@ Backs `views/price-list/pages/PagePriceListTable.vue` (via `useTableList`). Read
       "product_category_name": "Elektronik",
       "unit_name": "Pieces",
       "selling_price": 0,
+      "selling_price_max": 0,
       "has_price": false,
       "stock_qty": 3,
       "min_stock": 10,

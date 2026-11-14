@@ -3,7 +3,7 @@ type: API Convention
 title: Shared API Conventions
 description: Response envelope, pagination, sorting, auth, and error shape inherited by every endpoint in this bundle.
 tags: [api, convention]
-timestamp: 2026-11-06T14:00:00Z
+timestamp: 2026-11-13T12:00:00Z
 ---
 
 # Shared API Conventions
@@ -126,7 +126,7 @@ A document whose `date` falls in a closed period ([Posting & Closing](./posting/
 - Responses carry a read-only, server-computed `locked: boolean` on the record (omitted on create/update responses).
 - While `locked`, the server refuses with `422 { "message": "Periode <bulan tahun> sudah closing, <alasan>" }` (no `errors` object): **edit**, **delete**, and every **approval change** (approve, reject, resubmit, cancel approval). Reading, printing and history stay allowed.
 - The UI hides those actions and shows the shared `ClosingBadge` (lock icon + "Closing") instead.
-- Applies to: [Jurnal Umum](./journal/index.md), [Jurnal Pemasukan](./journal-income/index.md), [Jurnal Pengeluaran](./journal-expense/index.md), [Order Pembelian](./purchase-order/index.md), [Penerimaan](./purchase-receipt/index.md), [Invoice](./purchase-invoice/index.md), [Uang Muka Supplier](./supplier-advance/index.md), [Retur Pembelian](./purchase-return/index.md), [Titipan Customer](./customer-deposit/index.md), [Invoice Penjualan](./sales-invoice/index.md), [Retur Penjualan](./sales-return/index.md). Retur Penjualan settlements and Piutang Customer payments are locked by their **own** `date`. Retur settlements and Hutang Supplier payments are locked by their **own** `date` (see their modules).
+- Applies to: [Jurnal Umum](./journal/index.md), [Jurnal Pemasukan](./journal-income/index.md), [Jurnal Pengeluaran](./journal-expense/index.md), [Order Pembelian](./purchase-order/index.md), [Penerimaan](./purchase-receipt/index.md), [Invoice](./purchase-invoice/index.md), [Uang Muka Supplier](./supplier-advance/index.md), [Retur Pembelian](./purchase-return/index.md), [Titipan Customer](./customer-deposit/index.md), [Sales Order](./sales-order/index.md) (no stok/jurnal, still locked), [Invoice Penjualan](./sales-invoice/index.md), [Retur Penjualan](./sales-return/index.md). Retur Penjualan settlements and Piutang Customer payments are locked by their **own** `date`. Retur settlements and Hutang Supplier payments are locked by their **own** `date` (see their modules).
 - **Date into a closed period:** create and update (and, for journals, approve with a new `date`) with a `date` in a closed period is refused with `422 { "message": "Validasi gagal", "errors": { "date": ["Periode <bulan tahun> sudah closing, tanggal tidak boleh di periode yang sudah closing"] } }` — the form shows it on the date field.
 - **Faktur pajak stays editable** on invoice / retur in a closed period (and in [tax-invoice-import](./tax-invoice-import/index.md)): it does not touch the journal or stock.
 - Not covered: creating a receipt / invoice from a source document dated in a closed period (only the new document's own `date` is checked).

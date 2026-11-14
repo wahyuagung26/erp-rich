@@ -12,6 +12,7 @@ import Switch from '@/components/base/Switch.vue'
 import DatePicker from '@/components/base/DatePicker.vue'
 import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import FormField from '@/components/base/FormField.vue'
+import HelpTip from '@/components/base/HelpTip.vue'
 import Badge from '@/components/base/Badge.vue'
 import Tabs from '@/components/base/Tabs.vue'
 import Table from '@/components/base/Table.vue'
@@ -163,6 +164,20 @@ const tableData = [
 					{ label: 'Rincian', value: 'two' }
 				]"
 			/>
+		</Panel>
+
+		<Panel title="Tooltip (HelpTip)" description="Popover klik: judul, isi, dan bagian berlabel. Tutup lewat X, Escape, klik di luar, atau scroll.">
+			<div class="flex flex-wrap items-center gap-x-8 gap-y-3 text-m text-ink">
+				<span class="inline-flex items-center gap-1.5">
+					Delivered
+					<HelpTip
+						title="Delivered: pekerjaan selesai"
+						text="Pekerjaan yang sudah selesai bulan ini, dalam jam estimasi (bukan jam kerja sebenarnya)."
+						:sections="[{ label: 'Sumber data', items: ['Kartu di Plane berstatus Done.', 'Tanggal selesai ada di bulan ini.'] }]"
+					/>
+				</span>
+				<span class="inline-flex items-center gap-1.5">Hanya isi <HelpTip text="Nomor dibuat otomatis oleh sistem saat data disimpan." /></span>
+			</div>
 		</Panel>
 
 		<Panel title="Stat Tiles">

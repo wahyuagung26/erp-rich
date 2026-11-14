@@ -3,6 +3,7 @@ import type { Product } from '@/utils/types'
 // All three seed rows use company 1's brand/category/sales-type/unit/supplier —
 // sales-type only has one seed row (company 1), so products can't be seeded for
 // other companies without also extending that fixture (out of scope here).
+// Each product's default variant has id = product id, so older transaction fixtures map product_id -> variant_id unchanged.
 export const productSeed: Product[] = [
 	{
 		id: 1,
@@ -31,6 +32,8 @@ export const productSeed: Product[] = [
 		selling_price: 4_200_000,
 		hpp_avg: 3_650_000,
 		photo_url: '',
+		option_names: [],
+		variants: [{ id: 1, sku: 'PRD001', option_values: {}, is_default: true, is_active: true, selling_price: 4_200_000 }],
 		deleted_at: null
 	},
 	{
@@ -60,6 +63,8 @@ export const productSeed: Product[] = [
 		selling_price: 0,
 		hpp_avg: 875_000,
 		photo_url: '',
+		option_names: [],
+		variants: [{ id: 2, sku: 'PRD002', option_values: {}, is_default: true, is_active: true, selling_price: 0 }],
 		deleted_at: null
 	},
 	{
@@ -89,6 +94,45 @@ export const productSeed: Product[] = [
 		selling_price: 250_000,
 		hpp_avg: 0,
 		photo_url: '',
+		option_names: [],
+		variants: [{ id: 3, sku: 'PRD003', option_values: {}, is_default: true, is_active: true, selling_price: 250_000 }],
+		deleted_at: null
+	},
+	{
+		id: 4,
+		company_id: 1,
+		code: 'PRD004',
+		name: 'Kemeja Seragam SD Putih',
+		type: 'finished_good',
+		brand_id: 1,
+		brand_code: 'SGT',
+		brand_name: 'Samsung',
+		product_category_id: 1,
+		product_category_code: 'ELK',
+		product_category_name: 'Elektronik',
+		sales_type_id: 1,
+		sales_type_code: 'RC0007',
+		sales_type_name: 'Bahan Baku',
+		supplier_id: 1,
+		supplier_code: 'SUP-0001',
+		supplier_name: 'PT Sumber Rejeki',
+		unit_id: 1,
+		unit_code: 'PCS',
+		unit_name: 'Pieces',
+		min_stock: 20,
+		notes: 'Contoh produk bervarian (ukuran)',
+		last_purchase_price: 45_000,
+		selling_price: 65_000,
+		hpp_avg: 46_000,
+		photo_url: '',
+		option_names: ['Ukuran'],
+		// Default variant (id = product id) stays for parent-level history; sized variants start at 1001.
+		variants: [
+			{ id: 4, sku: 'PRD004', option_values: {}, is_default: true, is_active: false, selling_price: 65_000 },
+			{ id: 1001, sku: 'PRD004-S', option_values: { Ukuran: 'S' }, is_default: false, is_active: true, selling_price: 65_000 },
+			{ id: 1002, sku: 'PRD004-M', option_values: { Ukuran: 'M' }, is_default: false, is_active: true, selling_price: 65_000 },
+			{ id: 1003, sku: 'PRD004-L', option_values: { Ukuran: 'L' }, is_default: false, is_active: true, selling_price: 70_000 }
+		],
 		deleted_at: null
 	}
 ]

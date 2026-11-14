@@ -2,6 +2,8 @@ import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { companyCode, salesOrderNumber } from '../numbering'
 import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
+import { closedDateReply, closedReply, withLock } from './posting'
+import { isSellableVariant, variantFields } from './product'
 import {
 	diffFields,
 	diffLines,
@@ -20,7 +22,6 @@ import type {
 	SalesOrderApprovalStatus,
 	SalesOrderExpense,
 	SalesOrderInvoiceableLines,
-	SalesOrderInvoiceStatus,
 	SalesOrderLine,
 	SalesOrderRequest
 } from '@/utils/types'
@@ -47,7 +48,7 @@ function dueDate(date: string, days: number) {
 export const lineTotal = (line: { quantity: number; price: number; discount: number }) =>
 	Math.round((Number(line.price) - Number(line.discount)) * Number(line.quantity))
 
-// Server-authoritative totals (docs/sales-order/index.md#rumus): the client preview mirrors this, but only this result is stored/returned.
+// Server formula (docs/sales-order/index.md#rumus), applied at save only; stored totals are never recomputed on read.
 export function totalsOf(row: {
 	lines: { quantity: number; price: number; discount: number }[]
 	expenses: { amount: number }[]
@@ -65,30 +66,17 @@ export function totalsOf(row: {
 	return { subtotal, discount_global, dpp, ppn, expense_total, total: base + ppn + expense_total }
 }
 
-function invoiceStatusOf(lines: SalesOrderRow['lines']): SalesOrderInvoiceStatus {
-	if (lines.every((line) => !line.invoiced_quantity)) return 'not_invoiced'
-	return lines.every((line) => line.invoiced_quantity >= line.quantity) ? 'invoiced' : 'partial'
-}
+/** The one invoice made from an order: rejected invoices release it (docs/sales-order/index.md). */
+export const linkedInvoice = (orderId: number, exceptInvoiceId?: number) =>
+	db.salesInvoice.find((item) => item.sales_order_id === orderId && item.approval_status !== 'rejected' && item.id !== exceptInvoiceId)
 
 function lineOf(line: SalesOrderRow['lines'][number]): SalesOrderLine {
-	const product = db.product.find((item) => item.id === Number(line.product_id) && !item.deleted_at)
-	const warehouse = db.warehouse.find((item) => item.id === Number(line.warehouse_id) && !item.deleted_at)
+	const warehouse = db.warehouse.find((item) => item.id === Number(line.warehouse_id))
 	return {
-		product_id: Number(line.product_id),
-		product_code: product?.code,
-		product_name: product?.name,
-		brand_name: product?.brand_name,
-		unit_name: product?.unit_name,
-		warehouse_id: Number(line.warehouse_id),
+		...line,
+		...variantFields(line.variant_id),
 		warehouse_code: warehouse?.code,
-		warehouse_name: warehouse?.name,
-		quantity: line.quantity,
-		price: line.price,
-		discount: line.discount,
-		notes: line.notes,
-		total: lineTotal(line),
-		invoiced_quantity: line.invoiced_quantity,
-		remaining_quantity: Math.max(line.quantity - line.invoiced_quantity, 0)
+		warehouse_name: warehouse?.name
 	}
 }
 
@@ -98,24 +86,23 @@ function expenseOf(expense: SalesOrderRow['expenses'][number]): SalesOrderExpens
 }
 
 function resolve(row: SalesOrderRow): SalesOrder {
-	const customer = db.customer.find((item) => item.id === row.customer_id && !item.deleted_at)
-	const sales = db.sales.find((item) => item.id === row.sales_id && !item.deleted_at)
-	const department = db.department.find((item) => item.id === row.department_id && !item.deleted_at)
+	const customer = db.customer.find((item) => item.id === row.customer_id)
+	const sales = db.sales.find((item) => item.id === row.sales_id)
+	const department = db.department.find((item) => item.id === row.department_id)
+	const invoice = linkedInvoice(row.id)
 	return {
 		...row,
 		due_date: dueDate(row.date, row.top_days),
 		customer_code: customer?.code,
-		customer_name: customer?.name,
-		customer_address: customer?.address,
-		customer_phone: customer?.phone,
 		sales_code: sales?.code,
 		sales_name: sales?.name,
 		department_code: department?.code,
 		department_name: department?.name,
-		invoice_status: invoiceStatusOf(row.lines),
+		invoice_status: invoice ? 'invoiced' : 'not_invoiced',
+		sales_invoice_id: invoice?.id ?? null,
+		sales_invoice_number: invoice?.number ?? null,
 		lines: row.lines.map(lineOf),
-		expenses: row.expenses.map(expenseOf),
-		...totalsOf(row)
+		expenses: row.expenses.map(expenseOf)
 	}
 }
 
@@ -123,7 +110,8 @@ function invalid(message: string, field?: string) {
 	return { message: 'Validasi gagal', ...(field ? { errors: { [field]: [message] } } : {}) }
 }
 
-function validate(body: SalesOrderRequest): ReturnType<typeof invalid> | null {
+// `current` = the stored row on update: a variant deactivated since then may stay on the order.
+function validate(body: SalesOrderRequest, current?: SalesOrderRow): ReturnType<typeof invalid> | null {
 	if (!isDate(body.date)) return invalid('Tanggal wajib diisi', 'date')
 	if (!db.customer.some((item) => item.id === Number(body.customer_id) && !item.deleted_at)) return invalid('Customer tidak valid', 'customer_id')
 	if (!db.sales.some((item) => item.id === Number(body.sales_id) && !item.deleted_at)) return invalid('Sales tidak valid', 'sales_id')
@@ -135,9 +123,10 @@ function validate(body: SalesOrderRequest): ReturnType<typeof invalid> | null {
 	if (!Array.isArray(body.lines) || body.lines.length === 0) return invalid('Minimal satu produk harus ditambahkan', 'lines')
 	const seen = new Set<number>()
 	for (const line of body.lines) {
-		if (!db.product.some((item) => item.id === Number(line.product_id) && !item.deleted_at)) return invalid('Produk tidak valid', 'lines')
-		if (seen.has(Number(line.product_id))) return invalid('Produk yang sama tidak boleh ditambahkan dua kali', 'lines')
-		seen.add(Number(line.product_id))
+		const variantId = Number(line.variant_id)
+		if (!isSellableVariant(variantId) && !current?.lines.some((old) => old.variant_id === variantId)) return invalid('Produk tidak valid', 'lines')
+		if (seen.has(variantId)) return invalid('Varian produk yang sama tidak boleh ditambahkan dua kali', 'lines')
+		seen.add(variantId)
 		if (!db.warehouse.some((item) => item.id === Number(line.warehouse_id) && !item.deleted_at)) return invalid('Gudang tidak valid', 'lines')
 		if (!(Number(line.quantity) > 0)) return invalid('Jumlah harus lebih dari nol', 'lines')
 		if (!(Number(line.price) > 0)) return invalid('Harga satuan harus lebih dari nol', 'lines')
@@ -157,51 +146,56 @@ function validate(body: SalesOrderRequest): ReturnType<typeof invalid> | null {
 	return null
 }
 
-// Keeps the invoiced quantity of lines that survive an edit (matched by product).
+// Every save stores the customer snapshot and the totals (decisions: snapshot + persisted totals).
 function buildRow(body: SalesOrderRequest, base: Pick<SalesOrderRow, 'id' | 'number'> & Partial<SalesOrderRow>): SalesOrderRow {
+	const customer = db.customer.find((item) => item.id === Number(body.customer_id))
+	const lines = body.lines.map((line) => {
+		const input = {
+			variant_id: Number(line.variant_id),
+			warehouse_id: Number(line.warehouse_id),
+			quantity: Math.round(Number(line.quantity) * 1000) / 1000,
+			price: Math.round(Number(line.price)),
+			discount: Math.round(Number(line.discount)),
+			notes: String(line.notes ?? '').trim()
+		}
+		return { ...input, total: lineTotal(input) }
+	})
+	const expenses = (body.expenses ?? []).map((expense) => ({
+		sales_expense_id: Number(expense.sales_expense_id),
+		notes: String(expense.notes ?? '').trim(),
+		amount: Math.round(Number(expense.amount))
+	}))
+	const discount_type = body.discount_type
+	const discount_value = Number(body.discount_value) || 0
 	return {
 		id: base.id,
 		number: base.number,
 		date: body.date,
 		top_days: Number(body.top_days),
 		customer_id: Number(body.customer_id),
+		customer_name: customer?.name ?? '',
+		customer_address: customer?.address ?? '',
+		customer_phone: customer?.phone ?? '',
 		sales_id: Number(body.sales_id),
 		department_id: Number(body.department_id),
 		pkp_active: body.pkp_active,
 		description: String(body.description ?? '').trim(),
-		discount_type: body.discount_type,
-		discount_value: Number(body.discount_value) || 0,
+		discount_type,
+		discount_value,
 		approval_status: base.approval_status ?? 'pending',
-		rejection_reason: base.rejection_reason ?? null,
 		approved_by: base.approved_by ?? null,
 		approved_at: base.approved_at ?? null,
 		created_by: base.created_by ?? userName(),
-		lines: body.lines.map((line) => ({
-			product_id: Number(line.product_id),
-			warehouse_id: Number(line.warehouse_id),
-			quantity: Math.round(Number(line.quantity) * 1000) / 1000,
-			price: Math.round(Number(line.price)),
-			discount: Math.round(Number(line.discount)),
-			notes: String(line.notes ?? '').trim(),
-			invoiced_quantity: base.lines?.find((old) => old.product_id === Number(line.product_id))?.invoiced_quantity ?? 0
-		})),
-		expenses: (body.expenses ?? []).map((expense) => ({
-			sales_expense_id: Number(expense.sales_expense_id),
-			notes: String(expense.notes ?? '').trim(),
-			amount: Math.round(Number(expense.amount))
-		}))
+		lines,
+		expenses,
+		...totalsOf({ lines, expenses, pkp_active: body.pkp_active, discount_type, discount_value })
 	}
-}
-
-function writeGuard(row: SalesOrderRow): string | null {
-	if (row.approval_status === 'approved') return 'Sales order yang sudah disetujui tidak boleh diubah'
-	if (row.lines.some((line) => line.invoiced_quantity > 0)) return 'Sales order yang sudah memiliki invoice tidak boleh diubah'
-	return null
 }
 
 const FIELDS: FieldSpec<SalesOrder>[] = [
 	{ key: 'date', label: 'Tanggal', format: fmtDate },
 	{ key: 'customer_name', label: 'Customer' },
+	{ key: 'customer_address', label: 'Alamat Customer' },
 	{ key: 'sales_name', label: 'Sales' },
 	{ key: 'department_name', label: 'Departemen' },
 	{ key: 'top_days', label: 'Termin Pembayaran', format: (value) => `${value} hari` },
@@ -221,35 +215,17 @@ const EXPENSE_FIELDS: FieldSpec<SalesOrderExpense>[] = [
 	{ key: 'notes', label: 'Keterangan' }
 ]
 
-// Cross-module hook for Invoice Penjualan (docs/sales-order/index.md): bump (`1`) or release (`-1`) the invoiced quantity per product,
-// clamped to [0, ordered]. `reference` (the invoice number) adds a history event. Returns false when the order does not exist.
-export function applyInvoicedQuantity(
-	orderId: number,
-	lines: { product_id: number; quantity: number }[],
-	direction: 1 | -1,
-	reference?: string
-): boolean {
-	const row = db.salesOrder.find((item) => item.id === orderId)
-	if (!row) return false
-	for (const { product_id, quantity } of lines) {
-		const target = row.lines.find((line) => line.product_id === product_id)
-		if (target) target.invoiced_quantity = Math.min(Math.max(target.invoiced_quantity + direction * quantity, 0), target.quantity)
-	}
-	if (reference)
-		recordHistory('sales-order', orderId, { title: direction === 1 ? 'Invoice Dibuat' : 'Invoice Dibatalkan', kind: 'info', summary: reference })
-	return true
-}
-
+// Contract: docs/sales-order/
 export function registerSalesOrder(mock: MockAdapter) {
 	registerHistoryRoute(mock, 'sales-order', (id) => db.salesOrder.some((item) => item.id === id), NOT_FOUND)
 
 	mock.onGet('/sales-order').reply((config) => {
 		const p = (config.params ?? {}) as ListParams & { approval_status?: string; invoice_status?: string; date_from?: string; date_to?: string }
-		let rows = db.salesOrder.map(resolve)
+		let rows = db.salesOrder.map((row) => withLock(config, resolve(row)))
 		if (p.q) {
 			const q = String(p.q).toLowerCase()
 			rows = rows.filter((row) =>
-				[row.number, row.date, row.created_by, row.customer_code, row.customer_name, row.sales_name, row.description]
+				[row.number, row.date, row.created_by, row.customer_code, row.customer_name, row.sales_name, row.description, row.sales_invoice_number]
 					.join(' ')
 					.toLowerCase()
 					.includes(q)
@@ -263,8 +239,7 @@ export function registerSalesOrder(mock: MockAdapter) {
 			{
 				pending: (row) => row.approval_status === 'pending',
 				awaiting_invoice: (row) => row.approval_status === 'approved' && row.invoice_status === 'not_invoiced',
-				partial: (row) => row.approval_status === 'approved' && row.invoice_status === 'partial',
-				rejected: (row) => row.approval_status === 'rejected'
+				invoiced: (row) => row.invoice_status === 'invoiced'
 			},
 			(row) => row.total
 		)
@@ -276,13 +251,15 @@ export function registerSalesOrder(mock: MockAdapter) {
 
 	mock.onGet(/\/sales-order\/\d+$/).reply((config) => {
 		const row = db.salesOrder.find((item) => item.id === idOf(config.url))
-		return row ? [200, { data: resolve(row) }] : [404, { message: NOT_FOUND }]
+		return row ? [200, { data: withLock(config, resolve(row)) }] : [404, { message: NOT_FOUND }]
 	})
 
 	mock.onGet(/\/sales-order\/\d+\/invoiceable-lines$/).reply((config) => {
 		const row = db.salesOrder.find((item) => item.id === parentIdOf(config.url))
 		if (!row) return [404, { message: NOT_FOUND }]
 		if (row.approval_status !== 'approved') return [422, { message: 'Sales order belum disetujui' }]
+		const invoice = linkedInvoice(row.id)
+		if (invoice) return [422, { message: `Sales order sudah dibuatkan invoice ${invoice.number}` }]
 		const order = resolve(row)
 		const data: SalesOrderInvoiceableLines = {
 			sales_order: {
@@ -305,29 +282,15 @@ export function registerSalesOrder(mock: MockAdapter) {
 				discount_value: order.discount_value,
 				expenses: order.expenses
 			},
-			lines: order.lines.map((line) => ({
-				product_id: line.product_id,
-				product_code: line.product_code,
-				product_name: line.product_name,
-				brand_name: line.brand_name,
-				unit_name: line.unit_name,
-				ordered_quantity: line.quantity,
-				invoiced_quantity: line.invoiced_quantity,
-				remaining_quantity: line.remaining_quantity,
-				quantity: 0,
-				price: line.price,
-				discount: line.discount,
-				warehouse_id: line.warehouse_id,
-				warehouse_code: line.warehouse_code,
-				warehouse_name: line.warehouse_name,
-				notes: line.notes
-			}))
+			lines: order.lines.map(({ total: _total, ...line }) => line)
 		}
 		return [200, { data }]
 	})
 
 	mock.onPost('/sales-order').reply((config) => {
 		const body = JSON.parse(config.data) as SalesOrderRequest
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
 		const error = validate(body)
 		if (error) return [422, error]
 		const id = nextId(db.salesOrder)
@@ -345,10 +308,13 @@ export function registerSalesOrder(mock: MockAdapter) {
 	mock.onPut(/\/sales-order\/\d+$/).reply((config) => {
 		const row = db.salesOrder.find((item) => item.id === idOf(config.url))
 		if (!row) return [404, { message: NOT_FOUND }]
-		const guard = writeGuard(row)
-		if (guard) return [422, { message: guard }]
+		const closed = closedReply(config, row.date, 'sales order tidak bisa diubah')
+		if (closed) return closed
+		if (row.approval_status === 'approved') return [422, { message: 'Sales order yang sudah disetujui tidak boleh diubah' }]
 		const body = JSON.parse(config.data) as SalesOrderRequest
-		const error = validate(body)
+		const closedDate = closedDateReply(config, body.date)
+		if (closedDate) return closedDate
+		const error = validate(body, row)
 		if (error) return [422, error]
 		const before = resolve(row)
 		Object.assign(row, buildRow(body, row))
@@ -356,8 +322,8 @@ export function registerSalesOrder(mock: MockAdapter) {
 		recordUpdate('sales-order', row.id, [
 			...diffFields(before, after, FIELDS),
 			...diffLines(before.lines, after.lines, {
-				id: (line) => line.product_id,
-				name: (line) => line.product_name ?? `Produk #${line.product_id}`,
+				id: (line) => line.variant_id,
+				name: (line) => [line.product_name ?? `Produk #${line.product_id}`, line.variant_label].filter(Boolean).join(' · '),
 				specs: LINE_FIELDS
 			}),
 			...diffLines(before.expenses, after.expenses, {
@@ -373,30 +339,35 @@ export function registerSalesOrder(mock: MockAdapter) {
 	mock.onDelete(/\/sales-order\/\d+$/).reply((config) => {
 		const index = db.salesOrder.findIndex((item) => item.id === idOf(config.url))
 		if (index < 0) return [404, { message: NOT_FOUND }]
-		const guard = writeGuard(db.salesOrder[index])
-		if (guard) return [422, { message: guard.replace('diubah', 'dihapus') }]
-		const [removed] = db.salesOrder.splice(index, 1)
-		purgeHistory('sales-order', removed.id)
+		const row = db.salesOrder[index]
+		const closed = closedReply(config, row.date, 'sales order tidak bisa dihapus')
+		if (closed) return closed
+		if (row.approval_status === 'approved') return [422, { message: 'Sales order yang sudah disetujui tidak boleh dihapus' }]
+		db.salesOrder.splice(index, 1)
+		purgeHistory('sales-order', row.id)
 		return [200, { message: 'Sales order dihapus' }]
 	})
 
+	// Approve, or cancel the approval (back to pending) while no invoice was made from the order.
 	mock.onPatch(/\/sales-order\/\d+\/approval$/).reply((config) => {
 		const row = db.salesOrder.find((item) => item.id === parentIdOf(config.url))
-		const body = JSON.parse(config.data) as { status?: SalesOrderApprovalStatus }
 		if (!row) return [404, { message: NOT_FOUND }]
-		if (!['pending', 'approved', 'rejected'].includes(String(body.status))) return [422, { message: 'Status persetujuan tidak valid' }]
-		if (row.approval_status === 'approved' && body.status !== 'approved')
-			return [422, { message: 'Persetujuan sales order yang sudah disetujui tidak dapat dibatalkan' }]
-		const previous = row.approval_status
-		row.approval_status = body.status as SalesOrderApprovalStatus
-		row.rejection_reason = body.status === 'rejected' ? 'SO ditolak, silakan periksa kembali detailnya.' : null
-		row.approved_by = body.status === 'approved' ? userName() : null
-		row.approved_at = body.status === 'approved' ? new Date().toISOString() : null
-		if (body.status !== previous) {
-			if (body.status === 'approved') recordHistory('sales-order', row.id, { title: 'Disetujui', kind: 'approved' })
-			else if (body.status === 'rejected') recordHistory('sales-order', row.id, { title: 'Ditolak', kind: 'rejected', summary: row.rejection_reason })
-			else recordHistory('sales-order', row.id, { title: 'Diajukan Ulang', kind: 'info' })
-		}
-		return [200, { data: resolve(row), message: 'Status persetujuan diperbarui' }]
+		const { status } = JSON.parse(config.data) as { status?: SalesOrderApprovalStatus }
+		if (!['pending', 'approved'].includes(String(status))) return [422, { message: 'Status persetujuan tidak valid' }]
+		if (status === row.approval_status) return [422, { message: 'Status persetujuan tidak berubah' }]
+		const closed = closedReply(config, row.date, `sales order tidak bisa ${status === 'approved' ? 'disetujui' : 'dibatalkan persetujuannya'}`)
+		if (closed) return closed
+		const invoice = linkedInvoice(row.id)
+		if (status === 'pending' && invoice)
+			return [422, { message: `Sales order sudah dibuatkan invoice ${invoice.number}, persetujuan tidak bisa dibatalkan` }]
+		row.approval_status = status as SalesOrderApprovalStatus
+		row.approved_by = status === 'approved' ? userName() : null
+		row.approved_at = status === 'approved' ? new Date().toISOString() : null
+		recordHistory(
+			'sales-order',
+			row.id,
+			status === 'approved' ? { title: 'Disetujui', kind: 'approved' } : { title: 'Persetujuan Dibatalkan', kind: 'info' }
+		)
+		return [200, { data: withLock(config, resolve(row)), message: 'Status persetujuan diperbarui' }]
 	})
 }

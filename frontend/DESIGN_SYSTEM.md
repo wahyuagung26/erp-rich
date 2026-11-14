@@ -38,7 +38,12 @@ Warna disimpan sebagai channel RGB di CSS variable → alpha modifier Tailwind t
 Primitif: `Button` `Input` `Textarea` `Select` `Checkbox` `RadioGroup` `Switch`
 `DatePicker` `DateRangePicker` `FormField` · Data: `Table` `TablePagination` (rows-per-page + nav) `Amount`
 `StatTile` `Badge` · Layout: `Panel` `PageHeader` `FilterBar` `Tabs` `Breadcrumb` ·
-Status: `EmptyState` `Skeleton` `Spinner` · Overlay: `Modal` `ConfirmDialog`.
+Status: `EmptyState` `Skeleton` `Spinner` · Overlay: `Modal` `ConfirmDialog` `HelpTip`.
+
+`HelpTip` = tooltip global (ikon bantuan): popover kartu terang yang **dibuka dengan klik/tap/Enter** dan ditutup lewat X, Escape,
+klik di luar, atau scroll. Isi: `title?` (tebal), `text?`, dan `sections?` (`{ label, items[] }` → label kapital kecil + bullet,
+dipisah hairline). Cukup `text` untuk penjelasan satu kalimat (dipakai `<FormField help>`). Di-teleport ke `<body>` dan `fixed`
+(tidak terpotong overflow tabel/modal), lebar maks 360px, membalik ke atas di dekat tepi bawah layar. Jangan buat tooltip sendiri.
 
 `Input` punya slot `#suffix` (ikon/tombol di dalam field, mis. toggle password) dan prop `addon`
 (label satuan menempel di kanan, gaya input-group Bootstrap — mis. `addon="hari"`).

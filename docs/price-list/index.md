@@ -3,7 +3,7 @@ type: OKF Module
 title: Daftar Harga (Penjualan)
 description: Read-only price + available-stock lookup for sales — one row per product with harga jual and stok per gudang. No writes, no own entity.
 tags: [penjualan, price-list, read-only]
-timestamp: 2026-11-06T12:00:00Z
+timestamp: 2026-11-15T12:00:00Z
 ---
 
 # Daftar Harga
@@ -25,8 +25,9 @@ Company-scoped (see [conventions](../conventions.md#company-scoping)). **Not sub
 | `brand_id`, `brand_code`, `brand_name` | | denormalized from Product |
 | `product_category_id`, `product_category_code`, `product_category_name` | | denormalized from Product |
 | `unit_name` | string | satuan harga |
-| `selling_price` | number | harga jual **sebelum pajak**, whole Rupiah; `0` = belum diset |
-| `has_price` | boolean | `selling_price > 0`; when `false` the UI shows the warning "Harga belum diset" |
+| `selling_price` | number | harga jual **sebelum pajak**, whole Rupiah — the lowest price over the product's active SKUs; `0` = belum diset |
+| `selling_price_max` | number | the highest price over active SKUs; equals `selling_price` when all SKUs cost the same (UI shows a range otherwise) |
+| `has_price` | boolean | every active SKU has a price > 0; when `false` the UI shows the warning "Harga belum diset" |
 | `stock_qty` | number \| null | available stock; `null` for `service` (no stock) |
 | `min_stock` | number | product's minimum stock |
 | `stock_warning` | `'empty'` \| `'low'` \| null | `empty` = `stock_qty <= 0`, `low` = `stock_qty < min_stock` |

@@ -1,9 +1,9 @@
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
-import type { Customer, Product } from '@/utils/types'
+import type { Customer, ProductVariantOption } from '@/utils/types'
 import { nearestTopDays, type SalesOrderDraft, type SalesOrderLineDraft } from '../schema'
 
-// Both lookups fetch the picked master row once and prefill defaults the user can still edit afterwards.
+// Lookups prefill defaults from the picked master row; the user can still edit them afterwards.
 export function useSalesOrderLookup() {
 	const toast = useToast()
 
@@ -20,25 +20,17 @@ export function useSalesOrderLookup() {
 		}
 	}
 
-	// Product → display labels + price from the product's selling price (only when the line has no price yet).
-	async function applyProduct(line: SalesOrderLineDraft, productId: number | null) {
-		line.product_id = productId
-		line.product_code = undefined
-		line.product_name = undefined
-		line.brand_name = undefined
-		line.unit_name = undefined
-		if (!productId) return
-		try {
-			const product = (await api.get<{ data: Product }>(`/product/${productId}`)).data.data
-			line.product_code = product.code
-			line.product_name = product.name
-			line.brand_name = product.brand_name
-			line.unit_name = product.unit_name
-			if (!line.price) line.price = product.selling_price
-		} catch {
-			toast.error('Produk tidak dapat dimuat')
-		}
+	// Picked SKU row (GET /product-variant) → display labels + price from the selling price (only when the line has no price yet).
+	function applyVariant(line: SalesOrderLineDraft, variant: ProductVariantOption | null) {
+		line.variant_id = variant?.id ?? null
+		line.product_code = variant?.product_code
+		line.product_name = variant?.product_name
+		line.sku = variant?.sku
+		line.variant_label = variant?.label
+		line.brand_name = variant?.brand_name
+		line.unit_name = variant?.unit_name
+		if (variant && !line.price) line.price = variant.selling_price
 	}
 
-	return { applyCustomerDefaults, applyProduct }
+	return { applyCustomerDefaults, applyVariant }
 }

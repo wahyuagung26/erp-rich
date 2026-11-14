@@ -1,9 +1,9 @@
 ---
 type: OKF Module
 title: Product (Master Produk)
-description: CRUD for product master data — code + name + type + 5 classification FKs + stock/price + read-only hpp_avg. Soft-delete, company-scoped.
+description: CRUD for product master data — code + name + type + 5 classification FKs + stock/price + read-only hpp_avg + variants (SKU). Soft-delete, company-scoped.
 tags: [product, master-data]
-timestamp: 2026-09-07T10:00:00Z
+timestamp: 2026-11-15T12:00:00Z
 ---
 
 # Product
@@ -59,10 +59,36 @@ string, same shortcut as `Company.logo_url`.
 | `min_stock` | number | required, integer, >= 0 — "Stok Minimal" |
 | `notes` | string | optional — "Keterangan" |
 | `last_purchase_price` | number | required, integer (whole Rupiah), >= 0 — "Harga Beli Terakhir" |
-| `selling_price` | number | required, integer (whole Rupiah), >= 0 — "Harga Jual" |
+| `selling_price` | number | integer (whole Rupiah), >= 0 — "Harga Jual". **Mirrors the default variant's `selling_price`** (server-set); variant products price each SKU on its variant |
 | `hpp_avg` | number | read-only, integer (whole Rupiah), >= 0 — "HPP Rata-rata". Average cost of goods. **Never** set via create/update — seeded in the mock, computed from purchase history by the backend. Editable price screen: [product-price](../product-price/index.md) |
 | `photo_url` | string | optional, data-URL string (max 2 MB, client-enforced) — "Foto Produk" |
+| `option_names` | string[] | variant attribute names, e.g. `["Ukuran"]`; `[]` = no variants besides the default — "Atribut Varian" |
+| `variants` | `ProductVariant[]` | never empty; non-deleted variants only — see below |
 | `deleted_at` | string \| null | soft-delete marker (ISO 8601); non-null rows are excluded from every list and from get-by-id |
+
+## Variants (SKU)
+
+Transactions never reference a bare product: every transaction line carries a `variant_id`.
+Backend tables: `products` + `product_variants`; transaction, stock and price rows hold `variant_id NOT NULL`.
+
+- Every product has exactly one **default variant** (`is_default: true`, `option_values: {}`, label "Standar"), created by the
+  server with the product. It cannot be deleted; it may be deactivated once another variant is active. A product without
+  variants is sold through its default variant.
+- Other variants carry one value per `option_names` entry. Adding variants later never invalidates history, because old
+  lines keep pointing at the default variant.
+- Removing a variant is a **soft delete** (kept for history, never returned, never selectable).
+- Selling price is **per variant** (`ProductVariant.selling_price`), per company. `last_purchase_price` / `hpp_avg` stay per product until the purchase chain moves to `variant_id`.
+
+### Entity: `ProductVariant`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | number | server-assigned |
+| `sku` | string | required; unique within the active company across non-deleted variants; default variant defaults to the product `code` |
+| `option_values` | object | `{ "<option name>": "<value>" }` for every `option_names` entry, values required; `{}` on the default variant; combinations unique per product |
+| `is_default` | boolean | read-only; exactly one per product |
+| `is_active` | boolean | inactive variants stay on old documents but are not selectable; at least one variant must be active |
+| `selling_price` | number | required, integer (whole Rupiah) >= 0, before tax — "Harga Jual" of this SKU; edited in the product form or [Harga Produk](../product-price/index.md) |
 
 ## Endpoints
 
@@ -73,3 +99,5 @@ string, same shortcut as `Company.logo_url`.
 | POST | `/product` | [create-product](./create-product.md) |
 | PUT | `/product/:id` | [update-product](./update-product.md) |
 | DELETE | `/product/:id` | [delete-product](./delete-product.md) |
+| GET | `/product-variant` | [list-product-variant](./list-product-variant.md) |
+| GET | `/product-variant-option` | [list-product-variant-option](./list-product-variant-option.md) |

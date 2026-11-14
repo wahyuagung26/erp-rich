@@ -7,7 +7,7 @@ path: /product/:id/price
 status: mock
 tags: [product, pricing, write]
 resource: /frontend/src/mocks/modules/product.ts
-timestamp: 2026-11-04T18:00:00Z
+timestamp: 2026-11-15T12:00:00Z
 ---
 
 # Update Product Price
@@ -42,7 +42,7 @@ two editable numbers per row, so it sends only those instead of a full product b
 | `selling_price` | number | required; integer (whole Rupiah) >= 0 |
 | `last_purchase_price` | number | required; integer (whole Rupiah) >= 0 |
 
-Any other field in the body is ignored — this endpoint never changes `hpp_avg`,
+`selling_price` is also written to the default variant (they mirror each other, see [Product](../product/index.md)). Any other field in the body is ignored — this endpoint never changes `hpp_avg`,
 the FKs, `name`, etc.
 
 ## Response

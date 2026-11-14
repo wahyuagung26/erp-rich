@@ -108,7 +108,10 @@ const rows: TableRow[] = [
 					</div>
 					<span v-else-if="row.field === 'selling_price'" class="whitespace-nowrap">
 						<Badge v-if="!column.has_price" tone="warning">Harga belum diset</Badge>
-						<Amount v-else :value="column.selling_price as number" />
+						<template v-else>
+							<Amount :value="column.selling_price as number" />
+							<template v-if="column.selling_price_max !== column.selling_price"> – <Amount :value="column.selling_price_max as number" /></template>
+						</template>
 					</span>
 					<span v-else-if="row.field === 'stock_qty'" class="inline-flex items-center justify-end gap-2 whitespace-nowrap">
 						<Badge v-if="column.stock_warning === 'empty'" tone="danger">Stok habis</Badge>

@@ -7,7 +7,7 @@ path: /delivery-note/:id
 status: mock
 tags: [delivery-note, read]
 resource: /frontend/src/mocks/modules/delivery-note.ts
-timestamp: 2026-11-06T17:00:00Z
+timestamp: 2026-11-13T12:00:00Z
 ---
 
 # Get Delivery Note
@@ -48,7 +48,7 @@ Backs `PageDeliveryNoteDetail.vue`, `PageDeliveryNoteEdit.vue` (loads the form) 
     "created_by": "Admin",
     "total_quantity": 3,
     "lines": [
-      { "product_id": 1, "product_code": "PRD001", "product_name": "Produk Contoh", "brand_name": "Merk Contoh", "unit_name": "Pieces", "invoice_quantity": 4, "quantity": 3 }
+      { "variant_id": 1, "product_id": 1, "product_code": "PRD001", "sku": "PRD001", "variant_label": "Standar", "product_name": "Produk Contoh", "brand_name": "Merk Contoh", "unit_name": "Pieces", "invoice_quantity": 4, "quantity": 3 }
     ]
   }
 }

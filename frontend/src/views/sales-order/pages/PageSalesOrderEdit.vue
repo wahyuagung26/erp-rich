@@ -35,7 +35,7 @@ async function load() {
 		loading.value = false
 	}
 }
-const blocked = computed(() => !order.value || order.value.approval_status === 'approved' || order.value.invoice_status !== 'not_invoiced')
+const blocked = computed(() => !order.value || order.value.approval_status === 'approved')
 async function save(payload: SalesOrderRequest) {
 	if (saving.value) return
 	saving.value = true
@@ -71,8 +71,12 @@ async function save(payload: SalesOrderRequest) {
 			></PageHeader
 		><Panel v-if="loading"><Skeleton :lines="8" /></Panel
 		><Panel v-else-if="notFound || !order"><EmptyState title="Sales order tidak ditemukan" description="Data mungkin sudah dihapus." /></Panel
+		><Panel v-else-if="order.locked"
+			><EmptyState title="Sales order tidak dapat diubah" description="Periode sales order sudah closing, sales order tidak bisa diubah." /></Panel
 		><Panel v-else-if="blocked"
-			><EmptyState title="Sales order tidak dapat diubah" description="Sales order yang disetujui atau sudah memiliki invoice tidak boleh diubah."
+			><EmptyState
+				title="Sales order tidak dapat diubah"
+				description="Sales order yang sudah disetujui tidak boleh diubah. Batalkan persetujuan dulu bila belum dibuatkan invoice."
 		/></Panel>
 		<FormSalesOrder
 			v-else

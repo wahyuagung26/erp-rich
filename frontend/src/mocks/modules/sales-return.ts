@@ -52,26 +52,29 @@ function amounts(quantity: number, price: number, discount: number, isPkp: boole
 	return { dpp, ppn, total: dpp + ppn }
 }
 
-// Quantity of `productId` already returned on this invoice by OTHER returns — a rejected return releases its quantity.
-const returnedBefore = (invoiceId: number, productId: number, exceptId = 0) =>
+// Quantity of `variantId` already returned on this invoice by OTHER returns — a rejected return releases its quantity.
+const returnedBefore = (invoiceId: number, variantId: number, exceptId = 0) =>
 	db.salesReturn
 		.filter((item) => item.sales_invoice_id === invoiceId && item.id !== exceptId && item.approval_status !== 'rejected')
 		.flatMap((item) => item.lines)
-		.filter((line) => line.product_id === productId)
+		.filter((line) => line.variant_id === variantId)
 		.reduce((sum, line) => sum + line.quantity, 0)
 
-function resolveLine(invoice: SalesInvoice | undefined, productId: number, quantity: number, returnId: number, isPkp: boolean): SalesReturnLine {
-	const source = invoice?.lines.find((line) => line.product_id === productId)
+function resolveLine(invoice: SalesInvoice | undefined, variantId: number, quantity: number, returnId: number, isPkp: boolean): SalesReturnLine {
+	const source = invoice?.lines.find((line) => line.variant_id === variantId)
 	const price = source?.price ?? 0
 	const discount = source?.discount ?? 0
 	return {
-		product_id: productId,
+		variant_id: variantId,
+		product_id: source?.product_id ?? 0,
 		product_code: source?.product_code,
 		product_name: source?.product_name,
+		sku: source?.sku,
+		variant_label: source?.variant_label,
 		brand_name: source?.brand_name,
 		unit_name: source?.unit_name,
 		quantity_sold: source?.quantity ?? 0,
-		quantity_returned_before: returnedBefore(invoice?.id ?? 0, productId, returnId),
+		quantity_returned_before: returnedBefore(invoice?.id ?? 0, variantId, returnId),
 		quantity,
 		price,
 		discount,
@@ -97,7 +100,7 @@ const settlementsOf = (returnId: number, companyId: number | null): SalesReturnS
 function resolve(row: SalesReturnRow, companyId: number | null = null): SalesReturn {
 	const invoice = findSalesInvoice(row.sales_invoice_id)
 	const warehouse = db.warehouse.find((item) => item.id === row.warehouse_id && !item.deleted_at)
-	const lines = row.lines.map((line) => resolveLine(invoice, line.product_id, line.quantity, row.id, row.pkp_active))
+	const lines = row.lines.map((line) => resolveLine(invoice, line.variant_id, line.quantity, row.id, row.pkp_active))
 	const dpp = lines.reduce((sum, line) => sum + line.dpp, 0)
 	const ppn = lines.reduce((sum, line) => sum + line.ppn, 0)
 	const total = dpp + ppn
@@ -140,22 +143,22 @@ function validate(body: SalesReturnRequest, invoice: SalesInvoice, returnId = 0)
 	if (!reason) return invalid('Alasan retur wajib diisi', 'reason')
 	if (reason.length > 250) return invalid('Alasan retur maksimal 250 karakter', 'reason')
 	const sent = Array.isArray(body.lines) ? body.lines : []
-	if (new Set(sent.map((line) => Number(line.product_id))).size !== sent.length)
-		return invalid('Produk tidak boleh muncul lebih dari satu kali', 'lines')
+	if (new Set(sent.map((line) => Number(line.variant_id))).size !== sent.length)
+		return invalid('Varian produk tidak boleh muncul lebih dari satu kali', 'lines')
 	if (!sent.some((line) => Number(line.quantity) > 0)) return invalid('Isi jumlah retur minimal satu produk', 'lines')
 	for (const line of sent) {
-		const source = invoice.lines.find((item) => item.product_id === Number(line.product_id))
+		const source = invoice.lines.find((item) => item.variant_id === Number(line.variant_id))
 		if (!source) return invalid('Produk retur harus berasal dari invoice', 'lines')
 		const quantity = Number(line.quantity)
 		if (!(quantity >= 0)) return invalid('Jumlah retur tidak valid', 'lines')
-		const available = source.quantity - returnedBefore(invoice.id, source.product_id, returnId)
+		const available = source.quantity - returnedBefore(invoice.id, source.variant_id, returnId)
 		if (quantity > available) return invalid(`Jumlah retur ${source.product_name} melebihi sisa yang bisa diretur (${available})`, 'lines')
 	}
 	return null
 }
 
 const storedLines = (body: SalesReturnRequest): SalesReturnRow['lines'] =>
-	body.lines.filter((line) => Number(line.quantity) > 0).map((line) => ({ product_id: Number(line.product_id), quantity: Number(line.quantity) }))
+	body.lines.filter((line) => Number(line.quantity) > 0).map((line) => ({ variant_id: Number(line.variant_id), quantity: Number(line.quantity) }))
 
 // ---- settlements ----
 
@@ -223,7 +226,7 @@ export function registerSalesReturn(mock: MockAdapter) {
 				pkp_active: invoice.pkp_active,
 				outstanding: invoice.outstanding
 			},
-			lines: invoice.lines.map((line) => resolveLine(invoice, line.product_id, 0, exceptId, invoice.pkp_active))
+			lines: invoice.lines.map((line) => resolveLine(invoice, line.variant_id, 0, exceptId, invoice.pkp_active))
 		}
 		return [200, { data }]
 	})
@@ -323,8 +326,8 @@ export function registerSalesReturn(mock: MockAdapter) {
 		recordUpdate('sales-return', row.id, [
 			...diffFields(before, after, FIELDS),
 			...diffLines(before.lines, after.lines, {
-				id: (line) => line.product_id,
-				name: (line) => line.product_name ?? `Produk #${line.product_id}`,
+				id: (line) => line.variant_id,
+				name: (line) => [line.product_name ?? `Produk #${line.product_id}`, line.variant_label].filter(Boolean).join(' · '),
 				specs: LINE_FIELDS
 			})
 		])
@@ -362,8 +365,8 @@ export function registerSalesReturn(mock: MockAdapter) {
 		if (from === 'rejected') {
 			// Ajukan Ulang: the quantity was released on reject — it must still fit.
 			const over = row.lines.find((line) => {
-				const sold = invoice?.lines.find((item) => item.product_id === line.product_id)?.quantity ?? 0
-				return line.quantity > sold - returnedBefore(row.sales_invoice_id, line.product_id, row.id)
+				const sold = invoice?.lines.find((item) => item.variant_id === line.variant_id)?.quantity ?? 0
+				return line.quantity > sold - returnedBefore(row.sales_invoice_id, line.variant_id, row.id)
 			})
 			if (over) return [422, { message: 'Jumlah retur melebihi sisa yang bisa diretur, ubah retur terlebih dahulu' }]
 		}
