@@ -69,6 +69,18 @@ touching a module: grep the endpoint path across `src/` (callers), `src/mocks/mo
 (handler), and `docs/` (contract) — all three or none. Update the `timestamp:` in
 frontmatter whenever you edit a doc file.
 
+### Run the prototype on a real HTTP mock (`npm run prototype`)
+
+From `frontend/`, `npm run prototype` starts vite **and** `scripts/mock-server.mjs` together (Ctrl-C stops both). The server
+serves the **same** TS mock (`src/mocks/`, same handlers, fixtures and in-memory state) over real HTTP on port 3100
+(`MOCK_PORT` overrides), so a backend can be built and compared against it. The script sets `VITE_USE_MOCK=false` and
+`VITE_APP_API_URL` itself, so `.env` needs no edit. It adds nothing to keep in sync: change the mock and `docs/` as usual.
+
+- Plain `npm run dev` keeps the in-browser mock (`VITE_USE_MOCK=true` in `.env`).
+- The server loads `src/mocks/` through Vite SSR with `@/utils/api` aliased to `scripts/mock-server-api.mjs`, so a mock
+  module must not depend on browser-only globals beyond `localStorage` (stubbed: history actor falls back to "Admin").
+- State resets on restart; the 250 ms delay from `startMock()` still applies.
+
 ## Frontend (`frontend/`)
 
 Before any UI work, load the **`frontend` skill** (`.claude/skills/frontend/`, mirrored at `.agents/skills/frontend/`) — it's the
