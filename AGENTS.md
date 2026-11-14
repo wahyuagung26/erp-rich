@@ -80,7 +80,10 @@ the TS mock in `src/mocks/` stays the primary mock for the UI.
   **generated** — never edit it; run `node mockoon/build.mjs`.
 - When you change a module that is listed in `build.mjs`, update its `mockoon/modules/<module>.mjs` and rebuild in
   the same commit (`docs/` still wins over both).
-- Run: `npx @mockoon/cli start --data mockoon/erp-v2.mockoon.json` (port 3100), then point `VITE_APP_API_URL` at it.
+- Run: `npx @mockoon/cli start --data mockoon/erp-v2.mockoon.json` (port 3100), then in `frontend/`:
+  `VITE_USE_MOCK=false VITE_APP_API_URL=http://localhost:3100 npm run dev` (shell env overrides `.env`; no file edit).
+  Ported so far: `auth` (login), `company` (list + get only — create/update/delete are not ported), `unit` (full CRUD);
+  every other page will 404 against Mockoon until its module is ported. Verified end to end in the browser on Satuan.
 - Deviations from the TS mock (new rows appended instead of prepended, approximate case-insensitive `q`, no trimming)
   are noted in each module file's header; state is in-memory and resets on restart.
 

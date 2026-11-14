@@ -3,7 +3,7 @@
 import { writeFileSync } from 'node:fs'
 import { guid } from './lib.mjs'
 
-const modules = ['unit'] // add a module = new modules/<name>.mjs + one entry here
+const modules = ['auth', 'company', 'unit'] // add a module = new modules/<name>.mjs + one entry here
 const routes = []
 const data = []
 const folders = []
@@ -34,6 +34,9 @@ const env = {
 	cors: true,
 	headers: [
 		{ key: 'Content-Type', value: 'application/json' },
+		// Mockoon's `cors` flag only answers the preflight; real responses need these as global headers too.
+		{ key: 'Access-Control-Allow-Origin', value: '*' },
+		{ key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,PATCH,DELETE,OPTIONS' },
 		{ key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization, X-Company-Id' }
 	],
 	proxyReqHeaders: [{ key: '', value: '' }],
