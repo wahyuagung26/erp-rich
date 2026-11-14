@@ -69,23 +69,17 @@ touching a module: grep the endpoint path across `src/` (callers), `src/mocks/mo
 (handler), and `docs/` (contract) — all three or none. Update the `timestamp:` in
 frontmatter whenever you edit a doc file.
 
-### Mockoon environment (`mockoon/`)
+### Mock over HTTP (`npm run mock:server`)
 
-`mockoon/` is the same contract served over real HTTP by [Mockoon](https://mockoon.com), as **one** environment for
-all modules (shared data buckets, one port), so the frontend can run with `VITE_USE_MOCK=false` and a backend can be
-written against it. It is a **partial, opt-in** copy: only modules listed in `mockoon/build.mjs` exist there, and
-the TS mock in `src/mocks/` stays the primary mock for the UI.
+`frontend/scripts/mock-server.mjs` serves the **same** TS mock (`src/mocks/`, same handlers, fixtures and in-memory state)
+over real HTTP, so a backend can be built and compared against it. It adds nothing to keep in sync: change the mock and
+`docs/` as usual and the server follows.
 
-- Source is `mockoon/modules/<module>.mjs` (seeded from `src/mocks/fixtures/`). `mockoon/erp-v2.mockoon.json` is
-  **generated** — never edit it; run `node mockoon/build.mjs`.
-- When you change a module that is listed in `build.mjs`, update its `mockoon/modules/<module>.mjs` and rebuild in
-  the same commit (`docs/` still wins over both).
-- Run: `npx @mockoon/cli start --data mockoon/erp-v2.mockoon.json` (port 3100), then in `frontend/`:
-  `VITE_USE_MOCK=false VITE_APP_API_URL=http://localhost:3100 npm run dev` (shell env overrides `.env`; no file edit).
-  Ported so far: `auth` (login), `company` (list + get only — create/update/delete are not ported), `unit` (full CRUD);
-  every other page will 404 against Mockoon until its module is ported. Verified end to end in the browser on Satuan.
-- Deviations from the TS mock (new rows appended instead of prepended, approximate case-insensitive `q`, no trimming)
-  are noted in each module file's header; state is in-memory and resets on restart.
+- Run from `frontend/`: `npm run mock:server` (port 3100, `MOCK_PORT` overrides), then `npm run dev` with
+  `VITE_USE_MOCK=false VITE_APP_API_URL=http://localhost:3100` (or the same two values in `.env`).
+- It loads `src/mocks/` through Vite SSR with `@/utils/api` aliased to `scripts/mock-server-api.mjs`, so a mock module must
+  not depend on browser-only globals beyond `localStorage` (stubbed: history actor falls back to "Admin").
+- State resets on restart; the 250 ms delay from `startMock()` still applies.
 
 ## Frontend (`frontend/`)
 
