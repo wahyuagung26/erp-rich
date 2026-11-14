@@ -1,7 +1,7 @@
 // Serves the existing TS mock (src/mocks) over real HTTP so a backend can be built/compared against the same behaviour.
 // Same handlers, fixtures and in-memory state as `VITE_USE_MOCK=true`; state resets on restart.
 //   node scripts/mock-server.mjs            (port 3100, or MOCK_PORT=...)
-// then set VITE_USE_MOCK=false and VITE_APP_API_URL=http://localhost:<port> in .env
+// Normally started together with the frontend by `npm run prototype` (scripts/prototype.mjs).
 import { createServer as createHttp } from 'node:http'
 import { fileURLToPath } from 'node:url'
 import { createServer as createVite } from 'vite'
