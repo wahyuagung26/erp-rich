@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import HelpTip from '@/components/base/HelpTip.vue'
 import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { IconCheck, IconCornerDownRight, IconDeviceFloppy, IconPaperclip, IconPencil, IconPlus, IconSend, IconTrash, IconX } from '@tabler/icons-vue'
@@ -343,7 +344,7 @@ function submit() {
 					<FormField class="md:col-span-2" label="Keterangan" required :error="errors.description">
 						<Textarea v-model="form.description" :rows="2" placeholder="Keterangan pengeluaran" />
 					</FormField>
-					<FormField label="Lampiran" required :error="errors.attachment" hint="PDF, JPG, atau PNG. Maks. 5 MB per file, hingga 5 file.">
+					<FormField label="Lampiran" required :error="errors.attachment" :hint="['PDF, JPG, atau PNG.', 'Maks. 5 MB per file, hingga 5 file.']">
 						<div class="space-y-1.5">
 							<div
 								v-for="(file, index) in form.attachments"
@@ -371,8 +372,10 @@ function submit() {
 			</section>
 
 			<section class="space-y-3">
-				<h3 class="subhead">Sumber Dana</h3>
-				<p class="text-s text-ink-subtle">Akun kas/bank ini yang dikreditkan otomatis sebesar total beban dikurangi potongan.</p>
+				<div class="flex items-center gap-1">
+					<h3 class="subhead">Sumber Dana</h3>
+					<HelpTip text="Akun kas/bank ini yang dikreditkan otomatis sebesar total beban dikurangi potongan." />
+				</div>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
 					<FormField label="Akun Kas / Bank" required :error="errors.cash_account">
 						<AsyncSelect
@@ -411,10 +414,12 @@ function submit() {
 
 			<!-- Entry row lives IN the table (same columns as the lines below): fill it, press Enter or +, the line drops in underneath. -->
 			<section class="space-y-3">
-				<h3 class="subhead">Detail Jurnal</h3>
-				<p class="text-s text-ink-subtle">
-					Isi baris beban di sisi Debit. Centang "aktifkan" di kolom Kredit untuk potongan (mis. PPh 21), lalu tekan Enter atau tombol +.
-				</p>
+				<div class="flex items-center gap-1">
+					<h3 class="subhead">Detail Jurnal</h3>
+					<HelpTip
+						text='Isi baris beban di sisi Debit. Centang "aktifkan" di kolom Kredit untuk potongan (mis. PPh 21), lalu tekan Enter atau tombol +.'
+					/>
+				</div>
 				<div class="overflow-x-auto">
 					<table class="w-full min-w-[980px] text-m">
 						<thead>

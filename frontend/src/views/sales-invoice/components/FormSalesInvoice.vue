@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import HelpTip from '@/components/base/HelpTip.vue'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { IconDeviceFloppy, IconX } from '@tabler/icons-vue'
@@ -175,7 +176,10 @@ defineExpose({ setServerErrors })
 						hint="Opsional — menyalin seluruh isi sales order; satu sales order hanya untuk satu invoice"
 						:help="
 							orderFixed
-								? 'Tidak bisa diganti karena invoice ini dibuat dari sales order tersebut. Buat invoice baru bila ingin memakai sales order lain.'
+								? [
+										'Tidak bisa diganti karena invoice ini dibuat dari sales order tersebut.',
+										'Buat invoice baru bila ingin memakai sales order lain.'
+									]
 								: undefined
 						"
 					>
@@ -196,7 +200,7 @@ defineExpose({ setServerErrors })
 						label="Customer"
 						required
 						:error="errors.customer_id"
-						:help="hasOrder ? 'Mengikuti customer pada sales order. Kosongkan sales order bila ingin memilih customer lain.' : undefined"
+						:help="hasOrder ? ['Mengikuti customer pada sales order.', 'Kosongkan sales order bila ingin memilih customer lain.'] : undefined"
 						><AsyncSelect
 							:key="`customer-${version}`"
 							:model-value="draft.customer_id"
@@ -261,10 +265,15 @@ defineExpose({ setServerErrors })
 			</section>
 
 			<section class="space-y-3">
-				<h3 class="subhead">Pembayaran dengan Invoice</h3>
-				<p class="text-s text-ink-subtle">
-					Isi bila customer sudah membayar saat invoice dibuat (tunai, titipan, atau biaya). Pembayaran berikutnya dicatat lewat Piutang Customer.
-				</p>
+				<div class="flex items-center gap-1">
+					<h3 class="subhead">Pembayaran dengan Invoice</h3>
+					<HelpTip
+						:text="[
+							'Isi bila customer sudah membayar saat invoice dibuat (tunai, titipan, atau biaya).',
+							'Pembayaran berikutnya dicatat lewat Piutang Customer.'
+						]"
+					/>
+				</div>
 				<SalesInvoicePayments
 					:payments="draft.payments"
 					:customer-id="draft.customer_id"

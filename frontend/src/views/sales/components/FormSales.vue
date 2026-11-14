@@ -51,7 +51,10 @@ defineExpose({ setServerErrors })
 							:hint="isEdit ? undefined : 'Harus unik.'"
 							:help="
 								isEdit
-									? 'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah. Untuk memakai kode lain, buat data baru.'
+									? [
+											'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah.',
+											'Untuk memakai kode lain, buat data baru.'
+										]
 									: undefined
 							"
 						>

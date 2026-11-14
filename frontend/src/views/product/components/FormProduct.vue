@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IconDeviceFloppy, IconTrash, IconX } from '@tabler/icons-vue'
+import { IconAlertCircle, IconDeviceFloppy, IconX } from '@tabler/icons-vue'
 import Panel from '@/components/base/Panel.vue'
 import FormField from '@/components/base/FormField.vue'
 import Input from '@/components/base/Input.vue'
@@ -10,7 +10,7 @@ import Textarea from '@/components/base/Textarea.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import RadioGroup from '@/components/base/RadioGroup.vue'
 import Button from '@/components/base/Button.vue'
-import FileDrop from '@/components/base/FileDrop.vue'
+import ImageDrop from '@/components/base/ImageDrop.vue'
 import { useToast } from '@/composables/useToast'
 import ProductVariants from '@/views/product/components/ProductVariants.vue'
 import { validateProduct, PRODUCT_TYPES, type ProductForm } from '@/views/product/schema'
@@ -54,13 +54,33 @@ const hasSavedVariants = (props.initial?.option_names?.length ?? 0) > 0
 const showVariants = computed(() => !isService.value || hasSavedVariants)
 const variantMode = ref(hasSavedVariants)
 const sellsPerVariant = computed(() => showVariants.value && variantMode.value)
+// The hidden Standar SKU of a new variant product is not counted (ProductVariants shows it only on edit).
 const skuSummary = computed(() => {
-	const sellable = form.variants.filter((item) => item.is_active).length
-	return `${form.variants.length} SKU · ${sellable} aktif`
+	const shown = form.variants.filter((item) => !item.is_default || props.initial?.id)
+	return `${shown.length} SKU · ${shown.filter((item) => item.is_active).length} aktif`
 })
 
 const errors = ref<Record<string, string>>({})
 const variantsRef = ref<InstanceType<typeof ProductVariants>>()
+const formEl = ref<HTMLFormElement>()
+
+// Live "belum lengkap" list for the action bar; each key is a `data-field` anchor to jump to.
+const REQUIRED: [key: string, label: string, empty: () => boolean][] = [
+	['code', 'Kode Produk', () => !form.code.trim()],
+	['name', 'Nama Produk', () => form.name.trim().length < 2],
+	['brand_id', 'Merk', () => !form.brand_id],
+	['product_category_id', 'Kategori Produk', () => !form.product_category_id],
+	['sales_type_id', 'Jenis Penjualan', () => !form.sales_type_id],
+	['supplier_id', 'Supplier Utama', () => !form.supplier_id],
+	['unit_id', 'Satuan', () => !form.unit_id],
+	['variants', 'Varian', () => sellsPerVariant.value && !!variantsRef.value?.issue]
+]
+const missing = computed(() => REQUIRED.filter(([, , empty]) => empty()).map(([key, label]) => ({ key, label })))
+function goTo(key: string) {
+	const el = formEl.value?.querySelector<HTMLElement>(`[data-field="${key}"]`)
+	el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+	el?.querySelector<HTMLElement>('input:not([disabled]), button:not([disabled])')?.focus({ preventScroll: true })
+}
 
 // Already-denormalized on the entity (see docs/product/) — no resolve-by-id fetch needed on edit.
 const initialBrandLabel = props.initial?.brand_code ? `${props.initial.brand_code} — ${props.initial.brand_name}` : undefined
@@ -106,7 +126,7 @@ function onPhotoPick(file: File | undefined) {
 	reader.readAsDataURL(file)
 }
 
-// The request body: one Standar SKU at Harga Jual without variants; with variants Harga Jual mirrors the Standar price.
+// The request body: Harga Jual is the Standar price and the default every variant inherits (ProductVariants resolves it per SKU).
 function payload(): ProductForm {
 	const standar = form.variants.find((item) => item.is_default)!
 	const variants = sellsPerVariant.value
@@ -115,7 +135,6 @@ function payload(): ProductForm {
 	return {
 		...form,
 		min_stock: isService.value ? 0 : form.min_stock,
-		selling_price: sellsPerVariant.value ? standar.selling_price : form.selling_price,
 		option_names: sellsPerVariant.value ? [...form.option_names] : [],
 		variants
 	}
@@ -141,52 +160,60 @@ defineExpose({ setServerErrors })
 <template>
 	<!-- Left edge aligns with the breadcrumb / page title / list panel. -->
 	<Panel>
-		<form class="space-y-8" @submit.prevent="onSubmit">
+		<form ref="formEl" class="space-y-8" @submit.prevent="onSubmit">
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Produk</h3>
-				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
-					<FormField
-						label="Kode Produk"
-						required
-						:error="errors.code"
-						:hint="isEdit ? undefined : 'Harus unik.'"
-						:help="
-							isEdit
-								? 'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah. Untuk memakai kode lain, buat data baru.'
-								: undefined
-						"
-					>
-						<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. PRD001" />
-					</FormField>
-					<FormField label="Nama Produk" required :error="errors.name">
-						<Input v-model="form.name" placeholder="mis. Kulkas 2 Pintu" />
-					</FormField>
-					<FormField class="sm:col-span-2" label="Jenis Produk" required :error="errors.type">
-						<RadioGroup v-model="form.type" inline :options="[...PRODUCT_TYPES]" />
-					</FormField>
-					<FormField class="sm:col-span-2" label="Keterangan" :error="errors.notes">
-						<Textarea v-model="form.notes" :rows="2" placeholder="mis. spesifikasi singkat atau catatan gudang" />
-					</FormField>
-					<FormField class="sm:col-span-2" label="Foto Produk" :error="errors.photo_url">
-						<div v-if="form.photo_url" class="flex items-center gap-4">
-							<img :src="form.photo_url" alt="Foto produk" class="h-24 w-24 rounded-md bg-fill object-contain" />
-							<Button type="button" size="sm" variant="subtle" @click="form.photo_url = ''"><IconTrash class="h-4 w-4" /> Hapus Foto</Button>
-						</div>
-						<FileDrop
-							v-else
-							class="max-w-md"
+				<div class="flex flex-col gap-5 sm:flex-row sm:items-start">
+					<FormField label="Foto" :error="errors.photo_url" :hint="['JPG, PNG, GIF, atau WEBP.', 'Maksimal 2 MB.']">
+						<ImageDrop
+							:src="form.photo_url || undefined"
+							alt="Foto produk"
 							accept="image/png,image/jpeg,image/gif,image/webp"
-							hint="JPG, PNG, GIF, atau WEBP. Maksimal 2 MB."
-							@update:model-value="onPhotoPick"
+							@pick="onPhotoPick"
+							@remove="form.photo_url = ''"
 						/>
 					</FormField>
+					<div class="grid min-w-0 flex-1 grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-[220px_1fr]">
+						<FormField
+							label="Kode Produk"
+							required
+							:error="errors.code"
+							data-field="code"
+							:hint="isEdit ? undefined : 'Harus unik.'"
+							:help="
+								isEdit
+									? [
+											'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah.',
+											'Untuk memakai kode lain, buat data baru.'
+										]
+									: undefined
+							"
+						>
+							<Input v-model="form.code" mono :disabled="isEdit" placeholder="mis. PRD001" />
+						</FormField>
+						<FormField label="Nama Produk" required :error="errors.name" data-field="name">
+							<Input v-model="form.name" placeholder="mis. Kulkas 2 Pintu" />
+						</FormField>
+						<FormField
+							class="sm:col-span-2"
+							label="Jenis Produk"
+							required
+							:error="errors.type"
+							:hint="['Produk Jadi / Bahan Baku: punya stok dan bisa bervarian.', 'Jasa: tanpa stok dan tanpa varian.']"
+						>
+							<RadioGroup v-model="form.type" inline :options="[...PRODUCT_TYPES]" />
+						</FormField>
+					</div>
 				</div>
+				<FormField label="Keterangan" :error="errors.notes">
+					<Textarea v-model="form.notes" :rows="2" placeholder="mis. spesifikasi singkat atau catatan gudang" />
+				</FormField>
 			</section>
 
 			<section class="space-y-3">
 				<h3 class="subhead">Klasifikasi</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
-					<FormField label="Merk" required :error="errors.brand_id">
+					<FormField label="Merk" required :error="errors.brand_id" data-field="brand_id">
 						<AsyncSelect
 							:model-value="form.brand_id || null"
 							endpoint="/brand"
@@ -196,7 +223,7 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.brand_id = Number(v))"
 						/>
 					</FormField>
-					<FormField label="Kategori Produk" required :error="errors.product_category_id">
+					<FormField label="Kategori Produk" required :error="errors.product_category_id" data-field="product_category_id">
 						<AsyncSelect
 							:model-value="form.product_category_id || null"
 							endpoint="/product-category"
@@ -206,7 +233,7 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.product_category_id = Number(v))"
 						/>
 					</FormField>
-					<FormField label="Jenis Penjualan" required :error="errors.sales_type_id">
+					<FormField label="Jenis Penjualan" required :error="errors.sales_type_id" data-field="sales_type_id">
 						<AsyncSelect
 							:model-value="form.sales_type_id || null"
 							endpoint="/sales-type"
@@ -216,7 +243,7 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.sales_type_id = Number(v))"
 						/>
 					</FormField>
-					<FormField label="Supplier Utama" required :error="errors.supplier_id">
+					<FormField label="Supplier Utama" required :error="errors.supplier_id" data-field="supplier_id">
 						<AsyncSelect
 							:model-value="form.supplier_id || null"
 							endpoint="/supplier"
@@ -226,7 +253,7 @@ defineExpose({ setServerErrors })
 							@update:model-value="(v) => (form.supplier_id = Number(v))"
 						/>
 					</FormField>
-					<FormField class="sm:col-span-2" label="Satuan" required :error="errors.unit_id">
+					<FormField class="sm:col-span-2" label="Satuan" required :error="errors.unit_id" data-field="unit_id">
 						<AsyncSelect
 							:model-value="form.unit_id || null"
 							endpoint="/unit"
@@ -240,18 +267,6 @@ defineExpose({ setServerErrors })
 				</div>
 			</section>
 
-			<ProductVariants
-				v-if="showVariants"
-				ref="variantsRef"
-				v-model:enabled="variantMode"
-				v-model:option-names="form.option_names"
-				v-model:variants="form.variants"
-				:code="form.code"
-				:base-price="form.selling_price"
-				:product-id="initial?.id"
-				:error="errors.variants"
-			/>
-
 			<section class="space-y-3">
 				<h3 class="subhead">Harga &amp; Stok</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
@@ -263,11 +278,13 @@ defineExpose({ setServerErrors })
 					>
 						<MoneyInput v-model="form.last_purchase_price" />
 					</FormField>
-					<FormField v-if="!sellsPerVariant" label="Harga Jual" required :error="errors.selling_price" hint="Sebelum pajak.">
+					<FormField
+						label="Harga Jual"
+						required
+						:error="errors.selling_price"
+						:hint="sellsPerVariant ? ['Sebelum pajak.', 'Harga default semua varian; yang berbeda diubah di tabel Varian.'] : 'Sebelum pajak.'"
+					>
 						<MoneyInput v-model="form.selling_price" />
-					</FormField>
-					<FormField v-else label="Harga Jual">
-						<p class="py-2 text-m text-ink-muted">Diatur per SKU di tabel Varian.</p>
 					</FormField>
 					<FormField v-if="isEdit" label="HPP Rata-rata" help="Dihitung otomatis dari transaksi pembelian, jadi tidak bisa diubah manual.">
 						<MoneyInput :model-value="props.initial?.hpp_avg ?? 0" disabled />
@@ -293,9 +310,32 @@ defineExpose({ setServerErrors })
 				</div>
 			</section>
 
+			<ProductVariants
+				v-if="showVariants"
+				data-field="variants"
+				ref="variantsRef"
+				v-model:enabled="variantMode"
+				v-model:option-names="form.option_names"
+				v-model:variants="form.variants"
+				:code="form.code"
+				:base-price="form.selling_price"
+				:product-id="initial?.id"
+				:error="errors.variants"
+			/>
+
 			<!-- Sticky action bar: Simpan stays in reach however long the variant table gets. -->
 			<div class="sticky bottom-0 z-10 -mx-4 -mb-4 flex flex-wrap items-center justify-between gap-3 border-t border-hairline bg-panel px-4 py-3">
-				<p class="text-s text-ink-muted">{{ sellsPerVariant ? skuSummary : '' }}</p>
+				<button
+					v-if="missing.length"
+					type="button"
+					class="flex min-w-0 items-center gap-1.5 text-left text-s text-warning hover:underline"
+					:title="`Ke ${missing[0].label}`"
+					@click="goTo(missing[0].key)"
+				>
+					<IconAlertCircle class="h-4 w-4 shrink-0" />
+					<span class="truncate">{{ missing.length }} isian wajib belum lengkap: {{ missing.map((m) => m.label).join(', ') }}</span>
+				</button>
+				<p v-else class="text-s text-ink-muted">{{ sellsPerVariant ? skuSummary : 'Semua isian wajib lengkap' }}</p>
 				<div class="flex flex-wrap justify-end gap-2">
 					<Button variant="secondary" type="button" @click="router.push('/product')"> <IconX class="h-4 w-4" /> Batal </Button>
 					<Button type="submit" :loading="loading"> <IconDeviceFloppy v-if="!loading" class="h-4 w-4" /> {{ submitLabel ?? 'Simpan' }} </Button>

@@ -72,7 +72,7 @@ defineExpose({ setServerErrors })
 			<section class="space-y-3">
 				<h3 class="subhead">Informasi Perusahaan</h3>
 				<div class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
-					<FormField label="Kode Perusahaan" required :error="errors.code" hint="Handle singkat, mis. RIN. Harus unik.">
+					<FormField label="Kode Perusahaan" required :error="errors.code" :hint="['Handle singkat, mis. RIN.', 'Harus unik.']">
 						<Input v-model="form.code" mono placeholder="RIN" />
 					</FormField>
 					<FormField label="Nama Pendek" required :error="errors.short_name">
@@ -88,7 +88,7 @@ defineExpose({ setServerErrors })
 						class="sm:col-span-2"
 						label="Logo Perusahaan"
 						:error="errors.logo_url"
-						hint="JPG, PNG, GIF, atau WEBP. Maksimal 2 MB. Kosongkan untuk mempertahankan logo saat ini."
+						:hint="['JPG, PNG, GIF, atau WEBP.', 'Maksimal 2 MB.', 'Kosongkan untuk mempertahankan logo saat ini.']"
 					>
 						<div class="flex items-center gap-3">
 							<img v-if="form.logo_url" :src="form.logo_url" alt="Logo perusahaan" class="h-14 w-14 rounded-md object-contain" />
@@ -127,7 +127,10 @@ defineExpose({ setServerErrors })
 						label="Warna Brand"
 						required
 						:error="errors.brand_color"
-						hint="Warna utama aplikasi (tombol, tautan, status berhasil) saat perusahaan ini aktif. Warna yang terlalu terang disesuaikan otomatis agar teks tetap terbaca."
+						:hint="[
+							'Warna utama aplikasi (tombol, tautan, status berhasil) saat perusahaan ini aktif.',
+							'Warna yang terlalu terang disesuaikan otomatis agar teks tetap terbaca.'
+						]"
 					>
 						<div class="flex items-center gap-3">
 							<input type="color" v-model="form.brand_color" class="h-9 w-12 cursor-pointer rounded-md bg-fill" />

@@ -106,7 +106,10 @@ defineExpose({ setServerErrors })
 						:hint="poLocked ? undefined : 'Hanya order pembelian yang sudah disetujui; produk dan departemen terisi otomatis'"
 						:help="
 							poLocked
-								? 'Tidak bisa diganti karena produk dan departemen penerimaan mengikuti order pembelian ini. Hapus penerimaan lalu buat baru bila salah pilih.'
+								? [
+										'Tidak bisa diganti karena produk dan departemen penerimaan mengikuti order pembelian ini.',
+										'Hapus penerimaan lalu buat baru bila salah pilih.'
+									]
 								: undefined
 						"
 						><AsyncSelect

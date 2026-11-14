@@ -48,10 +48,13 @@ defineExpose({ setServerErrors })
 							label="Kode Jenis Pembelian"
 							required
 							:error="errors.code"
-							:hint="isEdit ? undefined : 'Huruf kapital A-Z, maksimal 5 karakter. Harus unik.'"
+							:hint="isEdit ? undefined : ['Huruf kapital A-Z, maksimal 5 karakter.', 'Harus unik.']"
 							:help="
 								isEdit
-									? 'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah. Untuk memakai kode lain, buat data baru.'
+									? [
+											'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah.',
+											'Untuk memakai kode lain, buat data baru.'
+										]
 									: undefined
 							"
 						>

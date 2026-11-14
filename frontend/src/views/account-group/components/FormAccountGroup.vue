@@ -47,10 +47,13 @@ defineExpose({ setServerErrors })
 							label="Kode Group Akun"
 							required
 							:error="errors.code"
-							:hint="isEdit ? undefined : 'Angka, maksimal 2 digit. Harus unik.'"
+							:hint="isEdit ? undefined : ['Angka, maksimal 2 digit.', 'Harus unik.']"
 							:help="
 								isEdit
-									? 'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah. Untuk memakai kode lain, buat data baru.'
+									? [
+											'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah.',
+											'Untuk memakai kode lain, buat data baru.'
+										]
 									: undefined
 							"
 						>

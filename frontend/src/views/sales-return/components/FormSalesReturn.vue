@@ -114,7 +114,7 @@ defineExpose({ setServerErrors })
 						:hint="returnId ? undefined : 'Hanya invoice yang sudah disetujui; produk, harga dan diskon terisi otomatis dari invoice'"
 						:help="
 							returnId
-								? 'Tidak bisa diganti karena produk, harga dan diskon retur mengikuti invoice ini. Hapus retur lalu buat baru bila salah pilih.'
+								? ['Tidak bisa diganti karena produk, harga dan diskon retur mengikuti invoice ini.', 'Hapus retur lalu buat baru bila salah pilih.']
 								: undefined
 						"
 					>

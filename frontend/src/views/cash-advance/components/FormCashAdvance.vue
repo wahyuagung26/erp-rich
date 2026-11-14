@@ -164,7 +164,7 @@ defineExpose({ setServerErrors })
 					<FormField class="md:col-span-2" label="Keterangan" hint="Opsional.">
 						<Textarea v-model="form.description" :rows="3" placeholder="Keterangan uang muka" />
 					</FormField>
-					<FormField label="Lampiran" required :error="errors.attachments" hint="PDF, JPG, atau PNG. Maks. 5 MB per file, hingga 5 file.">
+					<FormField label="Lampiran" required :error="errors.attachments" :hint="['PDF, JPG, atau PNG.', 'Maks. 5 MB per file, hingga 5 file.']">
 						<AttachmentInput v-model="form.attachments" />
 					</FormField>
 				</div>
@@ -220,14 +220,14 @@ defineExpose({ setServerErrors })
 					<FormField
 						label="Terpakai"
 						hint="Terisi otomatis dari realisasi."
-						help="Tidak bisa diubah di sini. Jumlah ini dihitung otomatis dari total penyelesaian yang tercatat pada uang muka ini."
+						:help="['Tidak bisa diubah di sini.', 'Jumlah ini dihitung otomatis dari total penyelesaian yang tercatat pada uang muka ini.']"
 					>
 						<MoneyInput :model-value="form.used" disabled />
 					</FormField>
 					<FormField
 						label="Sisa"
 						hint="Nominal dikurangi terpakai."
-						help="Tidak bisa diubah di sini. Jumlah ini dihitung otomatis: nominal dikurangi terpakai."
+						:help="['Tidak bisa diubah di sini.', 'Jumlah ini dihitung otomatis: nominal dikurangi terpakai.']"
 					>
 						<MoneyInput :model-value="remaining" disabled />
 					</FormField>

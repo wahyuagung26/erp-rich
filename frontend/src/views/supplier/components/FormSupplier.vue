@@ -101,7 +101,7 @@ defineExpose({ setServerErrors })
 						<FormField class="w-72" label="NPWP" required :error="errors.npwp">
 							<Input v-model="form.npwp" mono placeholder="00.000.000.0-000.000" />
 						</FormField>
-						<FormField class="w-32" label="TOP" required :error="errors.top_days">
+						<FormField class="w-32" label="TOP" required :error="errors.top_days" :hint="['TOP = jatuh tempo pembayaran.', '0 = tunai / COD.']">
 							<Input
 								:model-value="form.top_days"
 								type="number"
@@ -112,7 +112,6 @@ defineExpose({ setServerErrors })
 							/>
 						</FormField>
 					</div>
-					<p class="text-s text-ink-subtle">TOP = jatuh tempo pembayaran. 0 = tunai / COD.</p>
 				</div>
 			</section>
 

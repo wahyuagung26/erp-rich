@@ -106,7 +106,7 @@ defineExpose({ setServerErrors })
 						:hint="invoiceLocked ? undefined : 'Hanya invoice yang sudah disetujui dan belum punya surat jalan; satu invoice satu surat jalan'"
 						:help="
 							invoiceLocked
-								? 'Tidak bisa diganti karena surat jalan sudah dibuat untuk invoice ini. Hapus surat jalan lalu buat baru bila salah pilih.'
+								? ['Tidak bisa diganti karena surat jalan sudah dibuat untuk invoice ini.', 'Hapus surat jalan lalu buat baru bila salah pilih.']
 								: undefined
 						"
 						><AsyncSelect

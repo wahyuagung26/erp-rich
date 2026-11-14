@@ -93,7 +93,7 @@ defineExpose({ setServerErrors })
 						<FormField class="w-72" label="NPWP" :error="errors.npwp">
 							<Input v-model="form.npwp" mono placeholder="0000-0000-0000-0000" />
 						</FormField>
-						<FormField class="w-32" label="TOP" required :error="errors.top_days">
+						<FormField class="w-32" label="TOP" required :error="errors.top_days" :hint="['TOP = jatuh tempo pembayaran piutang.', '0 = tunai.']">
 							<Input
 								:model-value="form.top_days"
 								type="number"
@@ -104,7 +104,6 @@ defineExpose({ setServerErrors })
 							/>
 						</FormField>
 					</div>
-					<p class="text-s text-ink-subtle">TOP = jatuh tempo pembayaran piutang. 0 = tunai.</p>
 				</div>
 			</section>
 

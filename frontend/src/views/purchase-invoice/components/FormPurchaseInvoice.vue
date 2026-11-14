@@ -104,7 +104,7 @@ defineExpose({ setServerErrors })
 						:hint="receiptLocked ? undefined : 'Hanya penerimaan yang belum dibuat invoice; produk dan harga terisi otomatis'"
 						:help="
 							receiptLocked
-								? 'Tidak bisa diganti karena produk dan harga invoice mengikuti penerimaan ini. Hapus invoice lalu buat baru bila salah pilih.'
+								? ['Tidak bisa diganti karena produk dan harga invoice mengikuti penerimaan ini.', 'Hapus invoice lalu buat baru bila salah pilih.']
 								: undefined
 						"
 					>

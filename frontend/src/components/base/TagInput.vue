@@ -4,7 +4,14 @@ import { IconX } from '@tabler/icons-vue'
 
 // Chip list input: Enter / comma / Tab adds the typed value (case-insensitive unique), Backspace on empty removes the last chip.
 // `suggestions` feed a native datalist (values already used elsewhere); picked ones are left out.
-const props = defineProps<{ modelValue: string[]; placeholder?: string; disabled?: boolean; suggestions?: string[] }>()
+// `normalize` tidies each typed value before it becomes a chip (e.g. size codes upper-case).
+const props = defineProps<{
+	modelValue: string[]
+	placeholder?: string
+	disabled?: boolean
+	suggestions?: string[]
+	normalize?: (value: string) => string
+}>()
 const emit = defineEmits<{ 'update:modelValue': [string[]] }>()
 
 const text = ref('')
@@ -17,6 +24,7 @@ function commit() {
 		.split(',')
 		.map((v) => v.trim())
 		.filter(Boolean)
+		.map((v) => props.normalize?.(v) ?? v)
 	text.value = ''
 	const next = [...props.modelValue]
 	for (const v of values) if (!next.some((x) => x.toLowerCase() === v.toLowerCase())) next.push(v)

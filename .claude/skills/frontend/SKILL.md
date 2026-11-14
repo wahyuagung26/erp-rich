@@ -20,7 +20,7 @@ a debounce, or a list-fetch loop — **look in `src/components/base/` and `src/c
 It is almost certainly already there:
 
 - primitives: `Button Input Textarea Select Checkbox RadioGroup Switch DatePicker
-  DateRangePicker FileDrop FormField Table TablePagination RowActions InlineEdit Modal ConfirmDialog Badge Tabs Breadcrumb TagInput
+  DateRangePicker FileDrop FormField Table TablePagination RowActions InlineEdit Modal ConfirmDialog Badge Tabs Breadcrumb TagInput ImageDrop
   PageHeader FilterBar Panel EmptyState Skeleton Spinner Amount StatTile`
 - composables: `useTableList` (the whole list/table/sort/filter/paginate loop), `useToast`,
   `useConfirm`, `useDebounce`, `onClickOutside`
@@ -183,7 +183,13 @@ make the mock fail, click twice), not by reading the code.
    disabled and, if possible, how to enable it ("Tidak bisa diubah karena dokumen sudah disetujui.").
    Use `<FormField help="…">` (renders `<HelpTip>`, a click/tap/Enter popover with an X; `HelpTip` also takes `title` and
    `sections` for richer help) — don't
-   hand-roll a tooltip, and don't leave the reason only in the grey `hint` line.
+   hand-roll a tooltip.
+6. **No helper text under a field or heading** (owner rule 2026-11-15). Help is a `HelpTip` icon right of the label:
+   `<FormField hint="…">` / `help="…"` both render as that icon (FormField never prints a grey line; only `error` shows
+   below the field). Section-level help → `<div class="flex items-center gap-1"><h3 class="subhead">…</h3><HelpTip text="…" /></div>`.
+   A raw `<p class="text-s text-ink-subtle">` explaining a field or section is a review finding.
+   **More than one point → numbered list**: pass one string per point (`hint="…"` for one, `:hint="['Point 1.', 'Point 2.']"`
+   for several; `help` the same). HelpTip renders 2+ points (and 2+ section items) as an `<ol>`; never glue several sentences into one string.
 
 ## 6. Design rules (full list: DESIGN_SYSTEM.md)
 
@@ -191,11 +197,9 @@ make the mock fail, click twice), not by reading the code.
 - **Sections grouped by whitespace + a clear heading**: each group is a `<section
   class="space-y-3">` with an `<h3 class="subhead">` (now a plain uppercase `text-m font-semibold text-ink`
   label — the old full-bleed grey bar was removed, it read as box-in-box next to filled
-  inputs), `space-y-8` between sections on the `<form>`. **No subtitle that just restates the
-  heading** — a `<p class="text-s text-ink-subtle">` under the `<h3>` is only for micro-copy
-  explaining behaviour the user can't infer ("this account is auto-credited for the total",
-  "TOP 0 = cash / COD"), never a description of the section. Legacy screens carry filler
-  subtitles; drop them on port.
+  inputs), `space-y-8` between sections on the `<form>`. **No subtitle under the heading** —
+  behaviour the user can't infer ("this account is auto-credited for the total", "TOP 0 = cash / COD")
+  goes in a `HelpTip` beside the heading or label (§5a.6). Legacy screens carry filler subtitles; drop them on port.
 - **Outlined inputs** (white `bg-panel` + `border border-ink-subtle/30`, disabled = `bg-fill`); **`.tnum` (Inter tabular digits — never `font-mono`) only for money (`<Amount>`) and dates** — NOT codes,
   transaction numbers, phone, or formatted phrases ("30 hari").
 - **Page width**: `DefaultLayout` already wraps every page in `mx-auto max-w-[1200px]`. EVERY page
@@ -244,7 +248,7 @@ list → `PageCashAdvanceTable.vue` / `PageJournalExpenseTable.vue`; line-item f
 - Totals/Ringkasan never sit in a separate block beside or below the table's section; never invent a new summary widget.
 - Don't show disabled/derived fields that only restate other fields.
 
-**Field labels & hints** — the users are finance staff, not developers. A label must say *what it is for*, not the column name: "Gudang Penerima" (+ hint "Gudang tempat barang dari PO ini diterima"), "Alamat Supplier" (+ hint "Terisi otomatis dari data supplier, bisa diubah untuk PO ini"). Use `FormField hint` for any field whose purpose or auto-fill behaviour isn't obvious; check the legacy app's wording when unsure.
+**Field labels & hints** — the users are finance staff, not developers. A label must say *what it is for*, not the column name: "Gudang Penerima" (+ hint "Gudang tempat barang dari PO ini diterima"), "Alamat Supplier" (+ hint "Terisi otomatis dari data supplier, bisa diubah untuk PO ini"). Use `FormField hint` (shown as the label's help icon, §5a.6) for any field whose purpose or auto-fill behaviour isn't obvious; check the legacy app's wording when unsure.
 
 **Closing-period lock (every dated document module)** — a record whose `date` is in a closed period is frozen; contract in `docs/conventions.md#closing-period-lock-locked`. For a NEW module or action: mock reads `withLock(config, row)` (response `locked`) and guards writes with `closedReply` / `closedDateReply` (all in `mocks/modules/posting.ts`); UI gates edit / delete / approve / reject / resubmit / unapprove on `!record.locked` and shows `<ClosingBadge>` (`components/common/`) in place of the buttons — never a disabled button, never a per-page copy of the lock markup. Faktur Pajak stays editable (no jurnal/stok effect). Before building a rule that spans modules, list every action of the record and decide lock/keep for each in the first reply.
 

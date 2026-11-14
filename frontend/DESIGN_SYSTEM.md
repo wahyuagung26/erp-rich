@@ -44,6 +44,10 @@ Status: `EmptyState` `Skeleton` `Spinner` · Overlay: `Modal` `ConfirmDialog` `H
 klik di luar, atau scroll. Isi: `title?` (tebal), `text?`, dan `sections?` (`{ label, items[] }` → label kapital kecil + bullet,
 dipisah hairline). Cukup `text` untuk penjelasan satu kalimat (dipakai `<FormField help>`). Di-teleport ke `<body>` dan `fixed`
 (tidak terpotong overflow tabel/modal), lebar maks 360px, membalik ke atas di dekat tepi bawah layar. Jangan buat tooltip sendiri.
+**Tidak ada teks helper di bawah field atau judul section** (aturan owner 2026-11-15): bantuan selalu lewat ikon `HelpTip` di
+kanan label. `<FormField hint>` dan `<FormField help>` sama-sama dirender sebagai ikon itu; hanya `error` yang tampil sebagai teks.
+Isi tooltip lebih dari satu poin **wajib** berupa daftar bernomor (`<ol>`): kirim satu string per poin (`:hint="['…', '…']"`), HelpTip
+menomorinya otomatis.
 
 `Input` punya slot `#suffix` (ikon/tombol di dalam field, mis. toggle password) dan prop `addon`
 (label satuan menempel di kanan, gaya input-group Bootstrap — mis. `addon="hari"`).

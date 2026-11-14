@@ -62,7 +62,7 @@ defineExpose({ setServerErrors })
 						:error="errors.sub_account_id"
 						:help="
 							isEdit
-								? 'Sub akun dikunci setelah data dibuat karena menjadi bagian dari kode akun. Untuk memakai sub akun lain, buat data baru.'
+								? ['Sub akun dikunci setelah data dibuat karena menjadi bagian dari kode akun.', 'Untuk memakai sub akun lain, buat data baru.']
 								: undefined
 						"
 					>
@@ -85,7 +85,10 @@ defineExpose({ setServerErrors })
 							:hint="isEdit ? undefined : '5 digit pertama otomatis dari kode sub akun — isi 2 digit sisanya.'"
 							:help="
 								isEdit
-									? 'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah. Untuk memakai kode lain, buat data baru.'
+									? [
+											'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah.',
+											'Untuk memakai kode lain, buat data baru.'
+										]
 									: 'Prefix 5 digit diambil dari kode sub akun yang dipilih, jadi tidak bisa diubah di sini.'
 							"
 						>

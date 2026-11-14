@@ -270,7 +270,7 @@ function removePayment(paymentId: number, number: string) {
 									label="Tipe Pembayaran"
 									required
 									:error="errors.payment_type_id"
-									:help="editing ? 'Tidak bisa diubah saat mengedit pembayaran. Batalkan pembayaran lalu catat ulang bila perlu.' : undefined"
+									:help="editing ? ['Tidak bisa diubah saat mengedit pembayaran.', 'Batalkan pembayaran lalu catat ulang bila perlu.'] : undefined"
 								>
 									<AsyncSelect
 										:key="`type-${editing?.id ?? 'new'}`"
@@ -309,7 +309,7 @@ function removePayment(paymentId: number, number: string) {
 									required
 									:error="errors.purchase_return_id"
 									hint="Retur yang sudah disetujui dari supplier ini"
-									:help="editing ? 'Tidak bisa diubah saat mengedit pembayaran. Batalkan pembayaran lalu catat ulang bila perlu.' : undefined"
+									:help="editing ? ['Tidak bisa diubah saat mengedit pembayaran.', 'Batalkan pembayaran lalu catat ulang bila perlu.'] : undefined"
 								>
 									<AsyncSelect
 										:key="`return-${editing?.id ?? 'new'}`"
@@ -330,7 +330,7 @@ function removePayment(paymentId: number, number: string) {
 									required
 									:error="errors.supplier_advance_id"
 									hint="Uang muka dari supplier ini yang masih punya sisa"
-									:help="editing ? 'Tidak bisa diubah saat mengedit pembayaran. Batalkan pembayaran lalu catat ulang bila perlu.' : undefined"
+									:help="editing ? ['Tidak bisa diubah saat mengedit pembayaran.', 'Batalkan pembayaran lalu catat ulang bila perlu.'] : undefined"
 								>
 									<AsyncSelect
 										:key="`advance-${editing?.id ?? 'new'}`"

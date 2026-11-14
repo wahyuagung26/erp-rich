@@ -111,7 +111,7 @@ defineExpose({ setServerErrors })
 						required
 						:error="errors.pkp_active"
 						:hint="draft.supplier_id ? undefined : 'Mengikuti supplier'"
-						:help="draft.supplier_id ? undefined : 'Belum bisa diatur karena supplier belum dipilih. Pilih supplier terlebih dahulu.'"
+						:help="draft.supplier_id ? undefined : ['Belum bisa diatur karena supplier belum dipilih.', 'Pilih supplier terlebih dahulu.']"
 					>
 						<Select
 							:model-value="String(draft.pkp_active)"

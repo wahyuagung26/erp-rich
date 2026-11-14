@@ -8,9 +8,9 @@ const fkRef = (message: string) =>
 	)
 
 export const PRODUCT_TYPES = [
-	{ label: 'Jasa', value: 'service' },
+	{ label: 'Produk Jadi', value: 'finished_good' },
 	{ label: 'Bahan Baku', value: 'raw_material' },
-	{ label: 'Produk Jadi', value: 'finished_good' }
+	{ label: 'Jasa', value: 'service' }
 ] as const
 
 const variantSchema = v.object({

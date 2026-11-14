@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IconArrowLeft, IconPencil, IconTrash } from '@tabler/icons-vue'
 import api from '@/utils/api'
@@ -21,6 +21,8 @@ const { ask } = useConfirm()
 const toast = useToast()
 
 const product = ref<Product>()
+// An inactive "tanpa varian" SKU is not sold anymore (and is hidden on new variant products), so the table leaves it out.
+const shownVariants = computed(() => product.value?.variants.filter((variant) => !variant.is_default || variant.is_active) ?? [])
 const loading = ref(true)
 const notFound = ref(false)
 
@@ -105,7 +107,7 @@ function remove() {
 					<div class="flex flex-wrap items-baseline justify-between gap-2">
 						<h3 class="subhead">Varian</h3>
 						<p class="text-s text-ink-muted">
-							{{ product.variants.length }} SKU · {{ product.variants.filter((variant) => variant.is_active).length }} aktif
+							{{ shownVariants.length }} SKU · {{ shownVariants.filter((variant) => variant.is_active).length }} aktif
 						</p>
 					</div>
 					<div class="overflow-x-auto">
@@ -119,8 +121,8 @@ function remove() {
 								</tr>
 							</thead>
 							<tbody>
-								<tr v-for="variant in product.variants" :key="variant.id" class="border-b border-hairline last:border-0">
-									<td v-if="variant.is_default" :colspan="product.option_names.length" class="px-3 py-2.5"><Badge>Standar</Badge></td>
+								<tr v-for="variant in shownVariants" :key="variant.id" class="border-b border-hairline last:border-0">
+									<td v-if="variant.is_default" :colspan="product.option_names.length" class="px-3 py-2.5"><Badge>Tanpa varian</Badge></td>
 									<template v-else>
 										<td v-for="name in product.option_names" :key="name" class="px-3 py-2.5 text-ink">{{ variant.option_values[name] }}</td>
 									</template>

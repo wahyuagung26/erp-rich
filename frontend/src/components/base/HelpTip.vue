@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref, nextTick, watch, onBeforeUnmount } from 'vue'
+import { computed, ref, nextTick, watch, onBeforeUnmount } from 'vue'
 import { IconHelpCircle, IconX } from '@tabler/icons-vue'
 
 // Click-to-open info popover: a light card with an optional `title`, a `text` body and labelled bullet `sections`.
 // Closed by its X, Escape, a click outside, or scrolling. Teleported to <body> and `fixed` so a table/modal's overflow never
 // clips it (same approach as RowActions). `text` alone still works — FormField's `help` uses exactly that.
-//   <HelpTip title="Delivered: pekerjaan selesai" text="…" :sections="[{ label: 'Sumber data', items: ['…', '…'] }]" />
-defineProps<{ text?: string; title?: string; sections?: { label: string; items: string[] }[] }>()
+// More than one point (a `text` array, a section's items) always renders as a numbered <ol> (owner rule 2026-11-15).
+//   <HelpTip title="Delivered: pekerjaan selesai" :text="['…', '…']" :sections="[{ label: 'Sumber data', items: ['…', '…'] }]" />
+const props = defineProps<{ text?: string | string[]; title?: string; sections?: { label: string; items: string[] }[] }>()
+const points = computed(() => (Array.isArray(props.text) ? props.text : [props.text]).filter((t): t is string => !!t))
 
 const GAP = 8 // px between the trigger and the card, and the minimum distance to the viewport edge
 const open = ref(false)
@@ -79,12 +81,16 @@ onBeforeUnmount(() => (open.value = false))
 					<IconX class="h-4 w-4" />
 				</button>
 				<h4 v-if="title" class="pr-7 text-m font-semibold text-ink">{{ title }}</h4>
-				<p v-if="text" class="text-m text-ink" :class="title ? 'mt-2' : 'pr-7'">{{ text }}</p>
+				<ol v-if="points.length > 1" class="list-decimal space-y-1 pl-5 text-m text-ink" :class="title ? 'mt-2' : 'pr-7'">
+					<li v-for="point in points" :key="point">{{ point }}</li>
+				</ol>
+				<p v-else-if="points.length" class="text-m text-ink" :class="title ? 'mt-2' : 'pr-7'">{{ points[0] }}</p>
 				<div v-for="s in sections" :key="s.label" class="mt-3 border-t border-hairline pt-3">
 					<p class="text-xs font-medium uppercase tracking-wide text-ink-subtle">{{ s.label }}</p>
-					<ul class="mt-1.5 list-disc space-y-1 pl-4 text-m text-ink">
+					<ol v-if="s.items.length > 1" class="mt-1.5 list-decimal space-y-1 pl-5 text-m text-ink">
 						<li v-for="item in s.items" :key="item">{{ item }}</li>
-					</ul>
+					</ol>
+					<p v-else class="mt-1.5 text-m text-ink">{{ s.items[0] }}</p>
 				</div>
 			</div>
 		</Teleport>

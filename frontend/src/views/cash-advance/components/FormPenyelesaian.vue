@@ -170,7 +170,7 @@ defineExpose({ setServerErrors })
 				label="Lampiran"
 				required
 				:error="errors.attachments"
-				:hint="`PDF, JPG, atau PNG. Maks. 5 MB per file, hingga ${MAX_SETTLEMENT_FILES} file.`"
+				:hint="['PDF, JPG, atau PNG.', `Maks. 5 MB per file, hingga ${MAX_SETTLEMENT_FILES} file.`]"
 			>
 				<AttachmentInput v-model="form.attachments" :max-files="MAX_SETTLEMENT_FILES" />
 			</FormField>

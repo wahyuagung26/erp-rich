@@ -169,7 +169,7 @@ defineExpose({ setServerErrors })
 						hint="Customer yang menitipkan dana"
 						:help="
 							hasUsage
-								? 'Tidak bisa diganti karena titipan sudah dipakai di Invoice Penjualan. Batalkan pemakaiannya di invoice terlebih dahulu.'
+								? ['Tidak bisa diganti karena titipan sudah dipakai di Invoice Penjualan.', 'Batalkan pemakaiannya di invoice terlebih dahulu.']
 								: undefined
 						"
 					>
@@ -223,7 +223,12 @@ defineExpose({ setServerErrors })
 						/>
 					</FormField>
 				</div>
-				<FormField label="Lampiran" required :error="errors.attachment" hint="Bukti transfer dari customer. PDF, JPG, atau PNG, maksimal 5 MB.">
+				<FormField
+					label="Lampiran"
+					required
+					:error="errors.attachment"
+					:hint="['Bukti transfer dari customer.', 'PDF, JPG, atau PNG, maksimal 5 MB.']"
+				>
 					<AttachmentInput v-model="attachments" :max-files="1" />
 				</FormField>
 			</section>

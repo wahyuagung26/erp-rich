@@ -310,7 +310,7 @@ function submit() {
 					<FormField class="md:col-span-2" label="Keterangan" required :error="errors.description">
 						<Textarea v-model="form.description" :rows="2" placeholder="Keterangan jurnal" />
 					</FormField>
-					<FormField label="Lampiran" required :error="errors.attachment" hint="PDF, JPG, atau PNG. Maks. 5 MB per file, hingga 5 file.">
+					<FormField label="Lampiran" required :error="errors.attachment" :hint="['PDF, JPG, atau PNG.', 'Maks. 5 MB per file, hingga 5 file.']">
 						<div class="space-y-1.5">
 							<div
 								v-for="(file, index) in form.attachments"

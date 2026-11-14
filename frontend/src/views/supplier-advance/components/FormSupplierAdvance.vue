@@ -207,7 +207,7 @@ defineExpose({ setServerErrors })
 						/>
 					</FormField>
 				</div>
-				<FormField label="Lampiran" required :error="errors.attachment" hint="Bukti pembayaran. PDF, JPG, atau PNG, maksimal 5 MB.">
+				<FormField label="Lampiran" required :error="errors.attachment" :hint="['Bukti pembayaran.', 'PDF, JPG, atau PNG, maksimal 5 MB.']">
 					<AttachmentInput v-model="attachments" :max-files="1" />
 				</FormField>
 			</section>

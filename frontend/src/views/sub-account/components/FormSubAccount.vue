@@ -63,7 +63,10 @@ defineExpose({ setServerErrors })
 						:error="errors.account_group_id"
 						:help="
 							isEdit
-								? 'Group perkiraan dikunci setelah data dibuat karena menjadi bagian dari kode sub akun. Untuk memakai group lain, buat data baru.'
+								? [
+										'Group perkiraan dikunci setelah data dibuat karena menjadi bagian dari kode sub akun.',
+										'Untuk memakai group lain, buat data baru.'
+									]
 								: undefined
 						"
 					>
@@ -86,7 +89,10 @@ defineExpose({ setServerErrors })
 							:hint="isEdit ? undefined : '2 digit pertama otomatis dari kode group perkiraan — isi 3 digit sisanya.'"
 							:help="
 								isEdit
-									? 'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah. Untuk memakai kode lain, buat data baru.'
+									? [
+											'Kode dikunci setelah data dibuat supaya transaksi yang sudah memakainya tidak berubah.',
+											'Untuk memakai kode lain, buat data baru.'
+										]
 									: 'Prefix 2 digit diambil dari kode group perkiraan yang dipilih, jadi tidak bisa diubah di sini.'
 							"
 						>

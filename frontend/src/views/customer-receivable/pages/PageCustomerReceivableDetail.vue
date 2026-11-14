@@ -262,7 +262,7 @@ function removePayment(item: CustomerReceivablePayment) {
 									label="Tipe Pembayaran"
 									required
 									:error="errors.payment_type_id"
-									:help="editing ? 'Tidak bisa diubah saat mengedit pembayaran. Batalkan pembayaran lalu catat ulang bila perlu.' : undefined"
+									:help="editing ? ['Tidak bisa diubah saat mengedit pembayaran.', 'Batalkan pembayaran lalu catat ulang bila perlu.'] : undefined"
 								>
 									<AsyncSelect
 										:key="`type-${editing?.id ?? 'new'}`"
@@ -300,7 +300,7 @@ function removePayment(item: CustomerReceivablePayment) {
 									required
 									:error="errors.deposit_id"
 									hint="Titipan dari customer ini yang masih punya sisa"
-									:help="editing ? 'Tidak bisa diubah saat mengedit pembayaran. Batalkan pembayaran lalu catat ulang bila perlu.' : undefined"
+									:help="editing ? ['Tidak bisa diubah saat mengedit pembayaran.', 'Batalkan pembayaran lalu catat ulang bila perlu.'] : undefined"
 								>
 									<AsyncSelect
 										:key="`deposit-${editing?.id ?? 'new'}`"
