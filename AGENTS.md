@@ -92,6 +92,7 @@ components, the closed Tailwind palette, "typechecks but was never rendered").
 ```bash
 cd frontend
 npm install
+cp .env.example .env   # first setup only: .env is gitignored (local), .env.example is the committed default
 npm run dev          # http://localhost:5173, mock API auto-enabled
 npm run build        # vue-tsc typecheck + production build — the CI gate
 npm run typecheck    # vue-tsc --noEmit only

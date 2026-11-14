@@ -14,7 +14,8 @@ coverage
 *.local
 .screenshots
 
-# Env — commit .env (mock defaults, no secrets), ignore local overrides
+# Env — .env is local (copy .env.example to .env on first setup); only .env.example is committed
+.env
 .env.local
 .env.*.local
 

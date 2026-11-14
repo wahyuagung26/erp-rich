@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 npm install
+cp .env.example .env   # first setup only: .env is gitignored (local); .env.example is the committed default
 npm run dev          # http://localhost:5173, mock API auto-enabled (check console for "[mock] API mocking enabled")
 npm run prototype    # vite + the same mock served over HTTP on :3100 (no .env edit); Ctrl-C stops both
 npm run build        # vue-tsc --noEmit && vite build — the CI gate
