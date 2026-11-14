@@ -69,6 +69,21 @@ touching a module: grep the endpoint path across `src/` (callers), `src/mocks/mo
 (handler), and `docs/` (contract) — all three or none. Update the `timestamp:` in
 frontmatter whenever you edit a doc file.
 
+### Mockoon environment (`mockoon/`)
+
+`mockoon/` is the same contract served over real HTTP by [Mockoon](https://mockoon.com), as **one** environment for
+all modules (shared data buckets, one port), so the frontend can run with `VITE_USE_MOCK=false` and a backend can be
+written against it. It is a **partial, opt-in** copy: only modules listed in `mockoon/build.mjs` exist there, and
+the TS mock in `src/mocks/` stays the primary mock for the UI.
+
+- Source is `mockoon/modules/<module>.mjs` (seeded from `src/mocks/fixtures/`). `mockoon/erp-v2.mockoon.json` is
+  **generated** — never edit it; run `node mockoon/build.mjs`.
+- When you change a module that is listed in `build.mjs`, update its `mockoon/modules/<module>.mjs` and rebuild in
+  the same commit (`docs/` still wins over both).
+- Run: `npx @mockoon/cli start --data mockoon/erp-v2.mockoon.json` (port 3100), then point `VITE_APP_API_URL` at it.
+- Deviations from the TS mock (new rows appended instead of prepended, approximate case-insensitive `q`, no trimming)
+  are noted in each module file's header; state is in-memory and resets on restart.
+
 ## Frontend (`frontend/`)
 
 Before any UI work, load the **`frontend` skill** (`.claude/skills/frontend/`, mirrored at `.agents/skills/frontend/`) — it's the
