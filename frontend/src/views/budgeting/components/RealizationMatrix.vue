@@ -112,7 +112,7 @@ async function fullscreen() {
 			<Checkbox v-model="freezeYtd" label="Freeze Budget YTD" /><Checkbox v-model="freezeTotal" label="Freeze Total Budget" />
 		</div>
 		<div class="matrix-scroll overflow-auto rounded-md">
-			<table class="matrix text-m" :class="{ 'freeze-ytd': freezeYtd, 'freeze-total': freezeTotal }">
+			<table class="matrix text-s" :class="{ 'freeze-ytd': freezeYtd, 'freeze-total': freezeTotal }">
 				<thead>
 					<tr>
 						<th rowspan="3" class="sticky-col account-col">Akun / Rincian</th>
@@ -280,6 +280,9 @@ async function fullscreen() {
 	background: rgb(var(--c-panel));
 	text-align: right;
 	white-space: nowrap;
+}
+.matrix th {
+	font-weight: 600;
 }
 .matrix thead th {
 	position: sticky;

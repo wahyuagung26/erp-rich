@@ -11,6 +11,8 @@ withDefaults(
 		mono?: boolean
 		addon?: string
 		dense?: boolean // compact height for in-grid entry
+		ghost?: boolean // grid cell: looks like plain text until hovered (tint) or focused (outline)
+		cell?: boolean // fills a whole grid cell like Excel: square, no padding or border, inset focus ring (parent td has no padding)
 	}>(),
 	{ type: 'text', align: 'left' }
 )
@@ -43,9 +45,16 @@ const hasSuffix = !!useSlots().suffix
 				:placeholder="placeholder"
 				:disabled="disabled"
 				:class="[
-					'w-full px-3 text-ink placeholder:text-ink-subtle disabled:opacity-50',
-					dense ? 'py-1 text-s' : 'py-2 text-m',
-					addon ? 'bg-transparent focus-visible:ring-0' : 'rounded-md border border-ink-subtle/30 bg-panel disabled:bg-fill',
+					'w-full text-ink placeholder:text-ink-subtle disabled:opacity-50',
+					cell ? 'px-1.5' : ghost ? 'px-2' : 'px-3',
+					dense ? 'py-1 text-s' : ghost ? 'py-1 text-m' : 'py-2 text-m',
+					addon
+						? 'bg-transparent focus-visible:ring-0'
+						: cell
+							? '!rounded-none border-0 bg-transparent hover:bg-fill focus:bg-panel focus-visible:ring-inset focus-visible:ring-primary'
+							: ghost
+								? 'rounded-md border border-transparent bg-transparent hover:bg-fill focus:border-ink-subtle/30 focus:bg-panel'
+								: 'rounded-md border border-ink-subtle/30 bg-panel disabled:bg-fill',
 					align === 'right' && 'text-right',
 					mono && 'tnum',
 					hasSuffix && 'pr-9'

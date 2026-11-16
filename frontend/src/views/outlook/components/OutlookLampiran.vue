@@ -144,11 +144,11 @@ const srcLabel = (s: string) => SRC.find((o) => o.value === s)?.label ?? '-'
 		</p>
 		<div class="max-h-[72vh] overflow-auto rounded-md">
 			<table class="border-separate border-spacing-0 text-s">
-				<thead>
+				<thead class="text-ink-muted">
 					<tr class="h-8">
 						<th :class="[stick('left-0', 'w-[48px] min-w-[48px]'), 'top-0 z-[4] bg-fill px-1.5 text-center font-semibold']">No</th>
 						<th :class="[stick('left-[48px]', 'w-[280px] min-w-[280px]'), 'top-0 z-[4] bg-fill px-2 text-left font-semibold']">Keterangan Pengeluaran (Unbudget)</th>
-						<th :class="[stick('left-[328px]', 'w-[128px] min-w-[128px]'), 'top-0 z-[4] border-r border-ink-subtle/30 bg-fill px-2 text-left font-semibold']">Sumber Dana</th>
+						<th :class="[stick('left-[328px]', 'w-[128px] min-w-[128px]'), 'top-0 z-[4] border-r border-r-ink-subtle/30 bg-fill px-2 text-left font-semibold']">Sumber Dana</th>
 						<th v-for="d in days" :key="d" class="sticky top-0 z-[3] w-[100px] min-w-[100px] bg-fill px-1.5 text-center font-semibold">{{ d }}</th>
 						<th class="sticky top-0 z-[3] w-[120px] min-w-[120px] bg-fill px-1.5 text-center font-semibold">Total</th>
 						<th v-if="editable" class="sticky top-0 z-[3] w-[48px] min-w-[48px] bg-fill" />
@@ -165,24 +165,25 @@ const srcLabel = (s: string) => SRC.find((o) => o.value === s)?.label ?? '-'
 								{{ n + 1 }}
 							</span>
 						</td>
-						<td :class="[base1, stick('left-[48px]', 'w-[280px] min-w-[280px]'), 'bg-panel py-1']">
+						<td :class="[base1, stick('left-[48px]', 'w-[280px] min-w-[280px]'), 'bg-panel py-1 !whitespace-normal', editable && '!p-0']">
 							<Input
 								v-if="editable"
 								v-model="r.ket"
 								dense
+								cell
 								:maxlength="LAMPIRAN_MAX_TEXT"
 								placeholder="Keterangan pengeluaran"
 								aria-label="Keterangan"
 								@input="touch(r)"
 								@blur="save(r)"
 							/>
-							<span v-else class="block max-w-[270px] truncate" :title="r.ket">{{ r.ket }}</span>
+							<span v-else class="block max-w-[270px] break-words">{{ r.ket }}</span>
 						</td>
-						<td :class="[base1, stick('left-[328px]', 'w-[128px] min-w-[128px]'), 'border-r border-ink-subtle/30 bg-panel py-1']">
+						<td :class="[base1, stick('left-[328px]', 'w-[128px] min-w-[128px]'), 'border-r border-r-ink-subtle/30 bg-panel py-1']">
 							<Select v-if="editable" :model-value="r.src" dense :options="SRC" placeholder="Pilih" aria-label="Sumber Dana" @update:model-value="pickSource(r, $event)" />
 							<template v-else>{{ srcLabel(r.src) }}</template>
 						</td>
-						<td v-for="d in days" :key="d" :class="[base1, 'text-right tnum', negative(r.hari[d]) && 'text-danger']">
+						<td v-for="d in days" :key="d" :class="[base1, 'text-right tnum', negative(r.hari[d]) && 'text-danger', editable && 'relative !p-0']">
 							<GridInput
 								v-if="editable"
 								:value="r.hari[d] ?? null"
@@ -203,7 +204,7 @@ const srcLabel = (s: string) => SRC.find((o) => o.value === s)?.label ?? '-'
 					<tr class="bg-fill font-semibold">
 						<td :class="[stick('left-0', 'w-[48px] min-w-[48px]'), 'sticky bottom-0 bg-fill']" />
 						<td :class="[stick('left-[48px]', 'w-[280px] min-w-[280px]'), 'sticky bottom-0 bg-fill px-2']">Total (Cash In − Cash Out)</td>
-						<td :class="[stick('left-[328px]', 'w-[128px] min-w-[128px]'), 'sticky bottom-0 border-r border-ink-subtle/30 bg-fill']" />
+						<td :class="[stick('left-[328px]', 'w-[128px] min-w-[128px]'), 'sticky bottom-0 border-r border-r-ink-subtle/30 bg-fill']" />
 						<td v-for="d in days" :key="d" :class="['sticky bottom-0 z-[1] bg-fill px-1.5 text-right tnum', negative(L.day_totals[d]) && 'text-danger']">
 							{{ L.day_totals[d] === undefined ? '' : cell(L.day_totals[d], true) }}
 						</td>

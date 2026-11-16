@@ -1,11 +1,11 @@
-
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
 import { integerInput } from '@/utils/format'
 
+// Excel-like cell: fills its td (the td has no padding and is `relative` or sticky; the row height comes from other cells), no resting border (empty cells included), hover tint, inset 2px focus border.
 // One amount cell of the Outlook grid: shows 1.234.567, auto-saves when left (blur) if it changed, Enter = same column next row (Shift = up).
 // `nullable` = empty means "not set" (null) and 0 is a real value (the opening balance).
-const props = defineProps<{ value: number | null; nav: string; label: string; nullable?: boolean; placeholder?: string; wide?: boolean }>()
+const props = defineProps<{ value: number | null; nav: string; label: string; nullable?: boolean; placeholder?: string }>()
 const emit = defineEmits<{ commit: [number | null] }>()
 
 function show(v: number | null): string {
@@ -84,8 +84,7 @@ function onEnter(e: KeyboardEvent) {
 		:placeholder="placeholder"
 		:value="text"
 		:class="[
-			'h-6 rounded border border-ink-subtle/30 bg-panel px-1.5 text-right text-s tnum text-ink placeholder:text-ink-subtle',
-			wide ? 'w-[104px]' : 'w-[92px]',
+			'absolute inset-0 block h-full w-full rounded-none border-0 bg-transparent px-1.5 text-right text-s tnum text-ink placeholder:text-ink-subtle hover:bg-fill focus:bg-panel focus-visible:ring-inset focus-visible:ring-primary',
 			text.startsWith('-') && 'text-danger'
 		]"
 		@focus="onFocus"

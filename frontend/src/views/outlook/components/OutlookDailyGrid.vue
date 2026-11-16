@@ -46,8 +46,8 @@ const rowsOf = (flow: Flow) => calc.value.rows.filter((r) => r.flow_type === flo
 const base = 'border-b border-hairline px-1.5 whitespace-nowrap'
 const c1 = 'sticky left-0 z-[2] w-[300px] min-w-[300px] max-w-[300px]'
 const c2 = 'sticky left-[300px] z-[2] w-[120px] min-w-[120px] max-w-[120px] text-right tnum'
-const c3 = 'sticky left-[420px] z-[2] w-[120px] min-w-[120px] max-w-[120px] border-r border-ink-subtle/30 text-right tnum'
-const weekStart = 'border-l border-ink-subtle/30'
+const c3 = 'sticky left-[420px] z-[2] w-[120px] min-w-[120px] max-w-[120px] border-r border-r-ink-subtle/30 text-right tnum'
+const weekStart = 'border-l border-l-ink-subtle/30'
 const tint = 'bg-success/10'
 const num = (v: number | null | undefined) => (negative(v) ? 'text-danger' : '')
 
@@ -95,7 +95,7 @@ const awal = computed(() => calc.value.saldo_awal_row)
 		</p>
 		<GridScroller :weeks="weekNos" :frozen="FROZEN">
 			<table class="border-separate border-spacing-0 text-s">
-				<thead>
+				<thead class="text-ink-muted">
 					<tr class="h-[30px]">
 						<th :class="[c1, 'top-0 z-[5] bg-fill px-3 text-left font-semibold']" rowspan="2">Kategori</th>
 						<th :class="[c2, 'top-0 z-[5] bg-fill px-1.5 text-center font-semibold']" rowspan="2">Total OL<br />(1 bulan)</th>
@@ -141,8 +141,8 @@ const awal = computed(() => calc.value.saldo_awal_row)
 				<tbody>
 					<!-- Saldo Awal: the month's opening bank balance is entered in the Total OL cell -->
 					<tr class="bg-fill font-semibold">
-						<td :class="[base, c1, 'bg-fill px-3']">Saldo Awal</td>
-						<td :class="[base, c2, 'bg-fill']">
+						<td :class="[base, c1, 'h-[27px] bg-fill px-3']">Saldo Awal</td>
+						<td :class="[base, c2, 'bg-fill', editable && '!p-0']">
 							<GridInput
 								v-if="editable"
 								:value="state.period.saldo_awal_bank"
@@ -150,7 +150,6 @@ const awal = computed(() => calc.value.saldo_awal_row)
 								label="Saldo awal bank"
 								placeholder="Belum diisi"
 								nullable
-								wide
 								@commit="emit('balance', $event)"
 							/>
 							<template v-else>{{ state.period.saldo_awal_bank == null ? '-' : cell(state.period.saldo_awal_bank, true) }}</template>
@@ -171,13 +170,13 @@ const awal = computed(() => calc.value.saldo_awal_row)
 					</tr>
 
 					<template v-for="sec in [{ flow: 'CASH_IN' as Flow, label: 'CASH IN' }, { flow: 'CASH_OUT' as Flow, label: 'CASH OUT' }]" :key="sec.flow">
-						<tr class="bg-ink font-semibold text-ink-invert">
-							<td :class="[c1, 'bg-ink px-3 py-1']">{{ sec.label }}</td>
-							<td :colspan="totalCols - 1" class="bg-ink" />
+						<tr class="bg-ink-muted font-semibold text-ink-invert">
+							<td :class="[c1, 'bg-ink-muted px-3 py-1']">{{ sec.label }}</td>
+							<td :colspan="totalCols - 1" class="bg-ink-muted" />
 						</tr>
 						<template v-for="r in rowsOf(sec.flow)" :key="r.id">
 							<tr :class="['group', tints[r.id] ?? 'bg-panel']">
-								<td :class="[base, c1, tints[r.id] ?? 'bg-panel']" :style="indent(r.depth)">
+								<td :class="[base, c1, tints[r.id] ?? 'bg-panel', 'h-[27px] !whitespace-normal']" :style="indent(r.depth)">
 									<div v-if="renaming === r.id" class="flex items-center gap-1 py-0.5">
 										<input
 											id="outlook-rename-name"
@@ -195,7 +194,7 @@ const awal = computed(() => calc.value.saldo_awal_row)
 											<IconX class="h-4 w-4" />
 										</button>
 									</div>
-									<div v-else class="flex items-center gap-1">
+									<div v-else class="flex items-start gap-1">
 										<button
 											v-if="!r.is_leaf"
 											type="button"
@@ -207,7 +206,7 @@ const awal = computed(() => calc.value.saldo_awal_row)
 											<IconChevronRight v-if="collapsed[r.id]" class="h-3.5 w-3.5" />
 											<IconChevronDown v-else class="h-3.5 w-3.5" />
 										</button>
-										<span :class="['min-w-0 truncate', !r.is_leaf && 'font-semibold']" :title="r.name">{{ r.name }}</span>
+										<span :class="['min-w-0 break-words py-0.5', !r.is_leaf && 'font-semibold']" :title="r.name">{{ r.name }}</span>
 										<span v-if="editable" class="ml-auto flex shrink-0 items-center opacity-0 focus-within:opacity-100 group-hover:opacity-100">
 											<button
 												v-if="r.depth < MAX_DEPTH"
@@ -231,7 +230,7 @@ const awal = computed(() => calc.value.saldo_awal_row)
 								<td :class="[base, c2, tints[r.id] ?? 'bg-panel', !r.is_leaf && 'font-semibold']">{{ cell(r.ol_total) }}</td>
 								<td :class="[base, c3, tints[r.id] ?? 'bg-panel', !r.is_leaf && 'font-semibold', num(r.actual_total)]">{{ cell(r.actual_total) }}</td>
 								<template v-for="(w, wi) in weeks" :key="w.week_no">
-									<td :class="[base, weekStart, tint, 'text-right tnum', !r.is_leaf && 'font-semibold']">
+									<td :class="[base, weekStart, tint, 'text-right tnum', !r.is_leaf && 'font-semibold', r.is_leaf && editable && 'relative !p-0']">
 										<GridInput
 											v-if="r.is_leaf && editable"
 											:value="r.ol_week[wi] || null"
@@ -243,7 +242,7 @@ const awal = computed(() => calc.value.saldo_awal_row)
 									</td>
 									<td :class="[base, tint, 'text-right tnum', !r.is_leaf && 'font-semibold', num(r.actual_week[wi])]">{{ cell(r.actual_week[wi]) }}</td>
 									<td :class="[base, 'text-center tnum', achClass(r.ach_week[wi], r.flow_type)]">{{ pct(r.ach_week[wi]) }}</td>
-									<td v-for="i in SLOTS" :key="i" :class="[base, 'text-right tnum', !w.slots[i] && 'bg-fill/60', !r.is_leaf && 'font-semibold', num(r.actual_day[wi][i])]">
+									<td v-for="i in SLOTS" :key="i" :class="[base, 'text-right tnum', !w.slots[i] && 'bg-fill/60', !r.is_leaf && 'font-semibold', num(r.actual_day[wi][i]), r.is_leaf && editable && 'relative !p-0']">
 										<template v-if="w.slots[i]">
 											<GridInput
 												v-if="r.is_leaf && editable"
@@ -254,7 +253,6 @@ const awal = computed(() => calc.value.saldo_awal_row)
 											/>
 											<template v-else>{{ cell(r.actual_day[wi][i]) }}</template>
 										</template>
-										<span v-else-if="r.is_leaf && editable" class="inline-block h-6 w-[92px] rounded bg-fill align-middle" />
 									</td>
 								</template>
 							</tr>

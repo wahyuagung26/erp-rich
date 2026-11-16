@@ -18,8 +18,8 @@ const last = computed(() => weeks.value.length - 1)
 
 const base = 'border-b border-hairline px-1.5 whitespace-nowrap'
 const c1 = 'sticky left-0 z-[2] w-[300px] min-w-[300px] max-w-[300px]'
-const c2 = 'sticky left-[300px] z-[2] w-[120px] min-w-[120px] max-w-[120px] border-r border-ink-subtle/30 text-right tnum'
-const weekStart = 'border-l border-ink-subtle/30'
+const c2 = 'sticky left-[300px] z-[2] w-[120px] min-w-[120px] max-w-[120px] border-r border-r-ink-subtle/30 text-right tnum'
+const weekStart = 'border-l border-l-ink-subtle/30'
 const mtd = 'bg-warning-soft/60' // Bulan Berjalan columns (peach in the Excel reference)
 const wk = 'bg-success/10' // Mingguan columns
 const num = (v: number | null | undefined) => (negative(v) ? 'text-danger' : '')
@@ -36,7 +36,7 @@ const footers = computed<{ label: string; agg: ResumeAgg; flow: Flow | null; cls
 		<p class="mb-3 inline-flex items-center gap-1.5 text-s text-ink-muted"><IconLock class="h-4 w-4" /> Resume Weekly dihitung dari Daily dan hanya dapat dibaca.</p>
 		<GridScroller :weeks="weekNos" :frozen="FROZEN">
 			<table class="border-separate border-spacing-0 text-s">
-				<thead>
+				<thead class="text-ink-muted">
 					<tr class="h-[30px]">
 						<th :class="[c1, 'top-0 z-[5] bg-fill px-3 text-left font-semibold']" rowspan="3">Kategori</th>
 						<th :class="[c2, 'top-0 z-[5] bg-warning-soft px-1.5 text-center font-semibold']" rowspan="3">OL Monthly<br />(1 bulan)</th>
@@ -84,14 +84,14 @@ const footers = computed<{ label: string; agg: ResumeAgg; flow: Flow | null; cls
 					</tr>
 
 					<template v-for="sec in [{ flow: 'CASH_IN' as Flow, label: 'CASH IN' }, { flow: 'CASH_OUT' as Flow, label: 'CASH OUT' }]" :key="sec.flow">
-						<tr class="bg-ink font-semibold text-ink-invert">
-							<td :class="[c1, 'bg-ink px-3 py-1']">{{ sec.label }}</td>
-							<td :class="[c2, 'bg-ink']" />
-							<td :colspan="weeks.length * 6" class="bg-ink" />
+						<tr class="bg-ink-muted font-semibold text-ink-invert">
+							<td :class="[c1, 'bg-ink-muted px-3 py-1']">{{ sec.label }}</td>
+							<td :class="[c2, 'bg-ink-muted']" />
+							<td :colspan="weeks.length * 6" class="bg-ink-muted" />
 						</tr>
 						<tr v-for="r in rw.rows.filter((x) => x.flow_type === sec.flow)" :key="r.id" :class="tints[r.id] ?? 'bg-panel'">
-							<td :class="[base, c1, tints[r.id] ?? 'bg-panel', !r.is_leaf && 'font-semibold']" :style="indent(r.depth)">
-								<span class="block truncate" :title="r.name">{{ r.name }}</span>
+							<td :class="[base, c1, tints[r.id] ?? 'bg-panel', !r.is_leaf && 'font-semibold', 'h-[27px] !whitespace-normal py-0.5']" :style="indent(r.depth)">
+								<span class="block break-words">{{ r.name }}</span>
 							</td>
 							<td :class="[base, c2, tints[r.id] ?? 'bg-panel', !r.is_leaf && 'font-semibold']">{{ cell(r.target_mtd[last]) }}</td>
 							<template v-for="(w, wi) in weeks" :key="w.week_no">

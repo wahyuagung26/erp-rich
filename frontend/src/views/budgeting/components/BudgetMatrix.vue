@@ -2,6 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { IconChevronDown, IconChevronRight, IconLock, IconPlus, IconRepeat, IconTrash, IconX } from '@tabler/icons-vue'
 import Input from '@/components/base/Input.vue'
+import MoneyInput from '@/components/base/MoneyInput.vue'
 import Button from '@/components/base/Button.vue'
 import Amount from '@/components/base/Amount.vue'
 import Checkbox from '@/components/base/Checkbox.vue'
@@ -129,7 +130,7 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 			</div>
 		</div>
 		<div class="matrix-scroll overflow-auto rounded-md">
-			<table class="matrix w-full text-m" :class="[revision ? 'revision' : 'budget', { 'has-actions': hasActions }]">
+			<table class="matrix w-full text-s" :class="[revision ? 'revision' : 'budget', { 'has-actions': hasActions }]">
 				<thead>
 					<tr>
 						<th v-if="hasActions" rowspan="2" class="sticky-col action-col">Aksi</th>
@@ -200,39 +201,63 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 									<template v-if="!hasActions"
 										><span class="text-s font-semibold">{{ item.line.code }}</span> {{ item.line.description }}</template
 									>
-									<div v-else class="space-y-1">
-										<Input
-											v-model="item.line.code"
-											:aria-label="`Kode rincian ${account.name}`"
-											:placeholder="codeExample(year, account.prefix)"
-										/><Input v-model="item.line.description" :aria-label="`Deskripsi rincian ${account.name}`" placeholder="Deskripsi rincian" />
-										<div class="flex gap-1">
+									<div v-else class="space-y-0.5">
+										<!-- row 1: kode rincian | quick fill (nominal per bulan + repeat button copies it into every editable month); row 2: deskripsi -->
+										<div class="flex items-center gap-1">
 											<Input
-												v-model="fillValues[item.index]"
-												type="number"
-												min="0"
+												v-model="item.line.code"
+												ghost
+												dense
+												class="min-w-0 flex-1"
+												:aria-label="`Kode rincian ${account.name}`"
+												:placeholder="codeExample(year, account.prefix)"
+											/>
+											<MoneyInput
+												:model-value="Number(fillValues[item.index] ?? 0)"
+												ghost
+												dense
+												blank-zero
 												placeholder="Rp / bulan"
+												class="shrink-0 !w-24"
 												:aria-label="`Isi semua bulan ${account.name}`"
-											/><Button size="sm" variant="outline" @click="fill(item.line, item.index)"><IconRepeat class="h-4 w-4" /> Isi 12 bln</Button>
+												@update:model-value="fillValues[item.index] = String($event)"
+											/>
+											<button
+												type="button"
+												title="Isi semua bulan dengan nominal ini"
+												:aria-label="`Isi 12 bulan ${account.name}`"
+												class="shrink-0 rounded-md p-1 text-ink-muted hover:bg-fill hover:text-ink"
+												@click="fill(item.line, item.index)"
+											>
+												<IconRepeat class="h-4 w-4" />
+											</button>
 										</div>
+										<Input
+											v-model="item.line.description"
+											ghost
+											dense
+											:aria-label="`Deskripsi rincian ${account.name}`"
+											placeholder="Deskripsi rincian"
+										/>
 									</div>
 								</td>
 								<td class="sticky-col ytd-col" />
 								<template v-for="(m, i) in months" :key="m"
 									><td v-if="revision" class="text-right"><Amount :value="initialLines[item.index]?.months[i]" /></td>
-									<td :class="{ 'text-right': readonly }">
+									<td :class="{ 'text-right': readonly, 'relative !p-0': !readonly && !(revision && i < start - 1) }">
 										<Amount v-if="readonly" :value="item.line.months[i]" />
 										<span v-else-if="revision && i < start - 1" class="flex justify-end gap-1 text-ink-muted"
 											><HelpTip text="Bulan sebelum periode revisi mengikuti budget awal." /><Amount :value="item.line.months[i]" muted /></span
-										><Input
+										><MoneyInput
 											v-else
 											:model-value="item.line.months[i]"
+											cell
+											dense
+											blank-zero
+											placeholder="0"
+											class="!absolute inset-0 !w-auto"
 											:aria-label="`${revision ? 'Revisi' : 'Budget'} ${m} ${account.name}`"
-											type="number"
-											min="0"
-											step="any"
-											align="right"
-											@update:model-value="item.line.months[i] = $event === '' ? 0 : Number($event)"
+											@update:model-value="item.line.months[i] = $event"
 										/></td
 								></template>
 								<td class="sticky-col total-col text-right">
@@ -337,6 +362,9 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 	border-bottom: 1px solid rgb(var(--c-hairline));
 	white-space: nowrap;
 	background: rgb(var(--c-panel));
+}
+.matrix th {
+	font-weight: 600;
 }
 .matrix thead th {
 	position: sticky;
