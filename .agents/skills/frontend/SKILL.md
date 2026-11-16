@@ -26,6 +26,8 @@ It is almost certainly already there:
 
 **Product on a transaction line** → `<VariantSelect>` (SKU picker on `GET /product-variant`, two-line rows) to pick and `<VariantName>` to show it (name + variant chip + SKU · merk), both in `components/common/`. `AsyncSelect` takes an `#option="{ item }"` slot and `menu-min-width` for richer pickers.
 
+**Reference to a previous TRANSACTION** (PO → penerimaan, penerimaan → invoice, invoice → retur / surat jalan, SO → invoice) → `<ReferencePicker>` (`components/common/`): a trigger that opens a modal with a detail table (nomor, tanggal, pihak, total …), search + page nav, click a row to pick. Same contract as `AsyncSelect` (`v-model` id, `initial-label`, `@select`, clearable, `disabled`) plus `title` and `:columns` (`PickerColumn[]`: `kind: 'date' | 'money'` or `format`). Columns must exist on the list endpoint's rows — add the field to `docs/` + mock first. When the form copies data from the reference (lines, header) pass `:reset-warning` (only while such data exists): changing or clearing the reference then asks to confirm, and Batal emits nothing. A transaction reference is never an `AsyncSelect` dropdown.
+
 **Dropdown that references another menu's data** (Merk, Cabang, Akun, Sub Akun, …) → `AsyncSelect` (search + infinite scroll; pass `initial-label` from the denormalized code/name on edit; `@select` gives the picked row). Never an eager-fetch `<Select>` — plain `Select` is only for fixed enums.
 
 `<Input>` takes a `#suffix` slot (trailing icon/button) and an `addon` prop (trailing unit

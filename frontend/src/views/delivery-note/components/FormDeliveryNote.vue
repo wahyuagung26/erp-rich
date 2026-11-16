@@ -7,7 +7,7 @@ import FormField from '@/components/base/FormField.vue'
 import DatePicker from '@/components/base/DatePicker.vue'
 import Input from '@/components/base/Input.vue'
 import Textarea from '@/components/base/Textarea.vue'
-import AsyncSelect from '@/components/base/AsyncSelect.vue'
+import ReferencePicker from '@/components/common/ReferencePicker.vue'
 import Button from '@/components/base/Button.vue'
 import { date as formatDate } from '@/utils/format'
 
@@ -16,7 +16,7 @@ import { validateDeliveryNote } from '@/views/delivery-note/schema'
 import { createEmptyDeliveryNoteDraft, toDeliveryNoteRequest } from '@/views/delivery-note/mappers'
 import { useDeliveryNoteInvoice } from '@/views/delivery-note/composables/useDeliveryNoteInvoice'
 import type { DeliveryNoteDraft } from '@/views/delivery-note/schema'
-import type { DeliveryNoteRequest } from '@/utils/types'
+import type { DeliveryNoteRequest, PickerColumn } from '@/utils/types'
 
 interface InvoiceReference {
 	number: string
@@ -50,6 +50,13 @@ const draft = reactive<DeliveryNoteDraft>(
 )
 const today = new Date().toISOString().slice(0, 10)
 const invoiceOption = (item: Record<string, unknown>) => `${String(item.number)} — ${String(item.customer_name)}`
+const invoiceColumns: PickerColumn[] = [
+	{ label: 'Nomor Invoice', field: 'number' },
+	{ label: 'Tanggal', field: 'date', kind: 'date' },
+	{ label: 'Customer', field: 'customer_name' },
+	{ label: 'Sales', field: 'sales_name' },
+	{ label: 'Total', field: 'total', kind: 'money' }
+]
 
 async function pickInvoice(value: number | string | null) {
 	const invoice = await applyInvoice(draft, value ? Number(value) : null)
@@ -109,12 +116,19 @@ defineExpose({ setServerErrors })
 								? ['Tidak bisa diganti karena surat jalan sudah dibuat untuk invoice ini.', 'Hapus surat jalan lalu buat baru bila salah pilih.']
 								: undefined
 						"
-						><AsyncSelect
+						><ReferencePicker
 							:model-value="draft.sales_invoice_id"
 							endpoint="/delivery-note/deliverable-invoices"
+							:columns="invoiceColumns"
+							:reset-warning="
+								draft.lines.length
+									? 'Daftar produk dan jumlah dikirim yang sudah terisi akan direset. Alamat tujuan ikut diganti bila memilih invoice lain.'
+									: undefined
+							"
+							title="Pilih Invoice Penjualan"
 							:option-label="invoiceOption"
 							:initial-label="invoiceLabel"
-							placeholder="Cari invoice penjualan…"
+							placeholder="Pilih invoice penjualan…"
 							:disabled="invoiceLocked"
 							@update:model-value="pickInvoice"
 					/></FormField>

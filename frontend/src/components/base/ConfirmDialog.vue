@@ -11,7 +11,7 @@ const { confirmOpen, confirmOptions, confirmLoading } = storeToRefs(store)
 </script>
 
 <template>
-	<Modal :open="confirmOpen" size="sm" @close="store.closeConfirm()">
+	<Modal :open="confirmOpen" size="sm" top @close="store.closeConfirm()">
 		<div class="flex gap-3">
 			<span
 				class="grid h-9 w-9 shrink-0 place-items-center rounded-full"

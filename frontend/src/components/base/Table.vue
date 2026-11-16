@@ -17,13 +17,16 @@ const props = withDefaults(
 	{ emptyText: 'Tidak ada data' }
 )
 
-const emit = defineEmits<{ handleSort: [TableRow]; rowDblclick: [Record<string, unknown>] }>()
+const emit = defineEmits<{ handleSort: [TableRow]; rowDblclick: [Record<string, unknown>]; rowClick: [Record<string, unknown>] }>()
 
-// Legacy ERP behaviour: double-click a row to open it. Clicks on buttons/links/inputs inside the row keep their own meaning.
-const clickable = !!getCurrentInstance()?.vnode.props?.onRowDblclick
-function onRowDblclick(e: MouseEvent, column: Record<string, unknown>) {
+// Legacy ERP behaviour: double-click a row to open it; `rowClick` is for pickers (select on one click).
+// Clicks on buttons/links/inputs inside the row keep their own meaning.
+const vnodeProps = getCurrentInstance()?.vnode.props
+const clickable = !!(vnodeProps?.onRowDblclick || vnodeProps?.onRowClick)
+function onRowEvent(name: 'rowDblclick' | 'rowClick', e: MouseEvent, column: Record<string, unknown>) {
 	if ((e.target as HTMLElement).closest('button, a, input, label, select, textarea')) return
-	emit('rowDblclick', column)
+	if (name === 'rowClick') emit('rowClick', column)
+	else emit('rowDblclick', column)
 }
 
 // The action column (`field: 'action'`) is pinned to the right edge, so a wide table never needs a sideways scroll just to
@@ -101,7 +104,8 @@ const alignClass = (a?: string) => (a === 'right' ? 'text-right' : a === 'center
 					:key="rowIndex"
 					class="group transition-colors hover:bg-fill"
 					:class="{ 'cursor-pointer': clickable }"
-					@dblclick="onRowDblclick($event, column)"
+					@click="onRowEvent('rowClick', $event, column)"
+					@dblclick="onRowEvent('rowDblclick', $event, column)"
 				>
 					<td
 						v-for="row in rows"

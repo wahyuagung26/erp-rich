@@ -7,12 +7,12 @@ path: /delivery-note/deliverable-invoices
 status: mock
 tags: [delivery-note, read, lookup]
 resource: /frontend/src/mocks/modules/delivery-note.ts
-timestamp: 2026-11-06T17:00:00Z
+timestamp: 2026-11-16T09:00:00Z
 ---
 
 # List Deliverable Sales Invoices
 
-Backs the `Invoice Penjualan` `AsyncSelect` in `FormDeliveryNote.vue` (new surat jalan only; the edit form shows the stored invoice read-only).
+Backs the `Invoice Penjualan` `ReferencePicker` (modal table: nomor, tanggal, customer, sales, total) in `FormDeliveryNote.vue` (new surat jalan only; the edit form shows the stored invoice read-only).
 `GET /sales-invoice` cannot express "has no surat jalan", so this lookup lives on the module that owns that rule.
 
 ## Request
@@ -31,7 +31,16 @@ Backs the `Invoice Penjualan` `AsyncSelect` in `FormDeliveryNote.vue` (new surat
 ```json
 {
   "data": [
-    { "id": 6, "number": "RIN.INV260820/001", "date": "2026-08-20", "customer_id": 2, "customer_code": "CUST-0002", "customer_name": "Toko Sumber Rejeki" }
+    {
+      "id": 6,
+      "number": "RIN.INV260820/001",
+      "date": "2026-08-20",
+      "customer_id": 2,
+      "customer_code": "CUST-0002",
+      "customer_name": "Toko Sumber Rejeki",
+      "sales_name": "Siti Aminah",
+      "total": 17122000
+    }
   ],
   "meta": { "page": 1, "per_page": 20, "total": 1, "last_page": 1 }
 }

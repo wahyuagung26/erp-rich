@@ -142,7 +142,8 @@ Full rules in `DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
   width, identical to the list — never `max-w-5xl`/`max-w-xl` on `Panel` or its wrapper. Cap width
   only on short fields (code/identifier `max-w-[200px]`, city `max-w-xs`, days `w-24`, NPWP `w-72`);
   free-text fields (name, address, notes) stretch to the Panel width.
-- **Reference dropdowns**: any dropdown whose options come from another module's data (Brand,
+- **Transaction references** (PO, penerimaan, invoice, SO a form is created from): `<ReferencePicker>` (modal with a detail table, search + paging, click a row), not a dropdown — users want the detail before committing. Same props as `AsyncSelect` plus `title` and `:columns`. When the form copies data from the reference (lines, header), pass `:reset-warning="draft.lines.length ? '…' : undefined"`: changing/clearing then asks to confirm and emits nothing on Batal. Reference: `FormPurchaseReceipt.vue`.
+- **Reference dropdowns** (master data only): any dropdown whose options come from another module's data (Brand,
   Branch, Account, Sub Account, Account Group, Supplier, etc.) **must** use `<AsyncSelect>` (search
   - infinite scroll, `initial-label` from the denormalized code/name on edit) — never `<Select>`,
     which loads everything at once. `<Select>` is for fixed enums only (status, type). Reference:

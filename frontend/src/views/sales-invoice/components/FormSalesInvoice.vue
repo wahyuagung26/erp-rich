@@ -12,6 +12,7 @@ import Input from '@/components/base/Input.vue'
 import MoneyInput from '@/components/base/MoneyInput.vue'
 import Textarea from '@/components/base/Textarea.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
+import ReferencePicker from '@/components/common/ReferencePicker.vue'
 import Select from '@/components/base/Select.vue'
 import Button from '@/components/base/Button.vue'
 import SalesInvoiceLines from '@/views/sales-invoice/components/SalesInvoiceLines.vue'
@@ -21,7 +22,7 @@ import { discountTypeOptions, parseSalesInvoice, pkpOptions, topOptions, totals 
 import { createEmptySalesInvoiceDraft, DEFAULT_DEPARTMENT_LABEL, toSalesInvoiceRequest } from '@/views/sales-invoice/mappers'
 import { useSalesInvoiceLookup } from '@/views/sales-invoice/composables/useSalesInvoiceLookup'
 import type { SalesInvoiceDraft } from '@/views/sales-invoice/schema'
-import type { Customer, SalesInvoiceRequest } from '@/utils/types'
+import type { Customer, PickerColumn, SalesInvoiceRequest } from '@/utils/types'
 
 const emit = defineEmits<{ submit: [SalesInvoiceRequest] }>()
 const props = withDefaults(
@@ -67,6 +68,14 @@ const hasOrder = computed(() => draft.sales_order_id !== null)
 const namedLabel = (item: Record<string, unknown>) => `${String(item.code)} — ${String(item.name)}`
 const customerLabel = (item: Record<string, unknown>) => `${(item as unknown as Customer).code} — ${(item as unknown as Customer).name}`
 const orderOptionLabel = (item: Record<string, unknown>) => `${String(item.number)} — ${String(item.customer_name)}`
+const orderColumns: PickerColumn[] = [
+	{ label: 'Nomor SO', field: 'number' },
+	{ label: 'Tanggal', field: 'date', kind: 'date' },
+	{ label: 'Customer', field: 'customer_name' },
+	{ label: 'Sales', field: 'sales_name' },
+	{ label: 'Keterangan', field: 'description' },
+	{ label: 'Total', field: 'total', kind: 'money' }
+]
 
 async function pickOrder(orderId: number | null) {
 	if (!orderId) {
@@ -183,11 +192,18 @@ defineExpose({ setServerErrors })
 								: undefined
 						"
 					>
-						<AsyncSelect
+						<ReferencePicker
 							:key="`order-${version}`"
 							:model-value="draft.sales_order_id"
 							endpoint="/sales-order"
 							:params="{ approval_status: 'approved', invoice_status: 'not_invoiced' }"
+							:columns="orderColumns"
+							:reset-warning="
+								draft.lines.length || draft.expenses.length
+									? 'Produk dan biaya yang sudah terisi akan direset. Bila memilih sales order lain, data header (customer, sales, departemen, diskon) ikut diganti.'
+									: undefined
+							"
+							title="Pilih Sales Order"
 							:option-label="orderOptionLabel"
 							:initial-label="orderLabel"
 							:disabled="orderFixed || loadingOrder"

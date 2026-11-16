@@ -8,13 +8,14 @@ import DatePicker from '@/components/base/DatePicker.vue'
 import Input from '@/components/base/Input.vue'
 import Textarea from '@/components/base/Textarea.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
+import ReferencePicker from '@/components/common/ReferencePicker.vue'
 import Button from '@/components/base/Button.vue'
 import SalesReturnLines from '@/views/sales-return/components/SalesReturnLines.vue'
 import { parseSalesReturn } from '@/views/sales-return/schema'
 import { createEmptySalesReturnDraft, toSalesReturnRequest } from '@/views/sales-return/mappers'
 import { useSalesReturnInvoice } from '@/views/sales-return/composables/useSalesReturnInvoice'
 import type { SalesReturnDraft } from '@/views/sales-return/schema'
-import type { SalesReturnRequest } from '@/utils/types'
+import type { PickerColumn, SalesReturnRequest } from '@/utils/types'
 
 // Read-only context shown under the header fields — resolved from the invoice, never edited here.
 interface InvoiceReference {
@@ -49,6 +50,13 @@ const draft = reactive<SalesReturnDraft>(
 const today = new Date().toISOString().slice(0, 10)
 const invoiceLabel = (item: Record<string, unknown>) => `${String(item.number)} — ${String(item.customer_name)}`
 const warehouseLabel = (item: Record<string, unknown>) => `${String(item.code)} — ${String(item.name)}`
+const invoiceColumns: PickerColumn[] = [
+	{ label: 'Nomor Invoice', field: 'number' },
+	{ label: 'Tanggal', field: 'date', kind: 'date' },
+	{ label: 'Customer', field: 'customer_name' },
+	{ label: 'Sales', field: 'sales_name' },
+	{ label: 'Total', field: 'total', kind: 'money' }
+]
 
 async function pickInvoice(value: number | string | null) {
 	const invoice = await applyInvoice(draft, value ? Number(value) : null)
@@ -118,13 +126,18 @@ defineExpose({ setServerErrors })
 								: undefined
 						"
 					>
-						<AsyncSelect
+						<ReferencePicker
 							:model-value="draft.sales_invoice_id"
 							endpoint="/sales-invoice"
 							:params="{ approval_status: 'approved' }"
+							:columns="invoiceColumns"
+							:reset-warning="
+								draft.lines.length ? 'Daftar produk, harga, dan jumlah retur yang sudah terisi akan direset mengikuti invoice yang baru.' : undefined
+							"
+							title="Pilih Invoice Penjualan"
 							:option-label="invoiceLabel"
 							:initial-label="initialLabels?.invoice || undefined"
-							placeholder="Cari invoice penjualan…"
+							placeholder="Pilih invoice penjualan…"
 							:disabled="Boolean(returnId)"
 							@update:model-value="pickInvoice"
 						/>

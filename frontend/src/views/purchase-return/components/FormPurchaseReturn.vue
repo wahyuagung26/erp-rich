@@ -8,13 +8,14 @@ import DatePicker from '@/components/base/DatePicker.vue'
 import Input from '@/components/base/Input.vue'
 import Textarea from '@/components/base/Textarea.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
+import ReferencePicker from '@/components/common/ReferencePicker.vue'
 import Button from '@/components/base/Button.vue'
 import PurchaseReturnLines from '@/views/purchase-return/components/PurchaseReturnLines.vue'
 import { parsePurchaseReturn } from '@/views/purchase-return/schema'
 import { createEmptyPurchaseReturnDraft, toPurchaseReturnRequest } from '@/views/purchase-return/mappers'
 import { usePurchaseReturnInvoice } from '@/views/purchase-return/composables/usePurchaseReturnInvoice'
 import type { PurchaseReturnDraft } from '@/views/purchase-return/schema'
-import type { PurchaseReturnRequest } from '@/utils/types'
+import type { PickerColumn, PurchaseReturnRequest } from '@/utils/types'
 
 // Read-only context shown under the header fields — resolved from the invoice, never edited here.
 interface InvoiceReference {
@@ -50,6 +51,13 @@ const draft = reactive<PurchaseReturnDraft>(
 const today = new Date().toISOString().slice(0, 10)
 const invoiceLabel = (item: Record<string, unknown>) => `${String(item.number)} — ${String(item.supplier_name)}`
 const warehouseLabel = (item: Record<string, unknown>) => `${String(item.code)} — ${String(item.name)}`
+const invoiceColumns: PickerColumn[] = [
+	{ label: 'Nomor Invoice', field: 'number' },
+	{ label: 'Tanggal', field: 'date', kind: 'date' },
+	{ label: 'Supplier', field: 'supplier_name' },
+	{ label: 'No. Invoice Supplier', field: 'supplier_invoice_number' },
+	{ label: 'Total', field: 'total', kind: 'money' }
+]
 
 function toReference(invoice: NonNullable<Awaited<ReturnType<typeof applyInvoice>>>): InvoiceReference {
 	return {
@@ -122,13 +130,18 @@ defineExpose({ setServerErrors })
 								: undefined
 						"
 					>
-						<AsyncSelect
+						<ReferencePicker
 							:model-value="draft.purchase_invoice_id"
 							endpoint="/purchase-invoice"
 							:params="{ approval_status: 'approved' }"
+							:columns="invoiceColumns"
+							:reset-warning="
+								draft.lines.length ? 'Daftar produk dan jumlah retur yang sudah terisi akan direset mengikuti invoice yang baru.' : undefined
+							"
+							title="Pilih Invoice Pembelian"
 							:option-label="invoiceLabel"
 							:initial-label="initialLabels?.invoice || undefined"
-							placeholder="Cari invoice pembelian…"
+							placeholder="Pilih invoice pembelian…"
 							:disabled="Boolean(returnId)"
 							@update:model-value="pickInvoice"
 						/>

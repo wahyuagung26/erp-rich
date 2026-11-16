@@ -133,7 +133,9 @@ export function registerDeliveryNote(mock: MockAdapter) {
 				date: row.date,
 				customer_id: row.customer_id,
 				customer_code: row.customer_code,
-				customer_name: row.customer_name
+				customer_name: row.customer_name,
+				sales_name: row.sales_name,
+				total: row.total
 			})),
 			p
 		)

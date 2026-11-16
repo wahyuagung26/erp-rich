@@ -2,7 +2,9 @@
 import { watch } from 'vue'
 import { IconX } from '@tabler/icons-vue'
 
-const props = withDefaults(defineProps<{ open: boolean; title?: string; size?: 'sm' | 'md' | 'lg' | 'xl' }>(), { size: 'md' })
+// `top`: always above other modals (confirm dialogs). Stacking by DOM order is not reliable — a Teleport keeps the position it
+// had when its component mounted, so a modal opened from a later-mounted component would cover an earlier one.
+const props = withDefaults(defineProps<{ open: boolean; title?: string; size?: 'sm' | 'md' | 'lg' | 'xl'; top?: boolean }>(), { size: 'md' })
 const emit = defineEmits<{ close: [] }>()
 
 const widths = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-5xl' }
@@ -23,7 +25,11 @@ function onKey(e: KeyboardEvent) {
 <template>
 	<Teleport to="body">
 		<Transition name="modal">
-			<div v-if="open" class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/40 p-4 pt-[10vh]" @keydown="onKey">
+			<div
+				v-if="open"
+				:class="[top ? 'z-[70]' : 'z-50', 'fixed inset-0 flex items-start justify-center overflow-y-auto bg-ink/40 p-4 pt-[10vh]']"
+				@keydown="onKey"
+			>
 				<div class="absolute inset-0" @click="emit('close')" />
 				<div :class="['relative w-full rounded-md bg-panel shadow-overlay', widths[size]]" role="dialog">
 					<header v-if="title" class="flex items-center justify-between px-4 py-3">

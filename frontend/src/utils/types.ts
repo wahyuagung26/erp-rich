@@ -40,6 +40,15 @@ export interface TableRow {
 	align?: 'left' | 'center' | 'right'
 }
 
+// Column of a <ReferencePicker> modal table: `kind` picks the cell renderer, `format` overrides it for custom text.
+export interface PickerColumn {
+	label: string
+	field: string
+	kind?: 'date' | 'money'
+	align?: 'left' | 'center' | 'right'
+	format?: (item: Record<string, unknown>) => string
+}
+
 export type Feel = 'cold' | 'warm'
 export type ContentWidth = 'narrow' | 'full'
 

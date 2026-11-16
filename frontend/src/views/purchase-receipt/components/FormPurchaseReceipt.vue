@@ -8,6 +8,7 @@ import DatePicker from '@/components/base/DatePicker.vue'
 import Input from '@/components/base/Input.vue'
 import Textarea from '@/components/base/Textarea.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
+import ReferencePicker from '@/components/common/ReferencePicker.vue'
 import Button from '@/components/base/Button.vue'
 import { date as formatDate } from '@/utils/format'
 
@@ -16,7 +17,8 @@ import { parsePurchaseReceipt } from '@/views/purchase-receipt/schema'
 import { createEmptyPurchaseReceiptDraft, toPurchaseReceiptRequest } from '@/views/purchase-receipt/mappers'
 import { usePurchaseReceiptOrder } from '@/views/purchase-receipt/composables/usePurchaseReceiptOrder'
 import type { PurchaseReceiptDraft } from '@/views/purchase-receipt/schema'
-import type { PurchaseReceiptRequest } from '@/utils/types'
+import { deliveryStatusLabel } from '@/views/purchase-order/schema'
+import type { PickerColumn, PurchaseOrderDeliveryStatus, PurchaseReceiptRequest } from '@/utils/types'
 
 interface PoReference {
 	date: string
@@ -49,6 +51,17 @@ const today = new Date().toISOString().slice(0, 10)
 const label = (value?: string) => value || undefined
 const poLabel = (item: Record<string, unknown>) => `${String(item.number)} — ${String(item.supplier_name)}`
 const namedLabel = (item: Record<string, unknown>) => `${String(item.code)} — ${String(item.name)}`
+const poColumns: PickerColumn[] = [
+	{ label: 'Nomor PO', field: 'number' },
+	{ label: 'Tanggal', field: 'date', kind: 'date' },
+	{ label: 'Supplier', field: 'supplier_name' },
+	{
+		label: 'Status Penerimaan',
+		field: 'delivery_status',
+		format: (item) => deliveryStatusLabel[item.delivery_status as PurchaseOrderDeliveryStatus] ?? '–'
+	},
+	{ label: 'Total', field: 'total', kind: 'money' }
+]
 
 async function pickPurchaseOrder(value: number | string | null) {
 	const order = await applyPurchaseOrder(draft, value ? Number(value) : null)
@@ -112,13 +125,20 @@ defineExpose({ setServerErrors })
 									]
 								: undefined
 						"
-						><AsyncSelect
+						><ReferencePicker
 							:model-value="draft.purchase_order_id"
 							endpoint="/purchase-order"
 							:params="{ approval_status: 'approved' }"
+							:columns="poColumns"
+							:reset-warning="
+								draft.lines.length
+									? 'Daftar produk dan jumlah diterima yang sudah terisi akan direset mengikuti order pembelian yang baru.'
+									: undefined
+							"
+							title="Pilih Order Pembelian"
 							:option-label="poLabel"
 							:initial-label="label(initialLabels?.purchaseOrder)"
-							placeholder="Cari order pembelian…"
+							placeholder="Pilih order pembelian…"
 							:disabled="poLocked"
 							@update:model-value="pickPurchaseOrder"
 					/></FormField>

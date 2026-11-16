@@ -7,14 +7,14 @@ import FormField from '@/components/base/FormField.vue'
 import DatePicker from '@/components/base/DatePicker.vue'
 import Input from '@/components/base/Input.vue'
 import Textarea from '@/components/base/Textarea.vue'
-import AsyncSelect from '@/components/base/AsyncSelect.vue'
+import ReferencePicker from '@/components/common/ReferencePicker.vue'
 import Button from '@/components/base/Button.vue'
 import PurchaseInvoiceLines from '@/views/purchase-invoice/components/PurchaseInvoiceLines.vue'
 import { parsePurchaseInvoice } from '@/views/purchase-invoice/schema'
 import { createEmptyPurchaseInvoiceDraft, toPurchaseInvoiceRequest } from '@/views/purchase-invoice/mappers'
 import { usePurchaseInvoiceReceipt } from '@/views/purchase-invoice/composables/usePurchaseInvoiceReceipt'
 import type { PurchaseInvoiceDraft } from '@/views/purchase-invoice/schema'
-import type { PurchaseInvoiceRequest } from '@/utils/types'
+import type { PickerColumn, PurchaseInvoiceRequest } from '@/utils/types'
 
 // Read-only context shown under the header fields — resolved from the receipt/PO, never edited here.
 interface ReceiptReference {
@@ -47,6 +47,14 @@ const draft = reactive<PurchaseInvoiceDraft>(
 )
 const today = new Date().toISOString().slice(0, 10)
 const receiptLabel = (item: Record<string, unknown>) => `${String(item.number)} — ${String(item.supplier_name)}`
+const receiptColumns: PickerColumn[] = [
+	{ label: 'Nomor Penerimaan', field: 'number' },
+	{ label: 'Tanggal', field: 'date', kind: 'date' },
+	{ label: 'Supplier', field: 'supplier_name' },
+	{ label: 'No. PO', field: 'purchase_order_number' },
+	{ label: 'Surat Jalan', field: 'delivery_note_number' },
+	{ label: 'Gudang', field: 'warehouse_label' }
+]
 
 async function pickReceipt(value: number | string | null) {
 	const receipt = await applyReceipt(draft, value ? Number(value) : null)
@@ -108,13 +116,20 @@ defineExpose({ setServerErrors })
 								: undefined
 						"
 					>
-						<AsyncSelect
+						<ReferencePicker
 							:model-value="draft.purchase_receipt_id"
 							endpoint="/purchase-receipt"
 							:params="{ invoice_status: 'not_invoiced' }"
+							:columns="receiptColumns"
+							:reset-warning="
+								draft.lines.length
+									? 'Daftar produk dan harga yang terisi dari penerimaan saat ini akan direset mengikuti penerimaan yang baru.'
+									: undefined
+							"
+							title="Pilih Penerimaan Pembelian"
 							:option-label="receiptLabel"
 							:initial-label="initialLabels?.receipt || undefined"
-							placeholder="Cari penerimaan pembelian…"
+							placeholder="Pilih penerimaan pembelian…"
 							:disabled="receiptLocked"
 							@update:model-value="pickReceipt"
 						/>
