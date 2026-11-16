@@ -100,7 +100,7 @@ export interface Company {
 	logo_url: string
 	address: string
 	company_type: CompanyType
-	hr_enabled: boolean
+	disable_minus_stock_check: boolean // temporary: Invoice Penjualan may be saved with insufficient stock (docs/company/)
 	brand_color: string
 	report_header_color: string
 	deleted_at: string | null

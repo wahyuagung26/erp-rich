@@ -168,12 +168,13 @@ defineExpose({ setServerErrors })
 						<ImageDrop
 							:src="form.photo_url || undefined"
 							alt="Foto produk"
+							:size="134"
 							accept="image/png,image/jpeg,image/gif,image/webp"
 							@pick="onPhotoPick"
 							@remove="form.photo_url = ''"
 						/>
 					</FormField>
-					<div class="grid min-w-0 flex-1 grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-[220px_1fr]">
+					<div class="grid min-w-0 flex-1 grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-[220px_1fr] lg:grid-cols-[220px_1fr_auto]">
 						<FormField
 							label="Kode Produk"
 							required
@@ -195,7 +196,7 @@ defineExpose({ setServerErrors })
 							<Input v-model="form.name" placeholder="mis. Kulkas 2 Pintu" />
 						</FormField>
 						<FormField
-							class="sm:col-span-2"
+							class="sm:col-span-2 lg:col-span-1"
 							label="Jenis Produk"
 							required
 							:error="errors.type"
@@ -203,11 +204,11 @@ defineExpose({ setServerErrors })
 						>
 							<RadioGroup v-model="form.type" inline :options="[...PRODUCT_TYPES]" />
 						</FormField>
+						<FormField class="sm:col-span-2 lg:col-span-3" label="Keterangan" :error="errors.notes">
+							<Textarea v-model="form.notes" :rows="2" placeholder="mis. spesifikasi singkat atau catatan gudang" />
+						</FormField>
 					</div>
 				</div>
-				<FormField label="Keterangan" :error="errors.notes">
-					<Textarea v-model="form.notes" :rows="2" placeholder="mis. spesifikasi singkat atau catatan gudang" />
-				</FormField>
 			</section>
 
 			<section class="space-y-3">

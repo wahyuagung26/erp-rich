@@ -46,16 +46,39 @@ const contrastOnWhite = ([r, g, b]: Rgb) => 1.05 / (0.2126 * r + 0.7152 * g + 0.
 
 const ROOT_VARS = ['--c-primary', '--c-primary-dark', '--c-primary-soft', '--c-success', '--c-success-soft']
 
-export function applyBrand(hex?: string | null) {
-	const root = document.documentElement.style
-	if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return resetBrand()
-
+// Darken the chosen colour until white text reads on it; shared by applyBrand and the company form preview.
+function solvePrimary(hex: string) {
 	let [L, C, H] = linearToOklch(hexToLinear(hex))
 	let primary = oklchToLinear(L, C, H)
 	while (contrastOnWhite(primary) < MIN_CONTRAST && L > 0.2) {
 		L -= 0.01
 		primary = oklchToLinear(L, C, H)
 	}
+	return { L, C, H, primary }
+}
+
+// The colour the app will actually use for `hex` (after the contrast adjustment), as #RRGGBB.
+export function effectiveBrandHex(hex: string): string {
+	if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return DEFAULT_BRAND
+	const { primary } = solvePrimary(hex)
+	return (
+		'#' +
+		primary
+			.map((c) =>
+				Math.round(toGamma(c) * 255)
+					.toString(16)
+					.padStart(2, '0')
+			)
+			.join('')
+			.toUpperCase()
+	)
+}
+
+export function applyBrand(hex?: string | null) {
+	const root = document.documentElement.style
+	if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return resetBrand()
+
+	const { L, C, H, primary } = solvePrimary(hex)
 	const dark = channels(oklchToLinear(Math.max(L - 0.08, 0.15), C, H))
 	const soft = channels(oklchToLinear(0.95, Math.min(C, 0.2) * 0.2, H))
 

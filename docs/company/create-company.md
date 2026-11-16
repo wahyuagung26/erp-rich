@@ -7,7 +7,7 @@ path: /company
 status: mock
 tags: [company, write]
 resource: /frontend/src/mocks/modules/company.ts
-timestamp: 2026-11-05T00:00:00Z
+timestamp: 2026-11-16T12:00:00Z
 ---
 
 # Create Company
@@ -28,7 +28,7 @@ Backs `views/company/pages/PageCompanyTambah.vue`. Client-side validation:
   "logo_url": "",
   "address": "Jalan Kaum Kaler, RT.023/RW.003, Manonjaya, Kab. Tasikmalaya, Jawa Barat",
   "company_type": "pt",
-  "hr_enabled": true,
+  "disable_minus_stock_check": false,
   "brand_color": "#0E7C6B",
   "report_header_color": "#B0F2B1"
 }
@@ -41,7 +41,7 @@ Backs `views/company/pages/PageCompanyTambah.vue`. Client-side validation:
 | `company_type` | string | required; one of `pt` `cv` `ud` `firma` `perorangan` `koperasi` `yayasan` |
 | `brand_color` | string | required; `#RRGGBB` hex |
 | `report_header_color` | string | required; `#RRGGBB` hex |
-| `hr_enabled` | boolean | default `false` |
+| `disable_minus_stock_check` | boolean | default `false`. "Nonaktifkan Cek Stok Minus": when `true`, Invoice Penjualan may be saved even if stock is insufficient. Temporary, for the opening-stock migration; other modules keep validating stock. The prototype mock stores the flag but does not validate stock |
 | `legal_name` `npwp` `logo_url` `address` | string | optional |
 
 `id` is **not** accepted from the client — the server assigns it.

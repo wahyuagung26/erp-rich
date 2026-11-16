@@ -4,7 +4,12 @@
 import { ref } from 'vue'
 import { IconPhotoPlus, IconRefresh, IconTrash } from '@tabler/icons-vue'
 
-withDefaults(defineProps<{ src?: string; accept?: string; alt?: string; size?: number }>(), { accept: 'image/*', alt: 'Gambar', size: 120 })
+withDefaults(defineProps<{ src?: string; accept?: string; alt?: string; size?: number; label?: string }>(), {
+	accept: 'image/*',
+	alt: 'Gambar',
+	size: 120,
+	label: 'Unggah foto'
+})
 const emit = defineEmits<{ pick: [File]; remove: [] }>()
 
 const input = ref<HTMLInputElement>()
@@ -55,7 +60,7 @@ function onDrop(event: DragEvent) {
 			@click="input?.click()"
 		>
 			<IconPhotoPlus class="h-7 w-7" />
-			<span class="text-s font-medium">Unggah foto</span>
+			<span class="text-s font-medium">{{ label }}</span>
 		</button>
 	</div>
 </template>

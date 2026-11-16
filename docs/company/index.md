@@ -3,7 +3,7 @@ type: OKF Module
 title: Company (Master Company)
 description: CRUD for company master data — identity, type, status, and per-company report styling. Soft-delete.
 tags: [company, master-data]
-timestamp: 2026-11-05T00:00:00Z
+timestamp: 2026-11-16T12:00:00Z
 ---
 
 # Company
@@ -27,7 +27,7 @@ Unlike [customer](../customer/index.md) / [supplier](../supplier/index.md), `cod
 | `logo_url` | string | optional; data URL or hosted URL of the company logo (JPG/PNG/GIF/WEBP, ≤ 2 MB). Empty keeps the current logo on update |
 | `address` | string | optional — "Alamat" |
 | `company_type` | string | required; one of `pt` `cv` `ud` `firma` `perorangan` `koperasi` `yayasan` — "Tipe Perusahaan" |
-| `hr_enabled` | boolean | "Pendataan Karyawan?" — enable this company for the HR module |
+| `disable_minus_stock_check` | boolean | "Nonaktifkan Cek Stok Minus" — temporary switch that lets Invoice Penjualan be saved with insufficient stock (see [create-company](./create-company.md)); default `false` |
 | `brand_color` | string | hex `#RRGGBB`; the app's accent colour while this company is active (buttons, links, success states). The client derives dark/soft shades in OKLCH and darkens colours that fail 4.5:1 contrast with white text. Default `#0E7C6B` |
 | `report_header_color` | string | hex `#RRGGBB`; header background for all report previews / Excel exports of this company. Default `#B0F2B1` |
 | `deleted_at` | string \| null | soft-delete marker (ISO 8601); non-null rows are excluded from every list and from get-by-id. **This is the only active/inactive concept — there is no separate status field**; a company is "nonaktif" by being soft-deleted |

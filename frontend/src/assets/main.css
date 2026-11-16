@@ -36,10 +36,15 @@
 	.panel {
 		@apply rounded-md bg-panel;
 	}
-	/* section heading inside a form/panel — organises by weight + whitespace, no bar.
-	   spacing is owned by the parent (`<section class="space-y-3">` + `space-y-8` between). */
+	/* section heading inside a form/panel — weight + size set it apart from the 12px field labels, no bar.
+	   spacing is owned by the parent (`<section class="space-y-3">` + `space-y-8` between); pb-1 adds a little air before the first field. */
 	.subhead {
-		@apply text-m font-semibold uppercase tracking-wide text-ink;
+		@apply pb-1 text-l font-semibold uppercase tracking-wide text-ink;
+	}
+	/* Consecutive titled sections are split by a full-width hairline + 32px: whitespace alone read as one block
+	   (owner 2026-11-15, DESIGN_SYSTEM "Section divider"). Still borderless: a line, never a box or a tinted band. */
+	section:has(> .subhead, > div > .subhead) + section:has(> .subhead, > div > .subhead) {
+		@apply border-t border-hairline pt-8;
 	}
 	.hairline {
 		@apply border-hairline;

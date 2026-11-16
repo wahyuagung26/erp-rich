@@ -34,3 +34,20 @@ export function date(value: string | Date | null | undefined, fmt = 'DD MMM YYYY
 export function isNegative(value: number | null | undefined): boolean {
 	return Number(value ?? 0) < 0
 }
+
+// NPWP as typed: 15 digits → 00.000.000.0-000.000, the 16-digit NIK-based number → 0000-0000-0000-0000; extra digits are dropped.
+export function formatNpwp(value: string): string {
+	const d = value.replace(/\D/g, '').slice(0, 16)
+	if (d.length > 15) return d.replace(/(\d{4})(?=\d)/g, '$1-')
+	const groups = [2, 3, 3, 1, 3, 3]
+	const seps = ['.', '.', '.', '-', '.']
+	let out = ''
+	let i = 0
+	groups.forEach((n, gi) => {
+		const part = d.slice(i, i + n)
+		if (!part) return
+		out += (gi ? seps[gi - 1] : '') + part
+		i += n
+	})
+	return out
+}

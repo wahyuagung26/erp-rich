@@ -7,7 +7,7 @@ path: /company
 status: mock
 tags: [company, read, list]
 resource: /frontend/src/mocks/modules/company.ts
-timestamp: 2026-11-05T00:00:00Z
+timestamp: 2026-11-16T12:00:00Z
 ---
 
 # List Company
@@ -35,7 +35,7 @@ Backs `views/company/pages/PageCompanyTable.vue` (via the `useTableList` composa
       "legal_name": "PT Rahadhyan Integrasi Nusantara",
       "npwp": "31.234.567.8-421.000", "logo_url": "",
       "address": "Jalan Kaum Kaler, RT.023/RW.003, Manonjaya, Kab. Tasikmalaya, Jawa Barat",
-      "company_type": "pt", "hr_enabled": true,
+      "company_type": "pt", "disable_minus_stock_check": false,
       "brand_color": "#0E7C6B", "report_header_color": "#B0F2B1", "deleted_at": null
     }
   ],
