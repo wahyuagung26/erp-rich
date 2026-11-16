@@ -13,6 +13,8 @@ import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import FilterBar from '@/components/base/FilterBar.vue'
+import FormField from '@/components/base/FormField.vue'
+import AdvancedFilter from '@/components/common/AdvancedFilter.vue'
 import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
 import DateRangePicker from '@/components/base/DateRangePicker.vue'
@@ -48,6 +50,13 @@ function applyAll() {
 	})
 }
 const runSearch = useDebounce(applyAll, 250)
+
+// Filters beyond the toolbar's 3 controls live in the Filter Lanjutan drawer; the badge counts the active ones.
+const advancedCount = computed(() => (Boolean(invoiceStatus.value) ? 1 : 0))
+function resetAdvanced() {
+	invoiceStatus.value = ''
+	applyAll()
+}
 
 // KPI tiles = presets of the status dropdowns, so tiles and dropdowns always agree (docs/sales-order/list-sales-order.md).
 const kpi = useKpiTiles(
@@ -121,8 +130,12 @@ const rows: TableRow[] = [
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
 				<Input v-model="q" placeholder="Cari nomor / customer / sales…" class="!w-64" @update:model-value="runSearch" />
 				<Select v-model="approvalStatus" :options="approvalOptions" class="!w-52" @update:model-value="applyAll" />
-				<Select v-model="invoiceStatus" :options="invoiceOptions" class="!w-48" @update:model-value="applyAll" />
 				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" @change="applyAll" />
+				<AdvancedFilter :count="advancedCount" @reset="resetAdvanced">
+					<FormField label="Status Invoice">
+						<Select v-model="invoiceStatus" :options="invoiceOptions" @update:model-value="applyAll" />
+					</FormField>
+				</AdvancedFilter>
 			</FilterBar>
 			<Table
 				@row-dblclick="(r) => router.push(`/sales-order/${r.id}`)"

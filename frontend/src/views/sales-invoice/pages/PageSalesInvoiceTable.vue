@@ -14,6 +14,8 @@ import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import FilterBar from '@/components/base/FilterBar.vue'
+import FormField from '@/components/base/FormField.vue'
+import AdvancedFilter from '@/components/common/AdvancedFilter.vue'
 import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
 import DateRangePicker from '@/components/base/DateRangePicker.vue'
@@ -53,6 +55,14 @@ function applyAll() {
 	})
 }
 const runSearch = useDebounce(applyAll, 250)
+
+// Filters beyond the toolbar's 3 controls live in the Filter Lanjutan drawer; the badge counts the active ones.
+const advancedCount = computed(() => [paymentStatus.value, taxInvoice.value].filter(Boolean).length)
+function resetAdvanced() {
+	paymentStatus.value = ''
+	taxInvoice.value = ''
+	applyAll()
+}
 
 // KPI tiles = presets of the status dropdowns, so tiles and dropdowns always agree (docs/sales-invoice/list-sales-invoice.md).
 const kpi = useKpiTiles(
@@ -141,9 +151,15 @@ const rows: TableRow[] = [
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
 				<Input v-model="q" placeholder="Cari nomor / customer / sales order…" class="!w-64" @update:model-value="runSearch" />
 				<Select v-model="approvalStatus" :options="approvalOptions" class="!w-52" @update:model-value="applyAll" />
-				<Select v-model="paymentStatus" :options="paymentOptions" class="!w-52" @update:model-value="applyAll" />
-				<Select v-model="taxInvoice" :options="taxInvoiceOptions" class="!w-52" @update:model-value="applyAll" />
 				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" @change="applyAll" />
+				<AdvancedFilter :count="advancedCount" @reset="resetAdvanced">
+					<FormField label="Pembayaran">
+						<Select v-model="paymentStatus" :options="paymentOptions" @update:model-value="applyAll" />
+					</FormField>
+					<FormField label="Faktur Pajak">
+						<Select v-model="taxInvoice" :options="taxInvoiceOptions" @update:model-value="applyAll" />
+					</FormField>
+				</AdvancedFilter>
 			</FilterBar>
 			<Table
 				@row-dblclick="(r) => router.push(`/sales-invoice/${r.id}`)"

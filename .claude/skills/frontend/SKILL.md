@@ -38,6 +38,8 @@ a one-off copy in the view. A raw `<input>`/`<table>`/`<dialog>` in a view is a 
 
 Money/dates/numbers → `src/utils/format.ts` + `<Amount>`. Never hand-format currency.
 
+**List toolbar: at most 3 controls, search included.** More filters go in `<AdvancedFilter :count @reset>` ("Filter Lanjutan" button + right `<Drawer>`, `components/common/` and `components/base/`) inside the `<FilterBar>`; its controls bind to the page's own filter refs and apply at once, `count` = active drawer filters (badge). The date range stays in the toolbar (its popover is too wide for the drawer); a date-type select + range is ONE control: `<DateRangePicker v-model:field :field-options>`. Reference: `PageSupplierPayableTable.vue`.
+
 **List pages**: wire `<FilterBar :loading="loading" @refresh="runSearch">` on every list — it
 renders a trailing reload button (owner expects an explicit "apply filter & reload"). The
 `useTableList` shape is uniform: `{ columns, pagination, loading, fetchList, handleSort, pageTo,

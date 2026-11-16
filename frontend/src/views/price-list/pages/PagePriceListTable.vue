@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import { useTableList } from '@/composables/useTableList'
 import { useDebounce } from '@/composables/useDebounce'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import FilterBar from '@/components/base/FilterBar.vue'
+import FormField from '@/components/base/FormField.vue'
+import AdvancedFilter from '@/components/common/AdvancedFilter.vue'
 import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
@@ -29,6 +31,14 @@ const filters = reactive({
 	warehouse_id: null as number | string | null
 })
 const runSearch = useDebounce(() => applyFilters({ ...filters }), 250)
+
+// Filters beyond the toolbar's 3 controls live in the Filter Lanjutan drawer; the badge counts the active ones.
+const advancedCount = computed(() => (filters.warehouse_id ? 1 : 0) + (filters.price_status ? 1 : 0))
+function resetAdvanced() {
+	filters.warehouse_id = null
+	filters.price_status = ''
+	runSearch()
+}
 function onFilter<K extends keyof typeof filters>(key: K, value: (typeof filters)[K]) {
 	filters[key] = value
 	runSearch()
@@ -81,21 +91,25 @@ const rows: TableRow[] = [
 					class="!w-48"
 					@update:model-value="(v) => onFilter('product_category_id', v)"
 				/>
-				<AsyncSelect
-					:model-value="filters.warehouse_id"
-					endpoint="/warehouse"
-					:option-label="warehouseLabel"
-					placeholder="Semua gudang"
-					class="!w-48"
-					@update:model-value="(v) => onFilter('warehouse_id', v)"
-				/>
-				<Select
-					:model-value="filters.price_status"
-					class="!w-44"
-					placeholder="Semua harga"
-					:options="[{ label: 'Harga belum diset', value: 'unset' }]"
-					@update:model-value="(v) => onFilter('price_status', v)"
-				/>
+				<AdvancedFilter :count="advancedCount" @reset="resetAdvanced">
+					<FormField label="Gudang">
+						<AsyncSelect
+							:model-value="filters.warehouse_id"
+							endpoint="/warehouse"
+							:option-label="warehouseLabel"
+							placeholder="Semua gudang"
+							@update:model-value="(v) => onFilter('warehouse_id', v)"
+						/>
+					</FormField>
+					<FormField label="Status Harga">
+						<Select
+							:model-value="filters.price_status"
+							placeholder="Semua harga"
+							:options="[{ label: 'Harga belum diset', value: 'unset' }]"
+							@update:model-value="(v) => onFilter('price_status', v)"
+						/>
+					</FormField>
+				</AdvancedFilter>
 			</FilterBar>
 
 			<Table :rows="rows" :columns="columns as unknown as Record<string, unknown>[]" :loading="loading" @handle-sort="handleSort">

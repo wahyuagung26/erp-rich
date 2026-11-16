@@ -5,10 +5,18 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import dayjs, { type Dayjs } from 'dayjs'
 import 'dayjs/locale/id'
-import { IconCalendar, IconChevronLeft, IconChevronRight } from '@tabler/icons-vue'
+import { IconCalendar, IconChevronDown, IconChevronLeft, IconChevronRight } from '@tabler/icons-vue'
 
-const props = defineProps<{ from?: string; to?: string; disabled?: boolean }>()
-const emit = defineEmits<{ 'update:from': [string]; 'update:to': [string]; change: [] }>()
+// Optional third v-model for pages that filter by one of several dates ("Tanggal Invoice" / "Jatuh Tempo"):
+// <DateRangePicker v-model:from v-model:to v-model:field="dateField" :field-options="dateFieldOptions" @change="refetch" />
+// Changing the field also emits `change`, so one handler refetches for both.
+const props = defineProps<{ from?: string; to?: string; disabled?: boolean; field?: string; fieldOptions?: { label: string; value: string }[] }>()
+const emit = defineEmits<{ 'update:from': [string]; 'update:to': [string]; 'update:field': [string]; change: [] }>()
+
+function onField(value: string) {
+	emit('update:field', value)
+	emit('change')
+}
 
 const FMT = 'YYYY-MM-DD'
 const root = ref<HTMLElement>()
@@ -105,15 +113,28 @@ onBeforeUnmount(() => {
 
 <template>
 	<div ref="root" class="relative w-full sm:w-auto">
-		<button
-			type="button"
-			:disabled="disabled"
-			class="flex h-[38px] w-full items-center gap-2 rounded-md border border-ink-subtle/30 bg-panel px-3 text-m text-ink disabled:bg-fill disabled:opacity-50 sm:w-[280px]"
-			@click="toggle"
+		<!-- one bordered box: with `fieldOptions` the "which date" select sits left of the range, so the two read as a single filter -->
+		<div
+			class="flex h-[38px] w-full items-stretch rounded-md border border-ink-subtle/30 bg-panel text-m text-ink"
+			:class="[fieldOptions ? 'sm:w-[440px]' : 'sm:w-[280px]', disabled && 'bg-fill opacity-50']"
 		>
-			<IconCalendar class="h-4 w-4 shrink-0 text-ink-subtle" />
-			<span class="tnum truncate" :class="{ 'text-ink-subtle': !label }">{{ label || 'Pilih rentang tanggal' }}</span>
-		</button>
+			<div v-if="fieldOptions" class="relative w-36 shrink-0 border-r border-hairline">
+				<select
+					:value="field"
+					:disabled="disabled"
+					aria-label="Tanggal berdasarkan"
+					class="h-full w-full appearance-none rounded-l-md bg-transparent pl-3 pr-7 text-m text-ink"
+					@change="onField(($event.target as HTMLSelectElement).value)"
+				>
+					<option v-for="opt in fieldOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+				</select>
+				<IconChevronDown class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-subtle" />
+			</div>
+			<button type="button" :disabled="disabled" class="flex min-w-0 flex-1 items-center gap-2 px-3 text-left" @click="toggle">
+				<IconCalendar class="h-4 w-4 shrink-0 text-ink-subtle" />
+				<span class="tnum truncate" :class="{ 'text-ink-subtle': !label }">{{ label || 'Pilih rentang tanggal' }}</span>
+			</button>
+		</div>
 
 		<div
 			v-if="open"

@@ -157,6 +157,7 @@ Full rules in `DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
   row-action icons: Kembali = subtle + `IconArrowLeft`, Edit = primary + `IconPencil`, Hapus =
   subtle + `IconTrash`). Since `Panel` is full width, `PageHeader` actions align to its right edge
   automatically — no extra wrapper needed.
+- **List toolbar: at most 3 controls, search included** (owner rule 2026-11-16). Any further filter goes in `<AdvancedFilter :count @reset>` (button "Filter Lanjutan" + right `<Drawer>`), placed inside the `<FilterBar>`. The drawer controls bind to the page's own filter refs and apply at once (so KPI tiles that preset those refs keep working); `count` is how many drawer filters are active (badge), `@reset` clears them. Keep the date range (`DateRangePicker`, wide popover) in the toolbar, never in the drawer. When a page filters by one of several dates ("Tanggal Invoice" / "Jatuh Tempo"), the date-type select and the range are ONE control, counted once: `<DateRangePicker v-model:field :field-options>`. Reference: `PageSupplierPayableTable.vue`.
 - `FilterBar` shows a reload button when given `@refresh` (e.g. `<FilterBar :loading="loading"
 @refresh="runSearch">`) — every list page wires this; an explicit "apply filter & reload" is
   expected, not instant-filter-as-you-type alone.

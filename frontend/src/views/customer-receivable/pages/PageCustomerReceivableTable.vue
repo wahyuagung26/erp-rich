@@ -9,6 +9,8 @@ import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import FilterBar from '@/components/base/FilterBar.vue'
+import FormField from '@/components/base/FormField.vue'
+import AdvancedFilter from '@/components/common/AdvancedFilter.vue'
 import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
@@ -48,6 +50,14 @@ function applyAll() {
 	})
 }
 const runSearch = useDebounce(applyAll, 250)
+
+// Filters beyond the toolbar's 3 controls live in the Filter Lanjutan drawer; the badge counts the active ones.
+const advancedCount = computed(() => (customerId.value ? 1 : 0) + (due.value ? 1 : 0))
+function resetAdvanced() {
+	customerId.value = null
+	due.value = ''
+	applyAll()
+}
 onMounted(applyAll)
 
 // KPI tiles = presets of the status + jatuh tempo dropdowns (docs/customer-receivable/list-customer-receivable.md).
@@ -101,18 +111,22 @@ const rows: TableRow[] = [
 			<KpiFilter class="mb-3" :items="kpi.items.value" :active="kpi.active.value" @select="kpi.select" />
 			<FilterBar class="mb-3" :loading="loading" @refresh="applyAll">
 				<Input v-model="q" placeholder="Cari nomor / customer…" class="!w-52" @update:model-value="runSearch" />
-				<AsyncSelect
-					v-model="customerId"
-					endpoint="/customer"
-					:option-label="customerLabel"
-					placeholder="Semua customer"
-					class="!w-52"
-					@update:model-value="applyAll"
-				/>
 				<Select v-model="status" :options="statusOptions" class="!w-40" @update:model-value="applyAll" />
-				<Select v-model="due" :options="dueOptions" class="!w-48" @update:model-value="applyAll" />
-				<Select v-model="dateField" :options="dateFieldOptions" class="!w-40" @update:model-value="dateFrom || dateTo ? applyAll() : undefined" />
-				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" @change="applyAll" />
+				<DateRangePicker v-model:from="dateFrom" v-model:to="dateTo" v-model:field="dateField" :field-options="dateFieldOptions" @change="applyAll" />
+				<AdvancedFilter :count="advancedCount" @reset="resetAdvanced">
+					<FormField label="Customer">
+						<AsyncSelect
+							v-model="customerId"
+							endpoint="/customer"
+							:option-label="customerLabel"
+							placeholder="Semua customer"
+							@update:model-value="applyAll"
+						/>
+					</FormField>
+					<FormField label="Jatuh Tempo">
+						<Select v-model="due" :options="dueOptions" @update:model-value="applyAll" />
+					</FormField>
+				</AdvancedFilter>
 			</FilterBar>
 			<Table
 				@row-dblclick="(r) => router.push(`/customer-receivable/${r.id}`)"

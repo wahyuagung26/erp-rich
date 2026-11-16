@@ -61,6 +61,8 @@ menomorinya otomatis.
 `Table` API kompatibel dengan pola RICH (`rows` = definisi kolom, `columns` = data baris,
 slot `#table-header` / `#table-content`, emit `handleSort`) — lihat `architecture.md`. Header tabel = pita abu-abu `bg-fill` berujung membulat (sama dengan tabel detail produk), bukan garis bawah.
 
+**Toolbar list: maksimal 3 kontrol, kotak cari ikut dihitung** (aturan owner 2026-11-16). Filter selebihnya masuk `<AdvancedFilter :count @reset>` (tombol "Filter Lanjutan" + `<Drawer>` di sisi kanan) di dalam `<FilterBar>`. Kontrol di drawer memakai ref filter halaman yang sama dan langsung diterapkan (jadi kartu KPI yang mengisi ref itu tetap bekerja); `count` = jumlah filter aktif di drawer (badge), `@reset` mengosongkannya. Rentang tanggal tetap di toolbar karena popover kalendernya terlalu lebar untuk drawer. Bila halaman memfilter salah satu dari beberapa tanggal ("Tanggal Invoice" / "Jatuh Tempo"), pilihan tipe tanggal dan rentangnya adalah SATU kontrol (dihitung satu): `<DateRangePicker v-model:field :field-options>`. Contoh: `PageSupplierPayableTable.vue`.
+
 `FilterBar` menampilkan tombol reload di ujung kanan kalau diberi `@refresh` (mis.
 `<FilterBar :loading="loading" @refresh="runSearch">`) — setiap halaman list wajib memasangnya;
 owner terbiasa dengan tombol "terapkan filter & muat ulang" yang eksplisit.

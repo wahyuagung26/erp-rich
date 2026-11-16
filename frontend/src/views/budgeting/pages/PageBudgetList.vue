@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useCompanyStore } from '@/stores/company'
 import { useRouter } from 'vue-router'
 import { IconPlus, IconUpload } from '@tabler/icons-vue'
@@ -8,6 +8,8 @@ import { useDebounce } from '@/composables/useDebounce'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import FilterBar from '@/components/base/FilterBar.vue'
+import FormField from '@/components/base/FormField.vue'
+import AdvancedFilter from '@/components/common/AdvancedFilter.vue'
 import Input from '@/components/base/Input.vue'
 import Select from '@/components/base/Select.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
@@ -38,6 +40,13 @@ watch(
 )
 const departmentLabel = (row: Record<string, unknown>) => `${row.code} — ${row.name}`
 const runSearch = useDebounce(() => applyFilters({ q: q.value, year: year.value, status: status.value, department_id: departmentId.value }), 250)
+
+// Filters beyond the toolbar's 3 controls live in the Filter Lanjutan drawer; the badge counts the active ones.
+const advancedCount = computed(() => (departmentId.value ? 1 : 0))
+function resetAdvanced() {
+	departmentId.value = null
+	runSearch()
+}
 const statuses = [{ label: 'Semua status', value: '' }, ...['Draft', 'Diajukan', 'Disetujui', 'Ditolak'].map((value) => ({ label: value, value }))]
 const rows: TableRow[] = [
 	{ label: 'Tanggal', field: 'created_at', isSort: { activeSort: 'desc' } },
@@ -64,15 +73,17 @@ const rows: TableRow[] = [
 				<Input v-model="q" placeholder="Cari nomor, departemen, deskripsi…" class="!w-64" @update:model-value="runSearch" />
 				<Input v-model="year" type="number" placeholder="Tahun" class="!w-28" @update:model-value="runSearch" />
 				<div class="w-40"><Select v-model="status" :options="statuses" @update:model-value="runSearch" /></div>
-				<div class="w-48">
-					<AsyncSelect
-						v-model="departmentId"
-						endpoint="/department"
-						:option-label="departmentLabel"
-						placeholder="Semua departemen"
-						@update:model-value="runSearch"
-					/>
-				</div>
+				<AdvancedFilter :count="advancedCount" @reset="resetAdvanced">
+					<FormField label="Departemen">
+						<AsyncSelect
+							v-model="departmentId"
+							endpoint="/department"
+							:option-label="departmentLabel"
+							placeholder="Semua departemen"
+							@update:model-value="runSearch"
+						/>
+					</FormField>
+				</AdvancedFilter>
 			</FilterBar>
 			<Table
 				:rows="rows"
