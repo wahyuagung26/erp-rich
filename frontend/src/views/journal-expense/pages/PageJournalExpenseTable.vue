@@ -46,7 +46,7 @@ const statusOptions = (Object.keys(journalStatusLabel) as JournalStatus[]).map((
 function applyAll() {
 	applyFilters({ q: q.value, status: status.value, date_from: dateFrom.value, date_to: dateTo.value })
 }
-const runSearch = useDebounce(applyAll, 250)
+const runSearch = useDebounce(applyAll)
 
 // KPI tiles = presets of the status dropdown (docs/journal-expense/list-journal-expense.md).
 const kpi = useKpiTiles(

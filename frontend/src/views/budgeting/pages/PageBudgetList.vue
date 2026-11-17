@@ -39,7 +39,7 @@ watch(
 	}
 )
 const departmentLabel = (row: Record<string, unknown>) => `${row.code} — ${row.name}`
-const runSearch = useDebounce(() => applyFilters({ q: q.value, year: year.value, status: status.value, department_id: departmentId.value }), 250)
+const runSearch = useDebounce(() => applyFilters({ q: q.value, year: year.value, status: status.value, department_id: departmentId.value }))
 
 // Filters beyond the toolbar's 3 controls live in the Filter Lanjutan drawer; the badge counts the active ones.
 const advancedCount = computed(() => (departmentId.value ? 1 : 0))

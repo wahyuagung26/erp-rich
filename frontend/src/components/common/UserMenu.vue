@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router'
 import { onClickOutside } from '@/composables/onClickOutside'
 import { IconChevronDown, IconLogout } from '@tabler/icons-vue'
 import { useUserStore } from '@/stores/user'
+import FeelToggle from './FeelToggle.vue'
+import WidthToggle from './WidthToggle.vue'
 
 const user = useUserStore()
 const router = useRouter()
@@ -34,10 +36,18 @@ const initials = (name: string) =>
 			<IconChevronDown class="h-4 w-4 text-ink-subtle" />
 		</button>
 
-		<div v-if="open" class="absolute right-0 mt-1 w-52 rounded-md bg-panel p-1 shadow-overlay">
+		<div v-if="open" class="absolute right-0 z-30 mt-1 w-52 rounded-md bg-panel p-1 shadow-overlay">
 			<div class="px-2.5 py-2">
-				<p class="text-m font-medium text-ink">{{ user.getUser?.name }}</p>
-				<p class="text-s text-ink-subtle">{{ user.getUser?.email }}</p>
+				<p class="truncate text-m font-medium text-ink">{{ user.getUser?.name }}</p>
+				<p v-if="user.getUser?.email" class="truncate text-s text-ink-subtle">{{ user.getUser.email }}</p>
+			</div>
+			<div class="flex items-center justify-between gap-2 px-2.5 py-1.5">
+				<span class="text-s text-ink-subtle">Nuansa</span>
+				<FeelToggle />
+			</div>
+			<div class="hidden items-center justify-between gap-2 px-2.5 py-1.5 xl:flex">
+				<span class="text-s text-ink-subtle">Lebar konten</span>
+				<WidthToggle />
 			</div>
 			<button class="flex w-full items-center gap-2 rounded px-2.5 py-2 text-m text-ink-muted hover:bg-fill" @click="logout">
 				<IconLogout class="h-4 w-4" />

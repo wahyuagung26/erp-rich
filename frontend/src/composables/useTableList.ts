@@ -21,7 +21,10 @@ export function useTableList<T>({ endpoint, defaultLimit = 10, immediate = true,
 	const orderBy = ref<TableRow>()
 	const filters = ref<Record<string, unknown>>({})
 
+	// Only the newest request may write results — a slow earlier search must not overwrite a later one.
+	let seq = 0
 	async function fetchList() {
+		const id = ++seq
 		loading.value = true
 		try {
 			const res = await api.get<ApiList<T>>(endpoint, {
@@ -33,10 +36,11 @@ export function useTableList<T>({ endpoint, defaultLimit = 10, immediate = true,
 					...filters.value
 				}
 			})
+			if (id !== seq) return
 			columns.value = res.data.data ?? []
 			pagination.value = res.data.meta
 		} finally {
-			loading.value = false
+			if (id === seq) loading.value = false
 		}
 	}
 

@@ -46,7 +46,7 @@ const dateTo = ref('')
 function applyAll() {
 	applyFilters({ q: q.value, approval_status: approvalStatus.value, tax_invoice: taxInvoice.value, date_from: dateFrom.value, date_to: dateTo.value })
 }
-const runSearch = useDebounce(applyAll, 250)
+const runSearch = useDebounce(applyAll)
 
 // Filters beyond the toolbar's 3 controls live in the Filter Lanjutan drawer; the badge counts the active ones.
 const advancedCount = computed(() => (Boolean(taxInvoice.value) ? 1 : 0))

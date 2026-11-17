@@ -26,7 +26,7 @@ const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilter
 })
 
 const filters = reactive({ q: '', brand_id: null as number | string | null, product_category_id: null as number | string | null })
-const runSearch = useDebounce(() => applyFilters({ ...filters }), 250)
+const runSearch = useDebounce(() => applyFilters({ ...filters }))
 function onFilter<K extends keyof typeof filters>(key: K, value: (typeof filters)[K]) {
 	filters[key] = value
 	runSearch()

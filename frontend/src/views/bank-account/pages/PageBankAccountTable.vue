@@ -27,7 +27,7 @@ const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilter
 })
 
 const q = ref('')
-const runSearch = useDebounce(() => applyFilters({ q: q.value }), 250)
+const runSearch = useDebounce(() => applyFilters({ q: q.value }))
 
 const rows: TableRow[] = [
 	{ label: 'Kode Bank', field: 'bank_code', align: 'left', isSort: { activeSort: 'asc' } },

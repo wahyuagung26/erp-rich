@@ -30,7 +30,7 @@ const filters = reactive({
 	product_category_id: null as number | string | null,
 	warehouse_id: null as number | string | null
 })
-const runSearch = useDebounce(() => applyFilters({ ...filters }), 250)
+const runSearch = useDebounce(() => applyFilters({ ...filters }))
 
 // Filters beyond the toolbar's 3 controls live in the Filter Lanjutan drawer; the badge counts the active ones.
 const advancedCount = computed(() => (filters.warehouse_id ? 1 : 0) + (filters.price_status ? 1 : 0))

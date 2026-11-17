@@ -62,22 +62,26 @@ function valueOf(item: Row): number | string {
 	return props.optionValue ? props.optionValue(item) : (item.id as number | string)
 }
 
+// A search (reset) supersedes any in-flight request; only the newest response is applied. Load-more is dropped while busy.
+let seq = 0
 async function fetchOptions(reset: boolean) {
-	if (loading.value) return
+	if (loading.value && !reset) return
+	const id = ++seq
 	loading.value = true
 	try {
 		if (reset) page.value = 1
 		const res = await api.get<ApiList<Row>>(props.endpoint, {
 			params: { ...props.params, q: query.value || undefined, page: page.value, per_page: props.perPage }
 		})
+		if (id !== seq) return
 		lastPage.value = res.data.meta.last_page
 		options.value = reset ? res.data.data : [...options.value, ...res.data.data]
 	} finally {
-		loading.value = false
+		if (id === seq) loading.value = false
 	}
 }
 
-const runSearch = useDebounce(() => fetchOptions(true), 250)
+const runSearch = useDebounce(() => fetchOptions(true))
 
 // The menu is teleported + fixed so it isn't clipped by overflow containers (tables, modals).
 function place() {

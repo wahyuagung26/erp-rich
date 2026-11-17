@@ -33,7 +33,7 @@ const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilter
 const q = ref('')
 const type = ref('')
 const productCategoryId = ref<number | string | null>(null)
-const runSearch = useDebounce(() => applyFilters({ q: q.value, type: type.value, product_category_id: productCategoryId.value }), 250)
+const runSearch = useDebounce(() => applyFilters({ q: q.value, type: type.value, product_category_id: productCategoryId.value }))
 
 function onCategoryChange(v: number | string | null) {
 	productCategoryId.value = v

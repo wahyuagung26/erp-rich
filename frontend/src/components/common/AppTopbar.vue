@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { IconSearch, IconMenu2 } from '@tabler/icons-vue'
+import { IconMenu2 } from '@tabler/icons-vue'
 import { useUiStore } from '@/stores/ui'
 import CompanyPicker from './CompanyPicker.vue'
 import UserMenu from './UserMenu.vue'
-import FeelToggle from './FeelToggle.vue'
-import WidthToggle from './WidthToggle.vue'
+import PeriodInfo from './PeriodInfo.vue'
 
 const ui = useUiStore()
 
@@ -23,12 +22,7 @@ const ui = useUiStore()
 		</button>
 		<CompanyPicker class="min-w-0" />
 		<div class="ml-auto flex items-center gap-2">
-			<label class="hidden items-center gap-2 rounded-md bg-fill px-2.5 py-1.5 text-m text-ink-subtle sm:flex">
-				<IconSearch class="h-4 w-4" />
-				<input placeholder="Cari…" class="w-40 bg-transparent text-ink placeholder:text-ink-subtle focus:outline-none" />
-			</label>
-			<FeelToggle class="hidden sm:flex" />
-			<WidthToggle class="hidden xl:flex" />
+			<PeriodInfo />
 			<UserMenu />
 		</div>
 	</header>

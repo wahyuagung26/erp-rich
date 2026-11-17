@@ -90,7 +90,7 @@ async function load(page = 1) {
 		if (id === seq) loading.value = false
 	}
 }
-const runSearch = useDebounce(() => load(1), 250)
+const runSearch = useDebounce(() => load(1))
 
 async function onOpen() {
 	if (props.disabled) return

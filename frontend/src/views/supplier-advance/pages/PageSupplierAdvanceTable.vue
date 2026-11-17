@@ -36,7 +36,7 @@ const dateTo = ref('')
 function applyAll() {
 	applyFilters({ q: q.value, date_from: dateFrom.value, date_to: dateTo.value })
 }
-const runSearch = useDebounce(applyAll, 250)
+const runSearch = useDebounce(applyAll)
 
 // Opens the shared record-history modal for one row.
 function openHistory(row: SupplierAdvance) {

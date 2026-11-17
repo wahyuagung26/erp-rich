@@ -40,7 +40,7 @@ const statusOptions = (Object.keys(journalStatusLabel) as JournalStatus[]).map((
 function applyAll() {
 	applyFilters({ q: q.value, status: status.value })
 }
-const runSearch = useDebounce(applyAll, 250)
+const runSearch = useDebounce(applyAll)
 
 // KPI tiles = presets of the status dropdown (docs/cash-advance/list-cash-advance.md).
 const kpi = useKpiTiles(

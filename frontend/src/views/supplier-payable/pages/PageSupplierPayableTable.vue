@@ -35,7 +35,7 @@ const dateTo = ref('')
 function applyAll() {
 	applyFilters({ q: q.value, status: status.value, due: due.value, date_field: dateField.value, date_from: dateFrom.value, date_to: dateTo.value })
 }
-const runSearch = useDebounce(applyAll, 250)
+const runSearch = useDebounce(applyAll)
 
 // Filters beyond the toolbar's 3 controls live in the Filter Lanjutan drawer; the badge counts the active ones.
 const advancedCount = computed(() => (due.value ? 1 : 0))

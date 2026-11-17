@@ -47,9 +47,8 @@ const avail = useTableList<BudgetDocument>({ endpoint: '/budgeting/budgets', sco
 const availQ = ref('')
 const availYear = ref('')
 const availDept = ref<number | string | null>(null)
-const runAvail = useDebounce(
-	() => avail.applyFilters({ status: 'Disetujui', revision: 'none', q: availQ.value, year: availYear.value, department_id: availDept.value }),
-	250
+const runAvail = useDebounce(() =>
+	avail.applyFilters({ status: 'Disetujui', revision: 'none', q: availQ.value, year: availYear.value, department_id: availDept.value })
 )
 // Tab 2: submitted revision documents.
 const done = useTableList<BudgetDocument>({ endpoint: '/budgeting/revisions', scopedToCompany: true })
@@ -57,9 +56,8 @@ const doneQ = ref('')
 const doneYear = ref('')
 const doneStatus = ref('')
 const doneDept = ref<number | string | null>(null)
-const runDone = useDebounce(
-	() => done.applyFilters({ q: doneQ.value, year: doneYear.value, status: doneStatus.value, department_id: doneDept.value }),
-	250
+const runDone = useDebounce(() =>
+	done.applyFilters({ q: doneQ.value, year: doneYear.value, status: doneStatus.value, department_id: doneDept.value })
 )
 watch(
 	() => company.activeId,

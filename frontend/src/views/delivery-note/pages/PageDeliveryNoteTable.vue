@@ -38,7 +38,7 @@ const invoiceId = String(route.query.sales_invoice_id ?? '')
 function applyAll() {
 	applyFilters({ q: q.value, sales_invoice_id: invoiceId, date_from: dateFrom.value, date_to: dateTo.value })
 }
-const runSearch = useDebounce(applyAll, 250)
+const runSearch = useDebounce(applyAll)
 onMounted(applyAll)
 
 function openHistory(row: DeliveryNote) {

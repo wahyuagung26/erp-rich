@@ -6,6 +6,7 @@ import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
 import { errorMessage } from '@/utils/errorMessage'
 import { useConfirm } from '@/composables/useConfirm'
+import { usePeriodStore } from '@/stores/period'
 import { date } from '@/utils/format'
 import Select from '@/components/base/Select.vue'
 import Button from '@/components/base/Button.vue'
@@ -22,6 +23,7 @@ import { addMonths, periodLabel } from '../format'
 
 const toast = useToast()
 const confirm = useConfirm()
+const periodStore = usePeriodStore()
 
 const status = ref<ClosingStatus>()
 const recon = ref<ClosingReconciliation>()
@@ -107,6 +109,7 @@ async function loadRecon() {
 async function loadStatus(resetPeriod = false) {
 	const res = await api.get<ApiItem<ClosingStatus>>('/posting/closing')
 	status.value = res.data.data
+	periodStore.status = status.value // keep the topbar period in sync
 	if (resetPeriod || !period.value) period.value = status.value.next_period
 }
 

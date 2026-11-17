@@ -40,7 +40,7 @@ const dateTo = ref('')
 function applyAll() {
 	applyFilters({ q: q.value, invoice_status: invoiceStatus.value, date_from: dateFrom.value, date_to: dateTo.value })
 }
-const runSearch = useDebounce(applyAll, 250)
+const runSearch = useDebounce(applyAll)
 
 // KPI tiles = presets of the invoice-status dropdown (docs/purchase-receipt/list-purchase-receipt.md).
 const kpi = useKpiTiles(

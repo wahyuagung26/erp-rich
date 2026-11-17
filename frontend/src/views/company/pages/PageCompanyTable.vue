@@ -25,7 +25,7 @@ const toast = useToast()
 const { columns, pagination, loading, fetchList, handleSort, pageTo, applyFilters } = useTableList<Company>({ endpoint: '/company' })
 
 const q = ref('')
-const runSearch = useDebounce(() => applyFilters({ q: q.value }), 250)
+const runSearch = useDebounce(() => applyFilters({ q: q.value }))
 
 const rows: TableRow[] = [
 	{ label: 'Kode', field: 'code', align: 'left', isSort: { activeSort: 'asc' } },
