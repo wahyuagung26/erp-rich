@@ -2,6 +2,7 @@ import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { companyIdOf, nextId, paginate, sortBy, type ListParams } from '../lib'
 import { userName } from '../history'
+import type { HistoryEvent } from '@/utils/types'
 import {
 	codeExample,
 	codePattern,
@@ -141,6 +142,26 @@ function validateRevision(lines: unknown, original: BudgetLine[], start: number)
 			return 'Bulan sebelum periode revisi harus sama dengan budget awal; nominal lainnya harus nol atau lebih.'
 	}
 	return null
+}
+function historyOf(doc: BudgetDocument): HistoryEvent[] {
+	return doc.history.map((event, i) => ({
+		id: doc.history.length - i,
+		at: event.at,
+		actor: event.by,
+		title: event.action,
+		kind:
+			event.to === 'Disetujui'
+				? 'approved'
+				: event.to === 'Ditolak'
+					? 'rejected'
+					: event.from === null
+						? 'created'
+						: event.from === event.to
+							? 'updated'
+							: 'info',
+		summary: event.note || null,
+		changes: event.from && event.from !== event.to ? [{ label: 'Status', from: event.from, to: event.to }] : []
+	}))
 }
 function append(doc: BudgetDocument, action: string, next: BudgetStatus, note = '') {
 	const from = doc.status
@@ -332,6 +353,15 @@ export function registerBudgeting(mock: MockAdapter) {
 		const row = db.budgetRevision.find((b) => b.id === idFrom(config.url) && b.company_id === companyIdOf(config))
 		return row ? [200, { data: out(row, true) }] : missing()
 	})
+	// Record-history contract (docs/conventions.md): the document's own status log, mapped to timeline events (newest first).
+	for (const [path, rows] of [
+		['budgets', db.budget],
+		['revisions', db.budgetRevision]
+	] as const)
+		mock.onGet(new RegExp(`/budgeting/${path}/\\d+/history$`)).reply((config) => {
+			const doc = rows.find((b) => b.id === Number(config.url?.split('/').at(-2)) && b.company_id === companyIdOf(config))
+			return doc ? [200, { data: historyOf(doc) }] : missing()
+		})
 	mock.onPost('/budgeting/budgets').reply((config) => {
 		const cid = companyIdOf(config)
 		if (!cid) return invalid('Pilih perusahaan terlebih dahulu.')

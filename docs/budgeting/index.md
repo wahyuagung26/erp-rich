@@ -24,11 +24,13 @@ Realization in the eventual backend is derived from company-scoped approved manu
 |---|---|---|
 | GET | `/budgeting/budgets` | [list-budgets](./list-budgets.md) |
 | GET | `/budgeting/budgets/:id` | [get-budget](./get-budget.md) |
+| GET | `/budgeting/budgets/:id/history` | [get-budget-history](./get-budget-history.md) |
 | POST | `/budgeting/budgets` | [create-budget](./create-budget.md) |
 | PUT | `/budgeting/budgets/:id` | [update-budget](./update-budget.md) |
 | POST | `/budgeting/budgets/:id/actions` | [action-budget](./action-budget.md) |
 | GET | `/budgeting/revisions` | [list-revisions](./list-revisions.md) |
 | GET | `/budgeting/revisions/:id` | [get-revision](./get-revision.md) |
+| GET | `/budgeting/revisions/:id/history` | [get-revision-history](./get-revision-history.md) |
 | POST | `/budgeting/revisions` | [create-revision](./create-revision.md) |
 | PUT | `/budgeting/revisions/:id` | [update-revision](./update-revision.md) |
 | POST | `/budgeting/revisions/:id/actions` | [action-revision](./action-revision.md) |

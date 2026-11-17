@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { IconArrowBackUp, IconArrowLeft, IconBan, IconCheck, IconDownload, IconPencil, IconSend, IconX } from '@tabler/icons-vue'
+import { IconArrowBackUp, IconArrowLeft, IconBan, IconCheck, IconDownload, IconHistory, IconPencil, IconSend, IconX } from '@tabler/icons-vue'
 import api from '@/utils/api'
 import { useCompanyStore } from '@/stores/company'
 import { useToast } from '@/composables/useToast'
 import { useConfirm } from '@/composables/useConfirm'
+import { useHistory } from '@/composables/useHistory'
 import { errorMessage } from '@/utils/errorMessage'
 import { date } from '@/utils/format'
 import PageHeader from '@/components/base/PageHeader.vue'
@@ -27,9 +28,12 @@ const router = useRouter()
 const company = useCompanyStore()
 const toast = useToast()
 const confirm = useConfirm()
+const history = useHistory()
 const base = `/budgeting/${props.kind}`
 const revision = props.kind === 'revisions'
 const noun = revision ? 'revisi' : 'budget'
+// Opens the shared record-history modal for this document.
+const openHistory = () => doc.value && history.open({ kode: doc.value.number, endpoint: `${base}/${doc.value.id}/history` })
 const doc = ref<BudgetDocument | null>(null)
 const loading = ref(true)
 const failed = ref(false)
@@ -169,6 +173,7 @@ onMounted(load)
 					<Badge v-if="doc" :tone="statusTone(doc.status)">{{ doc.status }}</Badge>
 					<Button size="sm" variant="subtle" @click="router.push(base)"><IconArrowLeft class="h-4 w-4" /> Kembali</Button>
 					<template v-if="doc">
+						<Button size="sm" variant="subtle" @click="openHistory"><IconHistory class="h-4 w-4" /> Riwayat</Button>
 						<Button size="sm" variant="subtle" :loading="exporting" @click="download"
 							><IconDownload v-if="!exporting" class="h-4 w-4" /> Unduh Excel</Button
 						>
@@ -260,39 +265,12 @@ onMounted(load)
 						:year="String(doc.year)"
 						:ytd="shownYtd"
 						:all-ytd="allYtd"
-						:has-department="doc.status !== 'Disetujui'"
+						:hide-all-ytd="doc.status === 'Disetujui'"
 						readonly
 						:ytd-label="ytdLabel"
 						:ytd-frozen="frozen"
 						@update:all-ytd="allYtd = $event"
 					/>
-				</section>
-				<section class="space-y-3">
-					<h3 class="subhead">Riwayat (Log) Dokumen</h3>
-					<div class="overflow-x-auto">
-						<table class="w-full text-m">
-							<thead>
-								<tr class="bg-fill text-left text-ink-muted">
-									<th class="px-3 py-2">Tanggal &amp; Waktu</th>
-									<th class="px-3 py-2">Aksi</th>
-									<th class="px-3 py-2">Status Sebelum</th>
-									<th class="px-3 py-2">Status Sesudah</th>
-									<th class="px-3 py-2">Catatan / Keterangan</th>
-									<th class="px-3 py-2">Oleh</th>
-								</tr>
-							</thead>
-							<tbody class="divide-y divide-hairline">
-								<tr v-for="(event, i) in doc.history" :key="i" class="align-top">
-									<td class="whitespace-nowrap px-3 py-2 tnum">{{ date(event.at, 'DD MMM YYYY HH:mm:ss') }}</td>
-									<td class="px-3 py-2 font-medium">{{ event.action }}</td>
-									<td class="px-3 py-2">{{ event.from ?? '—' }}</td>
-									<td class="px-3 py-2">{{ event.to }}</td>
-									<td class="px-3 py-2">{{ event.note || '—' }}</td>
-									<td class="px-3 py-2">{{ event.by }}</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
 				</section>
 			</div>
 		</Panel>

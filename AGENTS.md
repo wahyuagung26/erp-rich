@@ -80,6 +80,7 @@ serves the **same** TS mock (`src/mocks/`, same handlers, fixtures and in-memory
 - The server loads `src/mocks/` through Vite SSR with `@/utils/api` aliased to `scripts/mock-server-api.mjs`, so a mock
   module must not depend on browser-only globals beyond `localStorage` (stubbed: history actor falls back to "Admin").
 - State resets on restart; the 250 ms delay from `startMock()` still applies.
+- **No hot reload**: the mock is loaded once at start (`hmr: false`), so after any change under `src/mocks/` restart `npm run prototype`. A running server answers a new route with a plain 404 while `npm run dev` (in-browser mock) already has it.
 
 ## Frontend (`frontend/`)
 

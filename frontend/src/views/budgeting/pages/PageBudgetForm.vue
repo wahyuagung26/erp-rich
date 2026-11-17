@@ -19,6 +19,7 @@ import { downloadTemplate } from '../excel'
 import { validateBudgetHeader } from '../schema'
 import BudgetMatrix from '../components/BudgetMatrix.vue'
 import BudgetImportModal from '../components/BudgetImportModal.vue'
+import HelpTip from '@/components/base/HelpTip.vue'
 import type { ApiList } from '@/utils/types'
 import { codeExample, months, type BudgetAccount, type BudgetDocument, type BudgetLine, type RevisionPeriod } from '../types'
 
@@ -31,6 +32,8 @@ const company = useCompanyStore()
 const base = `/budgeting/${props.kind}`
 const revision = props.kind === 'revisions'
 const edit = !!route.params.id
+// The original budget is fixed when editing, or when the form was opened from the list's "Revisi" button (?budget_id=).
+const budgetLocked = edit || !!route.query.budget_id
 const title = `${edit ? 'Edit' : 'Tambah'} ${revision ? 'Revisi Budget' : 'Budget'}`
 const subtitle = revision
 	? edit
@@ -97,7 +100,7 @@ let ytdGeneration = 0
 watch([departmentId, allYtd], async ([dept, all]) => {
 	const generation = ++ytdGeneration
 	ytd.value = null
-	if (!dept) return
+	if (!dept && !all) return // company-wide YTD needs no department
 	try {
 		const response = await api.get<{ data: { values: Record<string, number> } }>('/budgeting/ytd', { params: { department_id: all ? 'all' : dept } })
 		if (generation === ytdGeneration) ytd.value = response.data.data.values
@@ -106,6 +109,17 @@ watch([departmentId, allYtd], async ([dept, all]) => {
 	}
 })
 const start = computed(() => Math.max(period.value?.revision_month_start ?? 1, new Date().getMonth() + 1))
+const rincianHelp = computed(() =>
+	revision
+		? [`Bulan sebelum ${months[start.value - 1]} mengikuti budget awal dan tidak dapat diubah.`]
+		: [
+				'Buka kelompok akun lalu tambahkan rincian dengan tombol +.',
+				'Kode rincian dan deskripsi wajib diisi; nominal per bulan opsional, total dihitung otomatis.',
+				`Format kode: AWALAN/OBG{tahun}/KODE_DEPT/NNN, contoh ${codeExample(year.value)}.`,
+				'EXP untuk akun OPEX dan CPX untuk akun CAPEX; tahun sama dengan Tahun Anggaran; KODE_DEPT 3 karakter.',
+				'Kode tidak boleh sama dengan rincian lain atau budget lain yang masih aktif.'
+			]
+)
 const deptLabel = (row: Record<string, unknown>) => `${row.code} — ${row.name}`
 const budgetOptionLabel = (row: Record<string, unknown>) => `${row.number} — ${row.department_name} (${row.year})`
 const copyLines = (source: BudgetLine[]) => source.map((l) => ({ ...l, months: [...l.months] }))
@@ -288,17 +302,19 @@ onMounted(() => {
 							v-if="revision"
 							label="Budget Awal"
 							:error="errors.budget_id"
-							required
+							:required="!budgetLocked"
 							:help="edit ? 'Budget awal tidak dapat diubah setelah revisi dibuat.' : undefined"
 						>
+							<!-- Chosen in the list ("Revisi" button) or fixed by an existing revision: read-only. Picker only for a bare /tambah URL. -->
+							<Input v-if="budgetLocked" :model-value="budgetLabel || '—'" disabled />
 							<AsyncSelect
+								v-else
 								v-model="budgetId"
 								endpoint="/budgeting/budgets"
 								:params="{ status: 'Disetujui', year: new Date().getFullYear(), revision: 'none' }"
 								:option-label="budgetOptionLabel"
 								:initial-label="budgetLabel"
 								placeholder="Pilih budget yang disetujui"
-								:disabled="edit"
 								@select="chooseBudget"
 							/>
 						</FormField>
@@ -341,23 +357,15 @@ onMounted(() => {
 					/></FormField>
 				</section>
 				<section class="space-y-3">
-					<h3 class="subhead">Rincian {{ revision ? 'Revisi' : 'Budget' }}</h3>
-					<p v-if="revision" class="text-s text-ink-muted">Bulan sebelum {{ months[start - 1] }} mengikuti budget awal dan tidak dapat diubah.</p>
-					<template v-else>
-						<p class="text-s text-ink-muted">
-							Buka kelompok akun lalu tambahkan rincian dengan tombol +. Kode rincian dan deskripsi wajib diisi; nominal per bulan opsional, total
-							dihitung otomatis.
-						</p>
-						<p class="text-s text-ink-muted">
-							Format kode rincian: AWALAN/OBG{tahun}/KODE_DEPT/NNN, contoh {{ codeExample(year) }}. EXP untuk akun OPEX dan CPX untuk akun CAPEX;
-							tahun sama dengan Tahun Anggaran; KODE_DEPT 3 karakter; kode tidak boleh sama dengan rincian lain atau budget lain yang masih aktif.
-						</p>
-						<div class="flex flex-wrap gap-2">
+					<div class="flex flex-wrap items-center gap-x-1 gap-y-2">
+						<h3 class="subhead">Rincian {{ revision ? 'Revisi' : 'Budget' }}</h3>
+						<HelpTip :title="`Cara mengisi rincian ${revision ? 'revisi' : 'budget'}`" :text="rincianHelp" />
+						<div v-if="!revision" class="ml-auto flex flex-wrap gap-2">
 							<Button variant="outline" size="sm" :loading="excelBusy" @click="template"
 								><IconDownload v-if="!excelBusy" class="h-4 w-4" /> Unduh Template Excel</Button
 							><Button variant="outline" size="sm" @click="importOpen = true"><IconUpload class="h-4 w-4" /> Import dari Excel</Button>
 						</div>
-					</template>
+					</div>
 					<BudgetMatrix
 						:lines="lines"
 						:initial-lines="initialLines"
@@ -367,7 +375,6 @@ onMounted(() => {
 						:year="year"
 						:ytd="ytd"
 						:all-ytd="allYtd"
-						:has-department="!!departmentId"
 						@update:all-ytd="allYtd = $event"
 					/>
 				</section>

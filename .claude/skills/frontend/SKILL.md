@@ -43,7 +43,7 @@ Money/dates/numbers → `src/utils/format.ts` + `<Amount>`. Never hand-format cu
 **List pages**: wire `<FilterBar :loading="loading" @refresh="runSearch">` on every list — it
 renders a trailing reload button (owner expects an explicit "apply filter & reload"). The
 `useTableList` shape is uniform: `{ columns, pagination, loading, fetchList, handleSort, pageTo,
-applyFilters }` + a debounced `runSearch = useDebounce(() => applyFilters({...}), 250)`.
+applyFilters }` + a debounced `runSearch = useDebounce(() => applyFilters({...}))` (no wait argument: the shared 400 ms `SEARCH_DEBOUNCE_MS`).
 
 **`<Table>` custom columns.** `#table-header` is a *per-cell* slot inside the column `v-for` —
 overriding it means handling every field yourself, including reproducing the sort button. So a

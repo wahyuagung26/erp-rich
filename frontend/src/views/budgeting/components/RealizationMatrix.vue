@@ -118,7 +118,12 @@ async function fullscreen() {
 						<th rowspan="3" class="sticky-col account-col">Akun / Rincian</th>
 						<th colspan="4">
 							Budget YTD · Jan–{{ cutoff ? months[cutoff - 1] : '—' }} {{ year }}
-							<Checkbox v-if="showAllYtd" :model-value="allYtd" label="Semua departemen" @update:model-value="emit('update:allYtd', $event)" />
+							<Checkbox
+								v-if="showAllYtd"
+								:model-value="allYtd"
+								label="Tampilkan Semua Departemen"
+								@update:model-value="emit('update:allYtd', $event)"
+							/>
 						</th>
 						<th v-for="q in 4" :key="q" colspan="12">Q{{ q }} (Quarter {{ q }})</th>
 						<th rowspan="3" class="total-col t1">Budget Total<br />(1 tahun)</th>

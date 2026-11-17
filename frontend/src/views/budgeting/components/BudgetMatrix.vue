@@ -18,7 +18,8 @@ const props = defineProps<{
 	year: string
 	ytd: Record<string, number> | null
 	allYtd: boolean
-	hasDepartment: boolean
+	// Hide the "Tampilkan Semua Departemen" option (detail page of an approved budget: YTD is a frozen snapshot).
+	hideAllYtd?: boolean
 	// Read-only (detail page): text instead of inputs, only accounts that have lines, no action column.
 	readonly?: boolean
 	// Caption under "Capaian YTD", e.g. "Jan–Okt 2026"; frozen = snapshot taken at approval.
@@ -27,6 +28,9 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{ 'update:allYtd': [boolean] }>()
 const query = ref('')
+// Revision table only: both pinned column groups can be released for a wide view (like Realisasi's freeze options).
+const freezeYtd = ref(true)
+const freezeTotal = ref(true)
 const expanded = reactive<Record<string, boolean>>({})
 const fillValues = reactive<Record<string, string>>({})
 const hasActions = computed(() => !props.revision && !props.readonly)
@@ -108,7 +112,7 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 </script>
 <template>
 	<div class="space-y-3">
-		<div class="flex flex-wrap items-end justify-between gap-3">
+		<div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
 			<Input v-model="query" placeholder="Cari akun (kode / nama)…" class="!w-64"
 				><template #suffix
 					><Button v-if="query" variant="subtle" size="sm" aria-label="Hapus pencarian" @click="query = ''"
@@ -129,8 +133,17 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 				>
 			</div>
 		</div>
+		<div v-if="revision" class="flex flex-wrap items-center gap-x-6 gap-y-1">
+			<Checkbox v-model="freezeYtd" label="Freeze Capaian YTD" /><Checkbox v-model="freezeTotal" label="Freeze Total Budget" />
+		</div>
 		<div class="matrix-scroll overflow-auto rounded-md">
-			<table class="matrix w-full text-s" :class="[revision ? 'revision' : 'budget', { 'has-actions': hasActions }]">
+			<table
+				class="matrix w-full text-s"
+				:class="[
+					revision ? 'revision' : 'budget',
+					{ 'has-actions': hasActions, 'unfreeze-ytd': revision && !freezeYtd, 'unfreeze-total': revision && !freezeTotal }
+				]"
+			>
 				<thead>
 					<tr>
 						<th v-if="hasActions" rowspan="2" class="sticky-col action-col">Aksi</th>
@@ -138,10 +151,16 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 							Akun / Rincian <span v-if="hasActions" class="text-danger">*</span
 							><span class="block text-xs font-normal">Kode rincian + deskripsi</span>
 						</th>
-						<th rowspan="2" class="sticky-col ytd-col text-right">
+						<th rowspan="2" class="sticky-col ytd-col text-center">
 							Capaian YTD<br /><span class="inline-flex items-center gap-1 text-xs font-normal"
 								><IconLock v-if="ytdFrozen" class="h-3 w-3" title="Dibekukan saat disetujui" />{{ ytdCaption }}</span
-							><Checkbox v-if="hasDepartment" :model-value="allYtd" label="Semua departemen" @update:model-value="emit('update:allYtd', $event)" />
+							><Checkbox
+								v-if="!hideAllYtd"
+								:model-value="allYtd"
+								label="Tampilkan Semua Departemen"
+								class="mt-1 !items-start !gap-1.5 text-center !text-xs !font-normal leading-tight"
+								@update:model-value="emit('update:allYtd', $event)"
+							/>
 						</th>
 						<th v-for="q in 4" :key="q" :colspan="revision ? 6 : 3" class="quarter">Q{{ q }} (Quarter {{ q }})</th>
 						<th rowspan="2" class="sticky-col total-col text-right">{{ revision ? 'Budget Total' : 'Total' }}</th>
@@ -427,13 +446,13 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 	background: rgb(var(--c-fill));
 }
 .revision .total-col {
-	right: 245px;
+	right: 230px;
 }
 .revision .revised-col {
 	right: 95px;
-	width: 150px;
-	min-width: 150px;
-	max-width: 150px;
+	width: 135px;
+	min-width: 135px;
+	max-width: 135px;
 	white-space: normal;
 	background: rgb(var(--c-fill));
 }
@@ -470,5 +489,44 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 .matrix tbody td.total-col,
 .matrix tfoot td.total-col {
 	background: rgb(var(--c-panel));
+}
+/* Revision table: Budget Total is grey in every row, like Total Setelah Revisi and (%) beside it. */
+.matrix.revision tbody td.total-col,
+.matrix.revision tfoot td.total-col {
+	background: rgb(var(--c-fill));
+}
+/* Summary rows (section, subtotal, grand total) stay grey across the pinned Total column too. */
+.matrix tbody .section-row td.total-col,
+.matrix tbody .subtotal-row td.total-col,
+.matrix tfoot td.total-col {
+	background: rgb(var(--c-fill));
+}
+/* Released column groups (revision table): stop pinning horizontally. Header and footer keep their vertical pin. */
+.matrix.unfreeze-ytd .ytd-col {
+	left: auto;
+}
+.matrix.unfreeze-total .total-col,
+.matrix.unfreeze-total .revised-col,
+.matrix.unfreeze-total .pct-col {
+	right: auto;
+}
+.matrix.unfreeze-ytd tbody .ytd-col,
+.matrix.unfreeze-total tbody .total-col,
+.matrix.unfreeze-total tbody .revised-col,
+.matrix.unfreeze-total tbody .pct-col {
+	position: static;
+}
+/* ...and must scroll under the pinned account column, not over it. */
+.matrix.unfreeze-ytd thead .ytd-col,
+.matrix.unfreeze-total thead .total-col,
+.matrix.unfreeze-total thead .revised-col,
+.matrix.unfreeze-total thead .pct-col {
+	z-index: 4;
+}
+.matrix.unfreeze-ytd tfoot .ytd-col,
+.matrix.unfreeze-total tfoot .total-col,
+.matrix.unfreeze-total tfoot .revised-col,
+.matrix.unfreeze-total tfoot .pct-col {
+	z-index: 3;
 }
 </style>
