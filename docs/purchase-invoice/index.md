@@ -3,7 +3,7 @@ type: OKF Module
 title: Invoice Pembelian (Purchase Invoice)
 description: Tagihan supplier atas satu penerimaan pembelian — harga per baris, DPP/PPN, approval satu arah yang membentuk hutang (kontrabon), dan faktur pajak.
 tags: [purchase-invoice, procurement, payables]
-timestamp: 2026-11-06T12:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Invoice Pembelian
@@ -40,6 +40,7 @@ faktur pajak bisa diisi massal lewat [tax-invoice-import](../tax-invoice-import/
 | `kontrabon_number` | string \| null | terisi saat approval (penanda hutang terbentuk) |
 | `tax_invoice` | object \| null | faktur pajak `{ number, date, file }` (`file` = lampiran opsional, `null` bila tidak ada); hanya untuk `pkp_active`. Dikelola lewat modal global — lihat [Faktur Pajak (modal bersama)](#faktur-pajak-modal-bersama) |
 | `created_by` | string | nama pembuat |
+| `created_at` | string | ISO 8601 datetime the record was created (list column "Dibuat"); server-assigned, read-only |
 | `lines` | array | satu baris per produk yang diterima (`quantity > 0`) pada penerimaan |
 | `dpp` `ppn` `total` | number | dihitung server dari `lines` |
 

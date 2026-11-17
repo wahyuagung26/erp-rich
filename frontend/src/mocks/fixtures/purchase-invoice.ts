@@ -24,6 +24,7 @@ export const purchaseInvoiceSeed: PurchaseInvoice[] = [
 		kontrabon_number: 'KB-RICH/0001/09/2026',
 		tax_invoice: { number: '010.000-26.00000001', date: '2026-09-09', file: null },
 		created_by: 'Purchasing',
+		created_at: '2026-09-08T08:30:00+07:00',
 		lines: [line(2, 800000)],
 		dpp: 0,
 		ppn: 0,

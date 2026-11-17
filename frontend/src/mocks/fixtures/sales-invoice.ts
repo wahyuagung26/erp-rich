@@ -46,6 +46,7 @@ const base = {
 	approved_at: null,
 	tax_invoice: null,
 	created_by: 'Admin',
+	created_at: '2026-08-01T08:30:00+07:00',
 	discount_type: 'nominal' as const,
 	discount_value: 0,
 	expenses: []

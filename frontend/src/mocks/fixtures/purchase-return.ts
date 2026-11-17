@@ -26,6 +26,7 @@ export const purchaseReturnSeed: Seed[] = [
 		approved_at: '2026-09-12T09:30:00.000Z',
 		tax_invoice: null,
 		created_by: 'Purchasing',
+		created_at: '2026-09-12T08:30:00+07:00',
 		lines: [line(2, 2)],
 		...blank
 	},
@@ -42,6 +43,7 @@ export const purchaseReturnSeed: Seed[] = [
 		approved_at: null,
 		tax_invoice: null,
 		created_by: 'Purchasing',
+		created_at: '2026-09-15T08:30:00+07:00',
 		lines: [line(2, 1)],
 		...blank
 	}

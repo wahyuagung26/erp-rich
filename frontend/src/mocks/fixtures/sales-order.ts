@@ -73,6 +73,7 @@ const seeds: SeedRow[] = [
 		approved_by: null,
 		approved_at: null,
 		created_by: 'Admin',
+		created_at: '2026-09-02T08:30:00+07:00',
 		lines: [line(1, 2, 4_200_000, 100_000), line(3, 2, 250_000, 0, 'Pasang di lantai 2')],
 		expenses: []
 	},
@@ -92,6 +93,7 @@ const seeds: SeedRow[] = [
 		approved_by: 'Admin',
 		approved_at: '2026-09-05T09:30:00.000Z',
 		created_by: 'Admin',
+		created_at: '2026-09-05T08:30:00+07:00',
 		lines: [line(1, 3, 4_200_000)],
 		expenses: []
 	},
@@ -111,6 +113,7 @@ const seeds: SeedRow[] = [
 		approved_by: 'Admin',
 		approved_at: '2026-09-10T09:30:00.000Z',
 		created_by: 'Admin',
+		created_at: '2026-09-10T08:30:00+07:00',
 		lines: [line(1, 10, 4_200_000, 200_000), line(3, 5, 250_000, 0, 'Jadwal pemasangan menyusul')],
 		expenses: [{ sales_expense_id: 1, notes: 'Kirim ke gudang customer', amount: 250_000 }]
 	},
@@ -130,6 +133,7 @@ const seeds: SeedRow[] = [
 		approved_by: 'Admin',
 		approved_at: '2026-09-18T10:00:00.000Z',
 		created_by: 'Admin',
+		created_at: '2026-09-18T08:30:00+07:00',
 		lines: [line(3, 8, 250_000)],
 		expenses: []
 	},
@@ -149,6 +153,7 @@ const seeds: SeedRow[] = [
 		approved_by: null,
 		approved_at: null,
 		created_by: 'Admin',
+		created_at: '2026-10-03T08:30:00+07:00',
 		lines: [line(1, 1, 4_200_000, 500_000)],
 		expenses: []
 	},
@@ -168,6 +173,7 @@ const seeds: SeedRow[] = [
 		approved_by: null,
 		approved_at: null,
 		created_by: 'Admin',
+		created_at: '2026-10-20T08:30:00+07:00',
 		lines: [line(1, 2, 4_200_000), line(1001, 12, 65_000), line(1002, 8, 65_000)],
 		expenses: [{ sales_expense_id: 1, notes: '', amount: 300_000 }]
 	}

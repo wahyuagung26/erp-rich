@@ -25,6 +25,7 @@ import KpiFilter from '@/components/base/KpiFilter.vue'
 import { useKpiTiles } from '@/composables/useKpiTiles'
 import Amount from '@/components/base/Amount.vue'
 import RowActions from '@/components/base/RowActions.vue'
+import CreatedCell from '@/components/common/CreatedCell.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import { approvalOptions, taxInvoiceOptions } from '@/views/purchase-invoice/schema'
 import type { PurchaseInvoice, PurchaseInvoiceApprovalStatus, PurchaseInvoiceTaxInvoice, TableRow } from '@/utils/types'
@@ -116,6 +117,7 @@ const rows: TableRow[] = [
 	{ label: 'Total', field: 'total', align: 'right', isSort: { activeSort: 'asc' } },
 	{ label: 'Faktur Pajak', field: 'tax_invoice' },
 	{ label: 'Status', field: 'approval_status' },
+	{ label: 'Dibuat', field: 'created_at', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -185,6 +187,7 @@ const rows: TableRow[] = [
 						<span v-else class="text-ink-subtle" title="Invoice non-PKP tidak memiliki faktur pajak">–</span>
 					</div>
 					<ApprovalBadge v-else-if="row.field === 'approval_status'" :status="column.approval_status as PurchaseInvoiceApprovalStatus" />
+					<CreatedCell v-else-if="row.field === 'created_at'" :by="column.created_by as string" :at="column.created_at as string" />
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"

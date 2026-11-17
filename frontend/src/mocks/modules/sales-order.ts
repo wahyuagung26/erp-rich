@@ -186,6 +186,7 @@ function buildRow(body: SalesOrderRequest, base: Pick<SalesOrderRow, 'id' | 'num
 		approved_by: base.approved_by ?? null,
 		approved_at: base.approved_at ?? null,
 		created_by: base.created_by ?? userName(),
+		created_at: base.created_at ?? new Date().toISOString(),
 		lines,
 		expenses,
 		...totalsOf({ lines, expenses, pkp_active: body.pkp_active, discount_type, discount_value })

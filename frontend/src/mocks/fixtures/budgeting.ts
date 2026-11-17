@@ -48,6 +48,7 @@ export const budgetSeed: BudgetDocument[] = [
 		year,
 		description: 'Rencana tahunan departemen FAT',
 		status: 'Disetujui',
+		created_by: 'Admin',
 		created_at: `${year}-01-05T09:00:00`,
 		lines,
 		total: sumDocument(lines),

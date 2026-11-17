@@ -2,7 +2,7 @@ import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { companyCode, customerDepositNumber } from '../numbering'
 import { nextId, paginate, sortBy, type ListParams } from '../lib'
-import { diffFields, fmtDate, fmtMoney, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
+import { diffFields, fmtDate, fmtMoney, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, userName, type FieldSpec } from '../history'
 import { closedReply, withLock, closedDateReply } from './posting'
 import type { CustomerDeposit, CustomerDepositUsage } from '@/utils/types'
 
@@ -76,10 +76,15 @@ function validateRequest(body: CustomerDepositRequest, used: number, lockedCusto
 	return Object.keys(errors).length ? errors : null
 }
 
-function buildRow(body: CustomerDepositRequest, base: Pick<CustomerDeposit, 'id' | 'number'>): CustomerDeposit {
+function buildRow(
+	body: CustomerDepositRequest,
+	base: Pick<CustomerDeposit, 'id' | 'number'> & Partial<Pick<CustomerDeposit, 'created_by' | 'created_at'>>
+): CustomerDeposit {
 	const amount = Number(body.amount) || 0
 	return {
 		...base,
+		created_by: base.created_by ?? userName(),
+		created_at: base.created_at ?? new Date().toISOString(),
 		date: body.date,
 		department_id: Number(body.department_id),
 		customer_id: Number(body.customer_id),
@@ -173,7 +178,7 @@ export function registerCustomerDeposit(mock: MockAdapter) {
 		const errors = validateRequest(body, before.used, before.used > 0 ? row.customer_id : undefined)
 		if (errors) return [422, { message: 'Validasi gagal', errors }]
 
-		Object.assign(row, buildRow(body, { id: row.id, number: row.number }))
+		Object.assign(row, buildRow(body, { id: row.id, number: row.number, created_by: row.created_by, created_at: row.created_at }))
 		recordUpdate('customer-deposit', row.id, diffFields(before, resolve(row), FIELDS))
 		return [200, { data: resolve(row), message: 'Titipan customer diperbarui' }]
 	})

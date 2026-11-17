@@ -21,6 +21,7 @@ import Table from '@/components/base/Table.vue'
 import KpiFilter from '@/components/base/KpiFilter.vue'
 import { useKpiTiles } from '@/composables/useKpiTiles'
 import RowActions from '@/components/base/RowActions.vue'
+import CreatedCell from '@/components/common/CreatedCell.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import { invoiceOptions, invoiceStatusLabel, invoiceStatusTone } from '@/views/purchase-receipt/schema'
 import type { PurchaseReceipt, TableRow } from '@/utils/types'
@@ -93,6 +94,7 @@ const rows: TableRow[] = [
 	{ label: 'Gudang', field: 'warehouse_label' },
 	{ label: 'Keterangan', field: 'description' },
 	{ label: 'Status', field: 'invoice_status' },
+	{ label: 'Dibuat', field: 'created_at', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -153,6 +155,7 @@ const rows: TableRow[] = [
 					>
 						{{ invoiceStatusLabel[column.invoice_status as keyof typeof invoiceStatusLabel] ?? column.invoice_status }}
 					</Badge>
+					<CreatedCell v-else-if="row.field === 'created_at'" :by="column.created_by as string" :at="column.created_at as string" />
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"

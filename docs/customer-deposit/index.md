@@ -3,7 +3,7 @@ type: OKF Module
 title: Titipan Customer
 description: Customer deposit (titipan customer) — money received from a customer in advance, applied against Invoice Penjualan. Usage is read-only and computed from the usage rows below.
 tags: [customer-deposit, deposit, titipan, penjualan]
-timestamp: 2026-11-06T17:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Titipan Customer
@@ -24,6 +24,8 @@ created by Invoice Penjualan (paying with a titipan) and are **read-only** on th
 |---|---|---|
 | `id` | number | auto-increment, server-assigned |
 | `number` | string | "Nomor"; server-assigned, format legacy `TSC.<kode perusahaan>/<yymmdd>/<nnn>`, e.g. `TSC.RIN/260903/001`; not user-editable |
+| `created_by` | string | name of the user who created it (list column "Dibuat"); server-assigned, read-only |
+| `created_at` | string | ISO 8601 datetime the record was created (list column "Dibuat"); server-assigned, read-only |
 | `date` | string | `YYYY-MM-DD` |
 | `locked` | boolean | response-only, server-computed: `date` falls in a closed period → edit and delete are refused |
 | `department_id` | number | required |

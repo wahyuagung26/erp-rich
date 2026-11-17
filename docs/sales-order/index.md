@@ -3,7 +3,7 @@ type: OKF Module
 title: Sales Order
 description: Pesanan penjualan ke customer (legacy Sales Quotation `sq`, dicetak "SALES ORDER") — header, varian produk per gudang, diskon global, biaya penjualan, approval, satu invoice per order. Tidak menggerakkan stok/jurnal, tetapi terkunci closing period.
 tags: [sales-order, penjualan]
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Sales Order
@@ -68,6 +68,7 @@ dan tidak dihitung ulang.
 | `sales_invoice_id` `sales_invoice_number` | number \| null, string \| null | invoice tersebut |
 | `approved_by` `approved_at` | string \| null | metadata approval |
 | `created_by` | string | nama pembuat |
+| `created_at` | string | ISO 8601 datetime the record was created (list column "Dibuat"); server-assigned, read-only |
 | `lines` | array of `SalesOrderLine` | minimal satu baris, varian tidak boleh dobel |
 | `expenses` | array of `SalesOrderExpense` | Biaya Penjualan, boleh kosong |
 | `subtotal` `discount_global` `dpp` `ppn` `expense_total` `total` | number | disimpan saat simpan (lihat Rumus) |

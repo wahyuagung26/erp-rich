@@ -25,6 +25,7 @@ import Modal from '@/components/base/Modal.vue'
 import Table from '@/components/base/Table.vue'
 import KpiFilter from '@/components/base/KpiFilter.vue'
 import RowActions from '@/components/base/RowActions.vue'
+import CreatedCell from '@/components/common/CreatedCell.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
 import { journalStatusLabel } from '@/views/journal/schema'
@@ -119,6 +120,7 @@ const rows: TableRow[] = [
 	{ label: 'Keterangan', field: 'description', align: 'left' },
 	{ label: 'Status', field: 'status', align: 'left' },
 	{ label: 'Nominal', field: 'total', align: 'right', isSort: { activeSort: 'asc' } },
+	{ label: 'Dibuat', field: 'created_at', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -165,6 +167,7 @@ const rows: TableRow[] = [
 					<span v-else-if="row.field === 'voucher'" class="text-ink">{{ column.voucher }}</span>
 					<ApprovalBadge v-else-if="row.field === 'status'" :status="column.status as JournalStatus" :title="column.rejection_reason as string" />
 					<Amount v-else-if="row.field === 'total'" :value="column.total as number" />
+					<CreatedCell v-else-if="row.field === 'created_at'" :by="column.created_by as string" :at="column.created_at as string" />
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"

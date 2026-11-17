@@ -121,7 +121,14 @@ function validate(body: PurchaseReceiptRequest, excludeId?: number): ReturnType<
 
 // Stores one line per PO line (0 or positive) so a detail/edit view always shows the PO's
 // full product set, same as Legacy's product tab — not only the products this receipt touched.
-function buildRow(body: PurchaseReceiptRequest, id: number, number: string, po: PurchaseOrder, createdBy = userName()): PurchaseReceipt {
+function buildRow(
+	body: PurchaseReceiptRequest,
+	id: number,
+	number: string,
+	po: PurchaseOrder,
+	createdBy = userName(),
+	createdAt = new Date().toISOString()
+): PurchaseReceipt {
 	return {
 		id,
 		number,
@@ -132,6 +139,7 @@ function buildRow(body: PurchaseReceiptRequest, id: number, number: string, po: 
 		invoice_status: 'not_invoiced',
 		date: body.date,
 		created_by: createdBy,
+		created_at: createdAt,
 		lines: po.lines.map((poLine) => {
 			const submitted = body.lines.find((line) => Number(line.product_id) === poLine.product_id && Number(line.quantity) > 0)
 			return {
@@ -257,7 +265,7 @@ export function registerPurchaseReceipt(mock: MockAdapter) {
 		if (error) return [422, error]
 		const po = db.purchaseOrder.find((item) => item.id === row.purchase_order_id) as PurchaseOrder
 		const before = resolve(row)
-		Object.assign(row, buildRow(body, row.id, row.number, po, row.created_by))
+		Object.assign(row, buildRow(body, row.id, row.number, po, row.created_by, row.created_at))
 		const after = resolve(row)
 		recordUpdate('purchase-receipt', row.id, [
 			...diffFields(before, after, FIELDS),

@@ -4,7 +4,17 @@ import type { DeliveryNote } from '@/utils/types'
 // re-resolved from db.salesInvoice on every read (mocks/modules/delivery-note.ts).
 export type DeliveryNoteRow = Pick<
 	DeliveryNote,
-	'id' | 'number' | 'date' | 'sales_invoice_id' | 'delivery_address' | 'recipient' | 'driver' | 'vehicle' | 'description' | 'created_by'
+	| 'id'
+	| 'number'
+	| 'date'
+	| 'sales_invoice_id'
+	| 'delivery_address'
+	| 'recipient'
+	| 'driver'
+	| 'vehicle'
+	| 'description'
+	| 'created_by'
+	| 'created_at'
 > & {
 	lines: { variant_id: number; quantity: number }[]
 }
@@ -23,6 +33,7 @@ export const deliveryNoteSeed: DeliveryNoteRow[] = [
 		vehicle: 'L 8123 XY',
 		description: 'Pengiriman tahap pertama, sisa 1 unit menyusul',
 		created_by: 'Admin',
+		created_at: '2026-09-21T08:30:00+07:00',
 		lines: [{ variant_id: 1, quantity: 3 }]
 	},
 	{
@@ -36,6 +47,7 @@ export const deliveryNoteSeed: DeliveryNoteRow[] = [
 		vehicle: 'B 9021 KCD',
 		description: '',
 		created_by: 'Admin',
+		created_at: '2026-09-20T08:30:00+07:00',
 		lines: [{ variant_id: 3, quantity: 8 }]
 	},
 	{
@@ -49,6 +61,7 @@ export const deliveryNoteSeed: DeliveryNoteRow[] = [
 		vehicle: 'L 8123 XY',
 		description: 'Periode Juli (sudah closing), surat jalan tetap bisa diubah',
 		created_by: 'Admin',
+		created_at: '2026-07-16T08:30:00+07:00',
 		lines: [{ variant_id: 3, quantity: 10 }]
 	}
 ]

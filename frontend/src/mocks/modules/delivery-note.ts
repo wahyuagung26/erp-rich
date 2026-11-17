@@ -86,7 +86,10 @@ function validate(body: DeliveryNoteRequest, invoice: SalesInvoice): Invalid | n
 	return null
 }
 
-function buildRow(body: DeliveryNoteRequest, base: Pick<DeliveryNoteRow, 'id' | 'number' | 'sales_invoice_id' | 'created_by'>): DeliveryNoteRow {
+function buildRow(
+	body: DeliveryNoteRequest,
+	base: Pick<DeliveryNoteRow, 'id' | 'number' | 'sales_invoice_id' | 'created_by' | 'created_at'>
+): DeliveryNoteRow {
 	return {
 		...base,
 		date: body.date,
@@ -215,7 +218,7 @@ export function registerDeliveryNote(mock: MockAdapter) {
 		if (error) return [422, error]
 		const id = nextId(db.deliveryNote)
 		const number = deliveryNoteNumber(invoice.number)
-		const row = buildRow(body, { id, number, sales_invoice_id: invoice.id, created_by: userName() })
+		const row = buildRow(body, { id, number, sales_invoice_id: invoice.id, created_by: userName(), created_at: new Date().toISOString() })
 		db.deliveryNote.unshift(row)
 		recordHistory('delivery-note', id, { title: 'Dibuat', kind: 'created', summary: `Dari invoice ${invoice.number}` })
 		recordHistory('sales-invoice', invoice.id, { title: 'Surat Jalan Dibuat', kind: 'info', summary: number })

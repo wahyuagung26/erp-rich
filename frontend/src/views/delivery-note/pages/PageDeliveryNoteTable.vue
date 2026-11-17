@@ -17,6 +17,7 @@ import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
 import RowActions from '@/components/base/RowActions.vue'
+import CreatedCell from '@/components/common/CreatedCell.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import type { DeliveryNote, TableRow } from '@/utils/types'
 
@@ -67,6 +68,7 @@ const rows: TableRow[] = [
 	{ label: 'Penerima', field: 'recipient' },
 	{ label: 'Driver', field: 'driver' },
 	{ label: 'Qty Dikirim', field: 'total_quantity', align: 'right' },
+	{ label: 'Dibuat', field: 'created_at', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -108,6 +110,7 @@ const rows: TableRow[] = [
 						<p v-if="column.vehicle" class="whitespace-nowrap text-s text-ink-muted">{{ column.vehicle }}</p>
 					</div>
 					<span v-else-if="row.field === 'total_quantity'" class="tnum text-ink">{{ column.total_quantity }}</span>
+					<CreatedCell v-else-if="row.field === 'created_at'" :by="column.created_by as string" :at="column.created_at as string" />
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"

@@ -17,6 +17,7 @@ import DateRangePicker from '@/components/base/DateRangePicker.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
 import RowActions from '@/components/base/RowActions.vue'
+import CreatedCell from '@/components/common/CreatedCell.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
 import type { SupplierAdvance, TableRow } from '@/utils/types'
@@ -59,6 +60,7 @@ const rows: TableRow[] = [
 	{ label: 'Nominal', field: 'amount', align: 'right' },
 	{ label: 'Terpakai', field: 'used', align: 'right' },
 	{ label: 'Sisa', field: 'remaining', align: 'right', isSort: { activeSort: 'asc' } },
+	{ label: 'Dibuat', field: 'created_at', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -114,6 +116,7 @@ const rows: TableRow[] = [
 						<p v-if="column.last_payable_number" class="whitespace-nowrap text-s text-ink-muted">{{ column.last_payable_number }}</p>
 					</div>
 					<Amount v-else-if="row.field === 'remaining'" :value="column.remaining as number" />
+					<CreatedCell v-else-if="row.field === 'created_at'" :by="column.created_by as string" :at="column.created_at as string" />
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"

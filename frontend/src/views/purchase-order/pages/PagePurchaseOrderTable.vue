@@ -24,6 +24,7 @@ import Table from '@/components/base/Table.vue'
 import KpiFilter from '@/components/base/KpiFilter.vue'
 import { useKpiTiles } from '@/composables/useKpiTiles'
 import RowActions from '@/components/base/RowActions.vue'
+import CreatedCell from '@/components/common/CreatedCell.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
 import { approvalOptions, deliveryOptions, deliveryStatusLabel, deliveryStatusTone } from '@/views/purchase-order/schema'
@@ -127,6 +128,7 @@ const rows: TableRow[] = [
 	{ label: 'Keterangan', field: 'description' },
 	{ label: 'Total', field: 'total', align: 'right', isSort: { activeSort: 'asc' } },
 	{ label: 'Status', field: 'approval_status' },
+	{ label: 'Dibuat', field: 'created_at', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -192,6 +194,7 @@ const rows: TableRow[] = [
 							deliveryStatusLabel[column.delivery_status as PurchaseOrderDeliveryStatus]
 						}}</Badge>
 					</div>
+					<CreatedCell v-else-if="row.field === 'created_at'" :by="column.created_by as string" :at="column.created_at as string" />
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"

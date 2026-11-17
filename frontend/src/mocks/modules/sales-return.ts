@@ -301,6 +301,7 @@ export function registerSalesReturn(mock: MockAdapter) {
 			approved_at: null,
 			tax_invoice: null,
 			created_by: userName(),
+			created_at: new Date().toISOString(),
 			lines: storedLines(body)
 		}
 		db.salesReturn.unshift(row)

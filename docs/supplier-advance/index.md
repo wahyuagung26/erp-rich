@@ -3,7 +3,7 @@ type: OKF Module
 title: Uang Muka Supplier
 description: Supplier advance (uang muka supplier) — a deposit / titipan given to a supplier, applied against supplier payables (hutang). Read-only usage history computed from the usage rows below.
 tags: [supplier-advance, advance, titipan]
-timestamp: 2026-11-06T12:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Uang Muka Supplier
@@ -26,6 +26,8 @@ Legacy — here by [Hutang Supplier](../supplier-payable/index.md) payments with
 |---|---|---|
 | `id` | number | auto-increment, server-assigned |
 | `number` | string | server-assigned, e.g. `UMS-RICH/0001/09/2026`; not user-editable |
+| `created_by` | string | name of the user who created it (list column "Dibuat"); server-assigned, read-only |
+| `created_at` | string | ISO 8601 datetime the record was created (list column "Dibuat"); server-assigned, read-only |
 | `date` | string | `YYYY-MM-DD` |
 | `locked` | boolean | response-only, server-computed: `date` falls in a closed period → edit, delete and approval changes are refused ([conventions](../conventions.md#closing-period-lock-locked)) |
 | `department_id` | number | required |

@@ -3,7 +3,7 @@ type: OKF Module
 title: Retur Penjualan (Sales Return)
 description: Retur barang dari customer atas satu invoice penjualan yang sudah disetujui — jumlah per produk (harga, diskon dan PPN dari invoice), approval dengan tolak / ajukan ulang, faktur pajak, dan penyelesaian retur (potong piutang invoice atau dana kembali ke customer).
 tags: [sales-return, penjualan, receivables]
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Retur Penjualan
@@ -54,6 +54,7 @@ Diskon global / biaya penjualan di header invoice **tidak** ikut dibagi ke retur
 | `rejection_reason` `approved_by` `approved_at` | string \| null | metadata approval |
 | `tax_invoice` | object \| null | `{ number, date, file }` — **nama field yang juga ditulis Import Faktur Pajak**; hanya untuk `pkp_active` dan retur `approved`. Modal bersama, lihat [faktur pajak](../purchase-invoice/index.md#faktur-pajak-modal-bersama) |
 | `created_by` | string | |
+| `created_at` | string | ISO 8601 datetime the record was created (list column "Dibuat"); server-assigned, read-only |
 | `lines` | array | hanya produk dengan `quantity > 0`, lihat `SalesReturnLine` |
 | `dpp` `ppn` `total` | number | dihitung server (lihat Rumus) |
 | `used_total` | number | total yang memotong piutang invoice |

@@ -3,7 +3,7 @@ type: OKF Module
 title: Retur Pembelian (Purchase Return)
 description: Retur barang ke supplier atas satu invoice pembelian yang sudah disetujui — jumlah per produk, DPP/PPN, approval dua arah, faktur pajak, dan penyelesaian retur (potong hutang atau dana kembali).
 tags: [purchase-return, procurement, payables]
-timestamp: 2026-11-06T12:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Retur Pembelian
@@ -34,6 +34,7 @@ Kapan retur muncul di mutasi hutang supplier masih **unresolved** (lihat notulen
 | `approved_by` `approved_at` | string \| null | metadata approval |
 | `tax_invoice` | object \| null | `{ number, date, file }`; hanya untuk `pkp_active` dan retur `approved`. Modal bersama, lihat [faktur pajak](../purchase-invoice/index.md#faktur-pajak-modal-bersama) |
 | `created_by` | string | nama pembuat |
+| `created_at` | string | ISO 8601 datetime the record was created (list column "Dibuat"); server-assigned, read-only |
 | `lines` | array | hanya produk dengan `quantity > 0` |
 | `dpp` `ppn` `total` | number | dihitung server dari `lines` |
 | `used_total` | number | total yang dipakai memotong hutang supplier |

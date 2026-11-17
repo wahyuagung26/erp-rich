@@ -3,7 +3,7 @@ type: OKF Module
 title: Penerimaan Pembelian (Purchase Receipt)
 description: Penerimaan barang terhadap order pembelian yang sudah disetujui, per produk, dengan sisa kuantitas dan gudang per baris.
 tags: [purchase-receipt, procurement]
-timestamp: 2026-11-06T12:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Penerimaan Pembelian
@@ -38,6 +38,7 @@ add/remove list.
 | `locked` | boolean | response-only, server-computed: `date` falls in a closed period → edit, delete and approval changes are refused ([conventions](../conventions.md#closing-period-lock-locked)) |
 | `warehouse_label` | string | display-only summary of the distinct warehouses used by lines with `quantity > 0` |
 | `created_by` | string | creator name |
+| `created_at` | string | ISO 8601 datetime the record was created (list column "Dibuat"); server-assigned, read-only |
 | `lines` | array | at least one line with `quantity > 0` on create/update |
 
 ## Entity: `PurchaseReceiptLine`

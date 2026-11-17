@@ -281,6 +281,7 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 			approved_at: null,
 			tax_invoice: null,
 			created_by: userName(),
+			created_at: new Date().toISOString(),
 			lines: storedLines(body),
 			dpp: 0,
 			ppn: 0,

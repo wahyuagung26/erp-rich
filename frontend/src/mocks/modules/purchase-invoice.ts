@@ -232,6 +232,7 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 			kontrabon_number: null,
 			tax_invoice: null,
 			created_by: userName(),
+			created_at: new Date().toISOString(),
 			lines: buildLines(body),
 			dpp: 0,
 			ppn: 0,

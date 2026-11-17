@@ -3,7 +3,7 @@ type: OKF Module
 title: Invoice Penjualan (Sales Invoice)
 description: Tagihan penjualan ke customer (legacy `so` / `trso`) — header, produk per gudang, diskon global, biaya penjualan, pembayaran saat invoice dibuat, approval yang menggerakkan stok + jurnal, faktur pajak. Hub bagi Surat Jalan, Retur Penjualan, Piutang Customer, dan Import Faktur Pajak.
 tags: [sales-invoice, penjualan, receivables]
-timestamp: 2026-11-13T12:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Invoice Penjualan
@@ -58,6 +58,7 @@ due_date        = date + top_days
 | `rejection_reason` `approved_by` `approved_at` | string \| null | metadata approval |
 | `tax_invoice` | object \| null | `{ number, date, file }` — bentuk sama dengan [Invoice Pembelian](../purchase-invoice/index.md#faktur-pajak-modal-bersama); hanya untuk `pkp_active` |
 | `created_by` | string | |
+| `created_at` | string | ISO 8601 datetime the record was created (list column "Dibuat"); server-assigned, read-only |
 | `lines` | array of `SalesInvoiceLine` | min. 1, **satu baris per produk** (unik per invoice) |
 | `expenses` | array | Biaya Penjualan, bentuk sama dengan [`SalesOrderExpense`](../sales-order/index.md#entity-salesorderexpense-biaya-penjualan) |
 | `subtotal` `dpp` `ppn` `expense_total` `total` | number | computed |

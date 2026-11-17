@@ -121,6 +121,7 @@ function buildRow(body: PurchaseOrderRequest, id: number, number: string, status
 		approved_by: null,
 		approved_at: null,
 		created_by: userName(),
+		created_at: new Date().toISOString(),
 		lines: body.lines.map((line) => ({ ...line, dpp: 0, ppn: 0, total: 0 })),
 		dpp: 0,
 		ppn: 0,

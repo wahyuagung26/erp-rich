@@ -3,7 +3,7 @@ type: OKF Module
 title: Purchase Order (Order Pembelian)
 description: Purchase order dengan supplier, gudang, departemen, detail produk, kalkulasi pajak, approval, dan delivery status.
 tags: [purchase-order, procurement]
-timestamp: 2026-11-06T12:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Purchase Order
@@ -39,6 +39,7 @@ client. `pkp_active` dipilih pada level transaksi dan menentukan apakah PPN meng
 | `rejection_reason` | string \| null | populated when rejected |
 | `approved_by` `approved_at` | string \| null | approval metadata |
 | `created_by` | string | creator name |
+| `created_at` | string | ISO 8601 datetime the record was created (list column "Dibuat"); server-assigned, read-only |
 | `lines` | array | at least one line on create/update |
 | `dpp` `ppn` `nett` `total` | number | server/mock-computed values |
 

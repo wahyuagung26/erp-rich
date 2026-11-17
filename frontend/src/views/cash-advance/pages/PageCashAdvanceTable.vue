@@ -21,6 +21,7 @@ import ApprovalBadge from '@/components/common/ApprovalBadge.vue'
 import Table from '@/components/base/Table.vue'
 import KpiFilter from '@/components/base/KpiFilter.vue'
 import RowActions from '@/components/base/RowActions.vue'
+import CreatedCell from '@/components/common/CreatedCell.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Amount from '@/components/base/Amount.vue'
 import { journalStatusLabel } from '@/views/cash-advance/schema'
@@ -73,6 +74,7 @@ const rows: TableRow[] = [
 	{ label: 'Penyelesaian', field: 'used', align: 'right' },
 	{ label: 'Sisa', field: 'remaining', align: 'right', isSort: { activeSort: 'asc' } },
 	{ label: 'Status', field: 'status', align: 'left' },
+	{ label: 'Dibuat', field: 'created_at', align: 'left' },
 	{ label: '', field: 'action', align: 'right' }
 ]
 </script>
@@ -112,6 +114,7 @@ const rows: TableRow[] = [
 					<Amount v-else-if="row.field === 'used'" :value="column.used as number" />
 					<Amount v-else-if="row.field === 'remaining'" :value="column.remaining as number" />
 					<ApprovalBadge v-else-if="row.field === 'status'" :status="column.status as JournalStatus" :title="column.rejection_reason as string" />
+					<CreatedCell v-else-if="row.field === 'created_at'" :by="column.created_by as string" :at="column.created_at as string" />
 					<RowActions
 						v-else-if="row.field === 'action'"
 						:id="column.id as number"

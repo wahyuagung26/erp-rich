@@ -299,6 +299,7 @@ function buildRow(
 		// Faktur pajak only exists for PKP invoices.
 		tax_invoice: body.pkp_active ? (base.tax_invoice ?? null) : null,
 		created_by: base.created_by ?? userName(),
+		created_at: base.created_at ?? new Date().toISOString(),
 		lines: body.lines.map((line) => ({
 			variant_id: Number(line.variant_id),
 			warehouse_id: Number(line.warehouse_id),

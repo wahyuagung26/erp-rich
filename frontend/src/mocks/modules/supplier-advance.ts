@@ -1,7 +1,7 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { nextId, paginate, sortBy, type ListParams } from '../lib'
-import { diffFields, fmtDate, fmtMoney, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
+import { diffFields, fmtDate, fmtMoney, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, userName, type FieldSpec } from '../history'
 import { closedReply, withLock, closedDateReply } from './posting'
 import type { SupplierAdvance, SupplierAdvanceUsage } from '@/utils/types'
 
@@ -73,10 +73,15 @@ function validateRequest(body: SupplierAdvanceRequest): string | null {
 	return null
 }
 
-function buildRow(body: SupplierAdvanceRequest, base: Pick<SupplierAdvance, 'id' | 'number'>): SupplierAdvance {
+function buildRow(
+	body: SupplierAdvanceRequest,
+	base: Pick<SupplierAdvance, 'id' | 'number'> & Partial<Pick<SupplierAdvance, 'created_by' | 'created_at'>>
+): SupplierAdvance {
 	const amount = Number(body.amount) || 0
 	return {
 		...base,
+		created_by: base.created_by ?? userName(),
+		created_at: base.created_at ?? new Date().toISOString(),
 		date: body.date,
 		department_id: Number(body.department_id),
 		supplier_id: Number(body.supplier_id),
@@ -174,7 +179,7 @@ export function registerSupplierAdvance(mock: MockAdapter) {
 		if (error) return [422, { message: error, errors: { amount: [error] } }]
 
 		const before = resolve(row)
-		Object.assign(row, buildRow(body, { id: row.id, number: row.number }))
+		Object.assign(row, buildRow(body, { id: row.id, number: row.number, created_by: row.created_by, created_at: row.created_at }))
 		recordUpdate('supplier-advance', row.id, diffFields(before, resolve(row), FIELDS))
 		return [200, { data: resolve(row), message: 'Uang muka supplier diperbarui' }]
 	})

@@ -16,6 +16,7 @@ import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Button from '@/components/base/Button.vue'
 import Table from '@/components/base/Table.vue'
 import RowActions from '@/components/base/RowActions.vue'
+import CreatedCell from '@/components/common/CreatedCell.vue'
 import TablePagination from '@/components/base/TablePagination.vue'
 import Badge from '@/components/base/Badge.vue'
 import Amount from '@/components/base/Amount.vue'
@@ -77,7 +78,7 @@ const tabs = computed(() => [
 	{ label: `Pengajuan Revisi (${done.pagination.value?.total ?? 0})`, value: 'revisions' }
 ])
 const availRows: TableRow[] = [
-	{ label: 'Tanggal', field: 'created_at', isSort: { activeSort: 'desc' } },
+	{ label: 'Dibuat', field: 'created_at', isSort: { activeSort: 'desc' } },
 	{ label: 'Nomor', field: 'number', isSort: { activeSort: 'asc' } },
 	{ label: 'Departemen', field: 'department_name' },
 	{ label: 'Tahun', field: 'year' },
@@ -85,7 +86,7 @@ const availRows: TableRow[] = [
 	{ label: '', field: 'action', align: 'right' }
 ]
 const doneRows: TableRow[] = [
-	{ label: 'Tanggal', field: 'created_at', isSort: { activeSort: 'desc' } },
+	{ label: 'Dibuat', field: 'created_at', isSort: { activeSort: 'desc' } },
 	{ label: 'Nomor', field: 'number', isSort: { activeSort: 'asc' } },
 	{ label: 'Budget Awal', field: 'budget_number' },
 	{ label: 'Departemen', field: 'department_name' },
@@ -148,7 +149,7 @@ onMounted(() => {
 					@handle-sort="avail.handleSort"
 				>
 					<template #table-content="{ row, column }">
-						<span v-if="row.field === 'created_at'" class="whitespace-nowrap tnum">{{ date(column.created_at as string) }}</span>
+						<CreatedCell v-if="row.field === 'created_at'" :by="column.created_by as string" :at="column.created_at as string" />
 						<div v-else-if="row.field === 'number'" class="leading-snug">
 							<button class="whitespace-nowrap text-primary-dark hover:underline" @click="router.push(`/budgeting/budgets/${column.id}`)">
 								{{ column.number }}
@@ -198,7 +199,7 @@ onMounted(() => {
 					@row-dblclick="(r) => router.push(`/budgeting/revisions/${r.id}`)"
 				>
 					<template #table-content="{ row, column }">
-						<span v-if="row.field === 'created_at'" class="whitespace-nowrap tnum">{{ date(column.created_at as string) }}</span>
+						<CreatedCell v-if="row.field === 'created_at'" :by="column.created_by as string" :at="column.created_at as string" />
 						<div v-else-if="row.field === 'number'" class="leading-snug">
 							<button class="whitespace-nowrap text-primary-dark hover:underline" @click="router.push(`/budgeting/revisions/${column.id}`)">
 								{{ column.number }}

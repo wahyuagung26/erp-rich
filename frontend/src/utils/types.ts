@@ -603,6 +603,8 @@ export interface SupplierAdvance {
 	locked?: boolean // response-only: date falls in a closed period → no edit / delete / approval changes
 	id: number
 	number: string
+	created_by: string
+	created_at: string
 	date: string
 	department_id: number
 	department_code?: string
@@ -644,6 +646,8 @@ export interface CustomerDeposit {
 	locked?: boolean // response-only: date falls in a closed period → no edit / delete
 	id: number
 	number: string
+	created_by: string
+	created_at: string
 	date: string
 	department_id: number
 	department_code?: string
@@ -760,6 +764,7 @@ export interface PurchaseOrder {
 	approved_by: string | null
 	approved_at: string | null
 	created_by: string
+	created_at: string
 	lines: PurchaseOrderLine[]
 	dpp: number
 	ppn: number
@@ -848,6 +853,7 @@ export interface SalesOrder {
 	approved_by: string | null
 	approved_at: string | null
 	created_by: string
+	created_at: string
 	lines: SalesOrderLine[]
 	expenses: SalesOrderExpense[]
 	// Stored at save and authoritative afterwards (history keeps the formula it was saved with).
@@ -977,6 +983,7 @@ export interface SalesInvoice {
 	approved_at: string | null
 	tax_invoice: SalesInvoiceTaxInvoice | null
 	created_by: string
+	created_at: string
 	lines: SalesInvoiceLine[]
 	expenses: SalesOrderExpense[]
 	subtotal: number
@@ -1069,6 +1076,7 @@ export interface SalesReturn {
 	approved_at: string | null
 	tax_invoice: SalesReturnTaxInvoice | null
 	created_by: string
+	created_at: string
 	lines: SalesReturnLine[]
 	dpp: number
 	ppn: number
@@ -1148,6 +1156,7 @@ export interface DeliveryNote {
 	vehicle: string // No. Kendaraan, optional
 	description: string
 	created_by: string
+	created_at: string
 	total_quantity: number // Σ lines.quantity
 	lines: DeliveryNoteLine[]
 }
@@ -1222,6 +1231,7 @@ export interface PurchaseReceipt {
 	date: string
 	warehouse_label?: string
 	created_by: string
+	created_at: string
 	lines: PurchaseReceiptLine[]
 }
 
@@ -1357,6 +1367,7 @@ export interface PurchaseInvoice {
 	kontrabon_number: string | null
 	tax_invoice: PurchaseInvoiceTaxInvoice | null
 	created_by: string
+	created_at: string
 	lines: PurchaseInvoiceLine[]
 	dpp: number
 	ppn: number
@@ -1472,6 +1483,7 @@ export interface PurchaseReturn {
 	approved_at: string | null
 	tax_invoice: PurchaseInvoiceTaxInvoice | null
 	created_by: string
+	created_at: string
 	lines: PurchaseReturnLine[]
 	dpp: number
 	ppn: number

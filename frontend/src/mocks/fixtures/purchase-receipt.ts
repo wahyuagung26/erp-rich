@@ -22,6 +22,7 @@ export const purchaseReceiptSeed: PurchaseReceipt[] = [
 		invoice_status: 'not_invoiced',
 		date: '2026-09-06',
 		created_by: 'FAT',
+		created_at: '2026-09-06T08:30:00+07:00',
 		lines: [line(1, 40, 1)]
 	},
 	{
@@ -34,6 +35,7 @@ export const purchaseReceiptSeed: PurchaseReceipt[] = [
 		invoice_status: 'invoiced',
 		date: '2026-09-07',
 		created_by: 'Purchasing',
+		created_at: '2026-09-07T08:30:00+07:00',
 		lines: [line(2, 10, 1)]
 	}
 ]

@@ -37,6 +37,7 @@ export interface BudgetDocument {
 	year: number
 	description: string
 	status: BudgetStatus
+	created_by: string
 	created_at: string
 	lines: BudgetLine[]
 	total: number
