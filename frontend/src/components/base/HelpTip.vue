@@ -12,6 +12,7 @@ const points = computed(() => (Array.isArray(props.text) ? props.text : [props.t
 
 const GAP = 8 // px between the trigger and the card, and the minimum distance to the viewport edge
 const open = ref(false)
+const host = ref<HTMLElement | string>('body') // inside the fullscreen element while one is active, else body is never painted
 const trigger = ref<HTMLElement>()
 const card = ref<HTMLElement>()
 const pos = ref({ top: -9999, left: -9999 }) // off-screen until measured, so the card never flashes at 0,0
@@ -20,6 +21,7 @@ async function toggle() {
 	if (open.value) return close()
 	const r = trigger.value!.getBoundingClientRect()
 	pos.value = { top: -9999, left: -9999 }
+	host.value = (document.fullscreenElement as HTMLElement | null) ?? 'body'
 	open.value = true
 	await nextTick()
 	const { offsetWidth: w, offsetHeight: h } = card.value!
@@ -63,7 +65,7 @@ onBeforeUnmount(() => (open.value = false))
 		>
 			<IconHelpCircle class="h-4 w-4" />
 		</button>
-		<Teleport to="body">
+		<Teleport :to="host">
 			<div
 				v-if="open"
 				ref="card"

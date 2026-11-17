@@ -13,6 +13,7 @@ const props = withDefaults(
 		columns: Record<string, unknown>[]
 		loading?: boolean
 		emptyText?: string
+		emptyDescription?: string
 	}>(),
 	{ emptyText: 'Tidak ada data' }
 )
@@ -95,7 +96,7 @@ const alignClass = (a?: string) => (a === 'right' ? 'text-right' : a === 'center
 				</tr>
 				<tr v-else-if="!columns.length">
 					<td :colspan="rows.length" class="py-10">
-						<EmptyState :title="emptyText" />
+						<EmptyState :title="emptyText" :description="emptyDescription" />
 					</td>
 				</tr>
 				<tr

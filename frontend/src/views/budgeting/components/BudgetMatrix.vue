@@ -7,7 +7,7 @@ import Button from '@/components/base/Button.vue'
 import Amount from '@/components/base/Amount.vue'
 import Checkbox from '@/components/base/Checkbox.vue'
 import HelpTip from '@/components/base/HelpTip.vue'
-import { codeExample, months, sectionRank, sumDocument, sumLine, type BudgetAccount, type BudgetLine } from '../types'
+import { codeExample, monthNames, months, sectionRank, sumDocument, sumLine, type BudgetAccount, type BudgetLine } from '../types'
 
 const props = defineProps<{
 	lines: BudgetLine[]
@@ -34,6 +34,7 @@ const freezeTotal = ref(true)
 const expanded = reactive<Record<string, boolean>>({})
 const fillValues = reactive<Record<string, string>>({})
 const hasActions = computed(() => !props.revision && !props.readonly)
+const headRows = props.revision ? 3 : 2
 const ytdCaption = computed(() => props.ytdLabel ?? `Jan–${months[new Date().getMonth() - 1] ?? '—'} ${new Date().getFullYear()}`)
 const accountRows = computed<BudgetAccount[]>(() => {
 	const result = new Map<number, BudgetAccount>((hasActions.value ? props.accounts : []).map((account) => [account.id, account]))
@@ -113,11 +114,16 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 <template>
 	<div class="space-y-3">
 		<div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-			<Input v-model="query" placeholder="Cari akun (kode / nama)…" class="!w-64"
-				><template #suffix
-					><Button v-if="query" variant="subtle" size="sm" aria-label="Hapus pencarian" @click="query = ''"
-						><IconX class="h-4 w-4" /></Button></template
-			></Input>
+			<div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+				<Input v-model="query" placeholder="Cari akun (kode / nama)…" class="!w-64"
+					><template #suffix
+						><Button v-if="query" variant="subtle" size="sm" aria-label="Hapus pencarian" @click="query = ''"
+							><IconX class="h-4 w-4" /></Button></template
+				></Input>
+				<template v-if="revision"
+					><Checkbox v-model="freezeYtd" label="Freeze Capaian YTD" /><Checkbox v-model="freezeTotal" label="Freeze Total Budget"
+				/></template>
+			</div>
 			<div class="flex flex-wrap gap-x-6 gap-y-2 text-s text-ink-muted">
 				<span v-if="revision"
 					>Budget awal <strong class="ml-1 text-ink"><Amount :value="initialTotal" /></strong
@@ -133,9 +139,6 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 				>
 			</div>
 		</div>
-		<div v-if="revision" class="flex flex-wrap items-center gap-x-6 gap-y-1">
-			<Checkbox v-model="freezeYtd" label="Freeze Capaian YTD" /><Checkbox v-model="freezeTotal" label="Freeze Total Budget" />
-		</div>
 		<div class="matrix-scroll overflow-auto rounded-md">
 			<table
 				class="matrix w-full text-s"
@@ -146,12 +149,12 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 			>
 				<thead>
 					<tr>
-						<th v-if="hasActions" rowspan="2" class="sticky-col action-col">Aksi</th>
-						<th rowspan="2" class="sticky-col name-col">
+						<th v-if="hasActions" :rowspan="headRows" class="sticky-col action-col">Aksi</th>
+						<th :rowspan="headRows" class="sticky-col name-col">
 							Akun / Rincian <span v-if="hasActions" class="text-danger">*</span
 							><span class="block text-xs font-normal">Kode rincian + deskripsi</span>
 						</th>
-						<th rowspan="2" class="sticky-col ytd-col text-center">
+						<th :rowspan="headRows" class="sticky-col ytd-col text-center">
 							Capaian YTD<br /><span class="inline-flex items-center gap-1 text-xs font-normal"
 								><IconLock v-if="ytdFrozen" class="h-3 w-3" title="Dibekukan saat disetujui" />{{ ytdCaption }}</span
 							><Checkbox
@@ -163,14 +166,22 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 							/>
 						</th>
 						<th v-for="q in 4" :key="q" :colspan="revision ? 6 : 3" class="quarter">Q{{ q }} (Quarter {{ q }})</th>
-						<th rowspan="2" class="sticky-col total-col text-right">{{ revision ? 'Budget Total' : 'Total' }}</th>
-						<th v-if="revision" rowspan="2" class="sticky-col revised-col text-right">Total Setelah Revisi</th>
-						<th v-if="revision" rowspan="2" class="sticky-col pct-col text-right">(%)</th>
+						<th :rowspan="headRows" class="sticky-col total-col text-right">{{ revision ? 'Budget Total' : 'Total' }}</th>
+						<th v-if="revision" :rowspan="headRows" class="sticky-col revised-col text-right">Total Setelah Revisi</th>
+						<th v-if="revision" :rowspan="headRows" class="sticky-col pct-col text-right">(%)</th>
 					</tr>
+					<!-- revision: month group row ("Januari" over Budget | Revisi); budget: the month label itself -->
 					<tr>
+						<template v-if="revision"
+							><th v-for="name in monthNames" :key="name" colspan="2" class="month">{{ name }}</th></template
+						><template v-else
+							><th v-for="m in months" :key="m" class="number-col">{{ m }}</th></template
+						>
+					</tr>
+					<tr v-if="revision">
 						<template v-for="m in months" :key="m"
-							><th v-if="revision" class="number-col">Budget {{ m }}</th>
-							<th class="number-col">{{ revision ? 'Revisi ' : '' }}{{ m }}</th></template
+							><th class="number-col">Budget</th>
+							<th class="number-col">Revisi</th></template
 						>
 					</tr>
 				</thead>
@@ -391,9 +402,14 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 	top: 0;
 	background: rgb(var(--c-fill));
 	color: rgb(var(--c-ink-muted));
+	border-bottom: 0; /* grey band, no lines between the header rows */
 }
 .matrix thead tr:nth-child(2) th {
 	top: 50px;
+	height: 34px;
+}
+.matrix thead tr:nth-child(3) th {
+	top: 84px;
 }
 .matrix .quarter {
 	text-align: center;

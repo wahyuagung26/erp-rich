@@ -8,9 +8,12 @@ import { errorMessage } from '@/utils/errorMessage'
 import PageHeader from '@/components/base/PageHeader.vue'
 import Panel from '@/components/base/Panel.vue'
 import Button from '@/components/base/Button.vue'
+import EmptyState from '@/components/base/EmptyState.vue'
+import Spinner from '@/components/base/Spinner.vue'
 import Select from '@/components/base/Select.vue'
 import AsyncSelect from '@/components/base/AsyncSelect.vue'
 import Checkbox from '@/components/base/Checkbox.vue'
+import HelpTip from '@/components/base/HelpTip.vue'
 import FormField from '@/components/base/FormField.vue'
 import Modal from '@/components/base/Modal.vue'
 import RealizationMatrix from '../components/RealizationMatrix.vue'
@@ -44,6 +47,10 @@ const cutoff = computed(() => {
 	if (Number(year.value) < thisYear) return 12
 	return Number(year.value) > thisYear ? 0 : new Date().getMonth()
 })
+const dataHelp = computed(() => [
+	'Angka realisasi adalah data contoh prototipe, belum terhubung ke jurnal.',
+	`Jumlah YTD mencakup Januari sampai ${cutoff.value ? months[cutoff.value - 1] : 'bulan terakhir yang selesai (belum ada)'}.`
+])
 let generation = 0
 async function fetchRows(dept: number | string, showUnbudgeted: boolean) {
 	const result = await api.get<{ data: { rows: RealizationRow[] } }>('/budgeting/realization', {
@@ -168,17 +175,19 @@ onMounted(() => {
 						:option-label="deptLabel"
 						placeholder="Pilih departemen"
 						@select="(row) => (departmentName = row ? `${row.code} — ${row.name}` : '')" /></FormField
-				><Button :loading="loading" @click="load"><IconSearch v-if="!loading" class="h-4 w-4" /> Tampilkan Data</Button>
+				><Button class="sm:justify-self-start" :loading="loading" @click="load"><IconSearch v-if="!loading" class="h-4 w-4" /> Tampilkan Data</Button>
 			</div>
 			<Checkbox v-if="scope !== 'none'" v-model="unbudgeted" label="Tampilkan juga akun yang punya realisasi tapi tidak dianggarkan" />
-			<div v-if="loading" class="py-10 text-center text-ink-muted">Memuat data…</div>
-			<div v-else-if="!loaded" class="py-10 text-center text-ink-subtle">Pilih cakupan lalu tampilkan data realisasi.</div>
+			<div v-if="loading" class="flex flex-col items-center gap-2 py-16 text-ink-muted">
+				<Spinner :size="24" />
+				<p class="text-s">Memuat data…</p>
+			</div>
+			<EmptyState v-else-if="!loaded" class="!py-16" title="Belum ada data ditampilkan" description="Pilih cakupan, lalu tekan Tampilkan Data." />
 			<section v-else class="space-y-3">
-				<h3 class="subhead">Perbandingan Budget dan Realisasi: {{ resultTitle }}</h3>
-				<p class="text-s text-ink-muted">
-					Angka realisasi adalah data contoh prototipe, belum terhubung ke jurnal. Jumlah YTD mencakup Januari sampai
-					{{ cutoff ? months[cutoff - 1] : 'bulan terakhir yang selesai (belum ada)' }}.
-				</p>
+				<div class="flex items-center gap-1">
+					<h3 class="subhead">Perbandingan Budget dan Realisasi: {{ resultTitle }}</h3>
+					<HelpTip title="Tentang data ini" :text="dataHelp" />
+				</div>
 				<RealizationMatrix
 					v-if="rows.length"
 					:rows="rows"
@@ -189,9 +198,15 @@ onMounted(() => {
 					:no-department="scope === 'none'"
 					@update:all-ytd="allYtd = $event"
 				/>
-				<p v-else class="py-10 text-center text-ink-subtle">
-					Belum ada data Budget atau Realisasi untuk departemen dan tahun yang dipilih. Coba pilih filter lain atau hitung ulang realisasi.
-				</p>
+				<EmptyState
+					v-else
+					class="!py-16"
+					title="Belum ada data Budget atau Realisasi"
+					description="Untuk departemen dan tahun yang dipilih. Coba pilih filter lain atau hitung ulang realisasi."
+					><Button class="mt-3" size="sm" variant="outline" @click="openRecalc"
+						><IconRefresh class="h-4 w-4" /> Hitung Ulang Realisasi</Button
+					></EmptyState
+				>
 			</section>
 		</Panel>
 		<Modal :open="recalcOpen" title="Hitung Ulang Realisasi Budget" @close="recalcOpen = false">

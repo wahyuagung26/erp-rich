@@ -3,11 +3,13 @@ import { computed, reactive, ref } from 'vue'
 import { IconArrowsMaximize, IconChevronDown, IconChevronRight, IconX } from '@tabler/icons-vue'
 import Input from '@/components/base/Input.vue'
 import Checkbox from '@/components/base/Checkbox.vue'
+import HelpTip from '@/components/base/HelpTip.vue'
 import Amount from '@/components/base/Amount.vue'
 import VarianceAmount from './VarianceAmount.vue'
 import Button from '@/components/base/Button.vue'
 import Badge from '@/components/base/Badge.vue'
-import { months, sectionRank, type RealizationRow } from '../types'
+import EmptyState from '@/components/base/EmptyState.vue'
+import { monthNames, months, sectionRank, type RealizationRow } from '../types'
 
 const props = defineProps<{
 	rows: RealizationRow[]
@@ -21,6 +23,12 @@ const emit = defineEmits<{ 'update:allYtd': [boolean] }>()
 const query = ref('')
 const freezeYtd = ref(true)
 const freezeTotal = ref(true)
+const varianceHelp = [
+	'Selisih hijau = lebih baik dari budget (biaya hemat atau pendapatan melampaui target); merah = over budget atau di bawah target.',
+	'Sub-total dan total = Realisasi dikurangi Budget.',
+	'Persentase = Realisasi dibanding Budget. Pendapatan: di atas 100% hijau, di bawah 80% merah. Biaya: di atas 100% merah, di bawah 80% hijau. 80–100% oranye.',
+	'Budget kosong memakai pembagi 100 agar over budget tetap terlihat.'
+]
 const expanded = reactive<Record<string, boolean>>({})
 const container = ref<HTMLElement>()
 const cutoff = computed(() => (props.year < new Date().getFullYear() ? 12 : props.year > new Date().getFullYear() ? 0 : new Date().getMonth()))
@@ -87,44 +95,33 @@ async function fullscreen() {
 </script>
 <template>
 	<div ref="container" class="space-y-3 bg-panel p-1">
-		<div class="flex flex-wrap items-center justify-between gap-3">
-			<Input v-model="query" placeholder="Cari akun (kode / nama)…" class="!w-64"
-				><template #suffix
-					><Button v-if="query" variant="subtle" size="sm" aria-label="Hapus pencarian" @click="query = ''"
-						><IconX class="h-4 w-4" /></Button></template
-			></Input>
-			<div class="flex flex-wrap items-center gap-4 text-s text-ink-muted">
+		<div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+			<div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+				<Input v-model="query" placeholder="Cari akun (kode / nama)…" class="!w-64"
+					><template #suffix
+						><Button v-if="query" variant="subtle" size="sm" aria-label="Hapus pencarian" @click="query = ''"
+							><IconX class="h-4 w-4" /></Button></template
+				></Input>
+				<Checkbox v-model="freezeYtd" label="Freeze Budget YTD" /><Checkbox v-model="freezeTotal" label="Freeze Total Budget" />
+			</div>
+			<div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-s text-ink-muted">
 				<span
 					>Budget <strong class="text-ink"><Amount :value="totalBudget" /></strong></span
 				><span
 					>Realisasi <strong class="text-ink"><Amount :value="totalActual" /></strong></span
-				><span
-					>Selisih <strong class="text-ink"><VarianceAmount :value="totalActual - totalBudget" /></strong></span
-				><Button size="sm" variant="outline" @click="fullscreen"><IconArrowsMaximize class="h-4 w-4" /> Layar penuh</Button>
+				><span class="inline-flex items-center gap-1"
+					>Selisih <strong class="text-ink"><VarianceAmount :value="totalActual - totalBudget" /></strong
+					><HelpTip title="Cara membaca selisih dan persentase" :text="varianceHelp"
+				/></span>
+				<Button size="sm" variant="outline" @click="fullscreen"><IconArrowsMaximize class="h-4 w-4" /> Layar penuh</Button>
 			</div>
-		</div>
-		<p class="text-s text-ink-muted">
-			Selisih: hijau = lebih baik dari budget (biaya hemat atau pendapatan melampaui target), merah = over budget atau di bawah target; sub-total dan
-			total = Realisasi dikurangi Budget. Persentase = Realisasi dibanding Budget: pendapatan di atas 100% hijau, di bawah 80% merah; biaya di atas
-			100% merah, di bawah 80% hijau; 80–100% oranye. Budget kosong memakai pembagi 100 agar over budget tetap terlihat.
-		</p>
-		<div class="flex flex-wrap gap-4">
-			<Checkbox v-model="freezeYtd" label="Freeze Budget YTD" /><Checkbox v-model="freezeTotal" label="Freeze Total Budget" />
 		</div>
 		<div class="matrix-scroll overflow-auto rounded-md">
 			<table class="matrix text-s" :class="{ 'freeze-ytd': freezeYtd, 'freeze-total': freezeTotal }">
 				<thead>
 					<tr>
 						<th rowspan="3" class="sticky-col account-col">Akun / Rincian</th>
-						<th colspan="4">
-							Budget YTD · Jan–{{ cutoff ? months[cutoff - 1] : '—' }} {{ year }}
-							<Checkbox
-								v-if="showAllYtd"
-								:model-value="allYtd"
-								label="Tampilkan Semua Departemen"
-								@update:model-value="emit('update:allYtd', $event)"
-							/>
-						</th>
+						<th colspan="4" class="ytd-group">Budget YTD · Jan–{{ cutoff ? months[cutoff - 1] : '—' }} {{ year }}</th>
 						<th v-for="q in 4" :key="q" colspan="12">Q{{ q }} (Quarter {{ q }})</th>
 						<th rowspan="3" class="total-col t1">Budget Total<br />(1 tahun)</th>
 						<th rowspan="3" class="total-col t2">Aktual Total<br />(Periode Berjalan)</th>
@@ -132,8 +129,17 @@ async function fullscreen() {
 						<th rowspan="3" class="total-col t4">(%)</th>
 					</tr>
 					<tr>
-						<th colspan="4">Berjalan</th>
-						<th v-for="m in months" :key="m" colspan="4">{{ m }}</th>
+						<th colspan="4" class="ytd-group">
+							<!-- "Semua departemen" scope already sums every department: shown ticked and locked -->
+							<Checkbox
+								:model-value="showAllYtd ? allYtd : true"
+								:disabled="!showAllYtd"
+								label="Tampilkan Semua Departemen"
+								class="!text-xs !font-normal"
+								@update:model-value="emit('update:allYtd', $event)"
+							/>
+						</th>
+						<th v-for="name in monthNames" :key="name" colspan="4">{{ name }}</th>
 					</tr>
 					<tr>
 						<th v-for="(label, i) in ['YTD Budget', 'Actual YTD', 'Selisih', '%']" :key="label" :class="`ytd-col y${i + 1}`">{{ label }}</th>
@@ -230,9 +236,6 @@ async function fullscreen() {
 							<td class="total-col t4" :class="agg(categoryRows(group.capex)).tone">{{ agg(categoryRows(group.capex)).pct }}</td>
 						</tr>
 					</template>
-					<tr v-if="!groups.length">
-						<td colspan="57" class="text-center text-ink-subtle">Tidak ada akun untuk pilihan ini.</td>
-					</tr>
 				</tbody>
 				<tfoot>
 					<tr>
@@ -255,6 +258,7 @@ async function fullscreen() {
 				</tfoot>
 			</table>
 		</div>
+		<EmptyState v-if="!groups.length" title="Akun tidak ditemukan" description="Ubah kata kunci pencarian untuk melihat akun lain." />
 	</div>
 </template>
 <style scoped>
@@ -297,11 +301,20 @@ async function fullscreen() {
 	color: rgb(var(--c-ink-muted));
 	text-align: center;
 }
+.matrix thead th {
+	border-bottom: 0; /* grey band, no lines between the header rows */
+}
+/* Fixed row heights so the sticky tops below always meet: no white seam between header rows. */
+.matrix thead tr:nth-child(1) th {
+	height: 40px;
+}
 .matrix thead tr:nth-child(2) th {
-	top: 43px;
+	top: 40px;
+	height: 34px;
 }
 .matrix thead tr:nth-child(3) th {
-	top: 76px;
+	top: 74px;
+	height: 34px;
 }
 .matrix .sticky-col {
 	position: sticky;
@@ -333,6 +346,11 @@ async function fullscreen() {
 }
 .freeze-ytd .y4 {
 	left: 596px;
+}
+/* The YTD group headers (title + Berjalan) span the four pinned columns, so they pin at the same left offset. */
+.freeze-ytd .ytd-group {
+	left: 260px;
+	z-index: 6;
 }
 .freeze-total .total-col {
 	position: sticky;
@@ -379,6 +397,10 @@ async function fullscreen() {
 .matrix tfoot .ytd-col,
 .matrix tfoot .total-col {
 	z-index: 6;
+}
+/* Footer label stays above the other footer cells while they scroll under it (same z-index + later DOM order painted them over it). */
+.matrix tfoot .account-col {
+	z-index: 8;
 }
 .matrix .y4,
 .matrix .t4 {

@@ -143,7 +143,8 @@ onMounted(() => {
 					:rows="availRows"
 					:columns="avail.columns.value as unknown as Record<string, unknown>[]"
 					:loading="avail.loading.value"
-					empty-text="Tidak ada Master Budget yang cocok. Semua yang disetujui sudah punya dokumen revisi."
+					empty-text="Tidak ada Master Budget yang cocok"
+					empty-description="Semua budget yang disetujui sudah punya dokumen revisi."
 					@handle-sort="avail.handleSort"
 				>
 					<template #table-content="{ row, column }">
@@ -191,7 +192,8 @@ onMounted(() => {
 					:rows="doneRows"
 					:columns="done.columns.value as unknown as Record<string, unknown>[]"
 					:loading="done.loading.value"
-					empty-text="Tidak ada dokumen revisi budget yang cocok. Buka tab Belum Ada Revisi, pilih Master Budget, lalu klik Revisi Budget."
+					empty-text="Tidak ada dokumen revisi yang cocok"
+					empty-description="Buka tab Belum Ada Revisi, pilih Master Budget, lalu klik Revisi Budget."
 					@handle-sort="done.handleSort"
 					@row-dblclick="(r) => router.push(`/budgeting/revisions/${r.id}`)"
 				>
