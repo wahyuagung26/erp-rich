@@ -46,7 +46,10 @@ function mark() {
 }
 
 onMounted(() => nextTick(mark))
-watch(() => props.weeks.join(), () => nextTick(mark))
+watch(
+	() => props.weeks.join(),
+	() => nextTick(mark)
+)
 </script>
 
 <template>
@@ -63,19 +66,3 @@ watch(() => props.weeks.join(), () => nextTick(mark))
 		</div>
 	</div>
 </template>
-
-<style scoped>
-/* keep the scrollbar visible (macOS hides it until you scroll, so people think the grid cannot scroll) */
-.outlook-scroll::-webkit-scrollbar {
-	height: 14px;
-	width: 14px;
-}
-.outlook-scroll::-webkit-scrollbar-track {
-	background: rgb(var(--c-fill));
-}
-.outlook-scroll::-webkit-scrollbar-thumb {
-	background: rgb(var(--c-ink-subtle));
-	border-radius: 7px;
-	border: 3px solid rgb(var(--c-fill));
-}
-</style>

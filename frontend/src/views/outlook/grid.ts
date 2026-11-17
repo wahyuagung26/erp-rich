@@ -7,23 +7,25 @@ export const negative = (v: number | null | undefined) => (v ?? 0) < 0
 
 export const pct = (v: number | null | undefined) => (v == null ? '-' : `${v.toFixed(1).replace('.', ',')}%`)
 
-// Achievement band (legacy ACH_RED_MAX 80 / ACH_GREEN_MIN 100), compared at 1 decimal; Cash Out is reversed (spending low = good).
-export function achClass(v: number | null | undefined, flow: Flow): string {
-	if (v == null) return 'bg-fill text-ink-muted'
+// % Ach cell colour, as in the legacy sheet: solid status fill with white bold text (Daily and Resume Weekly).
+// Band (legacy ACH_RED_MAX 80 / ACH_GREEN_MIN 100), compared at 1 decimal; Cash Out is reversed (spending low = good).
+export function achSolid(v: number | null | undefined, flow: Flow): string {
+	if (v == null) return 'text-ink-subtle'
 	const r = Math.round(v * 10) / 10
 	const out = flow === 'CASH_OUT'
 	const band = r <= 80 ? (out ? 'good' : 'bad') : r < 100 ? 'mid' : out ? 'bad' : 'good'
-	return band === 'good' ? 'bg-success text-ink-invert' : band === 'bad' ? 'bg-danger text-ink-invert' : 'bg-warning text-ink-invert'
+	return band === 'good' ? 'bg-success font-semibold text-ink-invert' : band === 'bad' ? 'bg-danger font-semibold text-ink-invert' : 'bg-warning font-semibold text-ink-invert'
 }
 
-// Level-2 rows are tinted per level-1 group (decision 14-C5); the closed palette gives 6 tints that cycle.
+// Only rows that have children are tinted (owner 2026-11-18; before, every level-2 row was, leaf or not). The tint is per level-1
+// group, so a parent and its sub-parents share it; the closed palette gives 6 tints that cycle.
 const TINTS = ['bg-info-soft', 'bg-warning-soft', 'bg-success-soft', 'bg-primary-soft', 'bg-danger-soft', 'bg-fill']
-export function level2Tints(rows: { id: number; depth: number }[]): Record<number, string> {
+export function parentTints(rows: { id: number; depth: number; is_leaf: boolean }[]): Record<number, string> {
 	const out: Record<number, string> = {}
 	let g = -1
 	for (const r of rows) {
 		if (r.depth === 1) g++
-		if (r.depth === 2) out[r.id] = TINTS[g % TINTS.length]
+		if (!r.is_leaf) out[r.id] = TINTS[Math.max(g, 0) % TINTS.length]
 	}
 	return out
 }

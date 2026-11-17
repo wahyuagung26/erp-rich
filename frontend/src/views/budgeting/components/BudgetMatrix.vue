@@ -175,12 +175,12 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 						<template v-if="revision"
 							><th v-for="name in monthNames" :key="name" colspan="2" class="month">{{ name }}</th></template
 						><template v-else
-							><th v-for="m in months" :key="m" class="number-col">{{ m }}</th></template
+							><th v-for="(m, i) in months" :key="m" :class="['number-col', i % 3 === 0 && 'grp']">{{ m }}</th></template
 						>
 					</tr>
 					<tr v-if="revision">
 						<template v-for="m in months" :key="m"
-							><th class="number-col">Budget</th>
+							><th class="number-col grp">Budget</th>
 							<th class="number-col">Revisi</th></template
 						>
 					</tr>
@@ -191,7 +191,11 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 							<th class="sticky-col group-label" :colspan="hasActions ? 2 : 1">
 								{{ group.capex ? 'CAPEX — BELANJA MODAL / ASET' : 'OPEX — BIAYA OPERASIONAL' }}
 							</th>
-							<td :colspan="revision ? 28 : 14" />
+							<td class="sticky-col ytd-col" />
+							<td :colspan="revision ? 24 : 12" class="months-band" />
+							<td class="sticky-col total-col" />
+							<td v-if="revision" class="sticky-col revised-col" />
+							<td v-if="revision" class="sticky-col pct-col" />
 						</tr>
 						<tr class="section-row">
 							<th class="sticky-col group-label" :colspan="hasActions ? 2 : 1">
@@ -200,7 +204,11 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 									<span class="text-s font-normal text-ink-muted">· {{ lines.filter((l) => l.section === group.name).length }} rincian</span>
 								</button>
 							</th>
-							<td :colspan="revision ? 28 : 14" />
+							<td class="sticky-col ytd-col" />
+							<td :colspan="revision ? 24 : 12" class="months-band" />
+							<td class="sticky-col total-col" />
+							<td v-if="revision" class="sticky-col revised-col" />
+							<td v-if="revision" class="sticky-col pct-col" />
 						</tr>
 						<template v-if="expanded[group.name] || query" v-for="account in group.accounts" :key="account.id">
 							<tr class="account-row">
@@ -213,10 +221,12 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 								<td class="sticky-col ytd-col text-right"><Amount v-if="ytd" :value="ytd[account.code] ?? 0" /><span v-else>—</span></td>
 								<template v-if="linesFor(account.id).length"
 									><template v-for="(_, i) in months" :key="i"
-										><td v-if="revision" class="text-right"><Amount :value="monthTotal(account.id, i, true)" /></td>
-										<td class="text-right"><Amount :value="monthTotal(account.id, i)" /></td></template
+										><td v-if="revision" class="grp text-right"><Amount :value="monthTotal(account.id, i, true)" /></td>
+										<td :class="['text-right', !revision && i % 3 === 0 && 'grp']"><Amount :value="monthTotal(account.id, i)" /></td></template
 								></template>
-								<td v-else :colspan="revision ? 24 : 12" class="text-center text-ink-subtle">Klik + untuk menambah rincian budget pada akun ini.</td>
+								<td v-else :colspan="revision ? 24 : 12" class="months-band text-center text-ink-subtle">
+									Klik + untuk menambah rincian budget pada akun ini.
+								</td>
 								<td class="sticky-col total-col text-right"><Amount :value="amountTotal(account.id, revision)" /></td>
 								<td v-if="revision" class="sticky-col revised-col text-right"><Amount :value="amountTotal(account.id)" /></td>
 								<td v-if="revision" class="sticky-col pct-col text-right">{{ pct(amountTotal(account.id, true), amountTotal(account.id)) }}</td>
@@ -273,8 +283,14 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 								</td>
 								<td class="sticky-col ytd-col" />
 								<template v-for="(m, i) in months" :key="m"
-									><td v-if="revision" class="text-right"><Amount :value="initialLines[item.index]?.months[i]" /></td>
-									<td :class="{ 'text-right': readonly, 'relative !p-0': !readonly && !(revision && i < start - 1) }">
+									><td v-if="revision" class="grp text-right"><Amount :value="initialLines[item.index]?.months[i]" /></td>
+									<td
+										:class="{
+											'text-right': readonly,
+											'relative !p-0': !readonly && !(revision && i < start - 1),
+											grp: !revision && i % 3 === 0
+										}"
+									>
 										<Amount v-if="readonly" :value="item.line.months[i]" />
 										<span v-else-if="revision && i < start - 1" class="flex justify-end gap-1 text-ink-muted"
 											><HelpTip text="Bulan sebelum periode revisi mengikuti budget awal." /><Amount :value="item.line.months[i]" muted /></span
@@ -307,7 +323,7 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 								<Amount v-if="ytd" :value="ytdTotal(groups.filter((g) => g.capex === group.capex).flatMap((g) => g.accounts))" /><span v-else>—</span>
 							</td>
 							<template v-for="(_, i) in months" :key="i"
-								><td v-if="revision" class="text-right">
+								><td v-if="revision" class="grp text-right">
 									<Amount
 										:value="
 											sectionTotal(
@@ -318,7 +334,7 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 										"
 									/>
 								</td>
-								<td class="text-right">
+								<td :class="['text-right', !revision && i % 3 === 0 && 'grp']">
 									<Amount
 										:value="
 											sectionTotal(
@@ -363,8 +379,9 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 							<Amount v-if="ytd" :value="ytdTotal(groups.flatMap((g) => g.accounts))" /><span v-else>—</span>
 						</td>
 						<template v-for="(_, i) in months" :key="i"
-							><td v-if="revision" class="text-right"><Amount :value="initialLines.reduce((n, l) => n + (l.months[i] ?? 0) * l.sign, 0)" /></td>
-							<td class="text-right"><Amount :value="lines.reduce((n, l) => n + (l.months[i] ?? 0) * l.sign, 0)" /></td
+							><td v-if="revision" class="grp text-right"><Amount :value="initialLines.reduce((n, l) => n + (l.months[i] ?? 0) * l.sign, 0)" /></td>
+							<td :class="['text-right', !revision && i % 3 === 0 && 'grp']">
+								<Amount :value="lines.reduce((n, l) => n + (l.months[i] ?? 0) * l.sign, 0)" /></td
 						></template>
 						<td class="sticky-col total-col text-right"><Amount :value="revision ? initialTotal : total" /></td>
 						<td v-if="revision" class="sticky-col revised-col text-right"><Amount :value="total" /></td>
@@ -544,5 +561,43 @@ function sectionTotal(accounts: BudgetAccount[], initial = false, month?: number
 .matrix.unfreeze-total tfoot .revised-col,
 .matrix.unfreeze-total tfoot .pct-col {
 	z-index: 3;
+}
+/* Vertical group separators: YTD | quarter (budget) or month pair (revision) | totals. Inset shadows keep cell widths and stay
+   continuous because rows touch. Spanned cells (band rows, empty account row) draw the same lines as a background; that relies on the
+   fixed 120px month columns (--grp = one group), the 140px YTD column and the table being wider than its container. */
+.matrix {
+	--sep: rgb(var(--c-ink-subtle) / 0.3);
+	--grp: 360px;
+}
+.matrix.revision {
+	--grp: 240px;
+}
+.matrix .total-col,
+.matrix .quarter,
+.matrix .month,
+.matrix .grp {
+	box-shadow: inset 1px 0 0 var(--sep);
+}
+/* Band rows keep real frozen YTD / Total cells (so a group line sliding under a frozen column is hidden in every row type alike);
+   only the month cells are one spanned cell, which draws the lines as a background (--grp = one group). */
+.matrix td.months-band {
+	background-image: linear-gradient(to right, var(--sep) 1px, transparent 1px);
+	background-size: var(--grp) 100%;
+	background-repeat: repeat-x;
+}
+/* Frozen YTD edge: the line belongs to the sticky cell (outer shadow lands on the first pixel of the next cell). */
+.matrix .ytd-col {
+	box-shadow:
+		inset 1px 0 0 var(--sep),
+		1px 0 0 var(--sep);
+}
+.matrix .group-row {
+	--sep: rgb(255 255 255 / 0.18);
+}
+.matrix tbody .group-row td.ytd-col,
+.matrix tbody .group-row td.total-col,
+.matrix tbody .group-row td.revised-col,
+.matrix tbody .group-row td.pct-col {
+	background-color: rgb(var(--c-ink-muted));
 }
 </style>

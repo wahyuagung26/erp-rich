@@ -152,7 +152,15 @@ async function fullscreen() {
 					<template v-for="(group, groupIndex) in groups" :key="group.name"
 						><tr v-if="!query && (groupIndex === 0 || groups[groupIndex - 1]?.capex !== group.capex)" class="group">
 							<th class="sticky-col account-col">{{ group.capex ? 'CAPEX — BELANJA MODAL / ASET' : 'OPEX — BIAYA OPERASIONAL' }}</th>
-							<td colspan="56" />
+							<td class="ytd-col y1" />
+							<td class="ytd-col y2" />
+							<td class="ytd-col y3" />
+							<td class="ytd-col y4" />
+							<td colspan="48" class="months-band" />
+							<td class="total-col t1" />
+							<td class="total-col t2" />
+							<td class="total-col t3" />
+							<td class="total-col t4" />
 						</tr>
 						<tr class="section">
 							<th class="sticky-col account-col">
@@ -163,7 +171,15 @@ async function fullscreen() {
 									· {{ group.rows.length }} akun
 								</button>
 							</th>
-							<td colspan="56" />
+							<td class="ytd-col y1" />
+							<td class="ytd-col y2" />
+							<td class="ytd-col y3" />
+							<td class="ytd-col y4" />
+							<td colspan="48" class="months-band" />
+							<td class="total-col t1" />
+							<td class="total-col t2" />
+							<td class="total-col t3" />
+							<td class="total-col t4" />
 						</tr>
 						<tr v-for="row in expanded[group.name] === false && !query ? [] : group.rows" :key="row.account_code">
 							<th class="sticky-col account-col">
@@ -401,6 +417,48 @@ async function fullscreen() {
 /* Footer label stays above the other footer cells while they scroll under it (same z-index + later DOM order painted them over it). */
 .matrix tfoot .account-col {
 	z-index: 8;
+}
+/* Vertical group separators: YTD | each month | totals. Inset shadows keep every cell's width, and stay continuous because
+   rows touch (fixed header heights). Cells run in groups of four: child 2, 6, 10 ... = first column of a group. */
+.matrix {
+	--sep: rgb(var(--c-ink-subtle) / 0.3);
+}
+.matrix tbody tr:not(.group):not(.section) > td:nth-child(4n + 2),
+.matrix tfoot td:nth-child(4n + 2),
+.matrix thead .ytd-group,
+.matrix thead .t1,
+.matrix thead tr:nth-child(1) th:nth-child(n + 3):nth-child(-n + 6),
+.matrix thead tr:nth-child(2) th,
+.matrix thead tr:nth-child(3) th:nth-child(4n + 1) {
+	box-shadow: inset 1px 0 0 var(--sep);
+}
+/* Band rows keep real frozen YTD / Total cells, so a group line sliding under a frozen column is hidden in every row type alike;
+   only the month cells are one spanned cell that draws the lines as a background (one month = 448px). */
+.matrix .months-band {
+	background-image: linear-gradient(to right, var(--sep) 1px, transparent 1px);
+	background-size: 448px 100%;
+	background-repeat: repeat-x;
+}
+/* Frozen YTD edge: the line belongs to the frozen cell (outer shadow lands on the first pixel of the next cell). */
+.matrix .y1,
+.matrix .t1 {
+	box-shadow: inset 1px 0 0 var(--sep);
+}
+.matrix .y4 {
+	box-shadow: 1px 0 0 var(--sep);
+}
+/* tr + th raise the specificity above the "row 2 / row 3 cells get a left line" rule above */
+.matrix thead tr th.ytd-group {
+	box-shadow:
+		inset 1px 0 0 var(--sep),
+		1px 0 0 var(--sep);
+}
+.matrix .group {
+	--sep: rgb(255 255 255 / 0.18);
+}
+.matrix .group td.ytd-col,
+.matrix .group td.total-col {
+	background-color: rgb(var(--c-ink-muted));
 }
 .matrix .y4,
 .matrix .t4 {

@@ -46,6 +46,45 @@
 	section:has(> .subhead, > div > .subhead) + section:has(> .subhead, > div > .subhead) {
 		@apply border-t border-hairline pt-8;
 	}
+	/* Outlook grids: spanned cells (category bands, add-row) draw the week lines as a background; --wk = one week, --sub = where its second
+	   group starts (Daily: OL|Actual|% Ach, then the 7 days; Resume: Bulan Berjalan, then Mingguan). Needs the fixed column widths. */
+	.weeks-band {
+		background-image:
+			linear-gradient(to right, var(--sep, rgb(var(--c-ink-subtle) / 0.3)) 1px, transparent 1px),
+			linear-gradient(to right, var(--sep, rgb(var(--c-ink-subtle) / 0.3)) 1px, transparent 1px);
+		background-size:
+			var(--wk) 100%,
+			var(--wk) 100%;
+		background-position:
+			0 0,
+			var(--sub) 0;
+		background-repeat: repeat-x;
+	}
+	/* Outlook Daily and Resume Weekly share one palette: peach Bulan Berjalan, green Mingguan / week summary (OL | Actual), grey % Ach.
+	   Opaque mixes of the success/warning tokens into the panel colour (translucent tints stacked on row tints and turned muddy).
+	   Components layer on purpose: the status colours of a % Ach cell are utilities and still win. */
+	/* body cells are the lightest step; a group's header and sub-headers share one colour (rs-*-h), the week band is stronger, like the legacy sheet */
+	.mtd-cell {
+		background-color: color-mix(in srgb, rgb(var(--c-warning)) 12%, rgb(var(--c-panel)));
+	}
+	.wk-cell {
+		background-color: color-mix(in srgb, rgb(var(--c-success)) 12%, rgb(var(--c-panel)));
+	}
+	.rs-week {
+		background-color: color-mix(in srgb, rgb(var(--c-warning)) 32%, rgb(var(--c-panel)));
+	}
+	.rs-mtd-h {
+		background-color: color-mix(in srgb, rgb(var(--c-warning)) 24%, rgb(var(--c-panel)));
+	}
+	.rs-wk-h {
+		background-color: color-mix(in srgb, rgb(var(--c-success)) 24%, rgb(var(--c-panel)));
+	}
+	.pct-cell {
+		background-color: rgb(var(--c-fill));
+	}
+	.outlook-band {
+		--sep: rgb(255 255 255 / 0.18);
+	}
 	.hairline {
 		@apply border-hairline;
 	}

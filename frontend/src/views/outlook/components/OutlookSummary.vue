@@ -4,6 +4,7 @@ import { IconAlertTriangle, IconCircleCheck, IconMinus, IconChartLine, IconScale
 import Panel from '@/components/base/Panel.vue'
 import StatTile from '@/components/base/StatTile.vue'
 import Badge from '@/components/base/Badge.vue'
+import HelpTip from '@/components/base/HelpTip.vue'
 import { money } from '@/utils/format'
 import { dmyFull } from '../grid'
 import type { OutlookStateFull, RekonStatus } from '../types'
@@ -27,36 +28,47 @@ const NOTE: Record<RekonStatus, string> = {
 	belum_diisi: 'Isi Saldo Awal Bank di baris Saldo Awal agar saldo akhir Outlook bisa dibandingkan.',
 	tidak_tersedia: 'Saldo Kas/Bank Harian gagal dibaca; muat ulang halaman.'
 }
+const TONE = { success: 'bg-success-soft text-success', danger: 'bg-danger-soft text-danger', neutral: 'bg-fill text-ink-muted' }
 const status = computed(() => STATUS[rekon.value.status])
 </script>
 
 <template>
 	<Panel>
+		<!-- plain divs, not <section>: the global "section + section" divider rule would add a top rule and 32px padding to the right column -->
 		<div class="grid gap-8 lg:grid-cols-2">
-			<section class="space-y-2">
-				<h3 class="subhead flex items-center gap-1.5"><IconChartLine class="h-4 w-4" /> Ringkasan</h3>
+			<div class="space-y-3">
+				<div class="flex flex-wrap items-center justify-between gap-2">
+					<h3 class="subhead flex items-center gap-1.5"><IconChartLine class="h-4 w-4" /> Ringkasan</h3>
+					<Badge v-if="!calc.saldo_awal_set" tone="warning" class="gap-1">
+						<IconAlertTriangle class="h-3.5 w-3.5" /> Saldo awal belum diisi
+						<HelpTip text="Saldo awal bank belum diisi, jadi saldo berjalan dihitung dari 0." />
+					</Badge>
+				</div>
 				<div class="grid grid-cols-2">
 					<StatTile label="Total Cash In (actual)" :value="money(calc.totals.CASH_IN.actual_total)" value-tone="success" />
 					<StatTile label="Total Cash Out (actual)" :value="money(calc.totals.CASH_OUT.actual_total)" value-tone="danger" />
 					<StatTile label="Surplus (Defisit)" :value="money(surplus)" :value-tone="surplus < 0 ? 'danger' : 'success'" />
 					<StatTile :label="`Saldo Akhir (${dmyFull(calc.saldo_akhir_date)})`" :value="money(calc.saldo_akhir)" />
 				</div>
-				<p v-if="!calc.saldo_awal_set" class="px-4 text-s text-ink-subtle">Saldo awal bank belum diisi; saldo berjalan dihitung dari 0.</p>
-			</section>
+			</div>
 
-			<section class="space-y-2">
-				<h3 class="subhead flex items-center gap-1.5"><IconScale class="h-4 w-4" /> Saldo Kas/Bank pada Akhir Bulan ({{ dmyFull(rekon.date) }})</h3>
-				<div class="grid grid-cols-2">
+			<div class="space-y-3 lg:border-l lg:border-hairline lg:pl-8">
+				<h3 class="subhead flex items-center gap-1.5">
+					<IconScale class="h-4 w-4" /> Saldo Kas/Bank Akhir Bulan <span class="text-s font-normal normal-case tracking-normal text-ink-muted">{{ dmyFull(rekon.date) }}</span>
+				</h3>
+				<div class="grid grid-cols-3">
 					<StatTile label="Saldo Akhir Outlook" :value="money(rekon.outlook)" />
 					<StatTile label="Saldo Kas/Bank Harian" :value="rekon.bank == null ? '-' : money(rekon.bank)" />
-					<StatTile label="Selisih (Outlook - Kas/Bank)" :value="rekon.selisih == null ? '-' : money(rekon.selisih)" :value-tone="rekon.selisih ? 'danger' : undefined" />
-					<div class="px-4 py-3">
-						<p class="text-s text-ink-muted">Status</p>
-						<Badge :tone="status.tone" class="mt-1.5 gap-1 text-m"><component :is="status.icon" class="h-4 w-4" /> {{ status.label }}</Badge>
-					</div>
+					<StatTile label="Selisih" :value="rekon.selisih == null ? '-' : money(rekon.selisih)" :value-tone="rekon.selisih ? 'danger' : undefined" />
 				</div>
-				<p class="px-4 text-s text-ink-subtle">{{ NOTE[rekon.status] }}</p>
-			</section>
+				<!-- the reconciliation result: status + what it means, tinted by tone (was a loose badge tile and a grey sentence) -->
+				<div :class="['flex items-start gap-2 rounded-md px-3 py-2.5 text-s', TONE[status.tone]]" role="status">
+					<component :is="status.icon" class="mt-0.5 h-4 w-4 shrink-0" />
+					<p>
+						<strong class="font-semibold">{{ status.label }}.</strong> {{ NOTE[rekon.status] }}
+					</p>
+				</div>
+			</div>
 		</div>
 	</Panel>
 </template>

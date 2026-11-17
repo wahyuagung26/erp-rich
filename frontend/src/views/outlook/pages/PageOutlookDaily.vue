@@ -22,7 +22,7 @@ import OutlookSummary from '../components/OutlookSummary.vue'
 import OutlookDailyGrid from '../components/OutlookDailyGrid.vue'
 import OutlookResumeGrid from '../components/OutlookResumeGrid.vue'
 import OutlookLampiran from '../components/OutlookLampiran.vue'
-import ColumnDateModal from '../components/ColumnDateModal.vue'
+import ColumnDatePopover from '../components/ColumnDatePopover.vue'
 import DuplicateModal from '../components/DuplicateModal.vue'
 import { fetchState, failText, useOutlookApi, type Written } from '../api'
 import { exportOutlook } from '../excel'
@@ -159,11 +159,11 @@ function removeCategory(row: OutlookRow) {
 }
 
 // ---- column dates ----
-const col = ref<{ open: boolean; week: number; slot: number }>({ open: false, week: 1, slot: 1 })
+const col = ref<{ open: boolean; week: number; slot: number; anchor: DOMRect | null }>({ open: false, week: 1, slot: 1, anchor: null })
 const colSaving = ref(false)
 const colWeek = computed(() => full.value?.weeks.find((w) => w.week_no === col.value.week) ?? null)
-function pick(week: number, slot: number) {
-	col.value = { open: true, week, slot }
+function pick(week: number, slot: number, el: HTMLElement) {
+	col.value = { open: true, week, slot, anchor: el.getBoundingClientRect() }
 }
 async function saveColumn(start: string, end: string, ok: boolean | string) {
 	const f = full.value
@@ -336,9 +336,10 @@ const tabs = [
 			</Panel>
 		</template>
 
-		<ColumnDateModal
+		<ColumnDatePopover
 			v-if="full"
 			:open="col.open"
+			:anchor="col.anchor"
 			:week="colWeek"
 			:slot="col.slot"
 			:year="full.period.year"

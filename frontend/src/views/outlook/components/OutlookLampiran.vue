@@ -150,7 +150,7 @@ const srcLabel = (s: string) => SRC.find((o) => o.value === s)?.label ?? '-'
 						<th :class="[stick('left-[48px]', 'w-[280px] min-w-[280px]'), 'top-0 z-[4] bg-fill px-2 text-left font-semibold']">Keterangan Pengeluaran (Unbudget)</th>
 						<th :class="[stick('left-[328px]', 'w-[128px] min-w-[128px]'), 'top-0 z-[4] border-r border-r-ink-subtle/30 bg-fill px-2 text-left font-semibold']">Sumber Dana</th>
 						<th v-for="d in days" :key="d" class="sticky top-0 z-[3] w-[100px] min-w-[100px] bg-fill px-1.5 text-center font-semibold">{{ d }}</th>
-						<th class="sticky top-0 z-[3] w-[120px] min-w-[120px] bg-fill px-1.5 text-center font-semibold">Total</th>
+						<th class="sticky top-0 z-[3] w-[120px] min-w-[120px] border-l border-l-ink-subtle/30 bg-fill px-1.5 text-center font-semibold">Total</th>
 						<th v-if="editable" class="sticky top-0 z-[3] w-[48px] min-w-[48px] bg-fill" />
 					</tr>
 				</thead>
@@ -193,7 +193,7 @@ const srcLabel = (s: string) => SRC.find((o) => o.value === s)?.label ?? '-'
 							/>
 							<template v-else>{{ r.hari[d] === undefined ? '' : cell(r.hari[d], true) }}</template>
 						</td>
-						<td :class="[base1, 'text-right font-semibold tnum', negative(rowTotal(r)) && 'text-danger']">{{ cell(rowTotal(r), true) }}</td>
+						<td :class="[base1, 'border-l border-l-ink-subtle/30 text-right font-semibold tnum', negative(rowTotal(r)) && 'text-danger']">{{ cell(rowTotal(r), true) }}</td>
 						<td v-if="editable" :class="[base1, 'text-center']">
 							<button type="button" title="Hapus baris" aria-label="Hapus baris" class="rounded p-1 text-ink-muted hover:bg-fill hover:text-danger" @click="remove(r)">
 								<IconTrash class="h-4 w-4" />
@@ -208,7 +208,7 @@ const srcLabel = (s: string) => SRC.find((o) => o.value === s)?.label ?? '-'
 						<td v-for="d in days" :key="d" :class="['sticky bottom-0 z-[1] bg-fill px-1.5 text-right tnum', negative(L.day_totals[d]) && 'text-danger']">
 							{{ L.day_totals[d] === undefined ? '' : cell(L.day_totals[d], true) }}
 						</td>
-						<td :class="['sticky bottom-0 z-[1] bg-fill px-1.5 text-right tnum', negative(L.total) && 'text-danger']">{{ money(L.total) }}</td>
+						<td :class="['sticky bottom-0 z-[1] border-l border-l-ink-subtle/30 bg-fill px-1.5 text-right tnum', negative(L.total) && 'text-danger']">{{ money(L.total) }}</td>
 						<td v-if="editable" class="sticky bottom-0 z-[1] bg-fill" />
 					</tr>
 				</tbody>

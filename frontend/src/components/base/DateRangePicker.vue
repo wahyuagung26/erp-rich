@@ -2,6 +2,9 @@
 // Date range with a popover calendar + presets. Dates are 'YYYY-MM-DD' strings.
 // Two v-models: <DateRangePicker v-model:from="a" v-model:to="b" @change="refetch" />
 // Click a day to start, click another to finish (order doesn't matter); presets apply at once.
+// `min` / `max` / `maxDays` disable days outside a window or too far from the first click, `:presets="false"` hides the shortcuts, and
+// `inline` renders just the calendar (no trigger box, no popover) for use inside another card: the first click already emits a
+// one-day range (from = to), the second extends it, and nothing closes.
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import dayjs, { type Dayjs } from 'dayjs'
 import 'dayjs/locale/id'
@@ -10,7 +13,22 @@ import { IconCalendar, IconChevronDown, IconChevronLeft, IconChevronRight } from
 // Optional third v-model for pages that filter by one of several dates ("Tanggal Invoice" / "Jatuh Tempo"):
 // <DateRangePicker v-model:from v-model:to v-model:field="dateField" :field-options="dateFieldOptions" @change="refetch" />
 // Changing the field also emits `change`, so one handler refetches for both.
-const props = defineProps<{ from?: string; to?: string; disabled?: boolean; field?: string; fieldOptions?: { label: string; value: string }[] }>()
+const props = withDefaults(
+	defineProps<{
+		from?: string
+		to?: string
+		disabled?: boolean
+		field?: string
+		fieldOptions?: { label: string; value: string }[]
+		min?: string
+		max?: string
+		maxDays?: number
+		initialMonth?: string // inline only: month shown when there is no `from` yet (default: the `min` month)
+		presets?: boolean
+		inline?: boolean
+	}>(),
+	{ presets: true }
+)
 const emit = defineEmits<{ 'update:from': [string]; 'update:to': [string]; 'update:field': [string]; change: [] }>()
 
 function onField(value: string) {
@@ -21,7 +39,7 @@ function onField(value: string) {
 const FMT = 'YYYY-MM-DD'
 const root = ref<HTMLElement>()
 const open = ref(false)
-const month = ref(dayjs().startOf('month')) // month shown in the calendar
+const month = ref(dayjs(props.inline ? props.from || props.initialMonth || props.min || undefined : undefined).startOf('month')) // month shown in the calendar
 const anchor = ref<string>() // first click of an in-progress range
 const hover = ref<string>()
 
@@ -47,6 +65,13 @@ const range = computed<[string, string] | null>(() => {
 	return props.from && props.to ? [props.from, props.to] : null
 })
 
+// Outside the min/max window, or farther than `maxDays` from the first click of an in-progress range.
+function isDisabled(d: Dayjs) {
+	const s = d.format(FMT)
+	if ((props.min && s < props.min) || (props.max && s > props.max)) return true
+	return !!(anchor.value && props.maxDays && Math.abs(d.diff(anchor.value, 'day')) + 1 > props.maxDays)
+}
+
 function state(d: Dayjs) {
 	const s = d.format(FMT)
 	const r = range.value
@@ -67,9 +92,14 @@ function commit(from: string, to: string) {
 }
 
 function pick(d: Dayjs) {
+	if (isDisabled(d)) return
 	const s = d.format(FMT)
 	if (!anchor.value) {
 		anchor.value = s
+		if (props.inline) {
+			emit('update:from', s)
+			emit('update:to', s)
+		}
 		return
 	}
 	commit(...((anchor.value <= s ? [anchor.value, s] : [s, anchor.value]) as [string, string]))
@@ -115,6 +145,7 @@ onBeforeUnmount(() => {
 	<div ref="root" class="relative w-full sm:w-auto">
 		<!-- one bordered box: with `fieldOptions` the "which date" select sits left of the range, so the two read as a single filter -->
 		<div
+			v-if="!inline"
 			class="flex h-[38px] w-full items-stretch rounded-md border border-ink-subtle/30 bg-panel text-m text-ink"
 			:class="[fieldOptions ? 'sm:w-[440px]' : 'sm:w-[280px]', disabled && 'bg-fill opacity-50']"
 		>
@@ -137,10 +168,14 @@ onBeforeUnmount(() => {
 		</div>
 
 		<div
-			v-if="open"
-			class="absolute left-0 top-full z-30 mt-1 flex max-w-[calc(100vw-2rem)] flex-col rounded-md bg-panel p-3 shadow-overlay sm:flex-row sm:gap-4"
+			v-if="open || inline"
+			:class="
+				inline
+					? 'flex flex-col'
+					: 'absolute left-0 top-full z-30 mt-1 flex max-w-[calc(100vw-2rem)] flex-col rounded-md bg-panel p-3 shadow-overlay sm:flex-row sm:gap-4'
+			"
 		>
-			<ul class="mb-3 flex shrink-0 flex-wrap gap-1 sm:mb-0 sm:w-36 sm:flex-col">
+			<ul v-if="presets && !inline" class="mb-3 flex shrink-0 flex-wrap gap-1 sm:mb-0 sm:w-36 sm:flex-col">
 				<li v-for="p in presets" :key="p.label">
 					<button type="button" class="w-full rounded-md px-2 py-1.5 text-left text-m text-ink hover:bg-fill" @click="applyPreset(p.get)">
 						{{ p.label }}
@@ -153,7 +188,7 @@ onBeforeUnmount(() => {
 				</li>
 			</ul>
 
-			<div class="w-[252px] shrink-0 self-center sm:self-start" @mouseleave="hover = undefined">
+			<div class="w-[252px] shrink-0 self-center sm:self-start" :class="inline && 'sm:self-center'" @mouseleave="hover = undefined">
 				<div class="mb-2 flex items-center justify-between">
 					<button
 						type="button"
@@ -182,7 +217,9 @@ onBeforeUnmount(() => {
 						:key="d.format(FMT)"
 						type="button"
 						class="tnum h-9 text-m"
+						:disabled="isDisabled(d)"
 						:class="[
+							isDisabled(d) ? 'cursor-not-allowed !text-ink-subtle/30 hover:!bg-transparent' : '',
 							state(d).edge ? 'rounded-md bg-primary text-white' : state(d).between ? 'bg-primary/10 text-ink' : 'rounded-md hover:bg-fill',
 							!state(d).edge && state(d).outside ? 'text-ink-subtle/60' : '',
 							!state(d).edge && !state(d).between && !state(d).outside ? 'text-ink' : '',
