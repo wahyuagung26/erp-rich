@@ -98,7 +98,7 @@ defineExpose({ setServerErrors })
 						>
 							<Input v-if="isEdit" :model-value="initial?.code ?? ''" mono disabled />
 							<div v-else class="flex items-stretch gap-1">
-								<Input :model-value="prefix" mono disabled align="right" class="w-16" />
+								<div class="w-16 shrink-0"><Input :model-value="prefix" mono disabled align="right" /></div>
 								<Input v-model="form.code_suffix" mono inputmode="numeric" maxlength="3" placeholder="001" />
 							</div>
 						</FormField>

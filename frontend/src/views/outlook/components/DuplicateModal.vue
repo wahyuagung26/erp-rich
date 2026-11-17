@@ -45,9 +45,12 @@ function submit() {
 				tujuan sudah ada, Anda akan diminta mengonfirmasi penggantian template.
 			</p>
 			<FormField label="Periode tujuan" :error="error">
+				<!-- sized wrappers: Select / Input are `w-full` themselves, so a flex-1 / w-28 class on them loses and the month box collapses to ~46px -->
 				<div class="flex gap-2">
-					<Select v-model="month" :options="MONTHS.map((m, i) => ({ label: m, value: String(i + 1) }))" class="flex-1" />
-					<Input v-model="year" type="number" inputmode="numeric" aria-label="Tahun tujuan" mono class="w-28" @keydown.enter.prevent="submit" />
+					<div class="min-w-0 flex-1"><Select v-model="month" :options="MONTHS.map((m, i) => ({ label: m, value: String(i + 1) }))" /></div>
+					<div class="w-28 shrink-0">
+						<Input v-model="year" type="number" inputmode="numeric" aria-label="Tahun tujuan" mono @keydown.enter.prevent="submit" />
+					</div>
 				</div>
 			</FormField>
 		</div>

@@ -167,7 +167,7 @@ Full rules in `DESIGN_SYSTEM.md`. Enforced expectations when adding UI:
   expected, not instant-filter-as-you-type alone.
 - `Input` has a `#suffix` slot (trailing icon/button, e.g. password toggle) and an `addon` prop
   (unit label glued to the right, e.g. `addon="hari"`). `class` passed to `Input` sizes the wrapper,
-  not the `<input>` itself.
+  not the `<input>` itself. Same for `Select`: both are `w-full` themselves, so a plain `w-24` / `flex-1` class on them loses and the box collapses or stretches (Duplikasi modal month box was 46px and read blank). Use `!w-*`, `max-w-*`, or put the component in a sized wrapper (`<div class="w-24 shrink-0">`).
 
 `views/auth/LoginView.vue` keeps the legacy split-screen layout and navy Rahadhyan brand panel, but
 the form uses design-system components (`<Input>`, `<Button>`, `<FormField>`, tokens). Its card has
