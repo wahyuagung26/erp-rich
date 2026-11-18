@@ -49,31 +49,34 @@ function amounts(quantity: number, price: number, isPkp: boolean) {
 	return { dpp, ppn, total: dpp + ppn }
 }
 
-// Quantity of `productId` already returned on this invoice by OTHER returns (any approval status).
-const returnedBefore = (invoiceId: number, productId: number, exceptId = 0) =>
+// Quantity of `variantId` already returned on this invoice by OTHER returns (any approval status).
+const returnedBefore = (invoiceId: number, variantId: number, exceptId = 0) =>
 	db.purchaseReturn
 		.filter((item) => item.purchase_invoice_id === invoiceId && item.id !== exceptId)
 		.flatMap((item) => item.lines)
-		.filter((line) => line.product_id === productId)
+		.filter((line) => line.variant_id === variantId)
 		.reduce((sum, line) => sum + line.quantity, 0)
 
 function resolveLine(
 	invoice: PurchaseInvoice | undefined,
-	productId: number,
+	variantId: number,
 	quantity: number,
 	returnId: number,
 	isPkp: boolean
 ): PurchaseReturnLine {
-	const source = invoice?.lines.find((line) => line.product_id === productId)
+	const source = invoice?.lines.find((line) => line.variant_id === variantId)
 	const price = source?.price ?? 0
 	return {
-		product_id: productId,
+		variant_id: variantId,
+		product_id: source?.product_id ?? 0,
 		product_code: source?.product_code,
 		product_name: source?.product_name,
+		sku: source?.sku,
+		variant_label: source?.variant_label,
 		brand_name: source?.brand_name,
 		unit_name: source?.unit_name,
 		quantity_purchased: source?.quantity ?? 0,
-		quantity_returned_before: returnedBefore(invoice?.id ?? 0, productId, returnId),
+		quantity_returned_before: returnedBefore(invoice?.id ?? 0, variantId, returnId),
 		quantity,
 		price,
 		...amounts(quantity, price, isPkp)
@@ -105,7 +108,7 @@ export function resolve(row: Stored, companyId: number | null = null): PurchaseR
 	const source = db.purchaseInvoice.find((item) => item.id === row.purchase_invoice_id)
 	const invoice = source && resolveInvoice(source)
 	const warehouse = db.warehouse.find((item) => item.id === row.warehouse_id && !item.deleted_at)
-	const lines = row.lines.map((line) => resolveLine(invoice, line.product_id, line.quantity, row.id, row.pkp_active))
+	const lines = row.lines.map((line) => resolveLine(invoice, line.variant_id, line.quantity, row.id, row.pkp_active))
 	const dpp = lines.reduce((sum, line) => sum + line.dpp, 0)
 	const ppn = lines.reduce((sum, line) => sum + line.ppn, 0)
 	const total = dpp + ppn
@@ -147,15 +150,15 @@ function validate(body: PurchaseReturnRequest, invoice: PurchaseInvoice, returnI
 	if (!reason) return invalid('Alasan retur wajib diisi', 'reason')
 	if (reason.length > 250) return invalid('Alasan retur maksimal 250 karakter', 'reason')
 	const sent = Array.isArray(body.lines) ? body.lines : []
-	if (new Set(sent.map((line) => Number(line.product_id))).size !== sent.length)
+	if (new Set(sent.map((line) => Number(line.variant_id))).size !== sent.length)
 		return invalid('Produk tidak boleh muncul lebih dari satu kali', 'lines')
 	if (!sent.some((line) => Number(line.quantity) > 0)) return invalid('Isi jumlah retur minimal satu produk', 'lines')
 	for (const line of sent) {
-		const source = invoice.lines.find((item) => item.product_id === Number(line.product_id))
+		const source = invoice.lines.find((item) => item.variant_id === Number(line.variant_id))
 		if (!source) return invalid('Produk retur harus berasal dari invoice', 'lines')
 		const quantity = Number(line.quantity)
 		if (!(quantity >= 0)) return invalid('Jumlah retur tidak valid', 'lines')
-		const available = source.quantity - returnedBefore(invoice.id, source.product_id, returnId)
+		const available = source.quantity - returnedBefore(invoice.id, source.variant_id, returnId)
 		if (quantity > available) return invalid(`Jumlah retur ${source.product_name} melebihi sisa yang bisa diretur (${available})`, 'lines')
 	}
 	return null
@@ -165,7 +168,8 @@ const storedLines = (body: PurchaseReturnRequest): PurchaseReturnLine[] =>
 	body.lines
 		.filter((line) => Number(line.quantity) > 0)
 		.map((line) => ({
-			product_id: Number(line.product_id),
+			variant_id: Number(line.variant_id),
+			product_id: 0,
 			quantity_purchased: 0,
 			quantity_returned_before: 0,
 			quantity: Number(line.quantity),
@@ -208,7 +212,7 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 				department_name: invoice.department_name,
 				pkp_active: invoice.pkp_active
 			},
-			lines: invoice.lines.map((line) => resolveLine(invoice, line.product_id, 0, exceptId, invoice.pkp_active))
+			lines: invoice.lines.map((line) => resolveLine(invoice, line.variant_id, 0, exceptId, invoice.pkp_active))
 		}
 		return [200, { data }]
 	})
@@ -310,8 +314,8 @@ export function registerPurchaseReturn(mock: MockAdapter) {
 		recordUpdate('purchase-return', row.id, [
 			...diffFields(before, after, FIELDS),
 			...diffLines(before.lines, after.lines, {
-				id: (line) => line.product_id,
-				name: (line) => line.product_name ?? `Produk #${line.product_id}`,
+				id: (line) => line.variant_id,
+				name: (line) => [line.product_name ?? `Produk #${line.product_id}`, line.variant_label].filter(Boolean).join(' · '),
 				specs: LINE_FIELDS
 			})
 		])

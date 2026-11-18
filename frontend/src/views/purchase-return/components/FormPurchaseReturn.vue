@@ -76,7 +76,7 @@ async function pickInvoice(value: number | string | null) {
 // Edit: the saved return only holds returned products — reload the whole invoice and put the saved quantities back.
 onMounted(async () => {
 	if (!props.returnId || !props.initial?.purchase_invoice_id) return
-	const keep = Object.fromEntries(props.initial.lines.map((line) => [line.product_id, line.quantity]))
+	const keep = Object.fromEntries(props.initial.lines.map((line) => [line.variant_id, line.quantity]))
 	await applyInvoice(draft, props.initial.purchase_invoice_id, keep, props.returnId)
 })
 

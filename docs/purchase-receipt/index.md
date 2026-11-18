@@ -50,8 +50,8 @@ always computed **excluding the receipt being read/edited itself** (see
 
 | Field | Type | Notes |
 |---|---|---|
-| `product_id` | number | one of the PO's line products |
-| `product_code` `product_name` `brand_code` `brand_name` `unit_name` | string \| undefined | resolved product display fields |
+| `variant_id` | number | one of the PO's line variants |
+| `product_id` `product_code` `product_name` `sku` `variant_label` `brand_name` `unit_name` | resolved | from the variant |
 | `ordered_quantity` | number | the PO line's ordered quantity ("Permintaan") |
 | `received_quantity` | number | sum already received by other receipts against this PO line ("Sudah Terima") |
 | `remaining_quantity` | number | `ordered_quantity - received_quantity`, minimum 0 ("Belum Terima") |

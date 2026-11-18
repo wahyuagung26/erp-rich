@@ -2,6 +2,7 @@ import type MockAdapter from 'axios-mock-adapter'
 import { db } from '../db'
 import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
 import { closedReply, withLock, closedDateReply } from './posting'
+import { variantFields } from './product'
 import { diffFields, diffLines, fmtDate, fmtMoney, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
 import type {
 	JournalAttachment,
@@ -39,21 +40,17 @@ function amounts(quantity: number, price: number, isPkp: boolean) {
 const receivedLines = (receipt: PurchaseReceipt) => receipt.lines.filter((line) => line.quantity > 0)
 
 // Default price = the PO line's net unit price (after discount).
-function defaultPrice(po: PurchaseOrder | undefined, productId: number) {
-	const poLine = po?.lines.find((line: PurchaseOrderLine) => line.product_id === productId)
+function defaultPrice(po: PurchaseOrder | undefined, variantId: number) {
+	const poLine = po?.lines.find((line: PurchaseOrderLine) => line.variant_id === variantId)
 	if (!poLine || !(poLine.quantity > 0)) return 0
 	const net = Math.max(Math.round(poLine.quantity * poLine.price) - Math.round(poLine.discount), 0)
 	return Math.round(net / poLine.quantity)
 }
 
-function resolveLine(productId: number, quantity: number, price: number, isPkp: boolean): PurchaseInvoiceLine {
-	const product = db.product.find((item) => item.id === productId && !item.deleted_at)
+function resolveLine(variantId: number, quantity: number, price: number, isPkp: boolean): PurchaseInvoiceLine {
 	return {
-		product_id: productId,
-		product_code: product?.code,
-		product_name: product?.name,
-		brand_name: product?.brand_name,
-		unit_name: product?.unit_name,
+		variant_id: variantId,
+		...variantFields(variantId),
 		quantity,
 		price,
 		...amounts(quantity, price, isPkp)
@@ -66,8 +63,8 @@ export function resolve(row: PurchaseInvoice): PurchaseInvoice {
 	const supplier = po && db.supplier.find((item) => item.id === po.supplier_id && !item.deleted_at)
 	const department = receipt && db.department.find((item) => item.id === receipt.department_id && !item.deleted_at)
 	const lines = row.lines.map((line) => {
-		const received = receipt?.lines.find((item) => item.product_id === line.product_id)
-		return resolveLine(line.product_id, received?.quantity ?? 0, line.price, row.pkp_active)
+		const received = receipt?.lines.find((item) => item.variant_id === line.variant_id)
+		return resolveLine(line.variant_id, received?.quantity ?? 0, line.price, row.pkp_active)
 	})
 	const dpp = lines.reduce((sum, line) => sum + line.dpp, 0)
 	const ppn = lines.reduce((sum, line) => sum + line.ppn, 0)
@@ -100,8 +97,8 @@ function validate(body: PurchaseInvoiceRequest, receipt: PurchaseReceipt): Retur
 	if (String(body.supplier_invoice_number).trim().length > 30)
 		return invalid('Nomor invoice supplier maksimal 30 karakter', 'supplier_invoice_number')
 	if (String(body.description || '').trim().length > 250) return invalid('Keterangan maksimal 250 karakter', 'description')
-	const expected = receivedLines(receipt).map((line) => line.product_id)
-	const sent = Array.isArray(body.lines) ? body.lines.map((line) => Number(line.product_id)) : []
+	const expected = receivedLines(receipt).map((line) => line.variant_id)
+	const sent = Array.isArray(body.lines) ? body.lines.map((line) => Number(line.variant_id)) : []
 	if (sent.length !== expected.length || expected.some((id) => !sent.includes(id)))
 		return invalid('Produk invoice harus sama dengan produk yang diterima', 'lines')
 	if (new Set(sent).size !== sent.length) return invalid('Produk tidak boleh muncul lebih dari satu kali', 'lines')
@@ -111,7 +108,8 @@ function validate(body: PurchaseInvoiceRequest, receipt: PurchaseReceipt): Retur
 
 function buildLines(body: PurchaseInvoiceRequest): PurchaseInvoiceLine[] {
 	return body.lines.map((line) => ({
-		product_id: Number(line.product_id),
+		variant_id: Number(line.variant_id),
+		...variantFields(Number(line.variant_id)),
 		quantity: 0,
 		price: Math.round(Number(line.price)),
 		dpp: 0,
@@ -157,7 +155,7 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 				supplier_name: supplier?.name,
 				pkp_active: pkp
 			},
-			lines: receivedLines(receipt).map((line) => resolveLine(line.product_id, line.quantity, defaultPrice(po, line.product_id), pkp))
+			lines: receivedLines(receipt).map((line) => resolveLine(line.variant_id, line.quantity, defaultPrice(po, line.variant_id), pkp))
 		}
 		return [200, { data }]
 	})
@@ -268,8 +266,8 @@ export function registerPurchaseInvoice(mock: MockAdapter) {
 		recordUpdate('purchase-invoice', row.id, [
 			...diffFields(before, after, FIELDS),
 			...diffLines(before.lines, after.lines, {
-				id: (line) => line.product_id,
-				name: (line) => line.product_name ?? `Produk #${line.product_id}`,
+				id: (line) => line.variant_id,
+				name: (line) => [line.product_name ?? `Produk #${line.product_id}`, line.variant_label].filter(Boolean).join(' · '),
 				specs: LINE_FIELDS
 			})
 		])

@@ -1,11 +1,11 @@
 import type { PurchaseReceipt, PurchaseReceiptLine } from '@/utils/types'
 
-// Row shape mirrors purchase-order.ts's convention: only product_id/quantity/warehouse_id
+// Row shape mirrors purchase-order.ts's convention: only variant_id/quantity/warehouse_id
 // are real, the rest of each line (and the PO/supplier/department breadcrumbs) are
 // placeholders — the mock's resolve() always recomputes them fresh from db.purchaseOrder,
 // db.product, db.department, and db.warehouse on every read.
-function line(product_id: number, quantity: number, warehouse_id: number): PurchaseReceiptLine {
-	return { product_id, ordered_quantity: 0, received_quantity: 0, remaining_quantity: 0, quantity, warehouse_id }
+function line(variant_id: number, quantity: number, warehouse_id: number): PurchaseReceiptLine {
+	return { variant_id, product_id: variant_id, ordered_quantity: 0, received_quantity: 0, remaining_quantity: 0, quantity, warehouse_id }
 }
 
 // Aligned with purchase-order seed's existing `delivery_status`: PO 2 is `partial`

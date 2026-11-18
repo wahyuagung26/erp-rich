@@ -7,7 +7,7 @@ path: /purchase-order/:id/receivable-lines
 status: mock
 tags: [purchase-receipt, read, lookup]
 resource: /frontend/src/mocks/modules/purchase-receipt.ts
-timestamp: 2026-09-09T12:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Get Purchase Order Receivable Lines
@@ -46,9 +46,12 @@ Backs `views/purchase-receipt/composables/usePurchaseReceiptOrder.ts`, fired fro
     },
     "lines": [
       {
+        "variant_id": 1,
         "product_id": 1,
         "product_code": "PRD001",
         "product_name": "Produk Contoh",
+        "sku": "PRD001",
+        "variant_label": "Standar",
         "brand_code": "MRK001",
         "brand_name": "Merk Contoh",
         "unit_name": "Pieces",

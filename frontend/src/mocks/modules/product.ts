@@ -246,7 +246,8 @@ export function registerProduct(mock: MockAdapter) {
 						product_name: prod.name,
 						brand_name: prod.brand_name,
 						unit_name: prod.unit_name,
-						selling_price: item.selling_price
+						selling_price: item.selling_price,
+						last_purchase_price: prod.last_purchase_price
 					}))
 			)
 		if (p.q) {

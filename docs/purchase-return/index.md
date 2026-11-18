@@ -47,8 +47,8 @@ Kapan retur muncul di mutasi hutang supplier masih **unresolved** (lihat notulen
 
 | Field | Type | Notes |
 |---|---|---|
-| `product_id` | number | produk pada invoice sumber; identitas baris |
-| `product_code` `product_name` `brand_name` `unit_name` | string \| undefined | resolved |
+| `variant_id` | number | varian pada invoice sumber; identitas baris |
+| `product_id` `product_code` `product_name` `sku` `variant_label` `brand_name` `unit_name` | resolved | dari varian |
 | `quantity_purchased` | number | jumlah pada invoice ("Qty Dibeli") |
 | `quantity_returned_before` | number | jumlah yang sudah diretur oleh retur LAIN atas invoice yang sama ("Sudah Diretur") |
 | `quantity` | number | "Qty Retur"; `0 ≤ quantity ≤ quantity_purchased − quantity_returned_before` |

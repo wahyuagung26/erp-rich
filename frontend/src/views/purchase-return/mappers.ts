@@ -7,9 +7,11 @@ export function createEmptyPurchaseReturnDraft(): PurchaseReturnDraft {
 
 export function toLineDraft(line: PurchaseReturnLine): PurchaseReturnLineDraft {
 	return {
-		product_id: line.product_id,
+		variant_id: line.variant_id,
 		product_code: line.product_code,
 		product_name: line.product_name,
+		sku: line.sku,
+		variant_label: line.variant_label,
 		brand_name: line.brand_name,
 		unit_name: line.unit_name,
 		quantity_purchased: line.quantity_purchased,
@@ -37,6 +39,6 @@ export function toPurchaseReturnRequest(form: PurchaseReturnForm): PurchaseRetur
 		date: form.date,
 		warehouse_id: form.warehouse_id,
 		reason: form.reason,
-		lines: form.lines.map((line) => ({ product_id: line.product_id, quantity: line.quantity }))
+		lines: form.lines.map((line) => ({ variant_id: line.variant_id, quantity: line.quantity }))
 	}
 }

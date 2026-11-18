@@ -48,8 +48,8 @@ faktur pajak bisa diisi massal lewat [tax-invoice-import](../tax-invoice-import/
 
 | Field | Type | Notes |
 |---|---|---|
-| `product_id` | number | produk pada penerimaan sumber; identitas baris, tidak bisa diubah |
-| `product_code` `product_name` `brand_name` `unit_name` | string \| undefined | resolved display fields |
+| `variant_id` | number | varian pada penerimaan sumber; identitas baris, tidak bisa diubah |
+| `product_id` `product_code` `product_name` `sku` `variant_label` `brand_name` `unit_name` | resolved | dari varian |
 | `quantity` | number | jumlah diterima pada penerimaan sumber; read-only |
 | `price` | number | harga satuan sebelum PPN; **satu-satunya field baris yang bisa diubah**, `> 0`. Default = harga bersih baris PO (`dpp / quantity` PO, dibulatkan) |
 | `dpp` | number | `round(quantity × price)` |
@@ -64,7 +64,7 @@ faktur pajak bisa diisi massal lewat [tax-invoice-import](../tax-invoice-import/
 - Approval satu arah (`pending` → `approved`) dan menghasilkan `kontrabon_number`; approve ulang ditolak.
 - Non-PKP: `ppn` selalu `0` dan faktur pajak tidak boleh diisi.
 - Nomor faktur pajak harus unik antar invoice; tanggal faktur wajib bila nomor diisi; lampiran (PDF/JPG/PNG, maks 5 MB) opsional.
-- `quantity`, `product_id`, dan baris tidak pernah diterima dari client — hanya `price` per `product_id`.
+- `quantity`, `product_id`, dan baris tidak pernah diterima dari client — hanya `price` per `variant_id`.
 
 ## Faktur Pajak (modal bersama)
 

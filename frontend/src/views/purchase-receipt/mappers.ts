@@ -14,9 +14,11 @@ export function createEmptyPurchaseReceiptDraft(): PurchaseReceiptDraft {
 
 function toLineDraft(line: PurchaseReceiptLine): PurchaseReceiptLineDraft {
 	return {
-		product_id: line.product_id,
+		variant_id: line.variant_id,
 		product_code: line.product_code,
 		product_name: line.product_name,
+		sku: line.sku,
+		variant_label: line.variant_label,
 		brand_name: line.brand_name,
 		unit_name: line.unit_name,
 		ordered_quantity: line.ordered_quantity,
@@ -43,7 +45,7 @@ export function toPurchaseReceiptDraft(receipt: PurchaseReceipt): PurchaseReceip
 }
 
 function toLineRequest(line: PurchaseReceiptLineForm): PurchaseReceiptLineRequest {
-	return { product_id: line.product_id, quantity: line.quantity, warehouse_id: line.warehouse_id }
+	return { variant_id: line.variant_id, quantity: line.quantity, warehouse_id: line.warehouse_id }
 }
 
 export function toPurchaseReceiptRequest(form: PurchaseReceiptForm): PurchaseReceiptRequest {

@@ -1,10 +1,10 @@
 import type { PurchaseInvoice, PurchaseInvoiceLine } from '@/utils/types'
 
-// Only product_id/price are real on a stored line: the mock's resolve() recomputes
+// Only variant_id/price are real on a stored line: the mock's resolve() recomputes
 // quantity (from the receipt), labels, and amounts on every read — same convention as
 // the purchase-receipt fixture.
-function line(product_id: number, price: number): PurchaseInvoiceLine {
-	return { product_id, quantity: 0, price, dpp: 0, ppn: 0, total: 0 }
+function line(variant_id: number, price: number): PurchaseInvoiceLine {
+	return { variant_id, product_id: variant_id, quantity: 0, price, dpp: 0, ppn: 0, total: 0 }
 }
 
 // Receipt 2 is seeded `invoiced` (see fixtures/purchase-receipt.ts), so it owns this

@@ -14,9 +14,11 @@ export function createEmptyPurchaseInvoiceDraft(): PurchaseInvoiceDraft {
 
 export function toLineDraft(line: PurchaseInvoiceLine): PurchaseInvoiceLineDraft {
 	return {
-		product_id: line.product_id,
+		variant_id: line.variant_id,
 		product_code: line.product_code,
 		product_name: line.product_name,
+		sku: line.sku,
+		variant_label: line.variant_label,
 		brand_name: line.brand_name,
 		unit_name: line.unit_name,
 		quantity: line.quantity,
@@ -41,6 +43,6 @@ export function toPurchaseInvoiceRequest(form: PurchaseInvoiceForm): PurchaseInv
 		date: form.date,
 		supplier_invoice_number: form.supplier_invoice_number,
 		description: form.description,
-		lines: form.lines.map((line) => ({ product_id: line.product_id, price: line.price }))
+		lines: form.lines.map((line) => ({ variant_id: line.variant_id, price: line.price }))
 	}
 }

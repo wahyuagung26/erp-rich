@@ -13,9 +13,11 @@ const requiredId = (message: string) => v.pipe(v.number(message), v.minValue(1, 
 
 // Editable UI state for one line — product, purchased and already-returned quantities are fixed by the invoice; only `quantity` is edited.
 export interface PurchaseReturnLineDraft {
-	product_id: number
+	variant_id: number
 	product_code?: string
 	product_name?: string
+	sku?: string
+	variant_label?: string
 	brand_name?: string
 	unit_name?: string
 	quantity_purchased: number
@@ -37,7 +39,7 @@ export const available = (line: Pick<PurchaseReturnLineDraft, 'quantity_purchase
 	Math.max(line.quantity_purchased - line.quantity_returned_before, 0)
 
 const lineSchema = v.object({
-	product_id: v.number(),
+	variant_id: v.number(),
 	quantity_purchased: v.number(),
 	quantity_returned_before: v.number(),
 	quantity: v.pipe(v.number('Jumlah retur tidak valid'), v.minValue(0, 'Jumlah retur tidak boleh negatif')),

@@ -7,7 +7,7 @@ path: /purchase-receipt/:id/invoiceable-lines
 status: mock
 tags: [purchase-invoice, read, lookup]
 resource: /frontend/src/mocks/modules/purchase-invoice.ts
-timestamp: 2026-11-05T23:30:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Get Purchase Receipt Invoiceable Lines
@@ -45,9 +45,12 @@ reference section, PKP status, and product lines.
     },
     "lines": [
       {
+        "variant_id": 1,
         "product_id": 1,
         "product_code": "PRD001",
         "product_name": "Kulkas 2 Pintu",
+        "sku": "PRD001",
+        "variant_label": "Standar",
         "brand_name": "Samsung",
         "unit_name": "Pieces",
         "quantity": 40,

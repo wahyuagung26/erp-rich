@@ -7,7 +7,7 @@ path: /purchase-order
 status: mock
 tags: [purchase-order, write]
 resource: /frontend/src/mocks/modules/purchase-order.ts
-timestamp: 2026-11-06T13:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Create Purchase Order
@@ -30,7 +30,7 @@ Backs `views/purchase-order/pages/PagePurchaseOrderTambah.vue`. Client-side vali
   "address": "Alamat supplier",
   "description": "Pembelian kebutuhan operasional",
   "lines": [
-    { "product_id": 1, "quantity": 2, "price": 3500000, "discount": 0 }
+    { "variant_id": 1, "quantity": 2, "price": 3500000, "discount": 0 }
   ]
 }
 ```
@@ -47,7 +47,7 @@ Backs `views/purchase-order/pages/PagePurchaseOrderTambah.vue`. Client-side vali
 | `description` | string | required after trim |
 | `lines` | array | at least one line |
 
-Each line contains `product_id` (active product), `quantity` (`> 0`), `price` (`> 0`),
+Each line contains `variant_id` (active variant, see [list-product-variant](../product/list-product-variant.md); unique per order), `quantity` (`> 0`), `price` (`> 0`),
 and `discount` (`>= 0`, not greater than `quantity × price`). Client does not send `id`,
 `number`, status fields, resolved labels, `dpp`, `ppn`, `nett`, or `total`.
 
@@ -82,9 +82,12 @@ and `discount` (`>= 0`, not greater than `quantity × price`). Client does not s
     "created_by": "Admin",
     "lines": [
       {
+        "variant_id": 1,
         "product_id": 1,
         "product_code": "PRD001",
         "product_name": "Produk Contoh",
+        "sku": "PRD001",
+        "variant_label": "Standar",
         "brand_name": "Merk Contoh",
         "unit_name": "Pieces",
         "quantity": 2,

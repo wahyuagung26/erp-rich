@@ -96,8 +96,10 @@ onMounted(async () => {
 				<tbody>
 					<tr v-for="(line, index) in invoice.lines" :key="index">
 						<td :class="[td, 'text-center']">{{ index + 1 }}</td>
-						<td :class="td">{{ line.product_name }}</td>
-						<td :class="[td, 'text-center']">{{ line.product_code }}</td>
+						<td :class="td">
+							{{ line.product_name }}<template v-if="line.variant_label && line.variant_label !== 'Standar'"> · {{ line.variant_label }}</template>
+						</td>
+						<td :class="[td, 'text-center']">{{ line.sku }}</td>
 						<td :class="[td, 'text-center']">{{ line.unit_name }}</td>
 						<td :class="[td, 'text-right']">{{ line.quantity }}</td>
 						<td :class="[td, 'text-right']">{{ amount(line.price) }}</td>

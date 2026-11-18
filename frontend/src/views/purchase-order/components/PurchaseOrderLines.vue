@@ -1,36 +1,29 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { IconCheck, IconPencil, IconPlus, IconTrash, IconX } from '@tabler/icons-vue'
-import AsyncSelect from '@/components/base/AsyncSelect.vue'
+import VariantName from '@/components/common/VariantName.vue'
+import VariantSelect from '@/components/common/VariantSelect.vue'
 import MoneyInput from '@/components/base/MoneyInput.vue'
 import Input from '@/components/base/Input.vue'
 import Button from '@/components/base/Button.vue'
 import Amount from '@/components/base/Amount.vue'
-import type { Product } from '@/utils/types'
 import { lineTotal, totals, validatePurchaseOrderLine, type PurchaseOrderLineDraft } from '@/views/purchase-order/schema'
 import { usePurchaseOrderProduct } from '@/views/purchase-order/composables/usePurchaseOrderProduct'
 
 const props = defineProps<{ lines: PurchaseOrderLineDraft[]; supplierId: number | null; pkpActive: boolean; disabled?: boolean }>()
 const emit = defineEmits<{ 'update:lines': [PurchaseOrderLineDraft[]] }>()
-const { applyProduct } = usePurchaseOrderProduct()
+const { applyVariant } = usePurchaseOrderProduct()
 const errors = ref('')
 const editingIndex = ref<number | null>(null)
-const draft = reactive<PurchaseOrderLineDraft>({ product_id: null, quantity: 1, price: 0, discount: 0 })
-
-const productLabel = (item: Record<string, unknown>) => {
-	const product = item as unknown as Product
-	return `${product.code} — ${product.name}`
-}
-
-function onProductChange(value: number | string | null) {
-	applyProduct(draft, value ? Number(value) : null)
-}
+const draft = reactive<PurchaseOrderLineDraft>({ variant_id: null, quantity: 1, price: 0, discount: 0 })
 
 function reset() {
 	Object.assign(draft, {
-		product_id: null,
+		variant_id: null,
 		product_code: undefined,
 		product_name: undefined,
+		sku: undefined,
+		variant_label: undefined,
 		brand_name: undefined,
 		unit_name: undefined,
 		quantity: 1,
@@ -46,6 +39,8 @@ function save() {
 	const validationError = validatePurchaseOrderLine(draft)
 	if (validationError) return (errors.value = validationError)
 	const next = [...props.lines]
+	if (props.lines.some((line, index) => line.variant_id === draft.variant_id && index !== editingIndex.value))
+		return (errors.value = 'Varian produk ini sudah ada di daftar, ubah baris yang sudah ada')
 	if (editingIndex.value === null) next.push({ ...draft })
 	else next[editingIndex.value] = { ...draft }
 	emit('update:lines', next)
@@ -92,14 +87,14 @@ function calculated(line: PurchaseOrderLineDraft) {
 				<tbody>
 					<tr v-if="!disabled" class="border-b border-hairline align-top">
 						<td class="min-w-[240px] px-2 py-2">
-							<AsyncSelect
-								:model-value="draft.product_id"
-								endpoint="/product"
-								:option-label="productLabel"
-								:initial-label="draft.product_code ? `${draft.product_code} — ${draft.product_name}` : undefined"
-								:placeholder="supplierId ? 'Cari produk…' : 'Pilih supplier dahulu…'"
+							<VariantSelect
+								:model-value="draft.variant_id"
+								:sku="draft.sku"
+								:name="draft.product_name"
+								:label="draft.variant_label"
 								:disabled="!supplierId"
-								@update:model-value="onProductChange"
+								purchase
+								@select="(row) => applyVariant(draft, row)"
 							/>
 						</td>
 						<td class="min-w-[130px] px-2 py-2">
@@ -120,9 +115,9 @@ function calculated(line: PurchaseOrderLineDraft) {
 							<MoneyInput v-model="draft.discount" blank-zero placeholder="0" @keydown.enter.prevent="save" />
 						</td>
 						<!-- live preview of the row being entered -->
-						<td class="px-2 py-4 text-right"><Amount v-if="draft.product_id" muted :value="calculated(draft).dpp" /></td>
-						<td class="px-2 py-4 text-right"><Amount v-if="draft.product_id" muted :value="calculated(draft).ppn" /></td>
-						<td class="px-2 py-4 text-right"><Amount v-if="draft.product_id" muted :value="calculated(draft).total" /></td>
+						<td class="px-2 py-4 text-right"><Amount v-if="draft.variant_id" muted :value="calculated(draft).dpp" /></td>
+						<td class="px-2 py-4 text-right"><Amount v-if="draft.variant_id" muted :value="calculated(draft).ppn" /></td>
+						<td class="px-2 py-4 text-right"><Amount v-if="draft.variant_id" muted :value="calculated(draft).total" /></td>
 						<td class="px-2 py-2">
 							<div class="flex justify-end gap-1">
 								<Button type="button" size="sm" variant="secondary" :title="editingIndex === null ? 'Tambah produk' : 'Simpan produk'" @click="save">
@@ -141,13 +136,12 @@ function calculated(line: PurchaseOrderLineDraft) {
 					</tr>
 					<tr
 						v-for="(line, index) in lines"
-						:key="`${line.product_id}-${index}`"
+						:key="`${line.variant_id}-${index}`"
 						class="border-b border-hairline last:border-0"
 						:class="{ 'bg-primary/5': editingIndex === index }"
 					>
 						<td class="px-2 py-3">
-							<div class="text-ink">{{ line.product_name }}</div>
-							<div class="text-s text-ink-muted">{{ line.product_code }}{{ line.brand_name ? ` · ${line.brand_name}` : '' }}</div>
+							<VariantName :name="line.product_name" :sku="line.sku" :label="line.variant_label" :brand="line.brand_name" />
 						</td>
 						<td class="px-2 py-3 text-right">
 							<div class="tnum text-ink">{{ line.quantity }}</div>

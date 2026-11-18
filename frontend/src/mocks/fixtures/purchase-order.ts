@@ -1,9 +1,9 @@
 import type { PurchaseOrder, PurchaseOrderLine } from '@/utils/types'
 
-function line(product_id: number, quantity: number, price: number, discount: number, isPkp: boolean): PurchaseOrderLine {
+function line(variant_id: number, quantity: number, price: number, discount: number, isPkp: boolean): PurchaseOrderLine {
 	const dpp = Math.max(Math.round(quantity * price) - Math.round(discount), 0)
 	const ppn = isPkp ? Math.round((dpp * 11) / 100) : 0
-	return { product_id, quantity, price, discount, dpp, ppn, total: dpp + ppn }
+	return { variant_id, product_id: variant_id, quantity, price, discount, dpp, ppn, total: dpp + ppn }
 }
 
 export const purchaseOrderSeed: PurchaseOrder[] = [

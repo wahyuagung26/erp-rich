@@ -19,9 +19,11 @@ const requiredId = (message: string) => v.pipe(v.number(message), v.minValue(1, 
 // Editable UI state for one line — fixed by the PO, not freely added/removed. Ordered/
 // received/remaining are informational (server-computed), quantity/warehouse are editable.
 export interface PurchaseReceiptLineDraft {
-	product_id: number
+	variant_id: number
 	product_code?: string
 	product_name?: string
+	sku?: string
+	variant_label?: string
 	brand_name?: string
 	unit_name?: string
 	ordered_quantity: number
@@ -43,9 +45,11 @@ export interface PurchaseReceiptDraft {
 }
 
 const purchaseReceiptLineFormSchema = v.object({
-	product_id: v.number(),
+	variant_id: v.number(),
 	product_code: v.optional(v.string()),
 	product_name: v.optional(v.string()),
+	sku: v.optional(v.string()),
+	variant_label: v.optional(v.string()),
 	brand_name: v.optional(v.string()),
 	unit_name: v.optional(v.string()),
 	ordered_quantity: v.number(),

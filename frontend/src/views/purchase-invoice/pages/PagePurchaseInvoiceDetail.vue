@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import VariantName from '@/components/common/VariantName.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IconArrowLeft, IconCheck, IconPaperclip, IconPencil, IconPlus, IconPrinter, IconTrash, IconHistory } from '@tabler/icons-vue'
@@ -244,8 +245,7 @@ function remove() {
 							<tbody>
 								<tr v-for="(line, index) in invoice.lines" :key="index" class="border-b border-hairline last:border-0">
 									<td class="px-3 py-3 text-ink">
-										<div>{{ line.product_name }}</div>
-										<div class="text-s text-ink-muted">{{ [line.product_code, line.brand_name].filter(Boolean).join(' · ') }}</div>
+										<VariantName :name="line.product_name" :sku="line.sku" :label="line.variant_label" :brand="line.brand_name" />
 									</td>
 									<td class="px-3 py-3 text-right text-ink">
 										<div class="tnum">{{ line.quantity }}</div>

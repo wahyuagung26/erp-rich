@@ -7,7 +7,7 @@ path: /purchase-invoice
 status: mock
 tags: [purchase-invoice, write]
 resource: /frontend/src/mocks/modules/purchase-invoice.ts
-timestamp: 2026-11-06T13:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Create Purchase Invoice
@@ -25,7 +25,7 @@ Backs `PagePurchaseInvoiceTambah.vue`. Client validation: `frontend/src/views/pu
   "date": "2026-09-08",
   "supplier_invoice_number": "INV-SUP-2026-001",
   "description": "Tagihan penerimaan sebagian PO",
-  "lines": [{ "product_id": 1, "price": 375000 }]
+  "lines": [{ "variant_id": 1, "price": 375000 }]
 }
 ```
 
@@ -37,7 +37,7 @@ Backs `PagePurchaseInvoiceTambah.vue`. Client validation: `frontend/src/views/pu
 | `description` | string | optional; max 250 chars |
 | `lines` | array | exactly one entry per received product of the receipt (`quantity > 0`) |
 
-Each line has `product_id` (must be a received product of the receipt) and `price` (`> 0`).
+Each line has `variant_id` (must be a received variant of the receipt) and `price` (`> 0`).
 Quantity, department, supplier, and PKP are taken from the receipt/PO — never from the client.
 
 ## Response
@@ -67,9 +67,12 @@ Quantity, department, supplier, and PKP are taken from the receipt/PO — never 
     "created_by": "Admin",
     "lines": [
       {
+        "variant_id": 1,
         "product_id": 1,
         "product_code": "PRD001",
         "product_name": "Kulkas 2 Pintu",
+        "sku": "PRD001",
+        "variant_label": "Standar",
         "brand_name": "Samsung",
         "unit_name": "Pieces",
         "quantity": 40,

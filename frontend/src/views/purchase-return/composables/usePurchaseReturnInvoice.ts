@@ -20,7 +20,7 @@ export function usePurchaseReturnInvoice() {
 			})
 			const { purchase_invoice, lines } = res.data.data
 			draft.pkp_active = purchase_invoice.pkp_active
-			draft.lines = lines.map((line) => ({ ...toLineDraft(line), quantity: keep[line.product_id] ?? 0 }))
+			draft.lines = lines.map((line) => ({ ...toLineDraft(line), quantity: keep[line.variant_id] ?? 0 }))
 			return purchase_invoice
 		} catch {
 			toast.error('Invoice pembelian tidak dapat dimuat')

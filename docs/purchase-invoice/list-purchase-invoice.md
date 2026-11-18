@@ -7,7 +7,7 @@ path: /purchase-invoice
 status: mock
 tags: [purchase-invoice, read, list]
 resource: /frontend/src/mocks/modules/purchase-invoice.ts
-timestamp: 2026-11-06T03:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # List Purchase Invoice
@@ -72,9 +72,12 @@ See [conventions](../conventions.md#list-kpi-summary-optional-metasummary).
     "created_by": "Admin",
     "lines": [
       {
+        "variant_id": 1,
         "product_id": 1,
         "product_code": "PRD001",
         "product_name": "Kulkas 2 Pintu",
+        "sku": "PRD001",
+        "variant_label": "Standar",
         "brand_name": "Samsung",
         "unit_name": "Pieces",
         "quantity": 40,

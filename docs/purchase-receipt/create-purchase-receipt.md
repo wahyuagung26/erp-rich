@@ -7,7 +7,7 @@ path: /purchase-receipt
 status: mock
 tags: [purchase-receipt, write]
 resource: /frontend/src/mocks/modules/purchase-receipt.ts
-timestamp: 2026-11-06T13:00:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Create Purchase Receipt
@@ -26,7 +26,7 @@ Backs `views/purchase-receipt/pages/PagePurchaseReceiptTambah.vue`. Client-side 
   "description": "Penerimaan sebagian produk PO",
   "department_id": 10,
   "date": "2026-09-08",
-  "lines": [{ "product_id": 1, "quantity": 40, "warehouse_id": 1 }]
+  "lines": [{ "variant_id": 1, "quantity": 40, "warehouse_id": 1 }]
 }
 ```
 
@@ -39,7 +39,7 @@ Backs `views/purchase-receipt/pages/PagePurchaseReceiptTambah.vue`. Client-side 
 | `date` | string | required; `YYYY-MM-DD`; cannot be after today |
 | `lines` | array | at least one line; only lines with `quantity > 0` are sent |
 
-Each line contains `product_id` (must belong to the referenced PO), `quantity` (`> 0`, and
+Each line contains `variant_id` (must belong to the referenced PO), `quantity` (`> 0`, and
 not greater than that product's current `remaining_quantity` — see
 [get-purchase-order-receivable-lines](./get-purchase-order-receivable-lines.md)), and
 `warehouse_id` (required, active warehouse). Client does not send `id`, `number`,
@@ -72,9 +72,12 @@ not greater than that product's current `remaining_quantity` — see
     "created_by": "Admin",
     "lines": [
       {
+        "variant_id": 1,
         "product_id": 1,
         "product_code": "PRD001",
         "product_name": "Produk Contoh",
+        "sku": "PRD001",
+        "variant_label": "Standar",
         "brand_name": "Merk Contoh",
         "unit_name": "Pieces",
         "ordered_quantity": 100,

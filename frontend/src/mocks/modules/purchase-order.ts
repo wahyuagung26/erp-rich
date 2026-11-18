@@ -14,6 +14,7 @@ import {
 	type FieldSpec
 } from '../history'
 import { closedReply, withLock, closedDateReply } from './posting'
+import { isSellableVariant, variantFields } from './product'
 import type { PurchaseOrder, PurchaseOrderApprovalStatus, PurchaseOrderLine, PurchaseOrderLineRequest, PurchaseOrderRequest } from '@/utils/types'
 
 const idOf = (url?: string) => Number(url?.split('/').at(-1))
@@ -28,7 +29,6 @@ const userName = () => {
 }
 
 function lineOf(line: PurchaseOrderLineRequest, isPkp: boolean): PurchaseOrderLine {
-	const product = db.product.find((item) => item.id === Number(line.product_id) && !item.deleted_at)
 	const quantity = Math.round(Number(line.quantity) * 1000) / 1000
 	const price = Math.round(Number(line.price))
 	const discount = Math.round(Number(line.discount))
@@ -36,12 +36,8 @@ function lineOf(line: PurchaseOrderLineRequest, isPkp: boolean): PurchaseOrderLi
 	const dpp = Math.max(gross - discount, 0)
 	const ppn = isPkp ? Math.round((dpp * 11) / 100) : 0
 	return {
-		product_id: Number(line.product_id),
-		product_code: product?.code,
-		product_name: product?.name,
-		brand_name: product?.brand_name,
-		unit_name: product?.unit_name,
-
+		variant_id: Number(line.variant_id),
+		...variantFields(Number(line.variant_id)),
 		quantity,
 		price,
 		discount,
@@ -81,7 +77,7 @@ function invalid(message: string, field?: string) {
 	return { message: 'Validasi gagal', ...(field ? { errors: { [field]: [message] } } : {}) }
 }
 
-function validate(body: PurchaseOrderRequest): ReturnType<typeof invalid> | null {
+function validate(body: PurchaseOrderRequest, current?: PurchaseOrder): ReturnType<typeof invalid> | null {
 	if (!isDate(body.date)) return invalid('Tanggal wajib diisi', 'date')
 	const supplier = db.supplier.find((item) => item.id === Number(body.supplier_id) && !item.deleted_at)
 	if (!supplier) return invalid('Supplier tidak valid', 'supplier_id')
@@ -92,8 +88,12 @@ function validate(body: PurchaseOrderRequest): ReturnType<typeof invalid> | null
 	if (!String(body.address || '').trim()) return invalid('Alamat wajib diisi', 'address')
 	if (!String(body.description || '').trim()) return invalid('Keterangan wajib diisi', 'description')
 	if (!Array.isArray(body.lines) || body.lines.length === 0) return invalid('Minimal satu produk harus ditambahkan', 'lines')
+	const seen = new Set<number>()
 	for (const line of body.lines) {
-		if (!db.product.find((item) => item.id === Number(line.product_id) && !item.deleted_at)) return invalid('Produk tidak valid', 'lines')
+		const variantId = Number(line.variant_id)
+		if (!isSellableVariant(variantId) && !current?.lines.some((old) => old.variant_id === variantId)) return invalid('Produk tidak valid', 'lines')
+		if (seen.has(variantId)) return invalid('Varian produk yang sama tidak boleh ditambahkan dua kali', 'lines')
+		seen.add(variantId)
 		if (!(Number(line.quantity) > 0)) return invalid('Jumlah harus lebih dari nol', 'lines')
 		if (!(Number(line.price) > 0)) return invalid('Harga satuan harus lebih dari nol', 'lines')
 		if (Number(line.discount) < 0) return invalid('Diskon tidak boleh negatif', 'lines')
@@ -122,7 +122,7 @@ function buildRow(body: PurchaseOrderRequest, id: number, number: string, status
 		approved_at: null,
 		created_by: userName(),
 		created_at: new Date().toISOString(),
-		lines: body.lines.map((line) => ({ ...line, dpp: 0, ppn: 0, total: 0 })),
+		lines: body.lines.map((line) => ({ ...line, ...variantFields(Number(line.variant_id)), dpp: 0, ppn: 0, total: 0 })),
 		dpp: 0,
 		ppn: 0,
 		nett: 0,
@@ -220,7 +220,7 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 		const body = JSON.parse(config.data) as PurchaseOrderRequest
 		const closedDate = closedDateReply(config, body.date)
 		if (closedDate) return closedDate
-		const error = validate(body)
+		const error = validate(body, row)
 		if (error) return [422, error]
 		const before = resolve(row)
 		Object.assign(row, buildRow(body, row.id, row.number, row.approval_status))
@@ -228,8 +228,8 @@ export function registerPurchaseOrder(mock: MockAdapter) {
 		recordUpdate('purchase-order', row.id, [
 			...diffFields(before, after, FIELDS),
 			...diffLines(before.lines, after.lines, {
-				id: (line) => line.product_id,
-				name: (line) => line.product_name ?? `Produk #${line.product_id}`,
+				id: (line) => line.variant_id,
+				name: (line) => [line.product_name ?? `Produk #${line.product_id}`, line.variant_label].filter(Boolean).join(' · '),
 				specs: LINE_FIELDS
 			})
 		])

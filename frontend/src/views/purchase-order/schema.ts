@@ -24,9 +24,11 @@ const requiredId = (message: string) => v.pipe(v.number(message), v.minValue(1, 
 
 // Editable UI state for one line — FK may be unset, product labels are display-only.
 export interface PurchaseOrderLineDraft {
-	product_id: number | null
+	variant_id: number | null
 	product_code?: string
 	product_name?: string
+	sku?: string
+	variant_label?: string
 	brand_name?: string
 	unit_name?: string
 	quantity: number
@@ -48,9 +50,11 @@ export interface PurchaseOrderDraft {
 }
 
 const purchaseOrderLineFormSchema = v.object({
-	product_id: requiredId('Produk wajib dipilih'),
+	variant_id: requiredId('Produk wajib dipilih'),
 	product_code: v.optional(v.string()),
 	product_name: v.optional(v.string()),
+	sku: v.optional(v.string()),
+	variant_label: v.optional(v.string()),
 	brand_name: v.optional(v.string()),
 	unit_name: v.optional(v.string()),
 	quantity: v.pipe(v.number(), v.minValue(0.001, 'Jumlah harus lebih dari nol')),

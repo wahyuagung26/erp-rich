@@ -417,6 +417,7 @@ export interface ProductVariantOption {
 	brand_name?: string
 	unit_name?: string
 	selling_price: number // the variant's own price
+	last_purchase_price: number // product-level purchase price (HPP), the default price of purchase lines
 }
 
 export interface JournalLine {
@@ -725,9 +726,12 @@ export type PurchaseOrderApprovalStatus = 'pending' | 'approved' | 'rejected'
 export type PurchaseOrderDeliveryStatus = 'not_received' | 'partial' | 'full'
 
 export interface PurchaseOrderLine {
-	product_id: number
+	variant_id: number
+	product_id: number // resolved from the variant
 	product_code?: string
 	product_name?: string
+	sku?: string
+	variant_label?: string // "Standar" for a product's default variant
 	brand_name?: string
 	unit_name?: string
 	quantity: number
@@ -774,7 +778,7 @@ export interface PurchaseOrder {
 
 // API input only — no denormalized labels, no computed dpp/ppn/total.
 export interface PurchaseOrderLineRequest {
-	product_id: number
+	variant_id: number
 	quantity: number
 	price: number
 	discount: number
@@ -1196,9 +1200,12 @@ export interface SalesInvoiceDeliverableLines {
 export type PurchaseReceiptInvoiceStatus = 'not_invoiced' | 'invoiced'
 
 export interface PurchaseReceiptLine {
-	product_id: number
+	variant_id: number
+	product_id: number // resolved from the variant
 	product_code?: string
 	product_name?: string
+	sku?: string
+	variant_label?: string // "Standar" for a product's default variant
 	brand_code?: string
 	brand_name?: string
 	unit_name?: string
@@ -1237,7 +1244,7 @@ export interface PurchaseReceipt {
 
 // API input only — no resolved labels, no computed ordered/received/remaining.
 export interface PurchaseReceiptLineRequest {
-	product_id: number
+	variant_id: number
 	quantity: number
 	warehouse_id: number | null
 }
@@ -1325,9 +1332,12 @@ export interface PostingRun {
 export type PurchaseInvoiceApprovalStatus = 'pending' | 'approved'
 
 export interface PurchaseInvoiceLine {
-	product_id: number
+	variant_id: number
+	product_id: number // resolved from the variant
 	product_code?: string
 	product_name?: string
+	sku?: string
+	variant_label?: string // "Standar" for a product's default variant
 	brand_name?: string
 	unit_name?: string
 	quantity: number
@@ -1376,7 +1386,7 @@ export interface PurchaseInvoice {
 
 // API input only — quantity/amounts always come from the receipt and the server.
 export interface PurchaseInvoiceLineRequest {
-	product_id: number
+	variant_id: number
 	price: number
 }
 
@@ -1431,9 +1441,12 @@ export type PurchaseReturnSettlementStatus = 'open' | 'settled'
 export type PurchaseReturnSettlementType = 'cash_bank' | 'payable_deduction'
 
 export interface PurchaseReturnLine {
-	product_id: number
+	variant_id: number
+	product_id: number // resolved from the variant
 	product_code?: string
 	product_name?: string
+	sku?: string
+	variant_label?: string // "Standar" for a product's default variant
 	brand_name?: string
 	unit_name?: string
 	quantity_purchased: number
@@ -1501,7 +1514,7 @@ export interface PurchaseReturnRequest {
 	date: string
 	warehouse_id: number
 	reason: string
-	lines: { product_id: number; quantity: number }[]
+	lines: { variant_id: number; quantity: number }[]
 }
 
 export interface PurchaseReturnSettlementRequest {

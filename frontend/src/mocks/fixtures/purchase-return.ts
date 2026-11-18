@@ -1,9 +1,9 @@
 import type { PurchaseReturn, PurchaseReturnLine } from '@/utils/types'
 
-// Only product_id/quantity are real on a stored line: the mock's resolve() recomputes labels, price and amounts
+// Only variant_id/quantity are real on a stored line: the mock's resolve() recomputes labels, price and amounts
 // from the source invoice on every read (same convention as the purchase-invoice fixture).
-function line(product_id: number, quantity: number): PurchaseReturnLine {
-	return { product_id, quantity_purchased: 0, quantity_returned_before: 0, quantity, price: 0, dpp: 0, ppn: 0, total: 0 }
+function line(variant_id: number, quantity: number): PurchaseReturnLine {
+	return { variant_id, product_id: variant_id, quantity_purchased: 0, quantity_returned_before: 0, quantity, price: 0, dpp: 0, ppn: 0, total: 0 }
 }
 
 type Seed = Omit<PurchaseReturn, 'used_total' | 'refunded_total' | 'remaining_total' | 'settlement_status' | 'settlements'>

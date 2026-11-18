@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import VariantName from '@/components/common/VariantName.vue'
 import { computed } from 'vue'
 import MoneyInput from '@/components/base/MoneyInput.vue'
 import Amount from '@/components/base/Amount.vue'
@@ -34,10 +35,9 @@ function updatePrice(index: number, value: number) {
 				<tr v-if="!lines.length">
 					<td colspan="6" class="px-3 py-6 text-center text-s text-ink-muted">Pilih penerimaan pembelian untuk memuat daftar produk.</td>
 				</tr>
-				<tr v-for="(line, index) in lines" :key="line.product_id" class="border-b border-hairline align-top last:border-0">
+				<tr v-for="(line, index) in lines" :key="line.variant_id" class="border-b border-hairline align-top last:border-0">
 					<td class="min-w-[220px] px-2 py-3">
-						<div class="text-ink">{{ line.product_name }}</div>
-						<div class="text-s text-ink-muted">{{ [line.product_code, line.brand_name].filter(Boolean).join(' · ') }}</div>
+						<VariantName :name="line.product_name" :sku="line.sku" :label="line.variant_label" :brand="line.brand_name" />
 					</td>
 					<td class="px-2 py-3 text-right">
 						<div class="tnum text-ink">{{ line.quantity }}</div>

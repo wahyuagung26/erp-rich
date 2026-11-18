@@ -7,7 +7,7 @@ path: /purchase-invoice/:id
 status: mock
 tags: [purchase-invoice, read]
 resource: /frontend/src/mocks/modules/purchase-invoice.ts
-timestamp: 2026-11-05T23:30:00Z
+timestamp: 2026-11-18T12:00:00Z
 ---
 
 # Get Purchase Invoice
@@ -51,9 +51,12 @@ record into the form) and `PagePurchaseInvoicePrint.vue` (print view, A4 portrai
     "created_by": "Admin",
     "lines": [
       {
+        "variant_id": 1,
         "product_id": 1,
         "product_code": "PRD001",
         "product_name": "Kulkas 2 Pintu",
+        "sku": "PRD001",
+        "variant_label": "Standar",
         "brand_name": "Samsung",
         "unit_name": "Pieces",
         "quantity": 40,

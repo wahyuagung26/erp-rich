@@ -3,6 +3,7 @@ import { db } from '../db'
 import { nextId, paginate, sortBy, summarize, type ListParams } from '../lib'
 import { diffFields, diffLines, fmtDate, purgeHistory, recordHistory, recordUpdate, registerHistoryRoute, type FieldSpec } from '../history'
 import { closedReply, withLock, closedDateReply } from './posting'
+import { variantFields } from './product'
 import type { PurchaseOrder, PurchaseReceipt, PurchaseReceiptLine, PurchaseReceiptLineRequest, PurchaseReceiptRequest } from '@/utils/types'
 
 const idOf = (url?: string) => Number(url?.split('/').at(-1))
@@ -25,24 +26,20 @@ function lineStats(poId: number, excludeId?: number) {
 	const others = db.purchaseReceipt.filter((item) => item.purchase_order_id === poId && item.id !== excludeId)
 	return po.lines.map((poLine) => {
 		const receivedOther = others.reduce((sum, receipt) => {
-			const line = receipt.lines.find((item) => item.product_id === poLine.product_id)
+			const line = receipt.lines.find((item) => item.variant_id === poLine.variant_id)
 			return sum + (line?.quantity || 0)
 		}, 0)
 		const ordered = Number(poLine.quantity)
-		return { product_id: poLine.product_id, ordered, receivedOther, remaining: Math.max(ordered - receivedOther, 0) }
+		return { variant_id: poLine.variant_id, ordered, receivedOther, remaining: Math.max(ordered - receivedOther, 0) }
 	})
 }
 
 function resolveLine(rawLine: PurchaseReceiptLineRequest, stat: ReturnType<typeof lineStats>[number] | undefined): PurchaseReceiptLine {
-	const product = db.product.find((item) => item.id === rawLine.product_id && !item.deleted_at)
+	const product = variantFields(rawLine.variant_id)
 	const warehouse = rawLine.warehouse_id ? db.warehouse.find((item) => item.id === rawLine.warehouse_id && !item.deleted_at) : undefined
 	return {
-		product_id: rawLine.product_id,
-		product_code: product?.code,
-		product_name: product?.name,
-		brand_code: product?.brand_code,
-		brand_name: product?.brand_name,
-		unit_name: product?.unit_name,
+		variant_id: rawLine.variant_id,
+		...product,
 		ordered_quantity: stat?.ordered ?? 0,
 		received_quantity: stat?.receivedOther ?? 0,
 		remaining_quantity: stat?.remaining ?? 0,
@@ -61,7 +58,7 @@ function resolve(row: PurchaseReceipt): PurchaseReceipt {
 	const lines = row.lines.map((rawLine) =>
 		resolveLine(
 			rawLine,
-			stats.find((stat) => stat.product_id === rawLine.product_id)
+			stats.find((stat) => stat.variant_id === rawLine.variant_id)
 		)
 	)
 	const warehouseNames = [...new Set(lines.filter((line) => line.quantity > 0 && line.warehouse_name).map((line) => line.warehouse_name as string))]
@@ -102,7 +99,7 @@ function validate(body: PurchaseReceiptRequest, excludeId?: number): ReturnType<
 	const seenProducts = new Set<number>()
 	const positiveLines = body.lines.filter((line) => Number(line.quantity) > 0)
 	for (const line of body.lines) {
-		const productId = Number(line.product_id)
+		const productId = Number(line.variant_id)
 		const quantity = Number(line.quantity)
 		if (!Number.isFinite(quantity) || quantity < 0) return invalid('Jumlah tidak boleh negatif', 'lines')
 		if (seenProducts.has(productId)) return invalid('Produk tidak boleh muncul lebih dari satu kali', 'lines')
@@ -110,7 +107,7 @@ function validate(body: PurchaseReceiptRequest, excludeId?: number): ReturnType<
 	}
 	if (!positiveLines.length) return invalid('Minimal satu produk harus diterima', 'lines')
 	for (const line of positiveLines) {
-		const stat = stats.find((item) => item.product_id === Number(line.product_id))
+		const stat = stats.find((item) => item.variant_id === Number(line.variant_id))
 		if (!stat) return invalid('Produk tidak valid', 'lines')
 		if (Number(line.quantity) > stat.remaining) return invalid('Jumlah melebihi sisa yang belum diterima', 'lines')
 		if (!line.warehouse_id || !db.warehouse.find((item) => item.id === Number(line.warehouse_id) && !item.deleted_at))
@@ -141,9 +138,10 @@ function buildRow(
 		created_by: createdBy,
 		created_at: createdAt,
 		lines: po.lines.map((poLine) => {
-			const submitted = body.lines.find((line) => Number(line.product_id) === poLine.product_id && Number(line.quantity) > 0)
+			const submitted = body.lines.find((line) => Number(line.variant_id) === poLine.variant_id && Number(line.quantity) > 0)
 			return {
-				product_id: poLine.product_id,
+				...variantFields(poLine.variant_id),
+				variant_id: poLine.variant_id,
 				ordered_quantity: 0,
 				received_quantity: 0,
 				remaining_quantity: 0,
@@ -182,8 +180,8 @@ export function registerPurchaseReceipt(mock: MockAdapter) {
 		const stats = lineStats(poId)
 		const lines = po.lines.map((poLine) =>
 			resolveLine(
-				{ product_id: poLine.product_id, quantity: 0, warehouse_id: po.warehouse_id },
-				stats.find((stat) => stat.product_id === poLine.product_id)
+				{ variant_id: poLine.variant_id, quantity: 0, warehouse_id: po.warehouse_id },
+				stats.find((stat) => stat.variant_id === poLine.variant_id)
 			)
 		)
 		return [
@@ -270,8 +268,8 @@ export function registerPurchaseReceipt(mock: MockAdapter) {
 		recordUpdate('purchase-receipt', row.id, [
 			...diffFields(before, after, FIELDS),
 			...diffLines(before.lines, after.lines, {
-				id: (line) => line.product_id,
-				name: (line) => line.product_name ?? `Produk #${line.product_id}`,
+				id: (line) => line.variant_id,
+				name: (line) => [line.product_name ?? `Produk #${line.product_id}`, line.variant_label].filter(Boolean).join(' · '),
 				specs: LINE_FIELDS
 			})
 		])

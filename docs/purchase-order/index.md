@@ -47,9 +47,8 @@ client. `pkp_active` dipilih pada level transaksi dan menentukan apakah PPN meng
 
 | Field | Type | Notes |
 |---|---|---|
-| `product_id` | number | required; active product |
-| `product_code` `product_name` | string \| undefined | resolved product display fields |
-| `brand_name` `unit_name` | string \| undefined | resolved product display fields |
+| `variant_id` | number | required; active variant of a live product ([Product variants](../product/index.md#variants-sku)). Unique per order: two sizes of one product are two lines |
+| `product_id` `product_code` `product_name` `sku` `variant_label` `brand_name` `unit_name` | resolved | from the variant; `variant_label` = `Standar` for a product's default variant |
 | `quantity` | number | greater than 0 |
 | `price` | number | greater than 0 |
 | `discount` | number | at least 0; cannot exceed gross amount |
